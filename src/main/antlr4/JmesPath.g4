@@ -67,13 +67,13 @@ current_node : '@' ;
 
 expression_type : '&' expression ;
 
-RAW_STRING : '\'' (ESCAPE '\'' | ~['\\])* '\'' ;
+RAW_STRING : '\'' (RAW_ESC | ~['\\])* '\'' ;
+
+fragment RAW_ESC : '\\' ['\\] ;
 
 literal : '`' value '`' ;
 
 SIGNED_INT : '-'? DIGIT+ ;
-
-fragment ESCAPE : '\\' ;
 
 DIGIT : [0-9] ;
 
