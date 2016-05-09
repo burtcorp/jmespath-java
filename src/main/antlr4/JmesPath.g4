@@ -85,5 +85,3 @@ IDENTIFIER
   ;
 
 fragment UNQUOTED_STRING : LETTER (LETTER | DIGIT | '_')* ;
-
-WS : [ \t\r\n]+ -> skip ;
