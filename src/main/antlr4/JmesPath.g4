@@ -5,11 +5,11 @@ import JSON;
 query : expression EOF ;
 
 expression
-  : expression '.' (IDENTIFIER | multiSelectList | multiSelectHash | functionExpression | '*') # chainExpression
+  : expression '.' (identifier | multiSelectList | multiSelectHash | functionExpression | '*') # chainExpression
   | expression bracketSpecifier # bracketedExpression
   | bracketSpecifier # bracketExpression
   | expression '||' expression # orExpression
-  | IDENTIFIER # identifierExpression
+  | identifier # identifierExpression
   | expression '&&' expression # andExpression
   | expression COMPARATOR expression # comparisonExpression
   | '!' expression # notExpression
@@ -28,7 +28,7 @@ multiSelectList : '[' expression (',' expression)* ']' ;
 
 multiSelectHash : '{' keyvalExpr (',' keyvalExpr)* '}' ;
 
-keyvalExpr : IDENTIFIER ':' expression ;
+keyvalExpr : identifier ':' expression ;
 
 bracketSpecifier
   : '[' (SIGNED_INT | '*' | SLICE_EXPRESSION) ']'
@@ -75,7 +75,7 @@ DIGIT : [0-9] ;
 
 LETTER : [a-zA-Z] ;
 
-IDENTIFIER
+identifier
   : NAME
   | STRING
   ;
