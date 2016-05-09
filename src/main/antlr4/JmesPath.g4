@@ -35,12 +35,12 @@ multi_select_hash : '{' keyval_expr (',' keyval_expr)* '}' ;
 keyval_expr : IDENTIFIER ':' expression ;
 
 bracket_specifier
-  : '[' (NUMBER | '*' | SLICE_EXPRESSION) ']'
+  : '[' (SIGNED_INT | '*' | SLICE_EXPRESSION) ']'
   | '[]'
   | '[' '?' expression ']'
   ;
 
-SLICE_EXPRESSION : NUMBER? ':' NUMBER? (':' NUMBER?)? ;
+SLICE_EXPRESSION : SIGNED_INT? ':' SIGNED_INT? (':' SIGNED_INT?)? ;
 
 COMPARATOR
   : '<'
@@ -71,7 +71,7 @@ RAW_STRING : '\'' (ESCAPE '\'' | ~['\\])* '\'' ;
 
 literal : '`' value '`' ;
 
-NUMBER : '-'? DIGIT+ ;
+SIGNED_INT : '-'? DIGIT+ ;
 
 fragment ESCAPE : '\\' ;
 
