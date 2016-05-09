@@ -47,8 +47,7 @@ COMPARATOR
   | '!='
   ;
 
-// TODO: should be NAME and not IDENTIFIER, but that doesn't work
-functionExpression : IDENTIFIER (noArgs | oneOrMoreArgs) ;
+functionExpression : NAME (noArgs | oneOrMoreArgs) ;
 
 noArgs : '(' ')' ;
 
