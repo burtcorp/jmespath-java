@@ -81,15 +81,9 @@ LETTER : [a-zA-Z] ;
 
 IDENTIFIER
   : UNQUOTED_STRING
-  | QUOTED_STRING
+  | STRING
   ;
 
 fragment UNQUOTED_STRING : LETTER (LETTER | DIGIT | '_')* ;
-
-fragment QUOTED_STRING : '"' (STRING_ESCAPE | ~["\\])* '"' ;
-
-fragment STRING_ESCAPE : ESCAPE (["\\/bfnrt] | 'u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT) ;
-
-fragment HEXDIGIT : DIGIT | [a-fA-F] ;
 
 WS : [ \t\r\n]+ -> skip ;
