@@ -5,28 +5,24 @@ import JSON;
 query : expression EOF ;
 
 expression
-  : expression '.' (IDENTIFIER | multi_select_list | multi_select_hash | function_expression | '*')
-  | expression bracket_specifier
-  | bracket_specifier
-  | expression '||' expression
-  | IDENTIFIER
-  | expression '&&' expression
-  | expression COMPARATOR expression
-  | not_expression
-  | paren_expression
-  | '*'
-  | multi_select_list
-  | multi_select_hash
-  | literal
-  | function_expression
-  | expression '|' expression
-  | RAW_STRING
-  | current_node
+  : expression '.' (IDENTIFIER | multi_select_list | multi_select_hash | function_expression | '*') # chain_expression
+  | expression bracket_specifier # bracketed_expression
+  | bracket_specifier # bracket_expression
+  | expression '||' expression # or_expression
+  | IDENTIFIER # identifier_expression
+  | expression '&&' expression # and_expression
+  | expression COMPARATOR expression # comparison_expression
+  | '!' expression # not_expression
+  | '(' expression ')' # paren_expression
+  | '*' # wildcard_expression
+  | multi_select_list # multi_select_list_expression
+  | multi_select_hash # multi_select_hash_expression
+  | literal # literal_expression
+  | function_expression # function_call_expression
+  | expression '|' expression # pipe_expression
+  | RAW_STRING # raw_string_expression
+  | current_node # current_node_expression
   ;
-
-not_expression : '!' expression ;
-
-paren_expression : '(' expression ')' ;
 
 multi_select_list : '[' expression (',' expression)* ']' ;
 
