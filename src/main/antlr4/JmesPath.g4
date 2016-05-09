@@ -51,7 +51,7 @@ COMPARATOR
   | '!='
   ;
 
-// TODO: should be UNQUOTED_STRING and not IDENTIFIER, but that doesn't work
+// TODO: should be NAME and not IDENTIFIER, but that doesn't work
 function_expression : IDENTIFIER (no_args | one_or_more_args) ;
 
 no_args : '(' ')' ;
@@ -80,8 +80,8 @@ DIGIT : [0-9] ;
 LETTER : [a-zA-Z] ;
 
 IDENTIFIER
-  : UNQUOTED_STRING
+  : NAME
   | STRING
   ;
 
-fragment UNQUOTED_STRING : LETTER (LETTER | DIGIT | '_')* ;
+NAME : LETTER (LETTER | DIGIT | '_')* ;
