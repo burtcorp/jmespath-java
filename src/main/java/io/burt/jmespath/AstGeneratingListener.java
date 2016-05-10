@@ -13,6 +13,7 @@ import io.burt.jmespath.ast.PipeNode;
 import io.burt.jmespath.ast.IndexNode;
 import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.FlattenNode;
+import io.burt.jmespath.ast.SelectionNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -59,7 +60,6 @@ public class AstGeneratingListener extends JmesPathBaseListener {
 
   @Override
   public void exitBracketedExpression(JmesPathParser.BracketedExpressionContext ctx) {
-    JmesPathNode left = stack.pop();
     JmesPathNode right;
     JmesPathParser.BracketSpecifierContext bracketSpecCtx = ctx.bracketSpecifier();
     if (bracketSpecCtx.slice() != null) {
@@ -80,9 +80,13 @@ public class AstGeneratingListener extends JmesPathBaseListener {
     } else if (bracketSpecCtx.SIGNED_INT() != null) {
       int index = Integer.parseInt(bracketSpecCtx.SIGNED_INT().getText());
       right = new IndexNode(index);
+    } else if (bracketSpecCtx.expression() != null) {
+      JmesPathNode test = stack.pop();
+      right = new SelectionNode(test);
     } else {
       right = new FlattenNode();
     }
+    JmesPathNode left = stack.pop();
     stack.push(new ChainNode(left, right));
   }
 

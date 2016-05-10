@@ -12,6 +12,7 @@ import io.burt.jmespath.ast.PipeNode;
 import io.burt.jmespath.ast.IndexNode;
 import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.FlattenNode;
+import io.burt.jmespath.ast.SelectionNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -125,6 +126,13 @@ public class AstGeneratorTest {
   public void bareFlattenExpression() throws IOException {
     Query expected = new Query(new FlattenNode());
     Query actual = AstGenerator.fromString("[]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void selectionExpression() throws IOException {
+    Query expected = new Query(new ChainNode(new FieldNode("foo"), new SelectionNode(new FieldNode("bar"))));
+    Query actual = AstGenerator.fromString("foo[?bar]");
     assertThat(actual, is(expected));
   }
 
