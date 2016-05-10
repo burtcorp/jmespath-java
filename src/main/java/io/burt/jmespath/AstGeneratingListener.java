@@ -17,6 +17,7 @@ import io.burt.jmespath.ast.SelectionNode;
 import io.burt.jmespath.ast.SequenceNode;
 import io.burt.jmespath.ast.ListWildcardNode;
 import io.burt.jmespath.ast.HashWildcardNode;
+import io.burt.jmespath.ast.FunctionCallNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -122,5 +123,21 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   @Override
   public void exitWildcardExpression(JmesPathParser.WildcardExpressionContext ctx) {
     stack.push(new HashWildcardNode());
+  }
+
+  @Override
+  public void exitFunctionExpression(JmesPathParser.FunctionExpressionContext ctx) {
+    JmesPathNode[] args;
+    if (ctx.noArgs() != null) {
+      args = new JmesPathNode[] {};
+    } else {
+      int n = stack.size();
+      args = new JmesPathNode[n];
+      for (int i = n - 1; i >= 0; i--) {
+        args[i] = stack.pop();
+      }
+    }
+    String name = ctx.NAME().getText();
+    stack.push(new FunctionCallNode(name, args));
   }
 }

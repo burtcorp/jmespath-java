@@ -16,6 +16,7 @@ import io.burt.jmespath.ast.SelectionNode;
 import io.burt.jmespath.ast.SequenceNode;
 import io.burt.jmespath.ast.ListWildcardNode;
 import io.burt.jmespath.ast.HashWildcardNode;
+import io.burt.jmespath.ast.FunctionCallNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -164,6 +165,27 @@ public class AstGeneratorTest {
   public void selectionExpression() throws IOException {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new FieldNode("bar"))));
     Query actual = AstGenerator.fromString("foo[?bar]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void simpleFunctionCallExpression() throws IOException {
+    Query expected = new Query(new FunctionCallNode("foo"));
+    Query actual = AstGenerator.fromString("foo()");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void functionCallWithArgumentExpression() throws IOException {
+    Query expected = new Query(new FunctionCallNode("foo", new FieldNode("bar")));
+    Query actual = AstGenerator.fromString("foo(bar)");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void functionCallWithMultipleArgumentsExpression() throws IOException {
+    Query expected = new Query(new FunctionCallNode("foo", new FieldNode("bar"), new FieldNode("baz"), new FieldNode("qux")));
+    Query actual = AstGenerator.fromString("foo(bar, baz, qux)");
     assertThat(actual, is(expected));
   }
 
