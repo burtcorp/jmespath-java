@@ -20,7 +20,9 @@ public class SequenceNode extends JmesPathNode {
       sequenceString.append(", ").append(node);
     }
     sequenceString.delete(0, 2);
-    return String.format("%s(%s)", getClass().getName(), sequenceString);
+    String name = getClass().getName();
+    name = name.substring(name.lastIndexOf(".") + 1);
+    return String.format("%s(%s)", name, sequenceString);
   }
 
   @Override
