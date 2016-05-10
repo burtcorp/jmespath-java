@@ -21,6 +21,8 @@ import io.burt.jmespath.ast.FunctionCallNode;
 import io.burt.jmespath.ast.CurrentNodeNode;
 import io.burt.jmespath.ast.ComparisonNode;
 import io.burt.jmespath.ast.RawStringNode;
+import io.burt.jmespath.ast.AndNode;
+import io.burt.jmespath.ast.OrNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -161,5 +163,19 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   public void exitRawStringExpression(JmesPathParser.RawStringExpressionContext ctx) {
     String quotedString = ctx.RAW_STRING().getText();
     stack.push(new RawStringNode(quotedString.substring(1, quotedString.length() - 1)));
+  }
+
+  @Override
+  public void exitAndExpression(JmesPathParser.AndExpressionContext ctx) {
+    JmesPathNode right = stack.pop();
+    JmesPathNode left = stack.pop();
+    stack.push(new AndNode(left, right));
+  }
+
+  @Override
+  public void exitOrExpression(JmesPathParser.OrExpressionContext ctx) {
+    JmesPathNode right = stack.pop();
+    JmesPathNode left = stack.pop();
+    stack.push(new OrNode(left, right));
   }
 }

@@ -20,6 +20,8 @@ import io.burt.jmespath.ast.FunctionCallNode;
 import io.burt.jmespath.ast.CurrentNodeNode;
 import io.burt.jmespath.ast.ComparisonNode;
 import io.burt.jmespath.ast.RawStringNode;
+import io.burt.jmespath.ast.AndNode;
+import io.burt.jmespath.ast.OrNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -214,9 +216,43 @@ public class AstGeneratorTest {
   }
 
   @Test
-  public void rawStringComparisonStringExpression() throws IOException {
+  public void rawStringComparisonExpression() throws IOException {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new ComparisonNode("!=", new FieldNode("bar"), new RawStringNode("baz")))));
     Query actual = AstGenerator.fromString("foo[?bar != 'baz']");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void andExpression() throws IOException {
+    Query expected = new Query(new AndNode(new FieldNode("foo"), new FieldNode("bar")));
+    Query actual = AstGenerator.fromString("foo && bar");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void orExpression() throws IOException {
+    Query expected = new Query(new OrNode(new FieldNode("foo"), new FieldNode("bar")));
+    Query actual = AstGenerator.fromString("foo || bar");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void booleanComparisonExpression() throws IOException {
+    Query expected = new Query(
+      new SequenceNode(
+        new FieldNode("foo"),
+        new SelectionNode(
+          new OrNode(
+            new AndNode(
+              new ComparisonNode("!=", new FieldNode("bar"), new RawStringNode("baz")),
+              new ComparisonNode("==", new FieldNode("qux"), new RawStringNode("fux"))
+            ),
+            new ComparisonNode(">", new FieldNode("mux"), new RawStringNode("lux"))
+          )
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
     assertThat(actual, is(expected));
   }
 

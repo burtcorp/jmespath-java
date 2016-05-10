@@ -8,10 +8,10 @@ expression
   : expression '.' (identifier | multiSelectList | multiSelectHash | functionExpression | wildcard='*') # chainExpression
   | expression bracketSpecifier # bracketedExpression
   | bracketSpecifier # bracketExpression
+  | expression COMPARATOR expression # comparisonExpression
+  | expression '&&' expression # andExpression
   | expression '||' expression # orExpression
   | identifier # identifierExpression
-  | expression '&&' expression # andExpression
-  | expression COMPARATOR expression # comparisonExpression
   | '!' expression # notExpression
   | '(' expression ')' # parenExpression
   | '*' # wildcardExpression
