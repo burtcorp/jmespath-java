@@ -144,7 +144,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
     if (ctx.noArgs() != null) {
       args = new JmesPathNode[] {};
     } else {
-      int n = stack.size();
+      int n = ctx.oneOrMoreArgs().functionArg().size();
       args = new JmesPathNode[n];
       for (int i = n - 1; i >= 0; i--) {
         args[i] = stack.pop();

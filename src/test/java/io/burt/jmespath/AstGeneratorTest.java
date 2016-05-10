@@ -257,6 +257,27 @@ public class AstGeneratorTest {
   }
 
   @Test
+  public void chainPipeFunctionCallCombination() throws IOException {
+    Query expected = new Query(
+      new PipeNode(
+        new SequenceNode(
+          new ChainNode(
+            new FieldNode("foo"),
+            new FieldNode("bar")
+          ),
+          new FlattenNode()
+        ),
+        new FunctionCallNode(
+          "sort",
+          new CurrentNodeNode()
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("foo.bar[] | sort(@)");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
   public void chainPipeIndexSliceCombination() throws IOException {
     Query expected = new Query(
       new PipeNode(
