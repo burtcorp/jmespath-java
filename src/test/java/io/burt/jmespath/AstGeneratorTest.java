@@ -15,6 +15,7 @@ import io.burt.jmespath.ast.FlattenNode;
 import io.burt.jmespath.ast.SelectionNode;
 import io.burt.jmespath.ast.SequenceNode;
 import io.burt.jmespath.ast.ListWildcardNode;
+import io.burt.jmespath.ast.HashWildcardNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -142,6 +143,20 @@ public class AstGeneratorTest {
   public void bareListWildcardExpression() throws IOException {
     Query expected = new Query(new ListWildcardNode());
     Query actual = AstGenerator.fromString("[*]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void hashWildcardExpression() throws IOException {
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new HashWildcardNode()));
+    Query actual = AstGenerator.fromString("foo.*");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareHashWildcardExpression() throws IOException {
+    Query expected = new Query(new HashWildcardNode());
+    Query actual = AstGenerator.fromString("*");
     assertThat(actual, is(expected));
   }
 

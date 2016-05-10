@@ -16,6 +16,7 @@ import io.burt.jmespath.ast.FlattenNode;
 import io.burt.jmespath.ast.SelectionNode;
 import io.burt.jmespath.ast.SequenceNode;
 import io.burt.jmespath.ast.ListWildcardNode;
+import io.burt.jmespath.ast.HashWildcardNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -54,8 +55,10 @@ public class AstGeneratingListener extends JmesPathBaseListener {
     JmesPathNode right;
     if (ctx.identifier() != null) {
       right = new FieldNode(ctx.identifier().getText());
+    } else if (ctx.wildcard != null) {
+      right = new HashWildcardNode();
     } else {
-      throw new UnsupportedOperationException("ChainNode with non-identifier not supported");
+      throw new UnsupportedOperationException("No support for chain: " + ctx.getText());
     }
     stack.push(new ChainNode(left, right));
   }
@@ -114,5 +117,10 @@ public class AstGeneratingListener extends JmesPathBaseListener {
     JmesPathNode right = new SelectionNode(test);
     JmesPathNode left = stack.pop();
     stack.push(new SequenceNode(left, right));
+  }
+
+  @Override
+  public void exitWildcardExpression(JmesPathParser.WildcardExpressionContext ctx) {
+    stack.push(new HashWildcardNode());
   }
 }

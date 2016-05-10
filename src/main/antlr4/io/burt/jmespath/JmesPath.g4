@@ -5,7 +5,7 @@ import JSON;
 query : expression EOF ;
 
 expression
-  : expression '.' (identifier | multiSelectList | multiSelectHash | functionExpression | '*') # chainExpression
+  : expression '.' (identifier | multiSelectList | multiSelectHash | functionExpression | wildcard='*') # chainExpression
   | expression bracketSpecifier # bracketedExpression
   | bracketSpecifier # bracketExpression
   | expression '||' expression # orExpression
