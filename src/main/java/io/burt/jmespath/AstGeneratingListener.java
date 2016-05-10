@@ -19,6 +19,7 @@ import io.burt.jmespath.ast.ListWildcardNode;
 import io.burt.jmespath.ast.HashWildcardNode;
 import io.burt.jmespath.ast.FunctionCallNode;
 import io.burt.jmespath.ast.CurrentNodeNode;
+import io.burt.jmespath.ast.ComparisonNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -119,6 +120,14 @@ public class AstGeneratingListener extends JmesPathBaseListener {
     JmesPathNode right = new SelectionNode(test);
     JmesPathNode left = stack.pop();
     stack.push(new SequenceNode(left, right));
+  }
+
+  @Override
+  public void exitComparisonExpression(JmesPathParser.ComparisonExpressionContext ctx) {
+    String operator = ctx.COMPARATOR().getText();
+    JmesPathNode right = stack.pop();
+    JmesPathNode left = stack.pop();
+    stack.push(new ComparisonNode(operator, left, right));
   }
 
   @Override

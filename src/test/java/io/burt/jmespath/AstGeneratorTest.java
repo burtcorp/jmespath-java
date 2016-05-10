@@ -18,6 +18,7 @@ import io.burt.jmespath.ast.ListWildcardNode;
 import io.burt.jmespath.ast.HashWildcardNode;
 import io.burt.jmespath.ast.FunctionCallNode;
 import io.burt.jmespath.ast.CurrentNodeNode;
+import io.burt.jmespath.ast.ComparisonNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -173,6 +174,13 @@ public class AstGeneratorTest {
   public void selectionExpression() throws IOException {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new FieldNode("bar"))));
     Query actual = AstGenerator.fromString("foo[?bar]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void selectionWithConditionExpression() throws IOException {
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new ComparisonNode("==", new FieldNode("bar"), new FieldNode("baz")))));
+    Query actual = AstGenerator.fromString("foo[?bar == baz]");
     assertThat(actual, is(expected));
   }
 
