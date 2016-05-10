@@ -23,6 +23,7 @@ import io.burt.jmespath.ast.ComparisonNode;
 import io.burt.jmespath.ast.RawStringNode;
 import io.burt.jmespath.ast.AndNode;
 import io.burt.jmespath.ast.OrNode;
+import io.burt.jmespath.ast.MultiSelectHashNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -177,5 +178,22 @@ public class AstGeneratingListener extends JmesPathBaseListener {
     JmesPathNode right = stack.pop();
     JmesPathNode left = stack.pop();
     stack.push(new OrNode(left, right));
+  }
+
+  @Override
+  public void exitMultiSelectHashExpression(JmesPathParser.MultiSelectHashExpressionContext ctx) {
+    int n = ctx.multiSelectHash().keyvalExpr().size();
+    MultiSelectHashNode.KV[] kvs = new MultiSelectHashNode.KV[n];
+    for (int i = n - 1; i >= 0; i--) {
+      kvs[i] = (MultiSelectHashNode.KV) stack.pop();
+    }
+    stack.push(new MultiSelectHashNode(kvs));
+  }
+
+  @Override
+  public void exitKeyvalExpr(JmesPathParser.KeyvalExprContext ctx) {
+    String key = ctx.identifier().getText();
+    JmesPathNode value = stack.pop();
+    stack.push(new MultiSelectHashNode.KV(key, value));
   }
 }

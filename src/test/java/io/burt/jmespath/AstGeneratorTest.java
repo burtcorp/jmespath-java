@@ -4,8 +4,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import io.burt.jmespath.Query;
+import io.burt.jmespath.ast.JmesPathNode;
 import io.burt.jmespath.ast.FieldNode;
 import io.burt.jmespath.ast.ChainNode;
 import io.burt.jmespath.ast.PipeNode;
@@ -22,6 +24,7 @@ import io.burt.jmespath.ast.ComparisonNode;
 import io.burt.jmespath.ast.RawStringNode;
 import io.burt.jmespath.ast.AndNode;
 import io.burt.jmespath.ast.OrNode;
+import io.burt.jmespath.ast.MultiSelectHashNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -295,6 +298,44 @@ public class AstGeneratorTest {
       )
     );
     Query actual = AstGenerator.fromString("foo[3].bar | baz.qux[2:3]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareMultiSelectHashExpression() throws IOException {
+    Map<String, JmesPathNode> kvs = new HashMap<>();
+    kvs.put("foo", new RawStringNode("bar"));
+    kvs.put("baz", new CurrentNodeNode());
+    Query expected = new Query(new MultiSelectHashNode(kvs));
+    Query actual = AstGenerator.fromString("{foo: 'bar', baz: @}");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void jmesPathSiteExampleExpression() throws IOException {
+    Query expected = new Query(
+      new PipeNode(
+        new PipeNode(
+          new ChainNode(
+            new SequenceNode(
+              new FieldNode("locations"),
+              new SelectionNode(
+                new ComparisonNode("==", new FieldNode("state"), new RawStringNode("WA"))
+              )
+            ),
+            new FieldNode("name")
+          ),
+          new FunctionCallNode("sort", new CurrentNodeNode())
+        ),
+        new MultiSelectHashNode(
+          Collections.singletonMap(
+            "WashingtonCities",
+            (JmesPathNode) new FunctionCallNode("join", new RawStringNode(", "), new CurrentNodeNode())
+          )
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
     assertThat(actual, is(expected));
   }
 }
