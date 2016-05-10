@@ -13,6 +13,7 @@ import io.burt.jmespath.ast.IndexNode;
 import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.FlattenNode;
 import io.burt.jmespath.ast.SelectionNode;
+import io.burt.jmespath.ast.SequenceNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -61,63 +62,63 @@ public class AstGeneratorTest {
 
   @Test
   public void indexExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new IndexNode(3)));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new IndexNode(3)));
     Query actual = AstGenerator.fromString("foo[3]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new SliceNode(3, 4, 1)));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(3, 4, 1)));
     Query actual = AstGenerator.fromString("foo[3:4]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithoutStopExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new SliceNode(3, -1, 1)));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(3, -1, 1)));
     Query actual = AstGenerator.fromString("foo[3:]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithoutStartExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new SliceNode(0, 4, 1)));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(0, 4, 1)));
     Query actual = AstGenerator.fromString("foo[:4]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithStepExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new SliceNode(3, 4, 5)));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(3, 4, 5)));
     Query actual = AstGenerator.fromString("foo[3:4:5]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithStepButWithoutStopExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new SliceNode(3, -1, 5)));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(3, -1, 5)));
     Query actual = AstGenerator.fromString("foo[3::5]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithJustColonExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new SliceNode(0, -1, 1)));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(0, -1, 1)));
     Query actual = AstGenerator.fromString("foo[:]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithJustTwoColonsExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new SliceNode(0, -1, 1)));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(0, -1, 1)));
     Query actual = AstGenerator.fromString("foo[::]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void flattenExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new FlattenNode()));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new FlattenNode()));
     Query actual = AstGenerator.fromString("foo[]");
     assertThat(actual, is(expected));
   }
@@ -131,7 +132,7 @@ public class AstGeneratorTest {
 
   @Test
   public void selectionExpression() throws IOException {
-    Query expected = new Query(new ChainNode(new FieldNode("foo"), new SelectionNode(new FieldNode("bar"))));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new FieldNode("bar"))));
     Query actual = AstGenerator.fromString("foo[?bar]");
     assertThat(actual, is(expected));
   }
@@ -141,10 +142,10 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new PipeNode(
         new ChainNode(
-          new ChainNode(new FieldNode("foo"), new IndexNode(3)),
+          new SequenceNode(new FieldNode("foo"), new IndexNode(3)),
           new FieldNode("bar")
         ),
-        new ChainNode(
+        new SequenceNode(
           new ChainNode(
             new FieldNode("baz"),
             new FieldNode("qux")

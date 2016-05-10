@@ -14,6 +14,7 @@ import io.burt.jmespath.ast.IndexNode;
 import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.FlattenNode;
 import io.burt.jmespath.ast.SelectionNode;
+import io.burt.jmespath.ast.SequenceNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -87,7 +88,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
       right = new FlattenNode();
     }
     JmesPathNode left = stack.pop();
-    stack.push(new ChainNode(left, right));
+    stack.push(new SequenceNode(left, right));
   }
 
   @Override
