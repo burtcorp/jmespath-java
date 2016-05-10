@@ -58,15 +58,17 @@ public class AstGeneratingListener extends JmesPathBaseListener {
 
   @Override
   public void exitChainExpression(JmesPathParser.ChainExpressionContext ctx) {
-    JmesPathNode left = stack.pop();
     JmesPathNode right;
     if (ctx.identifier() != null) {
       right = new FieldNode(ctx.identifier().getText());
     } else if (ctx.wildcard != null) {
       right = new HashWildcardNode();
+    } else if (ctx.multiSelectHash() != null) {
+      right = stack.pop();
     } else {
       throw new UnsupportedOperationException("No support for chain: " + ctx.getText());
     }
+    JmesPathNode left = stack.pop();
     stack.push(new ChainNode(left, right));
   }
 
@@ -181,8 +183,8 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   }
 
   @Override
-  public void exitMultiSelectHashExpression(JmesPathParser.MultiSelectHashExpressionContext ctx) {
-    int n = ctx.multiSelectHash().keyvalExpr().size();
+  public void exitMultiSelectHash(JmesPathParser.MultiSelectHashContext ctx) {
+    int n = ctx.keyvalExpr().size();
     MultiSelectHashNode.KV[] kvs = new MultiSelectHashNode.KV[n];
     for (int i = n - 1; i >= 0; i--) {
       kvs[i] = (MultiSelectHashNode.KV) stack.pop();

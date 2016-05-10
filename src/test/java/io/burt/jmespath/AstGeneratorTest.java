@@ -4,6 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
 
 import io.burt.jmespath.Query;
 import io.burt.jmespath.ast.JmesPathNode;
@@ -307,6 +309,24 @@ public class AstGeneratorTest {
     kvs.put("baz", new CurrentNodeNode());
     Query expected = new Query(new MultiSelectHashNode(kvs));
     Query actual = AstGenerator.fromString("{foo: 'bar', baz: @}");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void chainedMultiSelectHashExpression() {
+    Map<String, JmesPathNode> kvs = new HashMap<>();
+    kvs.put("foo", new RawStringNode("bar"));
+    kvs.put("baz", new CurrentNodeNode());
+    Query expected = new Query(
+      new PipeNode(
+        new FieldNode("hello"),
+        new ChainNode(
+          new FieldNode("world"),
+          new MultiSelectHashNode(kvs)
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("hello | world.{foo: 'bar', baz: @}");
     assertThat(actual, is(expected));
   }
 
