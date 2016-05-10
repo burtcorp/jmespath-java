@@ -27,6 +27,7 @@ import io.burt.jmespath.ast.AndNode;
 import io.burt.jmespath.ast.OrNode;
 import io.burt.jmespath.ast.MultiSelectHashNode;
 import io.burt.jmespath.ast.MultiSelectListNode;
+import io.burt.jmespath.ast.NegationNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -413,6 +414,35 @@ public class AstGeneratorTest {
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareNegatedExpression() {
+    Query expected = new Query(
+      new SequenceNode(
+        new FieldNode("foo"),
+        new NegationNode()
+      )
+    );
+    Query actual = AstGenerator.fromString("!foo");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void negatedSelectionExpression() {
+    Query expected = new Query(
+      new SequenceNode(
+        new FieldNode("foo"),
+        new SelectionNode(
+          new SequenceNode(
+            new FieldNode("bar"),
+            new NegationNode()
+          )
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("foo[?!bar]");
     assertThat(actual, is(expected));
   }
 }
