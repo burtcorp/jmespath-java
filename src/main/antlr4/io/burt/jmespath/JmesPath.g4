@@ -31,9 +31,11 @@ multiSelectHash : '{' keyvalExpr (',' keyvalExpr)* '}' ;
 keyvalExpr : identifier ':' expression ;
 
 bracketSpecifier
-  : '[' (SIGNED_INT | '*' | slice) ']'
-  | '[]'
-  | '[' '?' expression ']'
+  : '[' SIGNED_INT ']' # bracketIndex
+  | '[' '*' ']' # bracketStar
+  | '[' slice ']' # bracketSlice
+  | '[' ']' # bracketFlatten
+  | '[' '?' expression ']' # select
   ;
 
 slice : start=SIGNED_INT? ':' stop=SIGNED_INT? (':' step=SIGNED_INT?)? ;

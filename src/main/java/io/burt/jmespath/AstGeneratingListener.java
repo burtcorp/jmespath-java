@@ -60,39 +60,52 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   }
 
   @Override
-  public void exitBracketedExpression(JmesPathParser.BracketedExpressionContext ctx) {
-    JmesPathNode right;
-    JmesPathParser.BracketSpecifierContext bracketSpecCtx = ctx.bracketSpecifier();
-    if (bracketSpecCtx.slice() != null) {
-      JmesPathParser.SliceContext sliceCtx = ctx.bracketSpecifier().slice();
-      int start = 0;
-      int stop = -1;
-      int step = 1;
-      if (sliceCtx.start != null) {
-        start = Integer.parseInt(sliceCtx.start.getText());
-      }
-      if (sliceCtx.stop != null) {
-        stop = Integer.parseInt(sliceCtx.stop.getText());
-      }
-      if (sliceCtx.step != null) {
-        step = Integer.parseInt(sliceCtx.step.getText());
-      }
-      right = new SliceNode(start, stop, step);
-    } else if (bracketSpecCtx.SIGNED_INT() != null) {
-      int index = Integer.parseInt(bracketSpecCtx.SIGNED_INT().getText());
-      right = new IndexNode(index);
-    } else if (bracketSpecCtx.expression() != null) {
-      JmesPathNode test = stack.pop();
-      right = new SelectionNode(test);
-    } else {
-      right = new FlattenNode();
-    }
+  public void exitBracketIndex(JmesPathParser.BracketIndexContext ctx) {
+    int index = Integer.parseInt(ctx.SIGNED_INT().getText());
+    JmesPathNode right = new IndexNode(index);
     JmesPathNode left = stack.pop();
     stack.push(new SequenceNode(left, right));
   }
 
   @Override
-  public void exitBracketExpression(JmesPathParser.BracketExpressionContext ctx) {
-    stack.push(new FlattenNode());
+  public void exitBracketStar(JmesPathParser.BracketStarContext ctx) {
+  }
+
+  @Override
+  public void exitBracketSlice(JmesPathParser.BracketSliceContext ctx) {
+    int start = 0;
+    int stop = -1;
+    int step = 1;
+    JmesPathParser.SliceContext sliceCtx = ctx.slice();
+    if (sliceCtx.start != null) {
+      start = Integer.parseInt(sliceCtx.start.getText());
+    }
+    if (sliceCtx.stop != null) {
+      stop = Integer.parseInt(sliceCtx.stop.getText());
+    }
+    if (sliceCtx.step != null) {
+      step = Integer.parseInt(sliceCtx.step.getText());
+    }
+    JmesPathNode right = new SliceNode(start, stop, step);
+    JmesPathNode left = stack.pop();
+    stack.push(new SequenceNode(left, right));
+  }
+
+  @Override
+  public void exitBracketFlatten(JmesPathParser.BracketFlattenContext ctx) {
+    if (stack.isEmpty()) {
+      stack.push(new FlattenNode());
+    } else {
+      JmesPathNode left = stack.pop();
+      stack.push(new SequenceNode(left, new FlattenNode()));
+    }
+  }
+
+  @Override
+  public void exitSelect(JmesPathParser.SelectContext ctx) {
+    JmesPathNode test = stack.pop();
+    JmesPathNode right = new SelectionNode(test);
+    JmesPathNode left = stack.pop();
+    stack.push(new SequenceNode(left, right));
   }
 }
