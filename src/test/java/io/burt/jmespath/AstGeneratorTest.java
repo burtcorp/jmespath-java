@@ -3,7 +3,6 @@ package io.burt.jmespath;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 
 import io.burt.jmespath.Query;
@@ -37,210 +36,210 @@ import static org.hamcrest.Matchers.hasEntry;
 
 public class AstGeneratorTest {
   @Test
-  public void identifierExpression() throws IOException {
+  public void identifierExpression() {
     Query expected = new Query(new FieldNode("foo"));
     Query actual = AstGenerator.fromString("foo");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void chainExpression() throws IOException {
+  public void chainExpression() {
     Query expected = new Query(new ChainNode(new FieldNode("foo"), new FieldNode("bar")));
     Query actual = AstGenerator.fromString("foo.bar");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void longChainExpression() throws IOException {
+  public void longChainExpression() {
     Query expected = new Query(new ChainNode(new ChainNode(new ChainNode(new FieldNode("foo"), new FieldNode("bar")), new FieldNode("baz")), new FieldNode("qux")));
     Query actual = AstGenerator.fromString("foo.bar.baz.qux");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void pipeExpression() throws IOException {
+  public void pipeExpression() {
     Query expected = new Query(new PipeNode(new FieldNode("foo"), new FieldNode("bar")));
     Query actual = AstGenerator.fromString("foo | bar");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void longPipeExpression() throws IOException {
+  public void longPipeExpression() {
     Query expected = new Query(new PipeNode(new PipeNode(new PipeNode(new FieldNode("foo"), new FieldNode("bar")), new FieldNode("baz")), new FieldNode("qux")));
     Query actual = AstGenerator.fromString("foo | bar | baz | qux");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void indexExpression() throws IOException {
+  public void indexExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new IndexNode(3)));
     Query actual = AstGenerator.fromString("foo[3]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void sliceExpression() throws IOException {
+  public void sliceExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(3, 4, 1)));
     Query actual = AstGenerator.fromString("foo[3:4]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void sliceWithoutStopExpression() throws IOException {
+  public void sliceWithoutStopExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(3, -1, 1)));
     Query actual = AstGenerator.fromString("foo[3:]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void sliceWithoutStartExpression() throws IOException {
+  public void sliceWithoutStartExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(0, 4, 1)));
     Query actual = AstGenerator.fromString("foo[:4]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void sliceWithStepExpression() throws IOException {
+  public void sliceWithStepExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(3, 4, 5)));
     Query actual = AstGenerator.fromString("foo[3:4:5]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void sliceWithStepButWithoutStopExpression() throws IOException {
+  public void sliceWithStepButWithoutStopExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(3, -1, 5)));
     Query actual = AstGenerator.fromString("foo[3::5]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void sliceWithJustColonExpression() throws IOException {
+  public void sliceWithJustColonExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(0, -1, 1)));
     Query actual = AstGenerator.fromString("foo[:]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void sliceWithJustTwoColonsExpression() throws IOException {
+  public void sliceWithJustTwoColonsExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(0, -1, 1)));
     Query actual = AstGenerator.fromString("foo[::]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void flattenExpression() throws IOException {
+  public void flattenExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new FlattenNode()));
     Query actual = AstGenerator.fromString("foo[]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void bareFlattenExpression() throws IOException {
+  public void bareFlattenExpression() {
     Query expected = new Query(new FlattenNode());
     Query actual = AstGenerator.fromString("[]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void listWildcardExpression() throws IOException {
+  public void listWildcardExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new ListWildcardNode()));
     Query actual = AstGenerator.fromString("foo[*]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void bareListWildcardExpression() throws IOException {
+  public void bareListWildcardExpression() {
     Query expected = new Query(new ListWildcardNode());
     Query actual = AstGenerator.fromString("[*]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void hashWildcardExpression() throws IOException {
+  public void hashWildcardExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new HashWildcardNode()));
     Query actual = AstGenerator.fromString("foo.*");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void bareHashWildcardExpression() throws IOException {
+  public void bareHashWildcardExpression() {
     Query expected = new Query(new HashWildcardNode());
     Query actual = AstGenerator.fromString("*");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void currentNodeExpression() throws IOException {
+  public void currentNodeExpression() {
     Query expected = new Query(new CurrentNodeNode());
     Query actual = AstGenerator.fromString("@");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void selectionExpression() throws IOException {
+  public void selectionExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new FieldNode("bar"))));
     Query actual = AstGenerator.fromString("foo[?bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void selectionWithConditionExpression() throws IOException {
+  public void selectionWithConditionExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new ComparisonNode("==", new FieldNode("bar"), new FieldNode("baz")))));
     Query actual = AstGenerator.fromString("foo[?bar == baz]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void simpleFunctionCallExpression() throws IOException {
+  public void simpleFunctionCallExpression() {
     Query expected = new Query(new FunctionCallNode("foo"));
     Query actual = AstGenerator.fromString("foo()");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void functionCallWithArgumentExpression() throws IOException {
+  public void functionCallWithArgumentExpression() {
     Query expected = new Query(new FunctionCallNode("foo", new FieldNode("bar")));
     Query actual = AstGenerator.fromString("foo(bar)");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void functionCallWithMultipleArgumentsExpression() throws IOException {
+  public void functionCallWithMultipleArgumentsExpression() {
     Query expected = new Query(new FunctionCallNode("foo", new FieldNode("bar"), new FieldNode("baz"), new CurrentNodeNode()));
     Query actual = AstGenerator.fromString("foo(bar, baz, @)");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void bareRawStringExpression() throws IOException {
+  public void bareRawStringExpression() {
     Query expected = new Query(new RawStringNode("foo"));
     Query actual = AstGenerator.fromString("'foo'");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void rawStringComparisonExpression() throws IOException {
+  public void rawStringComparisonExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new ComparisonNode("!=", new FieldNode("bar"), new RawStringNode("baz")))));
     Query actual = AstGenerator.fromString("foo[?bar != 'baz']");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void andExpression() throws IOException {
+  public void andExpression() {
     Query expected = new Query(new AndNode(new FieldNode("foo"), new FieldNode("bar")));
     Query actual = AstGenerator.fromString("foo && bar");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void orExpression() throws IOException {
+  public void orExpression() {
     Query expected = new Query(new OrNode(new FieldNode("foo"), new FieldNode("bar")));
     Query actual = AstGenerator.fromString("foo || bar");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void booleanComparisonExpression() throws IOException {
+  public void booleanComparisonExpression() {
     Query expected = new Query(
       new SequenceNode(
         new FieldNode("foo"),
@@ -260,7 +259,7 @@ public class AstGeneratorTest {
   }
 
   @Test
-  public void chainPipeFunctionCallCombination() throws IOException {
+  public void chainPipeFunctionCallCombination() {
     Query expected = new Query(
       new PipeNode(
         new SequenceNode(
@@ -281,7 +280,7 @@ public class AstGeneratorTest {
   }
 
   @Test
-  public void chainPipeIndexSliceCombination() throws IOException {
+  public void chainPipeIndexSliceCombination() {
     Query expected = new Query(
       new PipeNode(
         new ChainNode(
@@ -302,7 +301,7 @@ public class AstGeneratorTest {
   }
 
   @Test
-  public void bareMultiSelectHashExpression() throws IOException {
+  public void bareMultiSelectHashExpression() {
     Map<String, JmesPathNode> kvs = new HashMap<>();
     kvs.put("foo", new RawStringNode("bar"));
     kvs.put("baz", new CurrentNodeNode());
@@ -312,7 +311,7 @@ public class AstGeneratorTest {
   }
 
   @Test
-  public void jmesPathSiteExampleExpression() throws IOException {
+  public void jmesPathSiteExampleExpression() {
     Query expected = new Query(
       new PipeNode(
         new PipeNode(

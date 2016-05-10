@@ -8,8 +8,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 
 import io.burt.jmespath.JmesPathLexer;
@@ -17,7 +15,7 @@ import io.burt.jmespath.JmesPathParser;
 import io.burt.jmespath.Query;
 
 public class AstGenerator {
-  public static Query fromString(String query) throws IOException {
+  public static Query fromString(String query) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(query), errors), errors);
     ParseTree tree = parser.query();
@@ -31,9 +29,8 @@ public class AstGenerator {
     }
   }
 
-  private static ANTLRInputStream createInput(String query) throws IOException {
-    InputStream is = new ByteArrayInputStream(query.getBytes(Charset.forName("UTF-8")));
-    return new ANTLRInputStream(is);
+  private static ANTLRInputStream createInput(String query) {
+    return new ANTLRInputStream(query);
   }
 
   private static JmesPathLexer createLexer(ANTLRInputStream input, ANTLRErrorListener errorListener) {
