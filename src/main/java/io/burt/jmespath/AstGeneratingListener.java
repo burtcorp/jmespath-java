@@ -18,6 +18,7 @@ import io.burt.jmespath.ast.SequenceNode;
 import io.burt.jmespath.ast.ListWildcardNode;
 import io.burt.jmespath.ast.HashWildcardNode;
 import io.burt.jmespath.ast.FunctionCallNode;
+import io.burt.jmespath.ast.CurrentNodeNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -139,5 +140,10 @@ public class AstGeneratingListener extends JmesPathBaseListener {
     }
     String name = ctx.NAME().getText();
     stack.push(new FunctionCallNode(name, args));
+  }
+
+  @Override
+  public void exitCurrentNode(JmesPathParser.CurrentNodeContext ctx) {
+    stack.push(new CurrentNodeNode());
   }
 }
