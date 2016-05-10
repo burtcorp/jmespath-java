@@ -11,6 +11,7 @@ import io.burt.jmespath.ast.ChainNode;
 import io.burt.jmespath.ast.PipeNode;
 import io.burt.jmespath.ast.IndexNode;
 import io.burt.jmespath.ast.SliceNode;
+import io.burt.jmespath.ast.FlattenNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -110,6 +111,20 @@ public class AstGeneratorTest {
   public void sliceWithJustTwoColonsExpression() throws IOException {
     Query expected = new Query(new ChainNode(new FieldNode("foo"), new SliceNode(0, -1, 1)));
     Query actual = AstGenerator.fromString("foo[::]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void flattenExpression() throws IOException {
+    Query expected = new Query(new ChainNode(new FieldNode("foo"), new FlattenNode()));
+    Query actual = AstGenerator.fromString("foo[]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareFlattenExpression() throws IOException {
+    Query expected = new Query(new FlattenNode());
+    Query actual = AstGenerator.fromString("[]");
     assertThat(actual, is(expected));
   }
 
