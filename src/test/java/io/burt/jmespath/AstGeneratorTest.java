@@ -380,4 +380,39 @@ public class AstGeneratorTest {
     Query actual = AstGenerator.fromString("hello | world.['bar', @]");
     assertThat(actual, is(expected));
   }
+
+  @Test
+  public void parenthesizedPipeExpression() {
+    Query expected = new Query(
+      new PipeNode(
+        new FieldNode("foo"),
+        new PipeNode(
+          new FieldNode("bar"),
+          new FieldNode("baz")
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("foo | (bar | baz)");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void parenthesizedComparisonExpression() {
+    Query expected = new Query(
+      new SequenceNode(
+        new FieldNode("foo"),
+        new SelectionNode(
+          new AndNode(
+            new ComparisonNode("==", new FieldNode("bar"), new RawStringNode("baz")),
+            new OrNode(
+              new ComparisonNode("==", new FieldNode("qux"), new RawStringNode("fux")),
+              new ComparisonNode("==", new FieldNode("mux"), new RawStringNode("lux"))
+            )
+          )
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
+    assertThat(actual, is(expected));
+  }
 }
