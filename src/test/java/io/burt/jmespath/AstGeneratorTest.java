@@ -26,6 +26,7 @@ import io.burt.jmespath.ast.RawStringNode;
 import io.burt.jmespath.ast.AndNode;
 import io.burt.jmespath.ast.OrNode;
 import io.burt.jmespath.ast.MultiSelectHashNode;
+import io.burt.jmespath.ast.MultiSelectListNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -355,6 +356,28 @@ public class AstGeneratorTest {
       )
     );
     Query actual = AstGenerator.fromString("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareMultiSelectListExpression() {
+    Query expected = new Query(new MultiSelectListNode(new RawStringNode("bar"), new CurrentNodeNode()));
+    Query actual = AstGenerator.fromString("['bar', @]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void chainedMultiSelectListExpression() {
+    Query expected = new Query(
+      new PipeNode(
+        new FieldNode("hello"),
+        new ChainNode(
+          new FieldNode("world"),
+          new MultiSelectListNode(new RawStringNode("bar"), new CurrentNodeNode())
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("hello | world.['bar', @]");
     assertThat(actual, is(expected));
   }
 }

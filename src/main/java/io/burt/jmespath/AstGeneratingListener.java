@@ -24,6 +24,7 @@ import io.burt.jmespath.ast.RawStringNode;
 import io.burt.jmespath.ast.AndNode;
 import io.burt.jmespath.ast.OrNode;
 import io.burt.jmespath.ast.MultiSelectHashNode;
+import io.burt.jmespath.ast.MultiSelectListNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -63,7 +64,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
       right = new FieldNode(ctx.identifier().getText());
     } else if (ctx.wildcard != null) {
       right = new HashWildcardNode();
-    } else if (ctx.multiSelectHash() != null) {
+    } else if (ctx.multiSelectHash() != null || ctx.multiSelectList() != null) {
       right = stack.pop();
     } else {
       throw new UnsupportedOperationException("No support for chain: " + ctx.getText());
@@ -197,5 +198,15 @@ public class AstGeneratingListener extends JmesPathBaseListener {
     String key = ctx.identifier().getText();
     JmesPathNode value = stack.pop();
     stack.push(new MultiSelectHashNode.KV(key, value));
+  }
+
+  @Override
+  public void exitMultiSelectList(JmesPathParser.MultiSelectListContext ctx) {
+    int n = ctx.expression().size();
+    JmesPathNode[] elements = new JmesPathNode[n];
+    for (int i = n - 1; i >= 0; i--) {
+      elements[i] = stack.pop();
+    }
+    stack.push(new MultiSelectListNode(elements));
   }
 }
