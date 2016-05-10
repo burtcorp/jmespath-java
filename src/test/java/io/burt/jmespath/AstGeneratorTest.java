@@ -19,6 +19,7 @@ import io.burt.jmespath.ast.HashWildcardNode;
 import io.burt.jmespath.ast.FunctionCallNode;
 import io.burt.jmespath.ast.CurrentNodeNode;
 import io.burt.jmespath.ast.ComparisonNode;
+import io.burt.jmespath.ast.RawStringNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -202,6 +203,20 @@ public class AstGeneratorTest {
   public void functionCallWithMultipleArgumentsExpression() throws IOException {
     Query expected = new Query(new FunctionCallNode("foo", new FieldNode("bar"), new FieldNode("baz"), new CurrentNodeNode()));
     Query actual = AstGenerator.fromString("foo(bar, baz, @)");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareRawStringExpression() throws IOException {
+    Query expected = new Query(new RawStringNode("foo"));
+    Query actual = AstGenerator.fromString("'foo'");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void rawStringComparisonStringExpression() throws IOException {
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new ComparisonNode("!=", new FieldNode("bar"), new RawStringNode("baz")))));
+    Query actual = AstGenerator.fromString("foo[?bar != 'baz']");
     assertThat(actual, is(expected));
   }
 

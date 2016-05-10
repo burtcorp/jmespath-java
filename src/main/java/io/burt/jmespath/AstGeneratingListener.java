@@ -20,6 +20,7 @@ import io.burt.jmespath.ast.HashWildcardNode;
 import io.burt.jmespath.ast.FunctionCallNode;
 import io.burt.jmespath.ast.CurrentNodeNode;
 import io.burt.jmespath.ast.ComparisonNode;
+import io.burt.jmespath.ast.RawStringNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -154,5 +155,11 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   @Override
   public void exitCurrentNode(JmesPathParser.CurrentNodeContext ctx) {
     stack.push(new CurrentNodeNode());
+  }
+
+  @Override
+  public void exitRawStringExpression(JmesPathParser.RawStringExpressionContext ctx) {
+    String quotedString = ctx.RAW_STRING().getText();
+    stack.push(new RawStringNode(quotedString.substring(1, quotedString.length() - 1)));
   }
 }
