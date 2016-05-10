@@ -14,6 +14,7 @@ import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.FlattenNode;
 import io.burt.jmespath.ast.SelectionNode;
 import io.burt.jmespath.ast.SequenceNode;
+import io.burt.jmespath.ast.ListWildcardNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -127,6 +128,20 @@ public class AstGeneratorTest {
   public void bareFlattenExpression() throws IOException {
     Query expected = new Query(new FlattenNode());
     Query actual = AstGenerator.fromString("[]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void listWildcardExpression() throws IOException {
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new ListWildcardNode()));
+    Query actual = AstGenerator.fromString("foo[*]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareListWildcardExpression() throws IOException {
+    Query expected = new Query(new ListWildcardNode());
+    Query actual = AstGenerator.fromString("[*]");
     assertThat(actual, is(expected));
   }
 

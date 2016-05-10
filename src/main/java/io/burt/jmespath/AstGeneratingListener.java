@@ -15,6 +15,7 @@ import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.FlattenNode;
 import io.burt.jmespath.ast.SelectionNode;
 import io.burt.jmespath.ast.SequenceNode;
+import io.burt.jmespath.ast.ListWildcardNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -69,6 +70,12 @@ public class AstGeneratingListener extends JmesPathBaseListener {
 
   @Override
   public void exitBracketStar(JmesPathParser.BracketStarContext ctx) {
+    if (stack.isEmpty()) {
+      stack.push(new ListWildcardNode());
+    } else {
+      JmesPathNode left = stack.pop();
+      stack.push(new SequenceNode(left, new ListWildcardNode()));
+    }
   }
 
   @Override
