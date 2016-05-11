@@ -68,16 +68,12 @@ fragment RAW_ESC : '\\' ['\\] ;
 
 literal : '`' value '`' ;
 
-DIGIT : [0-9] ;
-
-LETTER : [a-zA-Z] ;
-
 identifier
   : NAME
   | STRING
   ;
 
-NAME : LETTER (LETTER | DIGIT | '_')* ;
+NAME : [a-zA-Z] ([a-zA-Z] | [0-9] | '_')* ;
 
 json
   : object
