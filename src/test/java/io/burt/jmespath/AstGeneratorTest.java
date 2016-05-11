@@ -283,6 +283,41 @@ public class AstGeneratorTest {
   }
 
   @Test
+  public void implicitCurrentNodeBeforeListWildcard() {
+    Query expected = new Query(new PipeNode(new FieldNode("foo"), new ListWildcardNode()));
+    Query actual = AstGenerator.fromString("foo | [*]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void implicitCurrentNodeBeforeIndex() {
+    Query expected = new Query(new PipeNode(new FieldNode("foo"), new SequenceNode(new IndexNode(1))));
+    Query actual = AstGenerator.fromString("foo | [1]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void implicitCurrentNodeBeforeSlice() {
+    Query expected = new Query(new PipeNode(new FieldNode("foo"), new SequenceNode(new SliceNode(1, 2, 1))));
+    Query actual = AstGenerator.fromString("foo | [1:2]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void implicitCurrentNodeBeforeFlatten() {
+    Query expected = new Query(new PipeNode(new FieldNode("foo"), new FlattenNode(new CurrentNodeNode())));
+    Query actual = AstGenerator.fromString("foo | []");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void implicitCurrentNodeBeforeSelection() {
+    Query expected = new Query(new PipeNode(new FieldNode("foo"), new SequenceNode(new SelectionNode(new FieldNode("bar")))));
+    Query actual = AstGenerator.fromString("foo | [?bar]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
   public void booleanComparisonExpression() {
     Query expected = new Query(
       new SequenceNode(

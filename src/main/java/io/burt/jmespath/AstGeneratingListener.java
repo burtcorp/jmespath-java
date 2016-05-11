@@ -80,7 +80,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   public void exitBracketIndex(JmesPathParser.BracketIndexContext ctx) {
     int index = Integer.parseInt(ctx.SIGNED_INT().getText());
     JmesPathNode right = new IndexNode(index);
-    if (stack.isEmpty()) {
+    if (ctx.getParent() instanceof JmesPathParser.BracketExpressionContext) {
       stack.push(new SequenceNode(right));
     } else {
       JmesPathNode left = stack.pop();
@@ -90,7 +90,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
 
   @Override
   public void exitBracketStar(JmesPathParser.BracketStarContext ctx) {
-    if (stack.isEmpty()) {
+    if (ctx.getParent() instanceof JmesPathParser.BracketExpressionContext) {
       stack.push(new ListWildcardNode());
     } else {
       JmesPathNode left = stack.pop();
@@ -114,7 +114,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
       step = Integer.parseInt(sliceCtx.step.getText());
     }
     JmesPathNode right = new SliceNode(start, stop, step);
-    if (stack.isEmpty()) {
+    if (ctx.getParent() instanceof JmesPathParser.BracketExpressionContext) {
       stack.push(new SequenceNode(right));
     } else {
      JmesPathNode left = stack.pop();
@@ -124,7 +124,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
 
   @Override
   public void exitBracketFlatten(JmesPathParser.BracketFlattenContext ctx) {
-    if (stack.isEmpty()) {
+    if (ctx.getParent() instanceof JmesPathParser.BracketExpressionContext) {
       stack.push(new FlattenNode(new CurrentNodeNode()));
     } else {
       JmesPathNode expression = stack.pop();
@@ -136,7 +136,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   public void exitSelect(JmesPathParser.SelectContext ctx) {
     JmesPathNode test = stack.pop();
     JmesPathNode right = new SelectionNode(test);
-    if (stack.isEmpty()) {
+    if (ctx.getParent() instanceof JmesPathParser.BracketExpressionContext) {
       stack.push(new SequenceNode(right));
     } else {
       JmesPathNode left = stack.pop();
