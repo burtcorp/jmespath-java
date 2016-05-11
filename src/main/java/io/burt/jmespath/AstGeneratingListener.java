@@ -26,6 +26,7 @@ import io.burt.jmespath.ast.OrNode;
 import io.burt.jmespath.ast.MultiSelectHashNode;
 import io.burt.jmespath.ast.MultiSelectListNode;
 import io.burt.jmespath.ast.NegationNode;
+import io.burt.jmespath.ast.JsonLiteralNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
@@ -215,5 +216,11 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   public void exitNotExpression(JmesPathParser.NotExpressionContext ctx) {
     JmesPathNode expression = stack.pop();
     stack.push(new SequenceNode(expression, new NegationNode()));
+  }
+
+  @Override
+  public void exitLiteral(JmesPathParser.LiteralContext ctx) {
+    String json = ctx.value().getText();
+    stack.push(new JsonLiteralNode(json));
   }
 }

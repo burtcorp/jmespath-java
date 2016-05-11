@@ -28,6 +28,7 @@ import io.burt.jmespath.ast.OrNode;
 import io.burt.jmespath.ast.MultiSelectHashNode;
 import io.burt.jmespath.ast.MultiSelectListNode;
 import io.burt.jmespath.ast.NegationNode;
+import io.burt.jmespath.ast.JsonLiteralNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -443,6 +444,48 @@ public class AstGeneratorTest {
       )
     );
     Query actual = AstGenerator.fromString("foo[?!bar]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralExpression() {
+    Query expected = new Query(new JsonLiteralNode("{}"));
+    Query actual = AstGenerator.fromString("`{}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralArray() {
+    Query expected = new Query(new JsonLiteralNode("[]"));
+    Query actual = AstGenerator.fromString("`[]`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralNumber() {
+    Query expected = new Query(new JsonLiteralNode("3"));
+    Query actual = AstGenerator.fromString("`3`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralString() {
+    Query expected = new Query(new JsonLiteralNode("\"foo\""));
+    Query actual = AstGenerator.fromString("`\"foo\"`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void comparisonWithJsonLiteralExpression() {
+    Query expected = new Query(
+      new SequenceNode(
+        new FieldNode("foo"),
+        new SelectionNode(
+          new ComparisonNode("==", new FieldNode("bar"), new JsonLiteralNode("{\"foo\":\"bar\"}"))
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("foo[?bar == `{\"foo\": \"bar\"}`]");
     assertThat(actual, is(expected));
   }
 }
