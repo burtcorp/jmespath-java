@@ -233,7 +233,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
 
   @Override
   public void exitLiteral(JmesPathParser.LiteralContext ctx) {
-    String json = ctx.value().getText();
+    String json = ctx.jsonValue().getText();
     stack.push(new JsonLiteralNode(json));
   }
 

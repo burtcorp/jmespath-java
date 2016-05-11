@@ -66,7 +66,7 @@ RAW_STRING : '\'' (RAW_ESC | ~['\\])* '\'' ;
 
 fragment RAW_ESC : '\\' ['\\] ;
 
-literal : '`' value '`' ;
+literal : '`' jsonValue '`' ;
 
 identifier
   : NAME
@@ -75,30 +75,25 @@ identifier
 
 NAME : [a-zA-Z_] [a-zA-Z0-9_]* ;
 
-json
-  : object
-  | array
-  ;
-
-object
-  : '{' pair (',' pair)* '}'
+jsonObject
+  : '{' jsonObjectPair (',' jsonObjectPair)* '}'
   | '{' '}'
   ;
 
-pair
-  : STRING ':' value
+jsonObjectPair
+  : STRING ':' jsonValue
   ;
 
-array
-  : '[' value (',' value)* ']'
+jsonArray
+  : '[' jsonValue (',' jsonValue)* ']'
   | '[' ']'
   ;
 
-value
+jsonValue
   : STRING
   | (REAL_OR_EXPONENT_NUMBER | SIGNED_INT)
-  | object
-  | array
+  | jsonObject
+  | jsonArray
   | 'true'
   | 'false'
   | 'null'
