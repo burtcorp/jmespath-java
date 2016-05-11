@@ -29,6 +29,7 @@ import io.burt.jmespath.ast.MultiSelectHashNode;
 import io.burt.jmespath.ast.MultiSelectListNode;
 import io.burt.jmespath.ast.NegationNode;
 import io.burt.jmespath.ast.JsonLiteralNode;
+import io.burt.jmespath.ast.ExpressionReferenceNode;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -212,6 +213,23 @@ public class AstGeneratorTest {
   public void functionCallWithMultipleArgumentsExpression() {
     Query expected = new Query(new FunctionCallNode("foo", new FieldNode("bar"), new FieldNode("baz"), new CurrentNodeNode()));
     Query actual = AstGenerator.fromString("foo(bar, baz, @)");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void functionCallWithExpressionReference() {
+    Query expected = new Query(
+      new FunctionCallNode(
+        "foo",
+        new ExpressionReferenceNode(
+          new ChainNode(
+            new FieldNode("bar"),
+            new FieldNode("bar")
+          )
+        )
+      )
+    );
+    Query actual = AstGenerator.fromString("foo(&bar.bar)");
     assertThat(actual, is(expected));
   }
 
