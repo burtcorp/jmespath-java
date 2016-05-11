@@ -1,17 +1,15 @@
 grammar JmesPath;
 
-import JSON;
-
 query : expression EOF ;
 
 expression
-  : expression '.' (identifier | multiSelectList | multiSelectHash | functionExpression | '*') # chainExpression
+  : expression '.' (identifier | multiSelectList | multiSelectHash | functionExpression | wildcard='*') # chainExpression
   | expression bracketSpecifier # bracketedExpression
   | bracketSpecifier # bracketExpression
+  | expression COMPARATOR expression # comparisonExpression
+  | expression '&&' expression # andExpression
   | expression '||' expression # orExpression
   | identifier # identifierExpression
-  | expression '&&' expression # andExpression
-  | expression COMPARATOR expression # comparisonExpression
   | '!' expression # notExpression
   | '(' expression ')' # parenExpression
   | '*' # wildcardExpression
@@ -31,12 +29,14 @@ multiSelectHash : '{' keyvalExpr (',' keyvalExpr)* '}' ;
 keyvalExpr : identifier ':' expression ;
 
 bracketSpecifier
-  : '[' (SIGNED_INT | '*' | SLICE_EXPRESSION) ']'
-  | '[]'
-  | '[' '?' expression ']'
+  : '[' SIGNED_INT ']' # bracketIndex
+  | '[' '*' ']' # bracketStar
+  | '[' slice ']' # bracketSlice
+  | '[' ']' # bracketFlatten
+  | '[?' expression ']' # select
   ;
 
-SLICE_EXPRESSION : SIGNED_INT? ':' SIGNED_INT? (':' SIGNED_INT?)? ;
+slice : start=SIGNED_INT? ':' stop=SIGNED_INT? (':' step=SIGNED_INT?)? ;
 
 COMPARATOR
   : '<'
@@ -66,17 +66,71 @@ RAW_STRING : '\'' (RAW_ESC | ~['\\])* '\'' ;
 
 fragment RAW_ESC : '\\' ['\\] ;
 
-literal : '`' value '`' ;
-
-SIGNED_INT : '-'? DIGIT+ ;
-
-DIGIT : [0-9] ;
-
-LETTER : [a-zA-Z] ;
+literal : '`' jsonValue '`' ;
 
 identifier
   : NAME
   | STRING
   ;
 
-NAME : LETTER (LETTER | DIGIT | '_')* ;
+NAME : [a-zA-Z_] [a-zA-Z0-9_]* ;
+
+jsonObject
+  : '{' jsonObjectPair (',' jsonObjectPair)* '}'
+  | '{' '}'
+  ;
+
+jsonObjectPair
+  : STRING ':' jsonValue
+  ;
+
+jsonArray
+  : '[' jsonValue (',' jsonValue)* ']'
+  | '[' ']'
+  ;
+
+jsonValue
+  : STRING
+  | (REAL_OR_EXPONENT_NUMBER | SIGNED_INT)
+  | jsonObject
+  | jsonArray
+  | 'true'
+  | 'false'
+  | 'null'
+  ;
+
+STRING
+  : '"' (ESC | ~ ["\\])* '"'
+  ;
+
+fragment ESC
+  : '\\' (["\\/bfnrt] | UNICODE)
+  ;
+
+fragment UNICODE
+  : 'u' HEX HEX HEX HEX
+  ;
+
+fragment HEX
+  : [0-9a-fA-F]
+  ;
+
+REAL_OR_EXPONENT_NUMBER
+  : '-'? INT '.' [0-9] + EXP?
+  | '-'? INT EXP
+  ;
+
+SIGNED_INT : '-'? INT ;
+
+fragment INT
+  : '0'
+  | [1-9] [0-9]*
+  ;
+
+fragment EXP
+  : [Ee] [+\-]? INT
+  ;
+
+WS
+  : [ \t\n\r] + -> skip
+  ;
