@@ -68,8 +68,6 @@ fragment RAW_ESC : '\\' ['\\] ;
 
 literal : '`' value '`' ;
 
-SIGNED_INT : '-'? DIGIT+ ;
-
 DIGIT : [0-9] ;
 
 LETTER : [a-zA-Z] ;
@@ -102,7 +100,7 @@ array
 
 value
   : STRING
-  | NUMBER
+  | (REAL_OR_EXPONENT_NUMBER | SIGNED_INT)
   | object
   | array
   | 'true'
@@ -126,11 +124,12 @@ fragment HEX
   : [0-9a-fA-F]
   ;
 
-NUMBER
+REAL_OR_EXPONENT_NUMBER
   : '-'? INT '.' [0-9] + EXP?
   | '-'? INT EXP
-  | '-'? INT
   ;
+
+SIGNED_INT : '-'? INT ;
 
 fragment INT
   : '0'
