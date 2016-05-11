@@ -2,6 +2,7 @@ package io.burt.jmespath;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.util.Collections;
 import java.util.Map;
@@ -564,6 +565,14 @@ public class AstGeneratorTest {
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar == `{\"foo\": \"bar\"}`]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  @Ignore("Known issue")
+  public void jsonBuiltinsAsNames() {
+    Query expected = new Query(new FieldNode("false"));
+    Query actual = AstGenerator.fromString("false");
     assertThat(actual, is(expected));
   }
 }
