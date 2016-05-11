@@ -238,6 +238,13 @@ public class AstGeneratorTest {
   }
 
   @Test
+  public void chainedFunctionCallExpression() {
+    Query expected = new Query(new ChainNode(new FieldNode("foo"), new FunctionCallNode("to_string", new CurrentNodeNode())));
+    Query actual = AstGenerator.fromString("foo.to_string(@)");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
   public void functionCallWithExpressionReference() {
     Query expected = new Query(
       new FunctionCallNode(

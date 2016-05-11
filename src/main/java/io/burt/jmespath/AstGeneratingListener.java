@@ -67,10 +67,8 @@ public class AstGeneratingListener extends JmesPathBaseListener {
       right = new FieldNode(ctx.identifier().getText());
     } else if (ctx.wildcard != null) {
       right = new HashWildcardNode();
-    } else if (ctx.multiSelectHash() != null || ctx.multiSelectList() != null) {
-      right = stack.pop();
     } else {
-      throw new UnsupportedOperationException("No support for chain: " + ctx.getText());
+      right = stack.pop();
     }
     JmesPathNode left = stack.pop();
     stack.push(new ChainNode(left, right));
