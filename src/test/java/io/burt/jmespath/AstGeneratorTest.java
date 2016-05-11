@@ -555,9 +555,8 @@ public class AstGeneratorTest {
   }
 
   @Test
-  @Ignore
   public void escapedBacktickInJsonString() {
-    Query expected = new Query(new JsonLiteralNode("\"fo`o\""));
+    Query expected = new Query(new JsonLiteralNode("fo`o"));
     Query actual = AstGenerator.fromString("`\"fo\\`o\"`");
     assertThat(actual, is(expected));
   }
