@@ -21,9 +21,7 @@ public class Main {
       Query query = AstGenerator.fromString(args[0]);
       System.err.println(query);
     } catch (ParseException pe) {
-      for (ParseError error : pe) {
-        System.err.printf("%s at line %d:%d\n", error.message(), error.line(), error.position());
-      }
+      System.err.println(pe.getMessage());
       System.exit(1);
     }
   }

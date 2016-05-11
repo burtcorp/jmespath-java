@@ -25,7 +25,7 @@ public class AstGenerator {
       walker.walk(listener, tree);
       return listener.ast();
     } else {
-      throw new ParseException(errors);
+      throw new ParseException(query, errors);
     }
   }
 
