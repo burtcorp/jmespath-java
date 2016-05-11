@@ -555,6 +555,31 @@ public class AstGeneratorTest {
   }
 
   @Test
+  @Ignore
+  public void escapedBacktickInJsonString() {
+    Query expected = new Query(new JsonLiteralNode("\"fo`o\""));
+    Query actual = AstGenerator.fromString("`\"fo\\`o\"`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  @Ignore
+  public void unEscapedBacktickInJsonString() {
+    try {
+      AstGenerator.fromString("`\"fo`o\"`");
+      fail("Expected ParseException to be thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 5"));
+    }
+    try {
+      AstGenerator.fromString("`\"`foo\"`");
+      fail("Expected ParseException to be thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 3"));
+    }
+  }
+
+  @Test
   public void comparisonWithJsonLiteralExpression() {
     Query expected = new Query(
       new SequenceNode(
