@@ -80,8 +80,12 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   public void exitBracketIndex(JmesPathParser.BracketIndexContext ctx) {
     int index = Integer.parseInt(ctx.SIGNED_INT().getText());
     JmesPathNode right = new IndexNode(index);
-    JmesPathNode left = stack.pop();
-    stack.push(new SequenceNode(left, right));
+    if (stack.isEmpty()) {
+      stack.push(new SequenceNode(right));
+    } else {
+      JmesPathNode left = stack.pop();
+      stack.push(new SequenceNode(left, right));
+    }
   }
 
   @Override
@@ -110,8 +114,12 @@ public class AstGeneratingListener extends JmesPathBaseListener {
       step = Integer.parseInt(sliceCtx.step.getText());
     }
     JmesPathNode right = new SliceNode(start, stop, step);
-    JmesPathNode left = stack.pop();
-    stack.push(new SequenceNode(left, right));
+    if (stack.isEmpty()) {
+      stack.push(new SequenceNode(right));
+    } else {
+     JmesPathNode left = stack.pop();
+     stack.push(new SequenceNode(left, right));
+    }
   }
 
   @Override

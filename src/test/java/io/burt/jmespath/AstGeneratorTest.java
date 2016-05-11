@@ -84,6 +84,13 @@ public class AstGeneratorTest {
   }
 
   @Test
+  public void bareIndexExpression() {
+    Query expected = new Query(new SequenceNode(new IndexNode(3)));
+    Query actual = AstGenerator.fromString("[3]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
   public void sliceExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(3, 4, 1)));
     Query actual = AstGenerator.fromString("foo[3:4]");
@@ -129,6 +136,13 @@ public class AstGeneratorTest {
   public void sliceWithJustTwoColonsExpression() {
     Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SliceNode(0, -1, 1)));
     Query actual = AstGenerator.fromString("foo[::]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareSliceExpression() {
+    Query expected = new Query(new SequenceNode(new SliceNode(0, 1, 2)));
+    Query actual = AstGenerator.fromString("[0:1:2]");
     assertThat(actual, is(expected));
   }
 
