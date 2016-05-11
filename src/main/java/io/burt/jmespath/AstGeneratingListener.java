@@ -20,7 +20,7 @@ import io.burt.jmespath.ast.HashWildcardNode;
 import io.burt.jmespath.ast.FunctionCallNode;
 import io.burt.jmespath.ast.CurrentNodeNode;
 import io.burt.jmespath.ast.ComparisonNode;
-import io.burt.jmespath.ast.RawStringNode;
+import io.burt.jmespath.ast.StringNode;
 import io.burt.jmespath.ast.AndNode;
 import io.burt.jmespath.ast.OrNode;
 import io.burt.jmespath.ast.MultiSelectHashNode;
@@ -179,7 +179,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   @Override
   public void exitRawStringExpression(JmesPathParser.RawStringExpressionContext ctx) {
     String quotedString = ctx.RAW_STRING().getText();
-    stack.push(new RawStringNode(quotedString.substring(1, quotedString.length() - 1)));
+    stack.push(new StringNode(quotedString.substring(1, quotedString.length() - 1)));
   }
 
   @Override

@@ -1,9 +1,9 @@
 package io.burt.jmespath.ast;
 
-public class RawStringNode extends JmesPathNode {
+public class StringNode extends JmesPathNode {
   private final String string;
 
-  public RawStringNode(String string) {
+  public StringNode(String string) {
     this.string = string;
   }
 
@@ -13,7 +13,7 @@ public class RawStringNode extends JmesPathNode {
 
   @Override
   public String toString() {
-    return String.format("RawStringNode(%s)", string);
+    return String.format("StringNode(%s)", string);
   }
 
   @Override
@@ -21,10 +21,10 @@ public class RawStringNode extends JmesPathNode {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof RawStringNode)) {
+    if (!(o instanceof StringNode)) {
       return false;
     }
-    RawStringNode other = (RawStringNode) o;
+    StringNode other = (StringNode) o;
     return this.string().equals(other.string());
   }
 

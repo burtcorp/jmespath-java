@@ -23,7 +23,7 @@ import io.burt.jmespath.ast.HashWildcardNode;
 import io.burt.jmespath.ast.FunctionCallNode;
 import io.burt.jmespath.ast.CurrentNodeNode;
 import io.burt.jmespath.ast.ComparisonNode;
-import io.burt.jmespath.ast.RawStringNode;
+import io.burt.jmespath.ast.StringNode;
 import io.burt.jmespath.ast.AndNode;
 import io.burt.jmespath.ast.OrNode;
 import io.burt.jmespath.ast.MultiSelectHashNode;
@@ -264,14 +264,14 @@ public class AstGeneratorTest {
 
   @Test
   public void bareRawStringExpression() {
-    Query expected = new Query(new RawStringNode("foo"));
+    Query expected = new Query(new StringNode("foo"));
     Query actual = AstGenerator.fromString("'foo'");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void rawStringComparisonExpression() {
-    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new ComparisonNode("!=", new FieldNode("bar"), new RawStringNode("baz")))));
+    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new SelectionNode(new ComparisonNode("!=", new FieldNode("bar"), new StringNode("baz")))));
     Query actual = AstGenerator.fromString("foo[?bar != 'baz']");
     assertThat(actual, is(expected));
   }
@@ -333,10 +333,10 @@ public class AstGeneratorTest {
         new SelectionNode(
           new OrNode(
             new AndNode(
-              new ComparisonNode("!=", new FieldNode("bar"), new RawStringNode("baz")),
-              new ComparisonNode("==", new FieldNode("qux"), new RawStringNode("fux"))
+              new ComparisonNode("!=", new FieldNode("bar"), new StringNode("baz")),
+              new ComparisonNode("==", new FieldNode("qux"), new StringNode("fux"))
             ),
-            new ComparisonNode(">", new FieldNode("mux"), new RawStringNode("lux"))
+            new ComparisonNode(">", new FieldNode("mux"), new StringNode("lux"))
           )
         )
       )
@@ -389,7 +389,7 @@ public class AstGeneratorTest {
   @Test
   public void bareMultiSelectHashExpression() {
     Map<String, JmesPathNode> kvs = new HashMap<>();
-    kvs.put("foo", new RawStringNode("bar"));
+    kvs.put("foo", new StringNode("bar"));
     kvs.put("baz", new CurrentNodeNode());
     Query expected = new Query(new MultiSelectHashNode(kvs));
     Query actual = AstGenerator.fromString("{foo: 'bar', baz: @}");
@@ -399,7 +399,7 @@ public class AstGeneratorTest {
   @Test
   public void chainedMultiSelectHashExpression() {
     Map<String, JmesPathNode> kvs = new HashMap<>();
-    kvs.put("foo", new RawStringNode("bar"));
+    kvs.put("foo", new StringNode("bar"));
     kvs.put("baz", new CurrentNodeNode());
     Query expected = new Query(
       new PipeNode(
@@ -423,7 +423,7 @@ public class AstGeneratorTest {
             new SequenceNode(
               new FieldNode("locations"),
               new SelectionNode(
-                new ComparisonNode("==", new FieldNode("state"), new RawStringNode("WA"))
+                new ComparisonNode("==", new FieldNode("state"), new StringNode("WA"))
               )
             ),
             new FieldNode("name")
@@ -433,7 +433,7 @@ public class AstGeneratorTest {
         new MultiSelectHashNode(
           Collections.singletonMap(
             "WashingtonCities",
-            (JmesPathNode) new FunctionCallNode("join", new RawStringNode(", "), new CurrentNodeNode())
+            (JmesPathNode) new FunctionCallNode("join", new StringNode(", "), new CurrentNodeNode())
           )
         )
       )
@@ -444,7 +444,7 @@ public class AstGeneratorTest {
 
   @Test
   public void bareMultiSelectListExpression() {
-    Query expected = new Query(new MultiSelectListNode(new RawStringNode("bar"), new CurrentNodeNode()));
+    Query expected = new Query(new MultiSelectListNode(new StringNode("bar"), new CurrentNodeNode()));
     Query actual = AstGenerator.fromString("['bar', @]");
     assertThat(actual, is(expected));
   }
@@ -456,7 +456,7 @@ public class AstGeneratorTest {
         new FieldNode("hello"),
         new ChainNode(
           new FieldNode("world"),
-          new MultiSelectListNode(new RawStringNode("bar"), new CurrentNodeNode())
+          new MultiSelectListNode(new StringNode("bar"), new CurrentNodeNode())
         )
       )
     );
@@ -486,10 +486,10 @@ public class AstGeneratorTest {
         new FieldNode("foo"),
         new SelectionNode(
           new AndNode(
-            new ComparisonNode("==", new FieldNode("bar"), new RawStringNode("baz")),
+            new ComparisonNode("==", new FieldNode("bar"), new StringNode("baz")),
             new OrNode(
-              new ComparisonNode("==", new FieldNode("qux"), new RawStringNode("fux")),
-              new ComparisonNode("==", new FieldNode("mux"), new RawStringNode("lux"))
+              new ComparisonNode("==", new FieldNode("qux"), new StringNode("fux")),
+              new ComparisonNode("==", new FieldNode("mux"), new StringNode("lux"))
             )
           )
         )
