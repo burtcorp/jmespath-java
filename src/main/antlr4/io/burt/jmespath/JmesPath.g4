@@ -73,7 +73,7 @@ identifier
   | STRING
   ;
 
-NAME : [a-zA-Z] ([a-zA-Z] | [0-9] | '_')* ;
+NAME : [a-zA-Z_] [a-zA-Z0-9_]* ;
 
 json
   : object
