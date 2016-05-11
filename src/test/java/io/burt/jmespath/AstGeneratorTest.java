@@ -148,14 +148,14 @@ public class AstGeneratorTest {
 
   @Test
   public void flattenExpression() {
-    Query expected = new Query(new SequenceNode(new FieldNode("foo"), new FlattenNode()));
+    Query expected = new Query(new FlattenNode(new FieldNode("foo")));
     Query actual = AstGenerator.fromString("foo[]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareFlattenExpression() {
-    Query expected = new Query(new FlattenNode());
+    Query expected = new Query(new FlattenNode(new CurrentNodeNode()));
     Query actual = AstGenerator.fromString("[]");
     assertThat(actual, is(expected));
   }
@@ -306,12 +306,11 @@ public class AstGeneratorTest {
   public void chainPipeFunctionCallCombination() {
     Query expected = new Query(
       new PipeNode(
-        new SequenceNode(
+        new FlattenNode(
           new ChainNode(
             new FieldNode("foo"),
             new FieldNode("bar")
-          ),
-          new FlattenNode()
+          )
         ),
         new FunctionCallNode(
           "sort",
@@ -460,9 +459,8 @@ public class AstGeneratorTest {
   @Test
   public void bareNegatedExpression() {
     Query expected = new Query(
-      new SequenceNode(
-        new FieldNode("foo"),
-        new NegationNode()
+      new NegationNode(
+        new FieldNode("foo")
       )
     );
     Query actual = AstGenerator.fromString("!foo");
@@ -475,9 +473,8 @@ public class AstGeneratorTest {
       new SequenceNode(
         new FieldNode("foo"),
         new SelectionNode(
-          new SequenceNode(
-            new FieldNode("bar"),
-            new NegationNode()
+          new NegationNode(
+            new FieldNode("bar")
           )
         )
       )

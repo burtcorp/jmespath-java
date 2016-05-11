@@ -125,10 +125,10 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   @Override
   public void exitBracketFlatten(JmesPathParser.BracketFlattenContext ctx) {
     if (stack.isEmpty()) {
-      stack.push(new FlattenNode());
+      stack.push(new FlattenNode(new CurrentNodeNode()));
     } else {
-      JmesPathNode left = stack.pop();
-      stack.push(new SequenceNode(left, new FlattenNode()));
+      JmesPathNode expression = stack.pop();
+      stack.push(new FlattenNode(expression));
     }
   }
 
@@ -228,7 +228,7 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   @Override
   public void exitNotExpression(JmesPathParser.NotExpressionContext ctx) {
     JmesPathNode expression = stack.pop();
-    stack.push(new SequenceNode(expression, new NegationNode()));
+    stack.push(new NegationNode(expression));
   }
 
   @Override
