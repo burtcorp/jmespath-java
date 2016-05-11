@@ -33,7 +33,7 @@ bracketSpecifier
   | '[' '*' ']' # bracketStar
   | '[' slice ']' # bracketSlice
   | '[' ']' # bracketFlatten
-  | '[' '?' expression ']' # select
+  | '[?' expression ']' # select
   ;
 
 slice : start=SIGNED_INT? ':' stop=SIGNED_INT? (':' step=SIGNED_INT?)? ;
