@@ -136,8 +136,12 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   public void exitSelect(JmesPathParser.SelectContext ctx) {
     JmesPathNode test = stack.pop();
     JmesPathNode right = new SelectionNode(test);
-    JmesPathNode left = stack.pop();
-    stack.push(new SequenceNode(left, right));
+    if (stack.isEmpty()) {
+      stack.push(new SequenceNode(right));
+    } else {
+      JmesPathNode left = stack.pop();
+      stack.push(new SequenceNode(left, right));
+    }
   }
 
   @Override

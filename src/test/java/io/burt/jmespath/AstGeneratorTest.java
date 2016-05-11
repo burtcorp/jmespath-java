@@ -210,6 +210,13 @@ public class AstGeneratorTest {
   }
 
   @Test
+  public void bareSelection() {
+    Query expected = new Query(new SequenceNode(new SelectionNode(new FieldNode("bar"))));
+    Query actual = AstGenerator.fromString("[?bar]");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
   public void simpleFunctionCallExpression() {
     Query expected = new Query(new FunctionCallNode("foo"));
     Query actual = AstGenerator.fromString("foo()");
