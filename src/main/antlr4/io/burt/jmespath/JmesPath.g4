@@ -47,11 +47,10 @@ COMPARATOR
   | '!='
   ;
 
-functionExpression : NAME (noArgs | oneOrMoreArgs) ;
-
-noArgs : '(' ')' ;
-
-oneOrMoreArgs : '(' functionArg (',' functionArg)* ')' ;
+functionExpression
+  : NAME '(' functionArg (',' functionArg)* ')'
+  | NAME '(' ')'
+  ;
 
 functionArg
   : expression

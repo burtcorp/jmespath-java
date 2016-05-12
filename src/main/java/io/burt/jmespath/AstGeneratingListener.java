@@ -163,17 +163,12 @@ public class AstGeneratingListener extends JmesPathBaseListener {
 
   @Override
   public void exitFunctionExpression(JmesPathParser.FunctionExpressionContext ctx) {
-    JmesPathNode[] args;
-    if (ctx.noArgs() != null) {
-      args = new JmesPathNode[] {};
-    } else {
-      int n = ctx.oneOrMoreArgs().functionArg().size();
-      args = new JmesPathNode[n];
-      for (int i = n - 1; i >= 0; i--) {
-        args[i] = stack.pop();
-      }
-    }
     String name = ctx.NAME().getText();
+    int n = ctx.functionArg().size();
+    JmesPathNode[] args = new JmesPathNode[n];
+    for (int i = n - 1; i >= 0; i--) {
+      args[i] = stack.pop();
+    }
     stack.push(new FunctionCallNode(name, args));
   }
 
