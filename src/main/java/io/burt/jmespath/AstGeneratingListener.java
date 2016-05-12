@@ -1,7 +1,11 @@
 package io.burt.jmespath;
 
 import java.util.Deque;
+import java.util.List;
 import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 import io.burt.jmespath.JmesPathParser;
 import io.burt.jmespath.JmesPathBaseListener;
@@ -31,10 +35,12 @@ import io.burt.jmespath.ast.ExpressionReferenceNode;
 
 public class AstGeneratingListener extends JmesPathBaseListener {
   private final Deque<JmesPathNode> stack;
+  private final Deque<Object> jsonStack;
   private Query query;
 
   public AstGeneratingListener() {
     this.stack = new LinkedList<>();
+    this.jsonStack = new LinkedList<>();
     this.query = null;
   }
 
@@ -230,14 +236,66 @@ public class AstGeneratingListener extends JmesPathBaseListener {
   }
 
   @Override
-  public void exitLiteral(JmesPathParser.LiteralContext ctx) {
-    String json = ctx.jsonValue().getText();
-    stack.push(new JsonLiteralNode(json));
-  }
-
-  @Override
   public void exitExpressionType(JmesPathParser.ExpressionTypeContext ctx) {
     JmesPathNode expression = stack.pop();
     stack.push(new ExpressionReferenceNode(expression));
+  }
+
+  @Override
+  public void exitLiteral(JmesPathParser.LiteralContext ctx) {
+    String raw = ctx.jsonValue().getText();
+    Object tree = jsonStack.pop();
+    stack.push(new JsonLiteralNode(raw, tree));
+  }
+
+  @Override
+  public void exitJsonStringValue(JmesPathParser.JsonStringValueContext ctx) {
+    String str = ctx.STRING().getText();
+    jsonStack.push(str.substring(1, str.length() - 1));
+  }
+
+  @Override
+  public void exitJsonNumberValue(JmesPathParser.JsonNumberValueContext ctx) {
+    jsonStack.push(Double.parseDouble(ctx.getText()));
+  }
+
+  @Override
+  public void exitJsonObjectPair(JmesPathParser.JsonObjectPairContext ctx) {
+    String str = ctx.STRING().getText();
+    jsonStack.push(str.substring(1, str.length() - 1));
+  }
+
+  @Override
+  public void exitJsonObjectValue(JmesPathParser.JsonObjectValueContext ctx) {
+    int n = ctx.jsonObject().jsonObjectPair().size();
+    Map<String, Object> object = new LinkedHashMap<>(n);
+    for (int i = n - 1; i >= 0; i--) {
+      String key = (String) jsonStack.pop();
+      Object value = jsonStack.pop();
+      object.put(key, value);
+    }
+    jsonStack.push(object);
+  }
+
+  @Override
+  public void exitJsonArrayValue(JmesPathParser.JsonArrayValueContext ctx) {
+    int n = ctx.jsonArray().jsonValue().size();
+    List<Object> array = new ArrayList<>(n);
+    for (int i = n - 1; i >= 0; i--) {
+      Object value = jsonStack.pop();
+      array.add(value);
+    }
+    jsonStack.push(array);
+  }
+
+  @Override
+  public void exitJsonConstantValue(JmesPathParser.JsonConstantValueContext ctx) {
+    if (ctx.t != null) {
+      jsonStack.push(true);
+    } else if (ctx.f != null) {
+      jsonStack.push(false);
+    } else {
+      jsonStack.push(null);
+    }
   }
 }

@@ -90,13 +90,11 @@ jsonArray
   ;
 
 jsonValue
-  : STRING
-  | (REAL_OR_EXPONENT_NUMBER | SIGNED_INT)
-  | jsonObject
-  | jsonArray
-  | 'true'
-  | 'false'
-  | 'null'
+  : STRING # jsonStringValue
+  | (REAL_OR_EXPONENT_NUMBER | SIGNED_INT) # jsonNumberValue
+  | jsonObject # jsonObjectValue
+  | jsonArray # jsonArrayValue
+  | (t='true' | f='false' | l='null') # jsonConstantValue
   ;
 
 STRING
