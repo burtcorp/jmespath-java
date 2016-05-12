@@ -93,7 +93,7 @@ jsonValue
   | (REAL_OR_EXPONENT_NUMBER | SIGNED_INT) # jsonNumberValue
   | jsonObject # jsonObjectValue
   | jsonArray # jsonArrayValue
-  | (t='true' | f='false' | l='null') # jsonConstantValue
+  | (t='true' | f='false' | n='null') # jsonConstantValue
   ;
 
 STRING
