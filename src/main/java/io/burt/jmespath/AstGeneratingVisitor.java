@@ -20,7 +20,7 @@ import io.burt.jmespath.ast.FlattenListNode;
 import io.burt.jmespath.ast.FlattenObjectNode;
 import io.burt.jmespath.ast.ForkNode;
 import io.burt.jmespath.ast.FunctionCallNode;
-import io.burt.jmespath.ast.IndexProjectionNode;
+import io.burt.jmespath.ast.IndexNode;
 import io.burt.jmespath.ast.JmesPathNode;
 import io.burt.jmespath.ast.JoinNode;
 import io.burt.jmespath.ast.JsonLiteralNode;
@@ -28,7 +28,7 @@ import io.burt.jmespath.ast.NegateNode;
 import io.burt.jmespath.ast.OrNode;
 import io.burt.jmespath.ast.PropertyProjectionNode;
 import io.burt.jmespath.ast.SelectionNode;
-import io.burt.jmespath.ast.SliceProjectionNode;
+import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.StringNode;
 
 public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
@@ -176,7 +176,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
   @Override
   public JmesPathNode visitBracketIndex(JmesPathParser.BracketIndexContext ctx) {
     int index = Integer.parseInt(ctx.SIGNED_INT().getText());
-    return new IndexProjectionNode(index, currentSource.peek());
+    return new IndexNode(index, currentSource.peek());
   }
 
   @Override
@@ -199,7 +199,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
     if (sliceCtx.step != null) {
       step = Integer.parseInt(sliceCtx.step.getText());
     }
-    return new SliceProjectionNode(start, stop, step, currentSource.peek());
+    return new SliceNode(start, stop, step, currentSource.peek());
   }
 
   @Override

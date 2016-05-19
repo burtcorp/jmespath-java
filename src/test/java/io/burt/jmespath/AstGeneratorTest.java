@@ -20,7 +20,7 @@ import io.burt.jmespath.ast.FlattenListNode;
 import io.burt.jmespath.ast.FlattenObjectNode;
 import io.burt.jmespath.ast.ForkNode;
 import io.burt.jmespath.ast.FunctionCallNode;
-import io.burt.jmespath.ast.IndexProjectionNode;
+import io.burt.jmespath.ast.IndexNode;
 import io.burt.jmespath.ast.JmesPathNode;
 import io.burt.jmespath.ast.JoinNode;
 import io.burt.jmespath.ast.JsonLiteralNode;
@@ -28,7 +28,7 @@ import io.burt.jmespath.ast.NegateNode;
 import io.burt.jmespath.ast.OrNode;
 import io.burt.jmespath.ast.PropertyProjectionNode;
 import io.burt.jmespath.ast.SelectionNode;
-import io.burt.jmespath.ast.SliceProjectionNode;
+import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.StringNode;
 
 import static org.junit.Assert.assertThat;
@@ -135,7 +135,7 @@ public class AstGeneratorTest {
   @Test
   public void indexExpression() {
     Query expected = new Query(
-      new IndexProjectionNode(3,
+      new IndexNode(3,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -145,7 +145,7 @@ public class AstGeneratorTest {
 
   @Test
   public void bareIndexExpression() {
-    Query expected = new Query(new IndexProjectionNode(3, CurrentNode.instance));
+    Query expected = new Query(new IndexNode(3, CurrentNode.instance));
     Query actual = AstGenerator.fromString("[3]");
     assertThat(actual, is(expected));
   }
@@ -153,7 +153,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(3, 4, 1,
+      new SliceNode(3, 4, 1,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -164,7 +164,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithoutStopExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(3, 0, 1,
+      new SliceNode(3, 0, 1,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -175,7 +175,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithoutStartExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(0, 4, 1,
+      new SliceNode(0, 4, 1,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -186,7 +186,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithStepExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(3, 4, 5,
+      new SliceNode(3, 4, 5,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -197,7 +197,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithStepButWithoutStopExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(3, 0, 5,
+      new SliceNode(3, 0, 5,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -208,7 +208,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithJustColonExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(0, 0, 1,
+      new SliceNode(0, 0, 1,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -219,7 +219,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithJustTwoColonsExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(0, 0, 1,
+      new SliceNode(0, 0, 1,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -229,7 +229,7 @@ public class AstGeneratorTest {
 
   @Test
   public void bareSliceExpression() {
-    Query expected = new Query(new SliceProjectionNode(0, 1, 2, CurrentNode.instance));
+    Query expected = new Query(new SliceNode(0, 1, 2, CurrentNode.instance));
     Query actual = AstGenerator.fromString("[0:1:2]");
     assertThat(actual, is(expected));
   }
@@ -473,7 +473,7 @@ public class AstGeneratorTest {
   @Test
   public void indexAfterPipe() {
     Query expected = new Query(
-      new IndexProjectionNode(1,
+      new IndexNode(1,
         new JoinNode(
           new PropertyProjectionNode("foo", CurrentNode.instance)
         )
@@ -486,7 +486,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceAfterPipe() {
     Query expected = new Query(
-      new SliceProjectionNode(1, 2, 1,
+      new SliceNode(1, 2, 1,
         new JoinNode(
           new PropertyProjectionNode("foo", CurrentNode.instance)
         )
@@ -566,12 +566,12 @@ public class AstGeneratorTest {
   @Test
   public void chainPipeIndexSliceCombination() {
     Query expected = new Query(
-      new SliceProjectionNode(2, 3, 1,
+      new SliceNode(2, 3, 1,
         new PropertyProjectionNode("qux",
           new PropertyProjectionNode("baz",
             new JoinNode(
               new PropertyProjectionNode("bar",
-                new IndexProjectionNode(3,
+                new IndexNode(3,
                   new PropertyProjectionNode("foo", CurrentNode.instance)
                 )
               )

@@ -1,11 +1,11 @@
 package io.burt.jmespath.ast;
 
-public class SliceProjectionNode extends JmesPathNode {
+public class SliceNode extends JmesPathNode {
   private final int start;
   private final int stop;
   private final int step;
 
-  public SliceProjectionNode(int start, int stop, int step, JmesPathNode source) {
+  public SliceNode(int start, int stop, int step, JmesPathNode source) {
     super(source);
     this.start = start;
     this.stop = stop;
@@ -31,7 +31,7 @@ public class SliceProjectionNode extends JmesPathNode {
 
   @Override
   protected boolean internalEquals(Object o) {
-    SliceProjectionNode other = (SliceProjectionNode) o;
+    SliceNode other = (SliceNode) o;
     return start() == other.start() && stop() == other.stop() && step() == other.step();
   }
 
