@@ -55,6 +55,7 @@
         <configuration>
           <disableXmlReport>true</disableXmlReport>
           <useFile>false</useFile>
+          <trimStackTrace>false</trimStackTrace>
         </configuration>
       </plugin>
       <plugin>
