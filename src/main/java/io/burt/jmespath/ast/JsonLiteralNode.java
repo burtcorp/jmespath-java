@@ -18,24 +18,18 @@ public class JsonLiteralNode extends JmesPathNode {
   }
 
   @Override
-  public String toString() {
-    return String.format("JsonLiteralNode(%s, %s)", raw, tree);
+  protected String internalToString() {
+    return String.format("%s, %s", raw, tree);
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof JsonLiteralNode)) {
-      return false;
-    }
+  protected boolean internalEquals(Object o) {
     JsonLiteralNode other = (JsonLiteralNode) o;
-    return this.raw().equals(other.raw()) && this.tree().equals(other.tree());
+    return raw().equals(other.raw()) && tree().equals(other.tree());
   }
 
   @Override
-  public int hashCode() {
+  protected int internalHashCode() {
     int h = 1;
     h = h * 31 + raw.hashCode();
     h = h * 31 + tree.hashCode();

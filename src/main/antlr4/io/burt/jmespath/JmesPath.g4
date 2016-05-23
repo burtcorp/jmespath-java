@@ -3,7 +3,7 @@ grammar JmesPath;
 query : expression EOF ;
 
 expression
-  : expression '.' (identifier | multiSelectList | multiSelectHash | functionExpression | wildcard='*') # chainExpression
+  : expression '.' chainedExpression # chainExpression
   | expression bracketSpecifier # bracketedExpression
   | bracketSpecifier # bracketExpression
   | expression COMPARATOR expression # comparisonExpression
@@ -12,7 +12,7 @@ expression
   | identifier # identifierExpression
   | '!' expression # notExpression
   | '(' expression ')' # parenExpression
-  | '*' # wildcardExpression
+  | wildcard # wildcardExpression
   | multiSelectList # multiSelectListExpression
   | multiSelectHash # multiSelectHashExpression
   | literal # literalExpression
@@ -21,6 +21,16 @@ expression
   | RAW_STRING # rawStringExpression
   | currentNode # currentNodeExpression
   ;
+
+chainedExpression
+  : identifier
+  | multiSelectList
+  | multiSelectHash
+  | functionExpression
+  | wildcard
+  ;
+
+wildcard : '*' ;
 
 multiSelectList : '[' expression (',' expression)* ']' ;
 

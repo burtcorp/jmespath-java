@@ -5,7 +5,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -20,10 +19,8 @@ public class AstGenerator {
     JmesPathParser parser = createParser(createLexer(createInput(query), errors), errors);
     ParseTree tree = parser.query();
     if (errors.isEmpty()) {
-      ParseTreeWalker walker = new ParseTreeWalker();
-      AstGeneratingListener listener = new AstGeneratingListener();
-      walker.walk(listener, tree);
-      return listener.ast();
+      AstGeneratingVisitor visitor = new AstGeneratingVisitor(tree);
+      return visitor.query();
     } else {
       throw new ParseException(query, errors);
     }

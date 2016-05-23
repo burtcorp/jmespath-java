@@ -1,7 +1,7 @@
 package io.burt.jmespath.ast;
 
-public class OrNode extends SequenceNode {
-  public OrNode(JmesPathNode... sequence) {
-    super(sequence);
+public class OrNode extends OperatorNode {
+  public OrNode(JmesPathNode left, JmesPathNode right) {
+    super(left, right);
   }
 }

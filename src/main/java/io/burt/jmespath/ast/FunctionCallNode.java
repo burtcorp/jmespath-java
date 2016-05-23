@@ -6,7 +6,8 @@ public class FunctionCallNode extends JmesPathNode {
   private final String name;
   private final JmesPathNode[] args;
 
-  public FunctionCallNode(String name, JmesPathNode... args) {
+  public FunctionCallNode(String name, JmesPathNode[] args, JmesPathNode source) {
+    super(source);
     this.name = name;
     this.args = args;
   }
@@ -20,29 +21,24 @@ public class FunctionCallNode extends JmesPathNode {
   }
 
   @Override
-  public String toString() {
-    StringBuilder argsString = new StringBuilder();
+  protected String internalToString() {
+    StringBuilder str = new StringBuilder(name).append(", [");
     for (JmesPathNode node : args) {
-      argsString.append(", ").append(node);
+      str.append(node).append(", ");
     }
-    argsString.delete(0, 2);
-    return String.format("FunctionCallNode(%s, [%s])", name, argsString);
+    str.delete(str.length() - 2, str.length());
+    str.append("]");
+    return str.toString();
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof FunctionCallNode)) {
-      return false;
-    }
+  protected boolean internalEquals(Object o) {
     FunctionCallNode other = (FunctionCallNode) o;
-    return this.name().equals(other.name()) && Arrays.equals(this.args(), other.args());
+    return name().equals(other.name()) && Arrays.equals(args(), other.args());
   }
 
   @Override
-  public int hashCode() {
+  protected int internalHashCode() {
     int h = 1;
     h = h * 31 + name.hashCode();
     for (JmesPathNode node : args) {

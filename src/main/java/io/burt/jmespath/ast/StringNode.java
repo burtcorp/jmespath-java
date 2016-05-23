@@ -4,6 +4,7 @@ public class StringNode extends JmesPathNode {
   private final String string;
 
   public StringNode(String string) {
+    super();
     this.string = string;
   }
 
@@ -13,25 +14,17 @@ public class StringNode extends JmesPathNode {
 
   @Override
   public String toString() {
-    return String.format("StringNode(%s)", string);
+    return String.format("String(%s)", string);
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof StringNode)) {
-      return false;
-    }
+  protected boolean internalEquals(Object o) {
     StringNode other = (StringNode) o;
-    return this.string().equals(other.string());
+    return string().equals(other.string());
   }
 
   @Override
-  public int hashCode() {
-    int h = 1;
-    h = h * 31 + string.hashCode();
-    return h;
+  protected int internalHashCode() {
+    return string.hashCode();
   }
 }
