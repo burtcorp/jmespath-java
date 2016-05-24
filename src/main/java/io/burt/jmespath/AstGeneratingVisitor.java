@@ -179,7 +179,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
   @Override
   public JmesPathNode visitBracketSlice(JmesPathParser.BracketSliceContext ctx) {
     int start = 0;
-    int stop = -1;
+    int stop = 0;
     int step = 1;
     JmesPathParser.SliceContext sliceCtx = ctx.slice();
     if (sliceCtx.start != null) {

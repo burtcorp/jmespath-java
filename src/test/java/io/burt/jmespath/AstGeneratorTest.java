@@ -164,7 +164,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithoutStopExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(3, -1, 1,
+      new SliceProjectionNode(3, 0, 1,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -197,7 +197,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithStepButWithoutStopExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(3, -1, 5,
+      new SliceProjectionNode(3, 0, 5,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -208,7 +208,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithJustColonExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(0, -1, 1,
+      new SliceProjectionNode(0, 0, 1,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
@@ -219,7 +219,7 @@ public class AstGeneratorTest {
   @Test
   public void sliceWithJustTwoColonsExpression() {
     Query expected = new Query(
-      new SliceProjectionNode(0, -1, 1,
+      new SliceProjectionNode(0, 0, 1,
         new PropertyProjectionNode("foo", CurrentNode.instance)
       )
     );
