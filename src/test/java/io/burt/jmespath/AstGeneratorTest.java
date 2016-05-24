@@ -235,6 +235,12 @@ public class AstGeneratorTest {
   }
 
   @Test
+  @Ignore("Should raise a parse error")
+  public void sliceWithZeroStepSize() {
+    AstGenerator.fromString("[0:1:0]");
+  }
+
+  @Test
   public void flattenExpression() {
     Query expected = new Query(
       new ForkNode(
