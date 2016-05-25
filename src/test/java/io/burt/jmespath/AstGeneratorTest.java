@@ -615,6 +615,17 @@ public class AstGeneratorTest {
   }
 
   @Test
+  public void chainedMultiSelectHashWithQuotedKeys() {
+    CreateObjectNode.Entry[] pieces = new CreateObjectNode.Entry[] {
+      new CreateObjectNode.Entry("foo", new StringNode("bar")),
+      new CreateObjectNode.Entry("baz", CurrentNode.instance)
+    };
+    Query expected = new Query(new CreateObjectNode(pieces, CurrentNode.instance));
+    Query actual = AstGenerator.fromString("{\"foo\": 'bar', \"baz\": @}");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
   public void jmesPathSiteExampleExpression() {
     CreateObjectNode.Entry[] pieces = new CreateObjectNode.Entry[] {
       new CreateObjectNode.Entry("WashingtonCities",

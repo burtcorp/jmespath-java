@@ -46,6 +46,14 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
     return new Query(visit(tree));
   }
 
+  private String identifierToString(JmesPathParser.IdentifierContext ctx) {
+    String id = ctx.getText();
+    if (ctx.STRING() != null) {
+      id = id.substring(1, id.length() - 1);
+    }
+    return id;
+  }
+
   @Override
   public JmesPathNode visitQuery(JmesPathParser.QueryContext ctx) {
     currentSource.push(CurrentNode.instance);
@@ -157,7 +165,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
     CreateObjectNode.Entry[] entries = new CreateObjectNode.Entry[n];
     for (int i = 0; i < n; i++) {
       JmesPathParser.KeyvalExprContext kvCtx = ctx.keyvalExpr(i);
-      String key = kvCtx.identifier().getText();
+      String key = identifierToString(kvCtx.identifier());
       JmesPathNode value = visit(kvCtx.expression());
       entries[i] = new CreateObjectNode.Entry(key, value);
     }
@@ -237,11 +245,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
 
   @Override
   public JmesPathNode visitIdentifier(JmesPathParser.IdentifierContext ctx) {
-    String propertyName = ctx.getText();
-    if (ctx.STRING() != null) {
-      propertyName = propertyName.substring(1, propertyName.length() - 1);
-    }
-    return new PropertyProjectionNode(propertyName, currentSource.peek());
+    return new PropertyProjectionNode(identifierToString(ctx), currentSource.peek());
   }
 
   private static class JsonGeneratingVisitor extends JmesPathBaseVisitor<Object> {
