@@ -20,7 +20,7 @@ abstract class ProjectionNode extends JmesPathNode {
       for (T element : inputs) {
         outputs.add(evaluateOne(adapter, element));
       }
-      return adapter.combine(outputs);
+      return adapter.createArray(outputs, true);
     } else {
       return evaluateOne(adapter, input);
     }

@@ -5,8 +5,6 @@ import java.util.List;
 public interface Adapter<T> {
   List<T> toList(T array);
 
-  T combine(List<T> elements);
-
   boolean isArray(T value);
 
   T getProperty(T value, String name);
@@ -14,6 +12,8 @@ public interface Adapter<T> {
   T getIndex(T value, int index);
 
   T createArray(List<T> elements);
+
+  T createArray(List<T> elements, boolean compact);
 
   T createString(String str);
 }
