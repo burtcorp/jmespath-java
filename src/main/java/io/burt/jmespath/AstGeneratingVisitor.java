@@ -26,7 +26,7 @@ import io.burt.jmespath.ast.JoinNode;
 import io.burt.jmespath.ast.JsonLiteralNode;
 import io.burt.jmespath.ast.NegateNode;
 import io.burt.jmespath.ast.OrNode;
-import io.burt.jmespath.ast.PropertyProjectionNode;
+import io.burt.jmespath.ast.PropertyNode;
 import io.burt.jmespath.ast.SelectionNode;
 import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.StringNode;
@@ -245,7 +245,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
 
   @Override
   public JmesPathNode visitIdentifier(JmesPathParser.IdentifierContext ctx) {
-    return new PropertyProjectionNode(identifierToString(ctx), currentSource.peek());
+    return new PropertyNode(identifierToString(ctx), currentSource.peek());
   }
 
   private static class JsonGeneratingVisitor extends JmesPathBaseVisitor<Object> {

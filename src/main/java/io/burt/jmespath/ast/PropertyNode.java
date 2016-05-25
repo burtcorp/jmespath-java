@@ -2,10 +2,10 @@ package io.burt.jmespath.ast;
 
 import io.burt.jmespath.Adapter;
 
-public class PropertyProjectionNode extends ProjectionNode {
+public class PropertyNode extends ProjectionNode {
   private final String propertyName;
 
-  public PropertyProjectionNode(String propertyName, JmesPathNode source) {
+  public PropertyNode(String propertyName, JmesPathNode source) {
     super(source);
     this.propertyName = propertyName;
   }
@@ -26,7 +26,7 @@ public class PropertyProjectionNode extends ProjectionNode {
 
   @Override
   protected boolean internalEquals(Object o) {
-    PropertyProjectionNode other = (PropertyProjectionNode) o;
+    PropertyNode other = (PropertyNode) o;
     return propertyName().equals(other.propertyName());
   }
 

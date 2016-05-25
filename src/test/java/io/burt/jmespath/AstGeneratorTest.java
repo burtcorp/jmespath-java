@@ -26,7 +26,7 @@ import io.burt.jmespath.ast.JoinNode;
 import io.burt.jmespath.ast.JsonLiteralNode;
 import io.burt.jmespath.ast.NegateNode;
 import io.burt.jmespath.ast.OrNode;
-import io.burt.jmespath.ast.PropertyProjectionNode;
+import io.burt.jmespath.ast.PropertyNode;
 import io.burt.jmespath.ast.SelectionNode;
 import io.burt.jmespath.ast.SliceNode;
 import io.burt.jmespath.ast.StringNode;
@@ -43,14 +43,14 @@ import static org.hamcrest.Matchers.hasEntry;
 public class AstGeneratorTest {
   @Test
   public void identifierExpression() {
-    Query expected = new Query(new PropertyProjectionNode("foo", CurrentNode.instance));
+    Query expected = new Query(new PropertyNode("foo", CurrentNode.instance));
     Query actual = AstGenerator.fromString("foo");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void quotedIdentifierExpression() {
-    Query expected = new Query(new PropertyProjectionNode("foo-bar", CurrentNode.instance));
+    Query expected = new Query(new PropertyNode("foo-bar", CurrentNode.instance));
     Query actual = AstGenerator.fromString("\"foo-bar\"");
     assertThat(actual, is(expected));
   }
@@ -58,8 +58,8 @@ public class AstGeneratorTest {
   @Test
   public void chainExpression() {
     Query expected = new Query(
-      new PropertyProjectionNode("bar",
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+      new PropertyNode("bar",
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo.bar");
@@ -69,10 +69,10 @@ public class AstGeneratorTest {
   @Test
   public void longChainExpression() {
     Query expected = new Query(
-      new PropertyProjectionNode("qux",
-        new PropertyProjectionNode("baz",
-          new PropertyProjectionNode("bar",
-            new PropertyProjectionNode("foo", CurrentNode.instance)
+      new PropertyNode("qux",
+        new PropertyNode("baz",
+          new PropertyNode("bar",
+            new PropertyNode("foo", CurrentNode.instance)
           )
         )
       )
@@ -84,9 +84,9 @@ public class AstGeneratorTest {
   @Test
   public void pipeExpressionWithoutProjection() {
     Query expected = new Query(
-      new PropertyProjectionNode("bar",
+      new PropertyNode("bar",
         new JoinNode(
-          new PropertyProjectionNode("foo", CurrentNode.instance)
+          new PropertyNode("foo", CurrentNode.instance)
         )
       )
     );
@@ -97,13 +97,13 @@ public class AstGeneratorTest {
   @Test
   public void longPipeExpressionWithoutProjection() {
     Query expected = new Query(
-      new PropertyProjectionNode("qux",
+      new PropertyNode("qux",
         new JoinNode(
-          new PropertyProjectionNode("baz",
+          new PropertyNode("baz",
             new JoinNode(
-              new PropertyProjectionNode("bar",
+              new PropertyNode("bar",
                 new JoinNode(
-                  new PropertyProjectionNode("foo", CurrentNode.instance)
+                  new PropertyNode("foo", CurrentNode.instance)
                 )
               )
             )
@@ -118,11 +118,11 @@ public class AstGeneratorTest {
   @Test
   public void pipesAndChains() {
     Query expected = new Query(
-      new PropertyProjectionNode("qux",
-        new PropertyProjectionNode("baz",
+      new PropertyNode("qux",
+        new PropertyNode("baz",
           new JoinNode(
-            new PropertyProjectionNode("bar",
-              new PropertyProjectionNode("foo", CurrentNode.instance)
+            new PropertyNode("bar",
+              new PropertyNode("foo", CurrentNode.instance)
             )
           )
         )
@@ -136,7 +136,7 @@ public class AstGeneratorTest {
   public void indexExpression() {
     Query expected = new Query(
       new IndexNode(3,
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[3]");
@@ -154,7 +154,7 @@ public class AstGeneratorTest {
   public void sliceExpression() {
     Query expected = new Query(
       new SliceNode(3, 4, 1,
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[3:4]");
@@ -165,7 +165,7 @@ public class AstGeneratorTest {
   public void sliceWithoutStopExpression() {
     Query expected = new Query(
       new SliceNode(3, 0, 1,
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[3:]");
@@ -176,7 +176,7 @@ public class AstGeneratorTest {
   public void sliceWithoutStartExpression() {
     Query expected = new Query(
       new SliceNode(0, 4, 1,
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[:4]");
@@ -187,7 +187,7 @@ public class AstGeneratorTest {
   public void sliceWithStepExpression() {
     Query expected = new Query(
       new SliceNode(3, 4, 5,
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[3:4:5]");
@@ -198,7 +198,7 @@ public class AstGeneratorTest {
   public void sliceWithStepButWithoutStopExpression() {
     Query expected = new Query(
       new SliceNode(3, 0, 5,
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[3::5]");
@@ -209,7 +209,7 @@ public class AstGeneratorTest {
   public void sliceWithJustColonExpression() {
     Query expected = new Query(
       new SliceNode(0, 0, 1,
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[:]");
@@ -220,7 +220,7 @@ public class AstGeneratorTest {
   public void sliceWithJustTwoColonsExpression() {
     Query expected = new Query(
       new SliceNode(0, 0, 1,
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[::]");
@@ -245,7 +245,7 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new ForkNode(
         new FlattenListNode(
-          new PropertyProjectionNode("foo", CurrentNode.instance)
+          new PropertyNode("foo", CurrentNode.instance)
         )
       )
     );
@@ -262,7 +262,7 @@ public class AstGeneratorTest {
 
   @Test
   public void listWildcardExpression() {
-    Query expected = new Query(new ForkNode(new PropertyProjectionNode("foo", CurrentNode.instance)));
+    Query expected = new Query(new ForkNode(new PropertyNode("foo", CurrentNode.instance)));
     Query actual = AstGenerator.fromString("foo[*]");
     assertThat(actual, is(expected));
   }
@@ -279,7 +279,7 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new ForkNode(
         new FlattenObjectNode(
-          new PropertyProjectionNode("foo", CurrentNode.instance)
+          new PropertyNode("foo", CurrentNode.instance)
         )
       )
     );
@@ -305,8 +305,8 @@ public class AstGeneratorTest {
   public void selectionExpression() {
     Query expected = new Query(
       new SelectionNode(
-        new PropertyProjectionNode("bar", CurrentNode.instance),
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("bar", CurrentNode.instance),
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar]");
@@ -318,10 +318,10 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new SelectionNode(
         new ComparisonNode("==",
-          new PropertyProjectionNode("bar", CurrentNode.instance),
-          new PropertyProjectionNode("baz", CurrentNode.instance)
+          new PropertyNode("bar", CurrentNode.instance),
+          new PropertyNode("baz", CurrentNode.instance)
         ),
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar == baz]");
@@ -332,7 +332,7 @@ public class AstGeneratorTest {
   public void bareSelection() {
     Query expected = new Query(
       new SelectionNode(
-        new PropertyProjectionNode("bar", CurrentNode.instance),
+        new PropertyNode("bar", CurrentNode.instance),
         CurrentNode.instance
       )
     );
@@ -356,7 +356,7 @@ public class AstGeneratorTest {
   public void functionCallWithArgumentExpression() {
     Query expected = new Query(
       new FunctionCallNode("foo",
-        new JmesPathNode[] {new PropertyProjectionNode("bar", CurrentNode.instance)},
+        new JmesPathNode[] {new PropertyNode("bar", CurrentNode.instance)},
         CurrentNode.instance
       )
     );
@@ -369,8 +369,8 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new FunctionCallNode("foo",
         new JmesPathNode[] {
-          new PropertyProjectionNode("bar", CurrentNode.instance),
-          new PropertyProjectionNode("baz", CurrentNode.instance),
+          new PropertyNode("bar", CurrentNode.instance),
+          new PropertyNode("baz", CurrentNode.instance),
           CurrentNode.instance
         },
         CurrentNode.instance
@@ -385,7 +385,7 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new FunctionCallNode("to_string",
         new JmesPathNode[] {CurrentNode.instance},
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo.to_string(@)");
@@ -399,8 +399,8 @@ public class AstGeneratorTest {
         "foo",
         new JmesPathNode[] {
           new ExpressionReferenceNode(
-            new PropertyProjectionNode("bar",
-              new PropertyProjectionNode("bar", CurrentNode.instance)
+            new PropertyNode("bar",
+              new PropertyNode("bar", CurrentNode.instance)
             )
           )
         },
@@ -423,10 +423,10 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new SelectionNode(
         new ComparisonNode("!=",
-          new PropertyProjectionNode("bar", CurrentNode.instance),
+          new PropertyNode("bar", CurrentNode.instance),
           new StringNode("baz")
         ),
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar != 'baz']");
@@ -437,8 +437,8 @@ public class AstGeneratorTest {
   public void andExpression() {
     Query expected = new Query(
       new AndNode(
-        new PropertyProjectionNode("foo", CurrentNode.instance),
-        new PropertyProjectionNode("bar", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance),
+        new PropertyNode("bar", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo && bar");
@@ -449,8 +449,8 @@ public class AstGeneratorTest {
   public void orExpression() {
     Query expected = new Query(
       new OrNode(
-        new PropertyProjectionNode("foo", CurrentNode.instance),
-        new PropertyProjectionNode("bar", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance),
+        new PropertyNode("bar", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo || bar");
@@ -462,7 +462,7 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new ForkNode(
         new JoinNode(
-          new PropertyProjectionNode("foo", CurrentNode.instance)
+          new PropertyNode("foo", CurrentNode.instance)
         )
       )
     );
@@ -475,7 +475,7 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new IndexNode(1,
         new JoinNode(
-          new PropertyProjectionNode("foo", CurrentNode.instance)
+          new PropertyNode("foo", CurrentNode.instance)
         )
       )
     );
@@ -488,7 +488,7 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new SliceNode(1, 2, 1,
         new JoinNode(
-          new PropertyProjectionNode("foo", CurrentNode.instance)
+          new PropertyNode("foo", CurrentNode.instance)
         )
       )
     );
@@ -502,7 +502,7 @@ public class AstGeneratorTest {
       new ForkNode(
         new FlattenListNode(
           new JoinNode(
-            new PropertyProjectionNode("foo", CurrentNode.instance)
+            new PropertyNode("foo", CurrentNode.instance)
           )
         )
       )
@@ -515,9 +515,9 @@ public class AstGeneratorTest {
   public void selectionAfterPipe() {
     Query expected = new Query(
       new SelectionNode(
-        new PropertyProjectionNode("bar", CurrentNode.instance),
+        new PropertyNode("bar", CurrentNode.instance),
         new JoinNode(
-          new PropertyProjectionNode("foo", CurrentNode.instance)
+          new PropertyNode("foo", CurrentNode.instance)
         )
       )
     );
@@ -531,12 +531,12 @@ public class AstGeneratorTest {
       new SelectionNode(
         new OrNode(
           new AndNode(
-            new ComparisonNode("!=", new PropertyProjectionNode("bar", CurrentNode.instance), new StringNode("baz")),
-            new ComparisonNode("==", new PropertyProjectionNode("qux", CurrentNode.instance), new StringNode("fux"))
+            new ComparisonNode("!=", new PropertyNode("bar", CurrentNode.instance), new StringNode("baz")),
+            new ComparisonNode("==", new PropertyNode("qux", CurrentNode.instance), new StringNode("fux"))
           ),
-          new ComparisonNode(">", new PropertyProjectionNode("mux", CurrentNode.instance), new StringNode("lux"))
+          new ComparisonNode(">", new PropertyNode("mux", CurrentNode.instance), new StringNode("lux"))
         ),
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
@@ -551,8 +551,8 @@ public class AstGeneratorTest {
         new JoinNode(
           new ForkNode(
             new FlattenListNode(
-              new PropertyProjectionNode("bar",
-                new PropertyProjectionNode("foo", CurrentNode.instance)
+              new PropertyNode("bar",
+                new PropertyNode("foo", CurrentNode.instance)
               )
             )
           )
@@ -567,12 +567,12 @@ public class AstGeneratorTest {
   public void chainPipeIndexSliceCombination() {
     Query expected = new Query(
       new SliceNode(2, 3, 1,
-        new PropertyProjectionNode("qux",
-          new PropertyProjectionNode("baz",
+        new PropertyNode("qux",
+          new PropertyNode("baz",
             new JoinNode(
-              new PropertyProjectionNode("bar",
+              new PropertyNode("bar",
                 new IndexNode(3,
-                  new PropertyProjectionNode("foo", CurrentNode.instance)
+                  new PropertyNode("foo", CurrentNode.instance)
                 )
               )
             )
@@ -603,9 +603,9 @@ public class AstGeneratorTest {
     };
     Query expected = new Query(
       new CreateObjectNode(pieces,
-        new PropertyProjectionNode("world",
+        new PropertyNode("world",
           new JoinNode(
-            new PropertyProjectionNode("hello", CurrentNode.instance)
+            new PropertyNode("hello", CurrentNode.instance)
           )
         )
       )
@@ -644,13 +644,13 @@ public class AstGeneratorTest {
           new FunctionCallNode("sort",
             new JmesPathNode[] {CurrentNode.instance},
             new JoinNode(
-              new PropertyProjectionNode("name",
+              new PropertyNode("name",
                 new SelectionNode(
                   new ComparisonNode("==",
-                    new PropertyProjectionNode("state", CurrentNode.instance),
+                    new PropertyNode("state", CurrentNode.instance),
                     new StringNode("WA")
                   ),
-                  new PropertyProjectionNode("locations", CurrentNode.instance)
+                  new PropertyNode("locations", CurrentNode.instance)
                 )
               )
             )
@@ -685,9 +685,9 @@ public class AstGeneratorTest {
           new StringNode("bar"),
           CurrentNode.instance
         },
-        new PropertyProjectionNode("world",
+        new PropertyNode("world",
           new JoinNode(
-            new PropertyProjectionNode("hello", CurrentNode.instance)
+            new PropertyNode("hello", CurrentNode.instance)
           )
         )
       )
@@ -699,11 +699,11 @@ public class AstGeneratorTest {
   @Test
   public void parenthesizedPipeExpression() {
     Query expected = new Query(
-      new PropertyProjectionNode("baz",
+      new PropertyNode("baz",
         new JoinNode(
-          new PropertyProjectionNode("bar",
+          new PropertyNode("bar",
             new JoinNode(
-              new PropertyProjectionNode("foo", CurrentNode.instance)
+              new PropertyNode("foo", CurrentNode.instance)
             )
           )
         )
@@ -719,21 +719,21 @@ public class AstGeneratorTest {
       new SelectionNode(
         new AndNode(
           new ComparisonNode("==",
-            new PropertyProjectionNode("bar", CurrentNode.instance),
+            new PropertyNode("bar", CurrentNode.instance),
             new StringNode("baz")
           ),
           new OrNode(
             new ComparisonNode("==",
-              new PropertyProjectionNode("qux", CurrentNode.instance),
+              new PropertyNode("qux", CurrentNode.instance),
               new StringNode("fux")
             ),
             new ComparisonNode("==",
-              new PropertyProjectionNode("mux", CurrentNode.instance),
+              new PropertyNode("mux", CurrentNode.instance),
               new StringNode("lux")
             )
           )
         ),
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
@@ -744,7 +744,7 @@ public class AstGeneratorTest {
   public void bareNegatedExpression() {
     Query expected = new Query(
       new NegateNode(
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("!foo");
@@ -755,8 +755,8 @@ public class AstGeneratorTest {
   public void negatedSelectionExpression() {
     Query expected = new Query(
       new SelectionNode(
-        new NegateNode(new PropertyProjectionNode("bar", CurrentNode.instance)),
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new NegateNode(new PropertyNode("bar", CurrentNode.instance)),
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[?!bar]");
@@ -828,10 +828,10 @@ public class AstGeneratorTest {
     Query expected = new Query(
       new SelectionNode(
         new ComparisonNode("==",
-          new PropertyProjectionNode("bar", CurrentNode.instance),
+          new PropertyNode("bar", CurrentNode.instance),
           new JsonLiteralNode("{\"foo\":\"bar\"}", Collections.singletonMap("foo", "bar"))
         ),
-        new PropertyProjectionNode("foo", CurrentNode.instance)
+        new PropertyNode("foo", CurrentNode.instance)
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar == `{\"foo\": \"bar\"}`]");
@@ -841,7 +841,7 @@ public class AstGeneratorTest {
   @Test
   @Ignore("Known issue")
   public void jsonBuiltinsAsNames() {
-    Query expected = new Query(new PropertyProjectionNode("false", CurrentNode.instance));
+    Query expected = new Query(new PropertyNode("false", CurrentNode.instance));
     Query actual = AstGenerator.fromString("false");
     assertThat(actual, is(expected));
   }
