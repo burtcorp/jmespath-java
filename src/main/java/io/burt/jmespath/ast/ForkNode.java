@@ -1,8 +1,20 @@
 package io.burt.jmespath.ast;
 
+import io.burt.jmespath.Adapter;
+
 public class ForkNode extends JmesPathNode {
   public ForkNode(JmesPathNode source) {
     super(source);
+  }
+
+  @Override
+  public boolean isProjection() {
+    return true;
+  }
+
+  @Override
+  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
+    return source().evaluate(adapter, currentValue);
   }
 
   @Override

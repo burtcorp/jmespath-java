@@ -1,10 +1,22 @@
 package io.burt.jmespath.ast;
 
+import io.burt.jmespath.Adapter;
+
 public class CurrentNode extends JmesPathNode {
   public static final JmesPathNode instance = new CurrentNode();
 
   private CurrentNode() {
     super(null);
+  }
+
+  @Override
+  public boolean isProjection() {
+    return false;
+  }
+
+  @Override
+  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
+    return currentValue;
   }
 
   @Override

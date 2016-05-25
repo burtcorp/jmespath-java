@@ -1,11 +1,18 @@
 package io.burt.jmespath.ast;
 
-public class PropertyProjectionNode extends JmesPathNode {
+import io.burt.jmespath.Adapter;
+
+public class PropertyProjectionNode extends ProjectionNode {
   private final String propertyName;
 
   public PropertyProjectionNode(String propertyName, JmesPathNode source) {
     super(source);
     this.propertyName = propertyName;
+  }
+
+  @Override
+  public <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
+    return adapter.getProperty(currentValue, propertyName());
   }
 
   protected String propertyName() {

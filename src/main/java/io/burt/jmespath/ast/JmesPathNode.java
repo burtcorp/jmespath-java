@@ -1,5 +1,7 @@
 package io.burt.jmespath.ast;
 
+import io.burt.jmespath.Adapter;
+
 public abstract class JmesPathNode {
   private final JmesPathNode source;
 
@@ -9,6 +11,16 @@ public abstract class JmesPathNode {
 
   public JmesPathNode(JmesPathNode source) {
     this.source = source;
+  }
+
+  public boolean isProjection() {
+    return source().isProjection();
+  }
+
+  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
+    String name = getClass().getName();
+    name = name.substring(name.lastIndexOf(".") + 1);
+    throw new UnsupportedOperationException(String.format("%s#evaluate not implemented", name));
   }
 
   protected JmesPathNode source() {
