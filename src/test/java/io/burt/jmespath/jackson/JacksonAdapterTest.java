@@ -98,8 +98,20 @@ public class JacksonAdapterTest {
   }
 
   @Test
+  public void negativeIndex() {
+    JsonNode result = evaluate("phoneNumbers[-2].type", contact);
+    assertThat(result.asText(), is("office"));
+  }
+
+  @Test
   public void indexNotFound() {
     JsonNode result = evaluate("phoneNumbers[3].type", contact);
+    assertThat(result.isNull(), is(true));
+  }
+
+  @Test
+  public void negativeIndexNotFound() {
+    JsonNode result = evaluate("phoneNumbers[-4].type", contact);
     assertThat(result.isNull(), is(true));
   }
 

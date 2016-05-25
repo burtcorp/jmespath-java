@@ -1,5 +1,7 @@
 package io.burt.jmespath.ast;
 
+import java.util.List;
+
 import io.burt.jmespath.Adapter;
 
 public class IndexNode extends JmesPathNode {
@@ -13,7 +15,16 @@ public class IndexNode extends JmesPathNode {
   @Override
   public <T> T evaluate(Adapter<T> adapter, T currentValue) {
     T input = source().evaluate(adapter, currentValue);
-    return adapter.getIndex(input, index());
+    List<T> elements = adapter.toList(input);
+    int i = index();
+    if (i < 0) {
+      i = elements.size() + i;
+    }
+    if (i >= 0 && i < elements.size()) {
+      return elements.get(i);
+    } else {
+      return adapter.createNull();
+    }
   }
 
   protected int index() {

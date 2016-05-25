@@ -9,7 +9,7 @@ public interface Adapter<T> {
 
   T getProperty(T value, String name);
 
-  T getIndex(T value, int index);
+  T createNull();
 
   T createArray(List<T> elements);
 

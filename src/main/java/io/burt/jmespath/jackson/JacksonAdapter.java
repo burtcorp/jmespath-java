@@ -35,8 +35,8 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
-  public JsonNode getIndex(JsonNode value, int index) {
-    return nodeOrNullNode(value.get(index));
+  public JsonNode createNull() {
+    return nodeOrNullNode(null);
   }
 
   @Override
