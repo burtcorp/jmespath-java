@@ -15,7 +15,7 @@ abstract class ProjectionNode extends JmesPathNode {
   public <T> T evaluate(Adapter<T> adapter, T currentValue) {
     T input = source().evaluate(adapter, currentValue);
     if (isProjection()) {
-      List<T> inputs = adapter.explode(input);
+      List<T> inputs = adapter.toList(input);
       List<T> outputs = new LinkedList<>();
       for (T element : inputs) {
         outputs.add(evaluateOne(adapter, element));

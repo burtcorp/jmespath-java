@@ -12,7 +12,7 @@ import io.burt.jmespath.Adapter;
 
 public class JacksonAdapter implements Adapter<JsonNode> {
   @Override
-  public List<JsonNode> explode(JsonNode value) {
+  public List<JsonNode> toList(JsonNode value) {
     if (value.isArray()) {
       List<JsonNode> elements = new ArrayList<>(value.size());
       for (JsonNode element : value) {
