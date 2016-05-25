@@ -2,10 +2,10 @@ package io.burt.jmespath.ast;
 
 import java.util.Arrays;
 
-public class CreateListNode extends JmesPathNode {
+public class CreateArrayNode extends JmesPathNode {
   private final JmesPathNode[] entries;
 
-  public CreateListNode(JmesPathNode[] entries, JmesPathNode source) {
+  public CreateArrayNode(JmesPathNode[] entries, JmesPathNode source) {
     super(source);
     this.entries = entries;
   }
@@ -27,7 +27,7 @@ public class CreateListNode extends JmesPathNode {
 
   @Override
   protected boolean internalEquals(Object o) {
-    CreateListNode other = (CreateListNode) o;
+    CreateArrayNode other = (CreateArrayNode) o;
     return Arrays.equals(entries(), other.entries());
   }
 

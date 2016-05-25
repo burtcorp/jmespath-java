@@ -12,7 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import io.burt.jmespath.Query;
 import io.burt.jmespath.ast.AndNode;
 import io.burt.jmespath.ast.ComparisonNode;
-import io.burt.jmespath.ast.CreateListNode;
+import io.burt.jmespath.ast.CreateArrayNode;
 import io.burt.jmespath.ast.CreateObjectNode;
 import io.burt.jmespath.ast.CurrentNode;
 import io.burt.jmespath.ast.ExpressionReferenceNode;
@@ -155,7 +155,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
       entries[i] = visit(ctx.expression(i));
     }
     currentSource.pop();
-    return new CreateListNode(entries, currentSource.peek());
+    return new CreateArrayNode(entries, currentSource.peek());
   }
 
   @Override

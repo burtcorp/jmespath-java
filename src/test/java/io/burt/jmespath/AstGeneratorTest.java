@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import io.burt.jmespath.Query;
 import io.burt.jmespath.ast.AndNode;
 import io.burt.jmespath.ast.ComparisonNode;
-import io.burt.jmespath.ast.CreateListNode;
+import io.burt.jmespath.ast.CreateArrayNode;
 import io.burt.jmespath.ast.CreateObjectNode;
 import io.burt.jmespath.ast.CurrentNode;
 import io.burt.jmespath.ast.ExpressionReferenceNode;
@@ -665,7 +665,7 @@ public class AstGeneratorTest {
   @Test
   public void bareMultiSelectListExpression() {
     Query expected = new Query(
-      new CreateListNode(
+      new CreateArrayNode(
         new JmesPathNode[] {
           new StringNode("bar"),
           CurrentNode.instance
@@ -680,7 +680,7 @@ public class AstGeneratorTest {
   @Test
   public void chainedMultiSelectListExpression() {
     Query expected = new Query(
-      new CreateListNode(
+      new CreateArrayNode(
         new JmesPathNode[] {
           new StringNode("bar"),
           CurrentNode.instance
