@@ -12,6 +12,8 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import io.burt.jmespath.AstGenerator;
 import io.burt.jmespath.Query;
@@ -22,16 +24,26 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.contains;
 
 public class JacksonAdapterTest {
+  private final ObjectMapper objectMapper = new ObjectMapper();
+
   private JsonNode contact;
   private JsonNode cloudtrail;
   private JacksonAdapter adapter;
 
   private JsonNode loadExample(String path) {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
       return objectMapper.readTree(getClass().getResource(path));
     } catch (IOException ioe) {
       fail(String.format("Failed parsing %s: \"%s\"", path, ioe.getMessage()));
+      return null;
+    }
+  }
+
+  private JsonNode parseString(String json) {
+    try {
+      return objectMapper.readTree(json);
+    } catch (IOException ioe) {
+      fail(String.format("Failed parsing %s: \"%s\"", json, ioe.getMessage()));
       return null;
     }
   }
@@ -125,5 +137,31 @@ public class JacksonAdapterTest {
   public void literalStringIgnoresSource() {
     JsonNode result = evaluate("Records[*] | 'hello world'", cloudtrail);
     assertThat(result.asText(), is("hello world"));
+  }
+
+  public void flattenStartsProjection() {
+    JsonNode result = evaluate("Records[].userIdentity.userName", cloudtrail);
+    assertThat(toStringList(result), contains("Alice", "Bob", "Alice"));
+  }
+
+  @Test
+  public void flattenArray() {
+    JsonNode nestedArray = parseString("[[0, 1, 2]]");
+    JsonNode result = evaluate("[]", nestedArray);
+    assertThat(result, is(parseString("[0, 1, 2]")));
+  }
+
+  @Test
+  public void flattenMultipleTimes() {
+    JsonNode nestedArray = parseString("[[0, 1, 2]]");
+    JsonNode result = evaluate("[][][][][][][][][][][][][]", nestedArray);
+    assertThat(result, is(parseString("[0, 1, 2]")));
+  }
+
+  @Test
+  public void flattenInProjection() {
+    JsonNode nestedArray = parseString("[{\"a\":[0]},{\"a\":[1]}]");
+    JsonNode result = evaluate("[*].a[]", nestedArray);
+    assertThat(result, is(parseString("[0, 1]")));
   }
 }

@@ -25,6 +25,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
+  public boolean isArray(JsonNode value) {
+    return value.isArray();
+  }
+
+  @Override
   public JsonNode getProperty(JsonNode value, String name) {
     return nodeOrNullNode(value.get(name));
   }
