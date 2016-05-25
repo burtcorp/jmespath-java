@@ -1,10 +1,6 @@
 package io.burt.jmespath.ast;
 
 public class FlattenListNode extends JmesPathNode {
-  public FlattenListNode() {
-    super();
-  }
-
   public FlattenListNode(JmesPathNode source) {
     super(source);
   }
