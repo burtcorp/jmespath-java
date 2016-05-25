@@ -44,6 +44,10 @@ public class JacksonAdapterTest {
     return strings;
   }
 
+  private JsonNode evaluate(String query, JsonNode input) {
+    return AstGenerator.fromString(query).evaluate(adapter, input);
+  }
+
   @Before
   public void beforeEach() {
     contact = loadExample("/contact.json");
@@ -53,85 +57,73 @@ public class JacksonAdapterTest {
 
   @Test
   public void topLevelProperty() {
-    Query query = AstGenerator.fromString("lastName");
-    JsonNode result = query.evaluate(adapter, contact);
+    JsonNode result = evaluate("lastName", contact);
     assertThat(result.asText(), is("Smith"));
   }
 
   @Test
   public void chainProperty() {
-    Query query = AstGenerator.fromString("address.state");
-    JsonNode result = query.evaluate(adapter, contact);
+    JsonNode result = evaluate("address.state", contact);
     assertThat(result.asText(), is("NY"));
   }
 
   @Test
   public void propertyNotFound() {
-    Query query = AstGenerator.fromString("address.country");
-    JsonNode result = query.evaluate(adapter, contact);
+    JsonNode result = evaluate("address.country", contact);
     assertThat(result.isNull(), is(true));
   }
 
   @Test
   public void nullValue() {
-    Query query = AstGenerator.fromString("spouse");
-    JsonNode result = query.evaluate(adapter, contact);
+    JsonNode result = evaluate("spouse", contact);
     assertThat(result.isNull(), is(true));
   }
 
   @Test
   public void index() {
-    Query query = AstGenerator.fromString("phoneNumbers[1].type");
-    JsonNode result = query.evaluate(adapter, contact);
+    JsonNode result = evaluate("phoneNumbers[1].type", contact);
     assertThat(result.asText(), is("office"));
   }
 
   @Test
   public void indexNotFound() {
-    Query query = AstGenerator.fromString("phoneNumbers[3].type");
-    JsonNode result = query.evaluate(adapter, contact);
+    JsonNode result = evaluate("phoneNumbers[3].type", contact);
     assertThat(result.isNull(), is(true));
   }
 
   @Test
   public void projection() {
-    Query query = AstGenerator.fromString("phoneNumbers[*].type");
-    JsonNode result = query.evaluate(adapter, contact);
+    JsonNode result = evaluate("phoneNumbers[*].type", contact);
     assertThat(toStringList(result), contains("home", "office", "mobile"));
   }
 
   @Test
   public void multiStepProjection() {
-    Query query = AstGenerator.fromString("Records[*].userIdentity.userName");
-    JsonNode result = query.evaluate(adapter, cloudtrail);
+    JsonNode result = evaluate("Records[*].userIdentity.userName", cloudtrail);
     assertThat(toStringList(result), contains("Alice", "Bob", "Alice"));
   }
 
   @Test
   public void projectionFiltersNull() {
-    Query query = AstGenerator.fromString("Records[*].requestParameters.keyName");
-    JsonNode result = query.evaluate(adapter, cloudtrail);
+    JsonNode result = evaluate("Records[*].requestParameters.keyName", cloudtrail);
     assertThat(toStringList(result), contains("mykeypair"));
   }
 
   @Test
   public void pipeStopsProjections() {
-    Query query = AstGenerator.fromString("Records[*].userIdentity | [1].userName");
-    JsonNode result = query.evaluate(adapter, cloudtrail);
+    JsonNode result = evaluate("Records[*].userIdentity | [1].userName", cloudtrail);
     assertThat(result.asText(), is("Bob"));
   }
 
   @Test
   public void literalString() {
-    Query query = AstGenerator.fromString("'hello world'");
-    JsonNode result = query.evaluate(adapter, cloudtrail);
+    JsonNode result = evaluate("'hello world'", cloudtrail);
     assertThat(result.asText(), is("hello world"));
   }
 
   @Test
   public void literalStringIgnoresSource() {
-    Query query = AstGenerator.fromString("Records[*] | 'hello world'");
-    JsonNode result = query.evaluate(adapter, cloudtrail);
+    JsonNode result = evaluate("Records[*] | 'hello world'", cloudtrail);
     assertThat(result.asText(), is("hello world"));
   }
 }
