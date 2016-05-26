@@ -16,7 +16,7 @@ import io.burt.jmespath.ast.CreateArrayNode;
 import io.burt.jmespath.ast.CreateObjectNode;
 import io.burt.jmespath.ast.CurrentNode;
 import io.burt.jmespath.ast.ExpressionReferenceNode;
-import io.burt.jmespath.ast.FlattenListNode;
+import io.burt.jmespath.ast.FlattenArrayNode;
 import io.burt.jmespath.ast.FlattenObjectNode;
 import io.burt.jmespath.ast.ForkNode;
 import io.burt.jmespath.ast.FunctionCallNode;
@@ -244,7 +244,7 @@ public class AstGeneratorTest {
   public void flattenExpression() {
     Query expected = new Query(
       new ForkNode(
-        new FlattenListNode(
+        new FlattenArrayNode(
           new PropertyNode("foo", CurrentNode.instance)
         )
       )
@@ -255,7 +255,7 @@ public class AstGeneratorTest {
 
   @Test
   public void bareFlattenExpression() {
-    Query expected = new Query(new ForkNode(new FlattenListNode(CurrentNode.instance)));
+    Query expected = new Query(new ForkNode(new FlattenArrayNode(CurrentNode.instance)));
     Query actual = AstGenerator.fromString("[]");
     assertThat(actual, is(expected));
   }
@@ -500,7 +500,7 @@ public class AstGeneratorTest {
   public void flattenAfterPipe() {
     Query expected = new Query(
       new ForkNode(
-        new FlattenListNode(
+        new FlattenArrayNode(
           new JoinNode(
             new PropertyNode("foo", CurrentNode.instance)
           )
@@ -550,7 +550,7 @@ public class AstGeneratorTest {
         new JmesPathNode[] {CurrentNode.instance},
         new JoinNode(
           new ForkNode(
-            new FlattenListNode(
+            new FlattenArrayNode(
               new PropertyNode("bar",
                 new PropertyNode("foo", CurrentNode.instance)
               )

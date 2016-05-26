@@ -16,7 +16,7 @@ import io.burt.jmespath.ast.CreateArrayNode;
 import io.burt.jmespath.ast.CreateObjectNode;
 import io.burt.jmespath.ast.CurrentNode;
 import io.burt.jmespath.ast.ExpressionReferenceNode;
-import io.burt.jmespath.ast.FlattenListNode;
+import io.burt.jmespath.ast.FlattenArrayNode;
 import io.burt.jmespath.ast.FlattenObjectNode;
 import io.burt.jmespath.ast.ForkNode;
 import io.burt.jmespath.ast.FunctionCallNode;
@@ -204,7 +204,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
 
   @Override
   public JmesPathNode visitBracketFlatten(JmesPathParser.BracketFlattenContext ctx) {
-    return new ForkNode(new FlattenListNode(currentSource.peek()));
+    return new ForkNode(new FlattenArrayNode(currentSource.peek()));
   }
 
   @Override
