@@ -13,16 +13,20 @@ public class FlattenListNode extends JmesPathNode {
   @Override
   public <T> T evaluate(Adapter<T> adapter, T currentValue) {
     T input = source().evaluate(adapter, currentValue);
-    List<T> elements = adapter.toList(input);
-    List<T> flattened = new LinkedList<>();
-    for (T element : elements) {
-      if (adapter.isArray(element)) {
-        flattened.addAll(adapter.toList(element));
-      } else {
-        flattened.add(element);
+    if (!source().isProjection() && !adapter.isArray(input)) {
+      return adapter.createNull();
+    } else {
+      List<T> elements = adapter.toList(input);
+      List<T> flattened = new LinkedList<>();
+      for (T element : elements) {
+        if (adapter.isArray(element)) {
+          flattened.addAll(adapter.toList(element));
+        } else {
+          flattened.add(element);
+        }
       }
+      return adapter.createArray(flattened);
     }
-    return adapter.createArray(flattened);
   }
 
   @Override

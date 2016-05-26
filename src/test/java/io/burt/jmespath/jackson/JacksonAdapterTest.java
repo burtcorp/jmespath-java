@@ -164,6 +164,12 @@ public class JacksonAdapterTest {
   }
 
   @Test
+  public void flattenNonArrayProducesNull() {
+    JsonNode result = evaluate("Records[0].userIdentity.userName[]", cloudtrail);
+    assertThat(result.isNull(), is(true));
+  }
+
+  @Test
   public void flattenMultipleTimes() {
     JsonNode nestedArray = parseString("[[0, 1, 2]]");
     JsonNode result = evaluate("[][][][][][][][][][][][][]", nestedArray);
