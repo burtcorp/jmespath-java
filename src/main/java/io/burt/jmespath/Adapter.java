@@ -7,6 +7,8 @@ public interface Adapter<T> {
 
   boolean isArray(T value);
 
+  boolean isObject(T value);
+
   T getProperty(T value, String name);
 
   T createNull();

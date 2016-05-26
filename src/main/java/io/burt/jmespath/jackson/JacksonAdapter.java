@@ -13,7 +13,7 @@ import io.burt.jmespath.Adapter;
 public class JacksonAdapter implements Adapter<JsonNode> {
   @Override
   public List<JsonNode> toList(JsonNode value) {
-    if (value.isArray()) {
+    if (value.isArray() || value.isObject()) {
       List<JsonNode> elements = new ArrayList<>(value.size());
       for (JsonNode element : value) {
         elements.add(element);
@@ -27,6 +27,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   @Override
   public boolean isArray(JsonNode value) {
     return value.isArray();
+  }
+
+  @Override
+  public boolean isObject(JsonNode value) {
+    return value.isObject();
   }
 
   @Override

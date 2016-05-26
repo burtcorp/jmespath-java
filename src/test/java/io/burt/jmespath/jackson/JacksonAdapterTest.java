@@ -182,4 +182,39 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("[*].a[]", nestedArray);
     assertThat(result, is(parseString("[0, 1]")));
   }
+
+  @Test
+  public void flattenObject() {
+    JsonNode result = evaluate("Records[0].userIdentity.*", cloudtrail);
+    assertThat(toStringList(result), contains("IAMUser", "EX_PRINCIPAL_ID", "arn:aws:iam::123456789012:user/Alice", "EXAMPLE_KEY_ID_ALICE", "123456789012", "Alice"));
+  }
+
+  @Test
+  public void flattenObjectCreatesProjection() {
+    JsonNode result = evaluate("Records[0].responseElements.*.items[].instanceId", cloudtrail);
+    assertThat(toStringList(result), contains("i-ebeaf9e2"));
+  }
+
+  @Test
+  public void multipleFlattenObject() {
+    JsonNode nestedObject = parseString("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
+    JsonNode result = evaluate("*.*", nestedObject);
+    assertThat(result, is(parseString("[[{\"inner\":1}],[{\"inner\":2}]]")));
+  }
+
+  @Test
+  @Ignore("How can the result in the first assertion be the basis for the result in the second?")
+  public void multipleFlattenObjectWithFollowingProjection() {
+    JsonNode nestedObject = parseString("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
+    JsonNode result1 = evaluate("*.*.inner", nestedObject);
+    assertThat(result1, is(parseString("[[1],[2]]")));
+    JsonNode result = evaluate("*.*.inner[]", nestedObject);
+    assertThat(result, is(parseString("[1,2]")));
+  }
+
+  @Test
+  public void flattenNonObjectProducesNull() {
+    JsonNode result = evaluate("Records[0].responseElements.instancesSet.items.*", cloudtrail);
+    assertThat(result.isNull(), is(true));
+  }
 }
