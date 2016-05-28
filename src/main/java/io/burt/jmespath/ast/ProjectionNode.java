@@ -15,10 +15,9 @@ abstract class ProjectionNode extends JmesPathNode {
   public <T> T evaluate(Adapter<T> adapter, T currentValue) {
     T input = source().evaluate(adapter, currentValue);
     if (isProjection()) {
-      List<T> inputs = adapter.toList(input);
       List<T> outputs = new LinkedList<>();
-      for (T element : inputs) {
-        outputs.add(evaluateOne(adapter, element));
+      for (T projectionElement : adapter.toList(input)) {
+        outputs.add(evaluateOne(adapter, projectionElement));
       }
       return adapter.createArray(outputs, true);
     } else {
@@ -26,5 +25,5 @@ abstract class ProjectionNode extends JmesPathNode {
     }
   }
 
-  protected abstract <T> T evaluateOne(Adapter<T> adapter, T currentValue);
+  protected abstract <T> T evaluateOne(Adapter<T> adapter, T projectionElement);
 }

@@ -11,8 +11,8 @@ public class PropertyNode extends ProjectionNode {
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    return adapter.getProperty(currentValue, propertyName());
+  public <T> T evaluateOne(Adapter<T> adapter, T projectionElement) {
+    return adapter.getProperty(projectionElement, propertyName());
   }
 
   protected String propertyName() {
