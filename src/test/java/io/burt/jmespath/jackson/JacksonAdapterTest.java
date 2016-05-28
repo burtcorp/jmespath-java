@@ -217,4 +217,34 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("Records[0].responseElements.instancesSet.items.*", cloudtrail);
     assertThat(result.isNull(), is(true));
   }
+
+  @Test
+  public void slice() {
+    JsonNode result = evaluate("Records[0].userIdentity.* | [1::2]", cloudtrail);
+    assertThat(toStringList(result), contains("EX_PRINCIPAL_ID", "EXAMPLE_KEY_ID_ALICE", "Alice"));
+  }
+
+  @Test
+  public void sliceNotFound() {
+    JsonNode result = evaluate("Records[0].userIdentity.* | [99:]", cloudtrail);
+    assertThat(result.size(), is(0));
+  }
+
+  @Test
+  public void negativeStopSlice() {
+    JsonNode result = evaluate("Records[0].userIdentity.* | [:-2]", cloudtrail);
+    assertThat(toStringList(result), contains("IAMUser", "EX_PRINCIPAL_ID", "arn:aws:iam::123456789012:user/Alice", "EXAMPLE_KEY_ID_ALICE"));
+  }
+
+  @Test
+  public void negativeStartSlice() {
+    JsonNode result = evaluate("Records[0].userIdentity.* | [-3:4]", cloudtrail);
+    assertThat(toStringList(result), contains("EXAMPLE_KEY_ID_ALICE"));
+  }
+
+  @Test
+  public void negativeStepSliceReversesOrder() {
+    JsonNode result = evaluate("Records[0].userIdentity.* | [::-2]", cloudtrail);
+    assertThat(toStringList(result), contains("Alice", "EXAMPLE_KEY_ID_ALICE", "EX_PRINCIPAL_ID"));
+  }
 }

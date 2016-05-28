@@ -1,6 +1,11 @@
 package io.burt.jmespath.ast;
 
-public class SliceNode extends JmesPathNode {
+import java.util.List;
+import java.util.LinkedList;
+
+import io.burt.jmespath.Adapter;
+
+public class SliceNode extends ProjectionNode {
   private final int start;
   private final int stop;
   private final int step;
@@ -10,6 +15,25 @@ public class SliceNode extends JmesPathNode {
     this.start = start;
     this.stop = stop;
     this.step = step;
+  }
+
+  @Override
+  public <T> T evaluateOne(Adapter<T> adapter, T projectionElement) {
+    List<T> elements = adapter.toList(projectionElement);
+    List<T> output = new LinkedList<>();
+    int i = start < 0 ? elements.size() + start : start;
+    int n = stop <= 0 ? elements.size() + stop : Math.min(elements.size(), stop);
+    if (step > 0) {
+      for ( ; i < n; i += step) {
+        output.add(elements.get(i));
+      }
+    } else {
+      n = Math.min(elements.size() - 1, n);
+      for ( ; n > i; n += step) {
+        output.add(elements.get(n));
+      }
+    }
+    return adapter.createArray(output);
   }
 
   protected int start() {
