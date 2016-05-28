@@ -18,9 +18,11 @@ public abstract class JmesPathNode {
   }
 
   public <T> T evaluate(Adapter<T> adapter, T input) {
-    String name = getClass().getName();
-    name = name.substring(name.lastIndexOf(".") + 1);
-    throw new UnsupportedOperationException(String.format("%s#evaluate not implemented", name));
+    return evaluateWithCurrentValue(adapter, source().evaluate(adapter, input));
+  }
+
+  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
+    return currentValue;
   }
 
   protected JmesPathNode source() {

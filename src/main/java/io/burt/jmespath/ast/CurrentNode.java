@@ -18,7 +18,7 @@ public class CurrentNode extends JmesPathNode {
 
   @Override
   public <T> T evaluate(Adapter<T> adapter, T input) {
-    return source() == null ? input : source().evaluate(adapter, input);
+    return source() == null ? input : super.evaluate(adapter, input);
   }
 
   @Override

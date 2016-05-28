@@ -8,8 +8,7 @@ public class AndNode extends OperatorNode {
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> adapter, T input) {
-    T currentValue = source().evaluate(adapter, input);
+  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
     T leftResult = operands()[0].evaluate(adapter, currentValue);
     if (adapter.isTruthy(leftResult)) {
       return operands()[1].evaluate(adapter, currentValue);

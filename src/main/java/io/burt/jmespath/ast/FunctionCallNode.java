@@ -2,6 +2,8 @@ package io.burt.jmespath.ast;
 
 import java.util.Arrays;
 
+import io.burt.jmespath.Adapter;
+
 public class FunctionCallNode extends JmesPathNode {
   private final String name;
   private final JmesPathNode[] args;
@@ -10,6 +12,13 @@ public class FunctionCallNode extends JmesPathNode {
     super(source);
     this.name = name;
     this.args = args;
+  }
+
+  @Override
+  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
+    String name = getClass().getName();
+    name = name.substring(name.lastIndexOf(".") + 1);
+    throw new UnsupportedOperationException(String.format("%s#evaluate not implemented", name));
   }
 
   protected String name() {

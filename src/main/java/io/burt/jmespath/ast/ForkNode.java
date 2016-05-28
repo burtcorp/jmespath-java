@@ -13,11 +13,6 @@ public class ForkNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> adapter, T input) {
-    return source().evaluate(adapter, input);
-  }
-
-  @Override
   protected boolean internalEquals(Object o) {
     return true;
   }

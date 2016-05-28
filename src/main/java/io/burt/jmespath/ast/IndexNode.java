@@ -13,8 +13,7 @@ public class IndexNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> adapter, T input) {
-    T currentValue = source().evaluate(adapter, input);
+  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
     List<T> elements = adapter.toList(currentValue);
     int i = index();
     if (i < 0) {
