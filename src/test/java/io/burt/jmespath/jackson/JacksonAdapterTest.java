@@ -492,4 +492,32 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState <= currentState", cloudtrail);
     assertThat(result.isNull(), is(true));
   }
+
+  @Test
+  public void negateSomethingTruthyProducesFalse() {
+    JsonNode result = evaluate("!'hello'", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(false));
+  }
+
+  @Test
+  public void negateNullProducesTrue() {
+    JsonNode result = evaluate("!Records[3]", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void negateEmptyStringProducesTrue() {
+    JsonNode result = evaluate("!''", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void negateEmptyArrayProducesTrue() {
+    JsonNode result = evaluate("!Records[?'']", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
 }
