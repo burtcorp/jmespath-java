@@ -336,4 +336,160 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("Records[0].userIdentity[?@]", cloudtrail);
     assertThat(result.isNull(), is(true));
   }
+
+  @Test
+  public void selectionWithComplexTest() {
+    JsonNode result = evaluate("Records[*] | [?userIdentity.userName == 'Bob' || responseElements.instancesSet.items[0].instanceId == 'i-ebeaf9e2'].userIdentity.userName", cloudtrail);
+    assertThat(toStringList(result), contains("Alice", "Bob"));
+  }
+
+  @Test
+  public void compareEqualityWhenEqualProducesTrue() {
+    JsonNode result = evaluate("Records[0].userIdentity.userName == Records[2].userIdentity.userName", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareEqualityWhenNotEqualProducesFalse() {
+    JsonNode result = evaluate("Records[0].userIdentity.userName == Records[1].userIdentity.userName", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(false));
+  }
+
+  @Test
+  public void compareNonEqualityWhenEqualProducesFalse() {
+    JsonNode result = evaluate("Records[0].userIdentity.userName != Records[2].userIdentity.userName", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(false));
+  }
+
+  @Test
+  public void compareNonEqualityWhenNotEqualProducesTrue() {
+    JsonNode result = evaluate("Records[0].userIdentity.userName != Records[1].userIdentity.userName", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareNumbersEqWhenEq() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code == currentState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareNumbersEqWhenNotEq() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code == previousState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(false));
+  }
+
+  @Test
+  public void compareNumbersNotEqWhenEq() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code != currentState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(false));
+  }
+
+  @Test
+  public void compareNumbersNotEqWhenNotEq() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code != previousState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareNumbersGtWhenGt() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code > previousState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareNumbersGtWhenLt() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState.code > currentState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(false));
+  }
+
+  @Test
+  public void compareNumbersGteWhenGt() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code >= previousState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareNumbersGteWhenEq() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code >= currentState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareNumbersGteWhenLt() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState.code >= currentState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(false));
+  }
+
+  @Test
+  public void compareNumbersLtWhenGt() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code < previousState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(false));
+  }
+
+  @Test
+  public void compareNumbersLtWhenLt() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState.code < currentState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareNumbersLteWhenGt() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code <= previousState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(false));
+  }
+
+  @Test
+  public void compareNumbersLteWhenEq() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code <= currentState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareNumbersLteWhenLt() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState.code <= currentState.code", cloudtrail);
+    assertThat(result.isBoolean(), is(true));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void compareGtWithNonNumberProducesNull() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState > currentState", cloudtrail);
+    assertThat(result.isNull(), is(true));
+  }
+
+  @Test
+  public void compareGteWithNonNumberProducesNull() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState >= currentState", cloudtrail);
+    assertThat(result.isNull(), is(true));
+  }
+
+  @Test
+  public void compareLtWithNonNumberProducesNull() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState < currentState", cloudtrail);
+    assertThat(result.isNull(), is(true));
+  }
+
+  @Test
+  public void compareLteWithNonNumberProducesNull() {
+    JsonNode result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState <= currentState", cloudtrail);
+    assertThat(result.isNull(), is(true));
+  }
 }

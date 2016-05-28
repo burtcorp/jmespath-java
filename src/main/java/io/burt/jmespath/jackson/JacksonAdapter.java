@@ -37,6 +37,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
+  public boolean isNumber(JsonNode value) {
+    return value.isNumber();
+  }
+
+  @Override
   public boolean isTruthy(JsonNode value) {
     switch (value.getNodeType()) {
       case ARRAY:
@@ -55,6 +60,29 @@ public class JacksonAdapter implements Adapter<JsonNode> {
         return true;
       default:
         throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getNodeType()));
+    }
+  }
+
+  @Override
+  public int compare(JsonNode value1, JsonNode value2) {
+    if (value1.getNodeType() == value2.getNodeType()) {
+      switch (value1.getNodeType()) {
+        case ARRAY:
+        case BINARY:
+        case OBJECT:
+        case STRING:
+        case BOOLEAN:
+        case MISSING:
+        case NULL:
+        case POJO:
+          return value1.equals(value2) ? 0 : -1;
+        case NUMBER:
+          return Double.compare(value1.doubleValue(), value2.doubleValue());
+        default:
+          throw new IllegalStateException(String.format("Unknown node type encountered: %s", value1.getNodeType()));
+      }
+    } else {
+      return -1;
     }
   }
 
@@ -93,11 +121,21 @@ public class JacksonAdapter implements Adapter<JsonNode> {
     return JsonNodeFactory.instance.textNode(str);
   }
 
+  @Override
+  public JsonNode createBoolean(boolean b) {
+    return JsonNodeFactory.instance.booleanNode(b);
+  }
+
   private JsonNode nodeOrNullNode(JsonNode node) {
     if (node == null) {
       return JsonNodeFactory.instance.nullNode();
     } else {
       return node;
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof JacksonAdapter;
   }
 }
