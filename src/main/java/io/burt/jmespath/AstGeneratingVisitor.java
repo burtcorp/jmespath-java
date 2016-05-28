@@ -212,7 +212,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
     currentSource.push(new CurrentNode());
     JmesPathNode test = visit(ctx.expression());
     currentSource.pop();
-    return new SelectionNode(test, currentSource.peek());
+    return new ForkNode(new SelectionNode(test, currentSource.peek()));
   }
 
   @Override

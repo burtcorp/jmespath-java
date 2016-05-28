@@ -329,9 +329,11 @@ public class AstGeneratorTest {
   @Test
   public void selectionExpression() {
     Query expected = new Query(
-      new SelectionNode(
-        new PropertyNode("bar", new CurrentNode()),
-        new PropertyNode("foo", new CurrentNode())
+      new ForkNode(
+        new SelectionNode(
+          new PropertyNode("bar", new CurrentNode()),
+          new PropertyNode("foo", new CurrentNode())
+        )
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar]");
@@ -341,12 +343,14 @@ public class AstGeneratorTest {
   @Test
   public void selectionWithConditionExpression() {
     Query expected = new Query(
-      new SelectionNode(
-        new ComparisonNode("==",
-          new PropertyNode("bar", new CurrentNode()),
-          new PropertyNode("baz", new CurrentNode())
-        ),
-        new PropertyNode("foo", new CurrentNode())
+      new ForkNode(
+        new SelectionNode(
+          new ComparisonNode("==",
+            new PropertyNode("bar", new CurrentNode()),
+            new PropertyNode("baz", new CurrentNode())
+          ),
+          new PropertyNode("foo", new CurrentNode())
+        )
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar == baz]");
@@ -356,9 +360,11 @@ public class AstGeneratorTest {
   @Test
   public void bareSelection() {
     Query expected = new Query(
-      new SelectionNode(
-        new PropertyNode("bar", new CurrentNode()),
-        new CurrentNode()
+      new ForkNode(
+        new SelectionNode(
+          new PropertyNode("bar", new CurrentNode()),
+          new CurrentNode()
+        )
       )
     );
     Query actual = AstGenerator.fromString("[?bar]");
@@ -446,12 +452,14 @@ public class AstGeneratorTest {
   @Test
   public void rawStringComparisonExpression() {
     Query expected = new Query(
-      new SelectionNode(
-        new ComparisonNode("!=",
-          new PropertyNode("bar", new CurrentNode()),
-          new StringNode("baz")
-        ),
-        new PropertyNode("foo", new CurrentNode())
+      new ForkNode(
+        new SelectionNode(
+          new ComparisonNode("!=",
+            new PropertyNode("bar", new CurrentNode()),
+            new StringNode("baz")
+          ),
+          new PropertyNode("foo", new CurrentNode())
+        )
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar != 'baz']");
@@ -539,10 +547,12 @@ public class AstGeneratorTest {
   @Test
   public void selectionAfterPipe() {
     Query expected = new Query(
-      new SelectionNode(
-        new PropertyNode("bar", new CurrentNode()),
-        new JoinNode(
-          new PropertyNode("foo", new CurrentNode())
+      new ForkNode(
+        new SelectionNode(
+          new PropertyNode("bar", new CurrentNode()),
+          new JoinNode(
+            new PropertyNode("foo", new CurrentNode())
+          )
         )
       )
     );
@@ -553,15 +563,17 @@ public class AstGeneratorTest {
   @Test
   public void booleanComparisonExpression() {
     Query expected = new Query(
-      new SelectionNode(
-        new OrNode(
-          new AndNode(
-            new ComparisonNode("!=", new PropertyNode("bar", new CurrentNode()), new StringNode("baz")),
-            new ComparisonNode("==", new PropertyNode("qux", new CurrentNode()), new StringNode("fux"))
+      new ForkNode(
+        new SelectionNode(
+          new OrNode(
+            new AndNode(
+              new ComparisonNode("!=", new PropertyNode("bar", new CurrentNode()), new StringNode("baz")),
+              new ComparisonNode("==", new PropertyNode("qux", new CurrentNode()), new StringNode("fux"))
+            ),
+            new ComparisonNode(">", new PropertyNode("mux", new CurrentNode()), new StringNode("lux"))
           ),
-          new ComparisonNode(">", new PropertyNode("mux", new CurrentNode()), new StringNode("lux"))
-        ),
-        new PropertyNode("foo", new CurrentNode())
+          new PropertyNode("foo", new CurrentNode())
+        )
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
@@ -670,12 +682,14 @@ public class AstGeneratorTest {
             new JmesPathNode[] {new CurrentNode()},
             new JoinNode(
               new PropertyNode("name",
-                new SelectionNode(
-                  new ComparisonNode("==",
-                    new PropertyNode("state", new CurrentNode()),
-                    new StringNode("WA")
-                  ),
-                  new PropertyNode("locations", new CurrentNode())
+                new ForkNode(
+                  new SelectionNode(
+                    new ComparisonNode("==",
+                      new PropertyNode("state", new CurrentNode()),
+                      new StringNode("WA")
+                    ),
+                    new PropertyNode("locations", new CurrentNode())
+                  )
                 )
               )
             )
@@ -741,24 +755,26 @@ public class AstGeneratorTest {
   @Test
   public void parenthesizedComparisonExpression() {
     Query expected = new Query(
-      new SelectionNode(
-        new AndNode(
-          new ComparisonNode("==",
-            new PropertyNode("bar", new CurrentNode()),
-            new StringNode("baz")
-          ),
-          new OrNode(
+      new ForkNode(
+        new SelectionNode(
+          new AndNode(
             new ComparisonNode("==",
-              new PropertyNode("qux", new CurrentNode()),
-              new StringNode("fux")
+              new PropertyNode("bar", new CurrentNode()),
+              new StringNode("baz")
             ),
-            new ComparisonNode("==",
-              new PropertyNode("mux", new CurrentNode()),
-              new StringNode("lux")
+            new OrNode(
+              new ComparisonNode("==",
+                new PropertyNode("qux", new CurrentNode()),
+                new StringNode("fux")
+              ),
+              new ComparisonNode("==",
+                new PropertyNode("mux", new CurrentNode()),
+                new StringNode("lux")
+              )
             )
-          )
-        ),
-        new PropertyNode("foo", new CurrentNode())
+          ),
+          new PropertyNode("foo", new CurrentNode())
+        )
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
@@ -779,9 +795,11 @@ public class AstGeneratorTest {
   @Test
   public void negatedSelectionExpression() {
     Query expected = new Query(
-      new SelectionNode(
-        new NegateNode(new PropertyNode("bar", new CurrentNode())),
-        new PropertyNode("foo", new CurrentNode())
+      new ForkNode(
+        new SelectionNode(
+          new NegateNode(new PropertyNode("bar", new CurrentNode())),
+          new PropertyNode("foo", new CurrentNode())
+        )
       )
     );
     Query actual = AstGenerator.fromString("foo[?!bar]");
@@ -851,12 +869,14 @@ public class AstGeneratorTest {
   @Test
   public void comparisonWithJsonLiteralExpression() {
     Query expected = new Query(
-      new SelectionNode(
-        new ComparisonNode("==",
-          new PropertyNode("bar", new CurrentNode()),
-          new JsonLiteralNode("{\"foo\":\"bar\"}", Collections.singletonMap("foo", "bar"))
-        ),
-        new PropertyNode("foo", new CurrentNode())
+      new ForkNode(
+        new SelectionNode(
+          new ComparisonNode("==",
+            new PropertyNode("bar", new CurrentNode()),
+            new JsonLiteralNode("{\"foo\":\"bar\"}", Collections.singletonMap("foo", "bar"))
+          ),
+          new PropertyNode("foo", new CurrentNode())
+        )
       )
     );
     Query actual = AstGenerator.fromString("foo[?bar == `{\"foo\": \"bar\"}`]");
