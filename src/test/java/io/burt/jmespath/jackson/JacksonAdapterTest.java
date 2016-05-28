@@ -51,7 +51,7 @@ public class JacksonAdapterTest {
   private List<String> toStringList(JsonNode node) {
     List<String> strings = new ArrayList<>(node.size());
     for (JsonNode element : node) {
-      strings.add(element.asText());
+      strings.add(element.textValue());
     }
     return strings;
   }
@@ -70,13 +70,13 @@ public class JacksonAdapterTest {
   @Test
   public void topLevelProperty() {
     JsonNode result = evaluate("lastName", contact);
-    assertThat(result.asText(), is("Smith"));
+    assertThat(result.textValue(), is("Smith"));
   }
 
   @Test
   public void chainProperty() {
     JsonNode result = evaluate("address.state", contact);
-    assertThat(result.asText(), is("NY"));
+    assertThat(result.textValue(), is("NY"));
   }
 
   @Test
@@ -94,13 +94,13 @@ public class JacksonAdapterTest {
   @Test
   public void index() {
     JsonNode result = evaluate("phoneNumbers[1].type", contact);
-    assertThat(result.asText(), is("office"));
+    assertThat(result.textValue(), is("office"));
   }
 
   @Test
   public void negativeIndex() {
     JsonNode result = evaluate("phoneNumbers[-2].type", contact);
-    assertThat(result.asText(), is("office"));
+    assertThat(result.textValue(), is("office"));
   }
 
   @Test
@@ -136,19 +136,19 @@ public class JacksonAdapterTest {
   @Test
   public void pipeStopsProjections() {
     JsonNode result = evaluate("Records[*].userIdentity | [1].userName", cloudtrail);
-    assertThat(result.asText(), is("Bob"));
+    assertThat(result.textValue(), is("Bob"));
   }
 
   @Test
   public void literalString() {
     JsonNode result = evaluate("'hello world'", cloudtrail);
-    assertThat(result.asText(), is("hello world"));
+    assertThat(result.textValue(), is("hello world"));
   }
 
   @Test
   public void literalStringIgnoresSource() {
     JsonNode result = evaluate("Records[*] | 'hello world'", cloudtrail);
-    assertThat(result.asText(), is("hello world"));
+    assertThat(result.textValue(), is("hello world"));
   }
 
   public void flattenStartsProjection() {
@@ -257,43 +257,43 @@ public class JacksonAdapterTest {
   @Test
   public void currentNodeAsNoOp() {
     JsonNode result = evaluate("@ | Records[0].userIdentity | @ | userName | @ | @", cloudtrail);
-    assertThat(result.asText(), is("Alice"));
+    assertThat(result.textValue(), is("Alice"));
   }
 
   @Test
   public void andReturnsSecondOperandWhenFirstIsTruthy() {
     JsonNode result = evaluate("Records[0].userIdentity.userName && Records[1].userIdentity.userName", cloudtrail);
-    assertThat(result.asText(), is("Bob"));
+    assertThat(result.textValue(), is("Bob"));
   }
 
   @Test
   public void andReturnsFirstOperandWhenItIsFalsy() {
     JsonNode result = evaluate("'' && Records[1].userIdentity.userName", cloudtrail);
-    assertThat(result.asText(), is(""));
+    assertThat(result.textValue(), is(""));
   }
 
   @Test
   public void aLongChainOfAnds() {
     JsonNode result = evaluate("@ && Records[2] && Records[2].responseElements && Records[2].responseElements.keyName", cloudtrail);
-    assertThat(result.asText(), is("mykeypair"));
+    assertThat(result.textValue(), is("mykeypair"));
   }
 
   @Test
   public void orReturnsFirstOperandWhenItIsTruthy() {
     JsonNode result = evaluate("Records[0].userIdentity.userName || Records[1].userIdentity.userName", cloudtrail);
-    assertThat(result.asText(), is("Alice"));
+    assertThat(result.textValue(), is("Alice"));
   }
 
   @Test
   public void orReturnsSecondOperandWhenFirstIsFalsy() {
     JsonNode result = evaluate("'' || Records[1].userIdentity.userName", cloudtrail);
-    assertThat(result.asText(), is("Bob"));
+    assertThat(result.textValue(), is("Bob"));
   }
 
   @Test
   public void aLongChainOfOrs() {
     JsonNode result = evaluate("'' || Records[3] || Records[2].foobar || Records[2].responseElements.keyName", cloudtrail);
-    assertThat(result.asText(), is("mykeypair"));
+    assertThat(result.textValue(), is("mykeypair"));
   }
 
   @Test
@@ -327,7 +327,7 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("Records[*].responseElements | [?keyFingerprint]", cloudtrail);
     assertThat(result.isArray(), is(true));
     assertThat(result.size(), is(1));
-    assertThat(result.get(0).get("keyName").asText(), is("mykeypair"));
+    assertThat(result.get(0).get("keyName").textValue(), is("mykeypair"));
   }
 
   @Test
@@ -531,7 +531,7 @@ public class JacksonAdapterTest {
   public void createObject() {
     JsonNode result = evaluate("{userNames: Records[*].userIdentity.userName, keyName: Records[2].responseElements.keyName}", cloudtrail);
     assertThat(toStringList(result.get("userNames")), contains("Alice", "Bob", "Alice"));
-    assertThat(result.get("keyName").asText(), is("mykeypair"));
+    assertThat(result.get("keyName").textValue(), is("mykeypair"));
   }
 
   @Test
@@ -559,7 +559,7 @@ public class JacksonAdapterTest {
   public void createArray() {
     JsonNode result = evaluate("[Records[*].userIdentity.userName, Records[2].responseElements.keyName]", cloudtrail);
     assertThat(toStringList(result.get(0)), contains("Alice", "Bob", "Alice"));
-    assertThat(result.get(1).asText(), is("mykeypair"));
+    assertThat(result.get(1).textValue(), is("mykeypair"));
   }
 
   @Test
@@ -593,7 +593,7 @@ public class JacksonAdapterTest {
   @Test
   public void jsonLiteralString() {
     JsonNode result = evaluate("`\"foo\"`", parseString("{}"));
-    assertThat(result.asText(), is("foo"));
+    assertThat(result.textValue(), is("foo"));
   }
 
   @Test
