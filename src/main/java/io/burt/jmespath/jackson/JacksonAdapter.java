@@ -3,10 +3,12 @@ package io.burt.jmespath.jackson;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.burt.jmespath.Adapter;
 
@@ -124,6 +126,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   @Override
   public JsonNode createBoolean(boolean b) {
     return JsonNodeFactory.instance.booleanNode(b);
+  }
+
+  @Override
+  public JsonNode createObject(Map<String, JsonNode> obj) {
+    return new ObjectNode(JsonNodeFactory.instance, obj);
   }
 
   private JsonNode nodeOrNullNode(JsonNode node) {

@@ -2,6 +2,7 @@ package io.burt.jmespath;
 
 import java.util.List;
 import java.util.Comparator;
+import java.util.Map;
 
 public interface Adapter<T> extends Comparator<T> {
   List<T> toList(T array);
@@ -25,4 +26,6 @@ public interface Adapter<T> extends Comparator<T> {
   T createString(String str);
 
   T createBoolean(boolean b);
+
+  T createObject(Map<String, T> obj);
 }

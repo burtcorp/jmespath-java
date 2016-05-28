@@ -2,8 +2,11 @@ package io.burt.jmespath.ast;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.HashMap;
 
-public class CreateObjectNode extends JmesPathNode {
+import io.burt.jmespath.Adapter;
+
+public class CreateObjectNode extends ProjectionNode {
   private final Entry[] entries;
 
   public static class Entry {
@@ -47,6 +50,15 @@ public class CreateObjectNode extends JmesPathNode {
   public CreateObjectNode(Entry[] entries, JmesPathNode source) {
     super(source);
     this.entries = entries;
+  }
+
+  @Override
+  public <T> T evaluateOne(Adapter<T> adapter, T projectionElement) {
+    Map<String, T> object = new HashMap<>();
+    for (Entry entry : entries()) {
+      object.put(entry.key(), entry.value().evaluate(adapter, projectionElement));
+    }
+    return adapter.createObject(object);
   }
 
   protected Entry[] entries() {

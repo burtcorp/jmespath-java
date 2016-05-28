@@ -98,7 +98,7 @@
         "userName": "Alice",
         "sessionContext": {
           "attributes": {
-            "mfaAuthenticated": "false",
+            "mfaAuthenticated": true,
             "creationDate": "2014-03-06T15:15:06Z"
           }
         }

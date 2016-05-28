@@ -304,6 +304,12 @@ public class JacksonAdapterTest {
   }
 
   @Test
+  public void selectionWithBooleanProperty() {
+    JsonNode result = evaluate("Records[*] | [?userIdentity.sessionContext.attributes.mfaAuthenticated].eventTime", cloudtrail);
+    assertThat(toStringList(result), contains("2014-03-06T17:10:34Z"));
+  }
+
+  @Test
   public void selectionWithFalseTest() {
     JsonNode result = evaluate("Records[?'']", cloudtrail);
     assertThat(result.isArray(), is(true));
@@ -519,5 +525,33 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("!Records[?'']", cloudtrail);
     assertThat(result.isBoolean(), is(true));
     assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void createObject() {
+    JsonNode result = evaluate("{userNames: Records[*].userIdentity.userName, keyName: Records[2].responseElements.keyName}", cloudtrail);
+    assertThat(toStringList(result.get("userNames")), contains("Alice", "Bob", "Alice"));
+    assertThat(result.get("keyName").asText(), is("mykeypair"));
+  }
+
+  @Test
+  public void createObjectInPipe() {
+    JsonNode result = evaluate("Records[*].userIdentity | {userNames: [*].userName, anyUsedMfa: !![?sessionContext.attributes.mfaAuthenticated]}", cloudtrail);
+    assertThat(toStringList(result.get("userNames")), contains("Alice", "Bob", "Alice"));
+    assertThat(result.get("anyUsedMfa").booleanValue(), is(true));
+  }
+
+  @Test
+  public void createObjectInProjection() {
+    JsonNode result = evaluate("Records[*].userIdentity.{userName: userName, usedMfa: sessionContext.attributes.mfaAuthenticated}", cloudtrail);
+    assertThat(result.get(0).get("usedMfa").booleanValue(), is(false));
+    assertThat(result.get(1).get("usedMfa").booleanValue(), is(false));
+    assertThat(result.get(2).get("usedMfa").booleanValue(), is(true));
+  }
+
+  @Test
+  public void nestedCreateObject() {
+    JsonNode result = evaluate("Records[*].userIdentity | {users: {names: [*].userName}}", cloudtrail);
+    assertThat(toStringList(result.get("users").get("names")), contains("Alice", "Bob", "Alice"));
   }
 }
