@@ -11,7 +11,7 @@ public class StringNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
+  public <T> T evaluate(Adapter<T> adapter, T input) {
     return adapter.createString(string());
   }
 

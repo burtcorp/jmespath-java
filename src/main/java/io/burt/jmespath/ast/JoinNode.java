@@ -13,8 +13,8 @@ public class JoinNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
-    return source().evaluate(adapter, currentValue);
+  public <T> T evaluate(Adapter<T> adapter, T input) {
+    return source().evaluate(adapter, input);
   }
 
   @Override

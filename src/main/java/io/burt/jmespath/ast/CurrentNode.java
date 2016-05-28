@@ -15,8 +15,8 @@ public class CurrentNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
-    return currentValue;
+  public <T> T evaluate(Adapter<T> adapter, T input) {
+    return input;
   }
 
   @Override

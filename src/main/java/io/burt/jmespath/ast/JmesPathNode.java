@@ -17,7 +17,7 @@ public abstract class JmesPathNode {
     return source().isProjection();
   }
 
-  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
+  public <T> T evaluate(Adapter<T> adapter, T input) {
     String name = getClass().getName();
     name = name.substring(name.lastIndexOf(".") + 1);
     throw new UnsupportedOperationException(String.format("%s#evaluate not implemented", name));

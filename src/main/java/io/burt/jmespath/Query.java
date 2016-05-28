@@ -9,8 +9,8 @@ public class Query {
     this.expression = expression;
   }
 
-  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
-    return expression.evaluate(adapter, currentValue);
+  public <T> T evaluate(Adapter<T> adapter, T input) {
+    return expression.evaluate(adapter, input);
   }
 
   protected JmesPathNode expression() {

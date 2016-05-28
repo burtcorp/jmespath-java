@@ -11,16 +11,16 @@ public class FlattenObjectNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
-    T input = source().evaluate(adapter, currentValue);
+  public <T> T evaluate(Adapter<T> adapter, T input) {
+    T currentValue = source().evaluate(adapter, input);
     if (isProjection()) {
       List<T> flattened = new LinkedList<>();
-      for (T projectionElement : adapter.toList(input)) {
+      for (T projectionElement : adapter.toList(currentValue)) {
         flattened.add(adapter.createArray(adapter.toList(projectionElement), true));
       }
       return adapter.createArray(flattened, true);
-    } else if (adapter.isObject(input)) {
-      return adapter.createArray(adapter.toList(input), true);
+    } else if (adapter.isObject(currentValue)) {
+      return adapter.createArray(adapter.toList(currentValue), true);
     } else {
       return adapter.createNull();
     }

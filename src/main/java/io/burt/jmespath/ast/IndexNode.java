@@ -13,9 +13,9 @@ public class IndexNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> adapter, T currentValue) {
-    T input = source().evaluate(adapter, currentValue);
-    List<T> elements = adapter.toList(input);
+  public <T> T evaluate(Adapter<T> adapter, T input) {
+    T currentValue = source().evaluate(adapter, input);
+    List<T> elements = adapter.toList(currentValue);
     int i = index();
     if (i < 0) {
       i = elements.size() + i;
