@@ -9,6 +9,8 @@ public interface Adapter<T> {
 
   boolean isObject(T value);
 
+  boolean isTruthy(T value);
+
   T getProperty(T value, String name);
 
   T createNull();

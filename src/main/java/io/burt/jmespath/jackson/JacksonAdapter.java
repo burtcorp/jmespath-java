@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import io.burt.jmespath.Adapter;
 
+import static com.fasterxml.jackson.databind.node.JsonNodeType.*;
+
 public class JacksonAdapter implements Adapter<JsonNode> {
   @Override
   public List<JsonNode> toList(JsonNode value) {
@@ -32,6 +34,28 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   @Override
   public boolean isObject(JsonNode value) {
     return value.isObject();
+  }
+
+  @Override
+  public boolean isTruthy(JsonNode value) {
+    switch (value.getNodeType()) {
+      case ARRAY:
+      case BINARY:
+      case OBJECT:
+        return value.size() > 0;
+      case STRING:
+        return value.textValue().length() > 0;
+      case BOOLEAN:
+        return value.booleanValue();
+      case MISSING:
+      case NULL:
+        return false;
+      case NUMBER:
+      case POJO:
+        return true;
+      default:
+        throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getNodeType()));
+    }
   }
 
   @Override

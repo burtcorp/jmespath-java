@@ -259,4 +259,40 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("@ | Records[0].userIdentity | @ | userName | @ | @", cloudtrail);
     assertThat(result.asText(), is("Alice"));
   }
+
+  @Test
+  public void andReturnsSecondOperandWhenFirstIsTruthy() {
+    JsonNode result = evaluate("Records[0].userIdentity.userName && Records[1].userIdentity.userName", cloudtrail);
+    assertThat(result.asText(), is("Bob"));
+  }
+
+  @Test
+  public void andReturnsFirstOperandWhenItIsFalsy() {
+    JsonNode result = evaluate("'' && Records[1].userIdentity.userName", cloudtrail);
+    assertThat(result.asText(), is(""));
+  }
+
+  @Test
+  public void aLongChainOfAnds() {
+    JsonNode result = evaluate("@ && Records[2] && Records[2].responseElements && Records[2].responseElements.keyName", cloudtrail);
+    assertThat(result.asText(), is("mykeypair"));
+  }
+
+  @Test
+  public void orReturnsFirstOperandWhenItIsTruthy() {
+    JsonNode result = evaluate("Records[0].userIdentity.userName || Records[1].userIdentity.userName", cloudtrail);
+    assertThat(result.asText(), is("Alice"));
+  }
+
+  @Test
+  public void orReturnsSecondOperandWhenFirstIsFalsy() {
+    JsonNode result = evaluate("'' || Records[1].userIdentity.userName", cloudtrail);
+    assertThat(result.asText(), is("Bob"));
+  }
+
+  @Test
+  public void aLongChainOfOrs() {
+    JsonNode result = evaluate("'' || Records[3] || Records[2].foobar || Records[2].responseElements.keyName", cloudtrail);
+    assertThat(result.asText(), is("mykeypair"));
+  }
 }
