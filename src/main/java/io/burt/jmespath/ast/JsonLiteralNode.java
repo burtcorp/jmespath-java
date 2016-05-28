@@ -1,5 +1,7 @@
 package io.burt.jmespath.ast;
 
+import io.burt.jmespath.Adapter;
+
 public class JsonLiteralNode extends JmesPathNode {
   private final String raw;
   private final Object tree;
@@ -7,6 +9,11 @@ public class JsonLiteralNode extends JmesPathNode {
   public JsonLiteralNode(String raw, Object tree) {
     this.raw = raw;
     this.tree = tree;
+  }
+
+  @Override
+  public <T> T evaluate(Adapter<T> adapter, T input) {
+    return adapter.parseString(raw());
   }
 
   protected String raw() {

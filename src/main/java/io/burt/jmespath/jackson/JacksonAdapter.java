@@ -4,17 +4,35 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.io.IOException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.ParseException;
 
 import static com.fasterxml.jackson.databind.node.JsonNodeType.*;
 
 public class JacksonAdapter implements Adapter<JsonNode> {
+  private final ObjectMapper jsonParser;
+
+  public JacksonAdapter() {
+    this.jsonParser = new ObjectMapper();
+  }
+
+  @Override
+  public JsonNode parseString(String string) {
+    try {
+      return jsonParser.readTree(string);
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
   @Override
   public List<JsonNode> toList(JsonNode value) {
     if (value.isArray() || value.isObject()) {

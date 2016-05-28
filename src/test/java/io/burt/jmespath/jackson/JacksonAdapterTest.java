@@ -583,4 +583,40 @@ public class JacksonAdapterTest {
     assertThat(toStringList(result.get(0)), contains("IAMUser", "IAMUser", "IAMUser"));
     assertThat(toStringList(result.get(1).get(0)), contains("Alice", "Bob", "Alice"));
   }
+
+  @Test
+  public void jsonLiteralNumber() {
+    JsonNode result = evaluate("`42`", parseString("{}"));
+    assertThat(result.intValue(), is(42));
+  }
+
+  @Test
+  public void jsonLiteralString() {
+    JsonNode result = evaluate("`\"foo\"`", parseString("{}"));
+    assertThat(result.asText(), is("foo"));
+  }
+
+  @Test
+  public void jsonLiteralBoolean() {
+    JsonNode result = evaluate("`true`", parseString("{}"));
+    assertThat(result.booleanValue(), is(true));
+  }
+
+  @Test
+  public void jsonLiteralArray() {
+    JsonNode result = evaluate("`[42, \"foo\", true]`", parseString("{}"));
+    assertThat(result, is(parseString("[42, \"foo\", true]")));
+  }
+
+  @Test
+  public void jsonLiteralObject() {
+    JsonNode result = evaluate("`{\"n\": 42, \"s\": \"foo\", \"b\": true}`", parseString("{}"));
+    assertThat(result, is(parseString("{\"n\": 42, \"s\": \"foo\", \"b\": true}")));
+  }
+
+  @Test
+  public void jsonLiteralInComparison() {
+    JsonNode result = evaluate("Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress", cloudtrail);
+    assertThat(toStringList(result), contains("72.21.198.64"));
+  }
 }

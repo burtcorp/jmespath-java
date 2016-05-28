@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.Map;
 
 public interface Adapter<T> extends Comparator<T> {
+  T parseString(String str);
+
   List<T> toList(T array);
 
   boolean isArray(T value);
