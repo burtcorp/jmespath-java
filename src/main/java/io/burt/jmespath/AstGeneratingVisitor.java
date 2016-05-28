@@ -56,7 +56,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
 
   @Override
   public JmesPathNode visitQuery(JmesPathParser.QueryContext ctx) {
-    currentSource.push(CurrentNode.instance);
+    currentSource.push(new CurrentNode());
     JmesPathNode result = visit(ctx.expression());
     currentSource.pop();
     return result;
@@ -148,7 +148,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
 
   @Override
   public JmesPathNode visitMultiSelectList(JmesPathParser.MultiSelectListContext ctx) {
-    currentSource.push(CurrentNode.instance);
+    currentSource.push(new CurrentNode());
     int n = ctx.expression().size();
     JmesPathNode[] entries = new JmesPathNode[n];
     for (int i = 0; i < n; i++) {
@@ -160,7 +160,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
 
   @Override
   public JmesPathNode visitMultiSelectHash(JmesPathParser.MultiSelectHashContext ctx) {
-    currentSource.push(CurrentNode.instance);
+    currentSource.push(new CurrentNode());
     int n = ctx.keyvalExpr().size();
     CreateObjectNode.Entry[] entries = new CreateObjectNode.Entry[n];
     for (int i = 0; i < n; i++) {
@@ -209,7 +209,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
 
   @Override
   public JmesPathNode visitSelect(JmesPathParser.SelectContext ctx) {
-    currentSource.push(CurrentNode.instance);
+    currentSource.push(new CurrentNode());
     JmesPathNode test = visit(ctx.expression());
     currentSource.pop();
     return new SelectionNode(test, currentSource.peek());
@@ -217,18 +217,24 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
 
   @Override
   public JmesPathNode visitFunctionExpression(JmesPathParser.FunctionExpressionContext ctx) {
+    currentSource.push(new CurrentNode());
     String name = ctx.NAME().getText();
     int n = ctx.functionArg().size();
     JmesPathNode[] args = new JmesPathNode[n];
     for (int i = 0; i < n; i++) {
       args[i] = visit(ctx.functionArg(i));
     }
+    currentSource.pop();
     return new FunctionCallNode(name, args, currentSource.peek());
   }
 
   @Override
   public JmesPathNode visitCurrentNode(JmesPathParser.CurrentNodeContext ctx) {
-    return CurrentNode.instance;
+    if (currentSource.peek() instanceof CurrentNode) {
+      return currentSource.peek();
+    } else {
+      return new CurrentNode(currentSource.peek());
+    }
   }
 
   @Override

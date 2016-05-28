@@ -247,4 +247,16 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("Records[0].userIdentity.* | [::-2]", cloudtrail);
     assertThat(toStringList(result), contains("Alice", "EXAMPLE_KEY_ID_ALICE", "EX_PRINCIPAL_ID"));
   }
+
+  @Test
+  public void currentNodeReturnsInput() {
+    JsonNode result = evaluate("@", cloudtrail);
+    assertThat(result.get("Records").size(), is(3));
+  }
+
+  @Test
+  public void currentNodeAsNoOp() {
+    JsonNode result = evaluate("@ | Records[0].userIdentity | @ | userName | @ | @", cloudtrail);
+    assertThat(result.asText(), is("Alice"));
+  }
 }

@@ -6,7 +6,7 @@ public abstract class JmesPathNode {
   private final JmesPathNode source;
 
   public JmesPathNode() {
-    this(CurrentNode.instance);
+    this(new CurrentNode());
   }
 
   public JmesPathNode(JmesPathNode source) {
@@ -41,7 +41,7 @@ public abstract class JmesPathNode {
         str.append(", ");
       }
     }
-    str.append(source);
+    str.append(source());
     str.append(")");
     return str.toString();
   }
@@ -59,7 +59,7 @@ public abstract class JmesPathNode {
       return false;
     }
     JmesPathNode other = (JmesPathNode) o;
-    return internalEquals(o) && (source() == other.source() || source().equals(other.source()));
+    return internalEquals(o) && (source() == other.source() || (source() != null && other.source() != null && source().equals(other.source())));
   }
 
   abstract protected boolean internalEquals(Object o);
@@ -68,7 +68,7 @@ public abstract class JmesPathNode {
   public int hashCode() {
     int h = 1;
     h = h * 31 + internalHashCode();
-    h = h * 31 + source.hashCode();
+    h = h * 31 + (source() == null ? 0 : source().hashCode());
     return h;
   }
 
