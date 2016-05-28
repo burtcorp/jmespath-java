@@ -544,8 +544,8 @@ public class JacksonAdapterTest {
   @Test
   public void createObjectInProjection() {
     JsonNode result = evaluate("Records[*].userIdentity.{userName: userName, usedMfa: sessionContext.attributes.mfaAuthenticated}", cloudtrail);
-    assertThat(result.get(0).get("usedMfa").booleanValue(), is(false));
-    assertThat(result.get(1).get("usedMfa").booleanValue(), is(false));
+    assertThat(result.get(0).get("usedMfa").isNull(), is(true));
+    assertThat(result.get(1).get("usedMfa").isNull(), is(true));
     assertThat(result.get(2).get("usedMfa").booleanValue(), is(true));
   }
 
@@ -553,5 +553,34 @@ public class JacksonAdapterTest {
   public void nestedCreateObject() {
     JsonNode result = evaluate("Records[*].userIdentity | {users: {names: [*].userName}}", cloudtrail);
     assertThat(toStringList(result.get("users").get("names")), contains("Alice", "Bob", "Alice"));
+  }
+
+  @Test
+  public void createArray() {
+    JsonNode result = evaluate("[Records[*].userIdentity.userName, Records[2].responseElements.keyName]", cloudtrail);
+    assertThat(toStringList(result.get(0)), contains("Alice", "Bob", "Alice"));
+    assertThat(result.get(1).asText(), is("mykeypair"));
+  }
+
+  @Test
+  public void createArrayInPipe() {
+    JsonNode result = evaluate("Records[*].userIdentity | [[*].userName, !![?sessionContext.attributes.mfaAuthenticated]]", cloudtrail);
+    assertThat(toStringList(result.get(0)), contains("Alice", "Bob", "Alice"));
+    assertThat(result.get(1).booleanValue(), is(true));
+  }
+
+  @Test
+  public void createArrayInProjection() {
+    JsonNode result = evaluate("Records[*].userIdentity.[userName, sessionContext.attributes.mfaAuthenticated]", cloudtrail);
+    assertThat(result.get(0).get(1).isNull(), is(true));
+    assertThat(result.get(1).get(1).isNull(), is(true));
+    assertThat(result.get(2).get(1).booleanValue(), is(true));
+  }
+
+  @Test
+  public void nestedCreateArray() {
+    JsonNode result = evaluate("Records[*].userIdentity | [[*].type, [[*].userName]]", cloudtrail);
+    assertThat(toStringList(result.get(0)), contains("IAMUser", "IAMUser", "IAMUser"));
+    assertThat(toStringList(result.get(1).get(0)), contains("Alice", "Bob", "Alice"));
   }
 }

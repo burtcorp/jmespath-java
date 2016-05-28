@@ -1,8 +1,12 @@
 package io.burt.jmespath.ast;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
-public class CreateArrayNode extends JmesPathNode {
+import io.burt.jmespath.Adapter;
+
+public class CreateArrayNode extends ProjectionNode {
   private final JmesPathNode[] entries;
 
   public CreateArrayNode(JmesPathNode[] entries, JmesPathNode source) {
@@ -12,6 +16,15 @@ public class CreateArrayNode extends JmesPathNode {
 
   protected JmesPathNode[] entries() {
     return entries;
+  }
+
+  @Override
+  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
+    List<T> array = new ArrayList<>();
+    for (JmesPathNode entry : entries) {
+      array.add(entry.evaluate(adapter, currentValue));
+    }
+    return adapter.createArray(array);
   }
 
   @Override
