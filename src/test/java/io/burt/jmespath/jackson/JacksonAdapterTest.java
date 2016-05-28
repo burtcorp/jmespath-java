@@ -295,4 +295,45 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("'' || Records[3] || Records[2].foobar || Records[2].responseElements.keyName", cloudtrail);
     assertThat(result.asText(), is("mykeypair"));
   }
+
+  @Test
+  public void selectionWithTrueTest() {
+    JsonNode result = evaluate("Records[?@]", cloudtrail);
+    assertThat(result.isArray(), is(true));
+    assertThat(result.size(), is(3));
+  }
+
+  @Test
+  public void selectionWithFalseTest() {
+    JsonNode result = evaluate("Records[?'']", cloudtrail);
+    assertThat(result.isArray(), is(true));
+    assertThat(result.size(), is(0));
+  }
+
+  @Test
+  public void selectionStartsProjection() {
+    JsonNode result = evaluate("Records[?@].userIdentity.userName", cloudtrail);
+    assertThat(toStringList(result), contains("Alice", "Bob", "Alice"));
+  }
+
+  @Test
+  public void selectionTestReferencingProperty() {
+    JsonNode result = evaluate("Records[*].responseElements | [?keyFingerprint]", cloudtrail);
+    assertThat(result.isArray(), is(true));
+    assertThat(result.size(), is(1));
+    assertThat(result.get(0).get("keyName").asText(), is("mykeypair"));
+  }
+
+  @Test
+  public void selectionOnProjectionNotAllowed() {
+    JsonNode result = evaluate("Records[*].responseElements.keyName[?@]", cloudtrail);
+    assertThat(result.isArray(), is(true));
+    assertThat(result.size(), is(0));
+  }
+
+  @Test
+  public void selectionOnNonArrayProducesNull() {
+    JsonNode result = evaluate("Records[0].userIdentity[?@]", cloudtrail);
+    assertThat(result.isNull(), is(true));
+  }
 }
