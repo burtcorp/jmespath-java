@@ -1,5 +1,6 @@
 package io.burt.jmespath;
 
+import io.burt.jmespath.parser.AstGenerator;
 import io.burt.jmespath.node.JmesPathNode;
 
 public class Query {

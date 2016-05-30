@@ -1,4 +1,4 @@
-package io.burt.jmespath;
+package io.burt.jmespath.parser;
 
 public class ParseError {
   private final String message;

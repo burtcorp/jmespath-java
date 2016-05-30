@@ -1,6 +1,8 @@
-package io.burt.jmespath;
+package io.burt.jmespath.parser;
 
 import java.util.Iterator;
+
+import io.burt.jmespath.JmesPathException;
 
 public class ParseException extends JmesPathException implements Iterable<ParseError> {
   private final Iterable<ParseError> errors;

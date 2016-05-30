@@ -1,4 +1,4 @@
-package io.burt.jmespath;
+package io.burt.jmespath.parser;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -31,7 +31,7 @@ import io.burt.jmespath.node.SelectionNode;
 import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
-class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
+public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
   private final ParseTree tree;
   private final Deque<JmesPathNode> currentSource;
   private final JsonGeneratingVisitor jsonGenerator;

@@ -1,4 +1,4 @@
-package io.burt.jmespath;
+package io.burt.jmespath.parser;
 
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.Recognizer;

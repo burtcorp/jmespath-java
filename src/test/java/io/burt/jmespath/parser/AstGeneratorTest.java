@@ -1,4 +1,4 @@
-package io.burt.jmespath;
+package io.burt.jmespath.parser;
 
 import org.junit.Before;
 import org.junit.Test;

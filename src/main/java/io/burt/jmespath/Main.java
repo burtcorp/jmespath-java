@@ -20,8 +20,8 @@ public class Main {
     try {
       Query query = Query.fromString(args[0]);
       System.err.println(query);
-    } catch (ParseException pe) {
-      System.err.println(pe.getMessage());
+    } catch (JmesPathException jpe) {
+      System.err.println(jpe.getMessage());
       System.exit(1);
     }
   }

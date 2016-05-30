@@ -1,4 +1,4 @@
-package io.burt.jmespath;
+package io.burt.jmespath.parser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -9,11 +9,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import io.burt.jmespath.JmesPathLexer;
-import io.burt.jmespath.JmesPathParser;
 import io.burt.jmespath.Query;
 
-class AstGenerator {
+public class AstGenerator {
   public static Query fromString(String query) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(query), errors), errors);
