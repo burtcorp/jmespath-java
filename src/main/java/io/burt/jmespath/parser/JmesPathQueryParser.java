@@ -35,7 +35,7 @@ import io.burt.jmespath.node.SelectionNode;
 import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
-public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
+public class JmesPathQueryParser extends JmesPathBaseVisitor<JmesPathNode> {
   private final ParseTree tree;
   private final Deque<JmesPathNode> currentSource;
   private final JsonGeneratingVisitor jsonGenerator;
@@ -45,7 +45,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
     JmesPathParser parser = createParser(createLexer(createInput(query), errors), errors);
     ParseTree tree = parser.query();
     if (errors.isEmpty()) {
-      AstGeneratingVisitor visitor = new AstGeneratingVisitor(tree);
+      JmesPathQueryParser visitor = new JmesPathQueryParser(tree);
       return visitor.query();
     } else {
       throw new ParseException(query, errors);
@@ -72,7 +72,7 @@ public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
     return parser;
   }
 
-  public AstGeneratingVisitor(ParseTree tree) {
+  private JmesPathQueryParser(ParseTree tree) {
     this.tree = tree;
     this.currentSource = new LinkedList<>();
     this.jsonGenerator = new JsonGeneratingVisitor();
