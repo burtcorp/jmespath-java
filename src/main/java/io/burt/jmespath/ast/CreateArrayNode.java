@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
 
-public class CreateArrayNode extends ProjectionNode {
+public class CreateArrayNode extends JmesPathNode {
   private final JmesPathNode[] entries;
 
   public CreateArrayNode(JmesPathNode[] entries, JmesPathNode source) {

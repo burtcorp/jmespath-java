@@ -15,7 +15,7 @@ public class FunctionCallNode extends JmesPathNode {
   }
 
   @Override
-  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
+  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
     String name = getClass().getName();
     name = name.substring(name.lastIndexOf(".") + 1);
     throw new UnsupportedOperationException(String.format("%s#evaluate not implemented", name));

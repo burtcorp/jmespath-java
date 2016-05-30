@@ -11,7 +11,7 @@ public class ComparisonNode extends OperatorNode {
   }
 
   @Override
-  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
+  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
     T leftResult = operands()[0].evaluate(adapter, currentValue);
     T rightResult = operands()[1].evaluate(adapter, currentValue);
     if (adapter.isNumber(leftResult) && adapter.isNumber(rightResult)) {

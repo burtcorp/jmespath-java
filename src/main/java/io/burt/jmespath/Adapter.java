@@ -17,6 +17,8 @@ public interface Adapter<T> extends Comparator<T> {
 
   boolean isTruthy(T value);
 
+  boolean isNull(T value);
+
   T getProperty(T value, String name);
 
   T createNull();

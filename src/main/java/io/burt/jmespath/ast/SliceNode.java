@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
 
-public class SliceNode extends ProjectionNode {
+public class SliceNode extends JmesPathNode {
   private final int start;
   private final int stop;
   private final int step;

@@ -1,5 +1,8 @@
 package io.burt.jmespath.ast;
 
+import java.util.List;
+import java.util.LinkedList;
+
 import io.burt.jmespath.Adapter;
 
 public abstract class JmesPathNode {
@@ -22,6 +25,22 @@ public abstract class JmesPathNode {
   }
 
   protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
+    if (isProjection()) {
+      if (adapter.isNull(currentValue)) {
+        return currentValue;
+      } else {
+        List<T> outputs = new LinkedList<>();
+        for (T projectionElement : adapter.toList(currentValue)) {
+          outputs.add(evaluateOne(adapter, projectionElement));
+        }
+        return adapter.createArray(outputs, true);
+      }
+    } else {
+      return evaluateOne(adapter, currentValue);
+    }
+  }
+
+  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
     return currentValue;
   }
 

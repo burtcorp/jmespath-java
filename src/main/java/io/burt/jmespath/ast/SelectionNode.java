@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
 
-public class SelectionNode extends ProjectionNode {
+public class SelectionNode extends JmesPathNode {
   private final JmesPathNode test;
 
   public SelectionNode(JmesPathNode test, JmesPathNode source) {

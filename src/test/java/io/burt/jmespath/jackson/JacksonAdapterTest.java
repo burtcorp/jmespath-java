@@ -331,7 +331,7 @@ public class JacksonAdapterTest {
   }
 
   @Test
-  public void selectionOnProjectionNotAllowed() {
+  public void selectionDoesNotSelectProjectionPutEachProjectedElement() {
     JsonNode result = evaluate("Records[*].responseElements.keyName[?@]", cloudtrail);
     assertThat(result.isArray(), is(true));
     assertThat(result.size(), is(0));
@@ -522,7 +522,7 @@ public class JacksonAdapterTest {
 
   @Test
   public void negateEmptyArrayProducesTrue() {
-    JsonNode result = evaluate("!Records[?'']", cloudtrail);
+    JsonNode result = evaluate("Records[?''] | !@", cloudtrail);
     assertThat(result.isBoolean(), is(true));
     assertThat(result.booleanValue(), is(true));
   }
@@ -536,7 +536,7 @@ public class JacksonAdapterTest {
 
   @Test
   public void createObjectInPipe() {
-    JsonNode result = evaluate("Records[*].userIdentity | {userNames: [*].userName, anyUsedMfa: !![?sessionContext.attributes.mfaAuthenticated]}", cloudtrail);
+    JsonNode result = evaluate("Records[*].userIdentity | {userNames: [*].userName, anyUsedMfa: ([?sessionContext.attributes.mfaAuthenticated] | !!@)}", cloudtrail);
     assertThat(toStringList(result.get("userNames")), contains("Alice", "Bob", "Alice"));
     assertThat(result.get("anyUsedMfa").booleanValue(), is(true));
   }
@@ -564,7 +564,7 @@ public class JacksonAdapterTest {
 
   @Test
   public void createArrayInPipe() {
-    JsonNode result = evaluate("Records[*].userIdentity | [[*].userName, !![?sessionContext.attributes.mfaAuthenticated]]", cloudtrail);
+    JsonNode result = evaluate("Records[*].userIdentity | [[*].userName, ([?sessionContext.attributes.mfaAuthenticated] | !!@)]", cloudtrail);
     assertThat(toStringList(result.get(0)), contains("Alice", "Bob", "Alice"));
     assertThat(result.get(1).booleanValue(), is(true));
   }

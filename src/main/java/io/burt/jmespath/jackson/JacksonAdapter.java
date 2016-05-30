@@ -84,6 +84,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
+  public boolean isNull(JsonNode value) {
+    return value.isNull();
+  }
+
+  @Override
   public int compare(JsonNode value1, JsonNode value2) {
     if (value1.getNodeType() == value2.getNodeType()) {
       switch (value1.getNodeType()) {

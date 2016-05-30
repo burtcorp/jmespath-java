@@ -8,7 +8,7 @@ public class NegateNode extends JmesPathNode {
   }
 
   @Override
-  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
+  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
     return adapter.createBoolean(!adapter.isTruthy(currentValue));
   }
 

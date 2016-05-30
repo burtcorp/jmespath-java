@@ -12,7 +12,7 @@ public class FlattenArrayNode extends JmesPathNode {
 
   @Override
   protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
-    if (!source().isProjection() && !adapter.isArray(currentValue)) {
+    if (!isProjection() && !adapter.isArray(currentValue)) {
       return adapter.createNull();
     } else {
       List<T> elements = adapter.toList(currentValue);

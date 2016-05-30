@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import io.burt.jmespath.Adapter;
 
-public class CreateObjectNode extends ProjectionNode {
+public class CreateObjectNode extends JmesPathNode {
   private final Entry[] entries;
 
   public static class Entry {

@@ -2,7 +2,7 @@ package io.burt.jmespath.ast;
 
 import io.burt.jmespath.Adapter;
 
-public class PropertyNode extends ProjectionNode {
+public class PropertyNode extends JmesPathNode {
   private final String propertyName;
 
   public PropertyNode(String propertyName, JmesPathNode source) {
