@@ -57,7 +57,7 @@ public class JacksonAdapterTest {
   }
 
   private JsonNode evaluate(String query, JsonNode input) {
-    return Query.fromString(query).evaluate(adapter, input);
+    return Query.fromString(query, adapter).evaluate(adapter, input);
   }
 
   @Before
@@ -641,6 +641,13 @@ public class JacksonAdapterTest {
   @Test
   public void jsonLiteralInComparison() {
     JsonNode result = evaluate("Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress", cloudtrail);
+    assertThat(toStringList(result), contains("72.21.198.64"));
+  }
+
+  @Test
+  public void comparingJsonLiteralsWithRawContents() {
+    Query query = Query.fromString("Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress", null);
+    JsonNode result = query.evaluate(adapter, cloudtrail);
     assertThat(toStringList(result), contains("72.21.198.64"));
   }
 

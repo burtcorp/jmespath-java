@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Query;
+import io.burt.jmespath.jackson.JacksonAdapter;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
 import io.burt.jmespath.node.CreateArrayNode;
@@ -24,6 +25,7 @@ import io.burt.jmespath.node.IndexNode;
 import io.burt.jmespath.node.JmesPathNode;
 import io.burt.jmespath.node.JoinNode;
 import io.burt.jmespath.node.JsonLiteralNode;
+import io.burt.jmespath.node.ParsedJsonLiteralNode;
 import io.burt.jmespath.node.NegateNode;
 import io.burt.jmespath.node.OrNode;
 import io.burt.jmespath.node.PropertyNode;
@@ -41,17 +43,27 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasEntry;
 
 public class ParserTest {
+  private JacksonAdapter adapter = new JacksonAdapter();
+
+  private Query parse(String str) {
+    return Query.fromString(str, adapter);
+  }
+
+  private JsonLiteralNode createJsonLiteralNode(String json) {
+    return new ParsedJsonLiteralNode(json, adapter.parseString(json));
+  }
+
   @Test
   public void identifierExpression() {
     Query expected = new Query(new PropertyNode("foo", new CurrentNode()));
-    Query actual = Query.fromString("foo");
+    Query actual = parse("foo");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void quotedIdentifierExpression() {
     Query expected = new Query(new PropertyNode("foo-bar", new CurrentNode()));
-    Query actual = Query.fromString("\"foo-bar\"");
+    Query actual = parse("\"foo-bar\"");
     assertThat(actual, is(expected));
   }
 
@@ -62,7 +74,7 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo.bar");
+    Query actual = parse("foo.bar");
     assertThat(actual, is(expected));
   }
 
@@ -77,7 +89,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo.bar.baz.qux");
+    Query actual = parse("foo.bar.baz.qux");
     assertThat(actual, is(expected));
   }
 
@@ -90,7 +102,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo | bar");
+    Query actual = parse("foo | bar");
     assertThat(actual, is(expected));
   }
 
@@ -111,7 +123,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo | bar | baz | qux");
+    Query actual = parse("foo | bar | baz | qux");
     assertThat(actual, is(expected));
   }
 
@@ -128,7 +140,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo.bar | baz.qux");
+    Query actual = parse("foo.bar | baz.qux");
     assertThat(actual, is(expected));
   }
 
@@ -139,14 +151,14 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo[3]");
+    Query actual = parse("foo[3]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareIndexExpression() {
     Query expected = new Query(new IndexNode(3, new CurrentNode()));
-    Query actual = Query.fromString("[3]");
+    Query actual = parse("[3]");
     assertThat(actual, is(expected));
   }
 
@@ -157,7 +169,7 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo[3:4]");
+    Query actual = parse("foo[3:4]");
     assertThat(actual, is(expected));
   }
 
@@ -168,7 +180,7 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo[3:]");
+    Query actual = parse("foo[3:]");
     assertThat(actual, is(expected));
   }
 
@@ -179,7 +191,7 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo[:4]");
+    Query actual = parse("foo[:4]");
     assertThat(actual, is(expected));
   }
 
@@ -190,7 +202,7 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo[3:4:5]");
+    Query actual = parse("foo[3:4:5]");
     assertThat(actual, is(expected));
   }
 
@@ -201,7 +213,7 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo[3::5]");
+    Query actual = parse("foo[3::5]");
     assertThat(actual, is(expected));
   }
 
@@ -212,7 +224,7 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo[:]");
+    Query actual = parse("foo[:]");
     assertThat(actual, is(expected));
   }
 
@@ -223,21 +235,21 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo[::]");
+    Query actual = parse("foo[::]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareSliceExpression() {
     Query expected = new Query(new SliceNode(0, 1, 2, new CurrentNode()));
-    Query actual = Query.fromString("[0:1:2]");
+    Query actual = parse("[0:1:2]");
     assertThat(actual, is(expected));
   }
 
   @Test
   @Ignore("Should raise a parse error")
   public void sliceWithZeroStepSize() {
-    Query.fromString("[0:1:0]");
+    parse("[0:1:0]");
   }
 
   @Test
@@ -249,28 +261,28 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo[]");
+    Query actual = parse("foo[]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareFlattenExpression() {
     Query expected = new Query(new ForkNode(new FlattenArrayNode(new CurrentNode())));
-    Query actual = Query.fromString("[]");
+    Query actual = parse("[]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void listWildcardExpression() {
     Query expected = new Query(new ForkNode(new PropertyNode("foo", new CurrentNode())));
-    Query actual = Query.fromString("foo[*]");
+    Query actual = parse("foo[*]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareListWildcardExpression() {
     Query expected = new Query(new ForkNode(new CurrentNode()));
-    Query actual = Query.fromString("[*]");
+    Query actual = parse("[*]");
     assertThat(actual, is(expected));
   }
 
@@ -283,21 +295,21 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo.*");
+    Query actual = parse("foo.*");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareHashWildcardExpression() {
     Query expected = new Query(new ForkNode(new FlattenObjectNode(new CurrentNode())));
-    Query actual = Query.fromString("*");
+    Query actual = parse("*");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void currentNodeExpression() {
     Query expected = new Query(new CurrentNode());
-    Query actual = Query.fromString("@");
+    Query actual = parse("@");
     assertThat(actual, is(expected));
   }
 
@@ -322,7 +334,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("@ | foo | @ | bar | @");
+    Query actual = parse("@ | foo | @ | bar | @");
     assertThat(actual, is(expected));
   }
 
@@ -336,7 +348,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo[?bar]");
+    Query actual = parse("foo[?bar]");
     assertThat(actual, is(expected));
   }
 
@@ -353,7 +365,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo[?bar == baz]");
+    Query actual = parse("foo[?bar == baz]");
     assertThat(actual, is(expected));
   }
 
@@ -367,7 +379,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("[?bar]");
+    Query actual = parse("[?bar]");
     assertThat(actual, is(expected));
   }
 
@@ -379,7 +391,7 @@ public class ParserTest {
         new CurrentNode()
       )
     );
-    Query actual = Query.fromString("foo()");
+    Query actual = parse("foo()");
     assertThat(actual, is(expected));
   }
 
@@ -391,7 +403,7 @@ public class ParserTest {
         new CurrentNode()
       )
     );
-    Query actual = Query.fromString("foo(bar)");
+    Query actual = parse("foo(bar)");
     assertThat(actual, is(expected));
   }
 
@@ -407,7 +419,7 @@ public class ParserTest {
         new CurrentNode()
       )
     );
-    Query actual = Query.fromString("foo(bar, baz, @)");
+    Query actual = parse("foo(bar, baz, @)");
     assertThat(actual, is(expected));
   }
 
@@ -419,7 +431,7 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo.to_string(@)");
+    Query actual = parse("foo.to_string(@)");
     assertThat(actual, is(expected));
   }
 
@@ -438,14 +450,14 @@ public class ParserTest {
         new CurrentNode()
       )
     );
-    Query actual = Query.fromString("foo(&bar.bar)");
+    Query actual = parse("foo(&bar.bar)");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareRawStringExpression() {
     Query expected = new Query(new StringNode("foo"));
-    Query actual = Query.fromString("'foo'");
+    Query actual = parse("'foo'");
     assertThat(actual, is(expected));
   }
 
@@ -462,7 +474,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo[?bar != 'baz']");
+    Query actual = parse("foo[?bar != 'baz']");
     assertThat(actual, is(expected));
   }
 
@@ -474,7 +486,7 @@ public class ParserTest {
         new PropertyNode("bar", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo && bar");
+    Query actual = parse("foo && bar");
     assertThat(actual, is(expected));
   }
 
@@ -486,7 +498,7 @@ public class ParserTest {
         new PropertyNode("bar", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("foo || bar");
+    Query actual = parse("foo || bar");
     assertThat(actual, is(expected));
   }
 
@@ -499,7 +511,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo | [*]");
+    Query actual = parse("foo | [*]");
     assertThat(actual, is(expected));
   }
 
@@ -512,7 +524,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo | [1]");
+    Query actual = parse("foo | [1]");
     assertThat(actual, is(expected));
   }
 
@@ -525,7 +537,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo | [1:2]");
+    Query actual = parse("foo | [1:2]");
     assertThat(actual, is(expected));
   }
 
@@ -540,7 +552,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo | []");
+    Query actual = parse("foo | []");
     assertThat(actual, is(expected));
   }
 
@@ -556,7 +568,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo | [?bar]");
+    Query actual = parse("foo | [?bar]");
     assertThat(actual, is(expected));
   }
 
@@ -576,7 +588,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
+    Query actual = parse("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
     assertThat(actual, is(expected));
   }
 
@@ -596,7 +608,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo.bar[] | sort(@)");
+    Query actual = parse("foo.bar[] | sort(@)");
     assertThat(actual, is(expected));
   }
 
@@ -617,7 +629,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo[3].bar | baz.qux[2:3]");
+    Query actual = parse("foo[3].bar | baz.qux[2:3]");
     assertThat(actual, is(expected));
   }
 
@@ -628,7 +640,7 @@ public class ParserTest {
       new CreateObjectNode.Entry("baz", new CurrentNode())
     };
     Query expected = new Query(new CreateObjectNode(pieces, new CurrentNode()));
-    Query actual = Query.fromString("{foo: 'bar', baz: @}");
+    Query actual = parse("{foo: 'bar', baz: @}");
     assertThat(actual, is(expected));
   }
 
@@ -647,7 +659,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("hello | world.{foo: 'bar', baz: @}");
+    Query actual = parse("hello | world.{foo: 'bar', baz: @}");
     assertThat(actual, is(expected));
   }
 
@@ -658,7 +670,7 @@ public class ParserTest {
       new CreateObjectNode.Entry("baz", new CurrentNode())
     };
     Query expected = new Query(new CreateObjectNode(pieces, new CurrentNode()));
-    Query actual = Query.fromString("{\"foo\": 'bar', \"baz\": @}");
+    Query actual = parse("{\"foo\": 'bar', \"baz\": @}");
     assertThat(actual, is(expected));
   }
 
@@ -697,7 +709,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
+    Query actual = parse("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
     assertThat(actual, is(expected));
   }
 
@@ -712,7 +724,7 @@ public class ParserTest {
         new CurrentNode()
       )
     );
-    Query actual = Query.fromString("['bar', @]");
+    Query actual = parse("['bar', @]");
     assertThat(actual, is(expected));
   }
 
@@ -731,7 +743,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("hello | world.['bar', @]");
+    Query actual = parse("hello | world.['bar', @]");
     assertThat(actual, is(expected));
   }
 
@@ -748,7 +760,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo | (bar | baz)");
+    Query actual = parse("foo | (bar | baz)");
     assertThat(actual, is(expected));
   }
 
@@ -777,7 +789,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
+    Query actual = parse("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
     assertThat(actual, is(expected));
   }
 
@@ -788,7 +800,7 @@ public class ParserTest {
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = Query.fromString("!foo");
+    Query actual = parse("!foo");
     assertThat(actual, is(expected));
   }
 
@@ -802,50 +814,50 @@ public class ParserTest {
         )
       )
     );
-    Query actual = Query.fromString("foo[?!bar]");
+    Query actual = parse("foo[?!bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralExpression() {
-    Query expected = new Query(new JsonLiteralNode("{}", new HashMap<Object, String>()));
-    Query actual = Query.fromString("`{}`");
+    Query expected = new Query(createJsonLiteralNode("{}"));
+    Query actual = parse("`{}`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralArray() {
-    Query expected = new Query(new JsonLiteralNode("[]", new ArrayList<Object>()));
-    Query actual = Query.fromString("`[]`");
+    Query expected = new Query(createJsonLiteralNode("[]"));
+    Query actual = parse("`[]`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralNumber() {
-    Query expected = new Query(new JsonLiteralNode("3.14", new Double(3.14)));
-    Query actual = Query.fromString("`3.14`");
+    Query expected = new Query(createJsonLiteralNode("3.14"));
+    Query actual = parse("`3.14`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralString() {
-    Query expected = new Query(new JsonLiteralNode("\"foo\"", new String("foo")));
-    Query actual = Query.fromString("`\"foo\"`");
+    Query expected = new Query(createJsonLiteralNode("\"foo\""));
+    Query actual = parse("`\"foo\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralConstant() {
-    Query expected = new Query(new JsonLiteralNode("false", false));
-    Query actual = Query.fromString("`false`");
+    Query expected = new Query(createJsonLiteralNode("false"));
+    Query actual = parse("`false`");
     assertThat(actual, is(expected));
   }
 
   @Test
   @Ignore
   public void escapedBacktickInJsonString() {
-    Query expected = new Query(new JsonLiteralNode("\"fo`o\"", new String("fo`o")));
-    Query actual = Query.fromString("`\"fo\\`o\"`");
+    Query expected = new Query(createJsonLiteralNode("\"fo`o\""));
+    Query actual = parse("`\"fo\\`o\"`");
     assertThat(actual, is(expected));
   }
 
@@ -853,13 +865,13 @@ public class ParserTest {
   @Ignore
   public void unEscapedBacktickInJsonString() {
     try {
-      Query.fromString("`\"fo`o\"`");
+      parse("`\"fo`o\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
       assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 5"));
     }
     try {
-      Query.fromString("`\"`foo\"`");
+      parse("`\"`foo\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
       assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 3"));
@@ -873,13 +885,13 @@ public class ParserTest {
         new SelectionNode(
           new ComparisonNode("==",
             new PropertyNode("bar", new CurrentNode()),
-            new JsonLiteralNode("{\"foo\":\"bar\"}", Collections.singletonMap("foo", "bar"))
+            createJsonLiteralNode("{\"foo\":\"bar\"}")
           ),
           new PropertyNode("foo", new CurrentNode())
         )
       )
     );
-    Query actual = Query.fromString("foo[?bar == `{\"foo\": \"bar\"}`]");
+    Query actual = parse("foo[?bar == `{\"foo\": \"bar\"}`]");
     assertThat(actual, is(expected));
   }
 
@@ -887,7 +899,7 @@ public class ParserTest {
   @Ignore("Known issue")
   public void jsonBuiltinsAsNames() {
     Query expected = new Query(new PropertyNode("false", new CurrentNode()));
-    Query actual = Query.fromString("false");
+    Query actual = parse("false");
     assertThat(actual, is(expected));
   }
 }

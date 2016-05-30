@@ -11,7 +11,11 @@ public class Query {
   }
 
   public static Query fromString(String query) {
-    return JmesPathQueryParser.fromString(query);
+    return fromString(query, null);
+  }
+
+  public static Query fromString(String query, Adapter adapter) {
+    return JmesPathQueryParser.fromString(query, adapter);
   }
 
   public <T> T evaluate(Adapter<T> adapter, T input) {

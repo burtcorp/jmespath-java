@@ -4,7 +4,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
@@ -14,6 +14,7 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Query;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
 import io.burt.jmespath.node.CreateArrayNode;
@@ -28,6 +29,7 @@ import io.burt.jmespath.node.IndexNode;
 import io.burt.jmespath.node.JmesPathNode;
 import io.burt.jmespath.node.JoinNode;
 import io.burt.jmespath.node.JsonLiteralNode;
+import io.burt.jmespath.node.ParsedJsonLiteralNode;
 import io.burt.jmespath.node.NegateNode;
 import io.burt.jmespath.node.OrNode;
 import io.burt.jmespath.node.PropertyNode;
@@ -38,14 +40,18 @@ import io.burt.jmespath.node.StringNode;
 public class JmesPathQueryParser extends JmesPathBaseVisitor<JmesPathNode> {
   private final ParseTree tree;
   private final Deque<JmesPathNode> currentSource;
-  private final JsonGeneratingVisitor jsonGenerator;
+  private final Adapter adapter;
 
   public static Query fromString(String query) {
+    return fromString(query, null);
+  }
+
+  public static Query fromString(String query, Adapter adapter) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(query), errors), errors);
     ParseTree tree = parser.query();
     if (errors.isEmpty()) {
-      JmesPathQueryParser visitor = new JmesPathQueryParser(tree);
+      JmesPathQueryParser visitor = new JmesPathQueryParser(tree, adapter);
       return visitor.query();
     } else {
       throw new ParseException(query, errors);
@@ -72,10 +78,10 @@ public class JmesPathQueryParser extends JmesPathBaseVisitor<JmesPathNode> {
     return parser;
   }
 
-  private JmesPathQueryParser(ParseTree tree) {
+  private JmesPathQueryParser(ParseTree tree, Adapter adapter) {
     this.tree = tree;
     this.currentSource = new LinkedList<>();
-    this.jsonGenerator = new JsonGeneratingVisitor();
+    this.adapter = adapter;
   }
 
   public Query query() {
@@ -281,71 +287,15 @@ public class JmesPathQueryParser extends JmesPathBaseVisitor<JmesPathNode> {
   @Override
   public JmesPathNode visitLiteral(JmesPathParser.LiteralContext ctx) {
     String string = ctx.jsonValue().getText();
-    Object tree = jsonGenerator.visit(ctx);
-    return new JsonLiteralNode(string, tree);
+    if (adapter != null) {
+      return new ParsedJsonLiteralNode(string, adapter.parseString(string));
+    } else {
+      return new JsonLiteralNode(string);
+    }
   }
 
   @Override
   public JmesPathNode visitIdentifier(JmesPathParser.IdentifierContext ctx) {
     return new PropertyNode(identifierToString(ctx), currentSource.peek());
-  }
-
-  private static class JsonGeneratingVisitor extends JmesPathBaseVisitor<Object> {
-    @Override
-    public Object visitLiteral(JmesPathParser.LiteralContext ctx) {
-      return visit(ctx.jsonValue());
-    }
-
-    @Override
-    public Object visitJsonObject(JmesPathParser.JsonObjectContext ctx) {
-      Map<String, Object> object = new LinkedHashMap<>();
-      for (final JmesPathParser.JsonObjectPairContext pair : ctx.jsonObjectPair()) {
-        String key = pair.STRING().getText();
-        Object value = visit(pair.jsonValue());
-      }
-      return object;
-    }
-
-    @Override
-    public Object visitJsonArray(JmesPathParser.JsonArrayContext ctx) {
-      List<Object> array = new ArrayList(ctx.jsonValue().size());
-      for (final JmesPathParser.JsonValueContext entry : ctx.jsonValue()) {
-        array.add(visit(entry));
-      }
-      return array;
-    }
-
-    @Override
-    public Object visitJsonStringValue(JmesPathParser.JsonStringValueContext ctx) {
-      String string = ctx.getText();
-      string = string.substring(1, string.length() - 1);
-      return string;
-    }
-
-    @Override
-    public Object visitJsonNumberValue(JmesPathParser.JsonNumberValueContext ctx) {
-      return Double.parseDouble(ctx.getText());
-    }
-
-    @Override
-    public Object visitJsonObjectValue(JmesPathParser.JsonObjectValueContext ctx) {
-      return visit(ctx.jsonObject());
-    }
-
-    @Override
-    public Object visitJsonArrayValue(JmesPathParser.JsonArrayValueContext ctx) {
-      return visit(ctx.jsonArray());
-    }
-
-    @Override
-    public Object visitJsonConstantValue(JmesPathParser.JsonConstantValueContext ctx) {
-      if (ctx.t != null) {
-        return true;
-      } else if (ctx.f != null) {
-        return false;
-      } else {
-        return null;
-      }
-    }
   }
 }
