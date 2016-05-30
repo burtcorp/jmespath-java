@@ -55,7 +55,7 @@ public class ComparisonNode extends OperatorNode {
 
   @Override
   protected String internalToString() {
-    return operator;
+    return String.format("%s, %s, %s", operator, operands()[0], operands()[1]);
   }
 
   @Override
