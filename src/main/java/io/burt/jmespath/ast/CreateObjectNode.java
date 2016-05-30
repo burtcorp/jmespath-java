@@ -53,12 +53,16 @@ public class CreateObjectNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> adapter, T projectionElement) {
-    Map<String, T> object = new HashMap<>();
-    for (Entry entry : entries()) {
-      object.put(entry.key(), entry.value().evaluate(adapter, projectionElement));
+  public <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
+    if (adapter.isNull(currentValue)) {
+      return currentValue;
+    } else {
+      Map<String, T> object = new HashMap<>();
+      for (Entry entry : entries()) {
+        object.put(entry.key(), entry.value().evaluate(adapter, currentValue));
+      }
+      return adapter.createObject(object);
     }
-    return adapter.createObject(object);
   }
 
   protected Entry[] entries() {

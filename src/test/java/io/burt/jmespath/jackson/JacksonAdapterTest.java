@@ -562,6 +562,12 @@ public class JacksonAdapterTest {
   }
 
   @Test
+  public void createObjectOnNullProducesNull() {
+    JsonNode result = evaluate("bork.{foo: bar}", cloudtrail);
+    assertThat(result.isNull(), is(true));
+  }
+
+  @Test
   public void createArray() {
     JsonNode result = evaluate("[Records[*].userIdentity.userName, Records[2].responseElements.keyName]", cloudtrail);
     assertThat(toStringList(result.get(0)), contains("Alice", "Bob", "Alice"));
@@ -588,6 +594,12 @@ public class JacksonAdapterTest {
     JsonNode result = evaluate("Records[*].userIdentity | [[*].type, [[*].userName]]", cloudtrail);
     assertThat(toStringList(result.get(0)), contains("IAMUser", "IAMUser", "IAMUser"));
     assertThat(toStringList(result.get(1).get(0)), contains("Alice", "Bob", "Alice"));
+  }
+
+  @Test
+  public void createArrayOnNullProducesNull() {
+    JsonNode result = evaluate("bork.[snork]", cloudtrail);
+    assertThat(result.isNull(), is(true));
   }
 
   @Test

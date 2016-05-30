@@ -20,11 +20,15 @@ public class CreateArrayNode extends JmesPathNode {
 
   @Override
   protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    List<T> array = new ArrayList<>();
-    for (JmesPathNode entry : entries) {
-      array.add(entry.evaluate(adapter, currentValue));
+    if (adapter.isNull(currentValue)) {
+      return currentValue;
+    } else {
+      List<T> array = new ArrayList<>();
+      for (JmesPathNode entry : entries) {
+        array.add(entry.evaluate(adapter, currentValue));
+      }
+      return adapter.createArray(array);
     }
-    return adapter.createArray(array);
   }
 
   @Override
