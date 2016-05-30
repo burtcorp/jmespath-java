@@ -1,6 +1,6 @@
 package io.burt.jmespath;
 
-import io.burt.jmespath.parser.AstGenerator;
+import io.burt.jmespath.parser.AstGeneratingVisitor;
 import io.burt.jmespath.node.JmesPathNode;
 
 public class Query {
@@ -11,7 +11,7 @@ public class Query {
   }
 
   public static Query fromString(String query) {
-    return AstGenerator.fromString(query);
+    return AstGeneratingVisitor.fromString(query);
   }
 
   public <T> T evaluate(Adapter<T> adapter, T input) {
