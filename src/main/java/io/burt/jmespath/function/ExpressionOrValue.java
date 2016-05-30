@@ -1,6 +1,6 @@
 package io.burt.jmespath.function;
 
-import io.burt.jmespath.ast.JmesPathNode;
+import io.burt.jmespath.node.JmesPathNode;
 
 public class ExpressionOrValue<T> {
   private final JmesPathNode expression;

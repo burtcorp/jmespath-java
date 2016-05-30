@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.ast.JmesPathNode;
+import io.burt.jmespath.node.JmesPathNode;
 
 public class MapFunction extends JmesPathFunction {
   @Override

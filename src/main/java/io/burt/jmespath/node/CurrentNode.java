@@ -1,4 +1,4 @@
-package io.burt.jmespath.ast;
+package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 

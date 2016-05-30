@@ -1,6 +1,6 @@
 package io.burt.jmespath;
 
-import io.burt.jmespath.ast.JmesPathNode;
+import io.burt.jmespath.node.JmesPathNode;
 
 public class Query {
   private final JmesPathNode expression;
