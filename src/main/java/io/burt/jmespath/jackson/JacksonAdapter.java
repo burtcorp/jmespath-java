@@ -13,8 +13,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.FunctionRegistry;
-import io.burt.jmespath.FunctionCallException;
+import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
 
 import static com.fasterxml.jackson.databind.node.JsonNodeType.*;

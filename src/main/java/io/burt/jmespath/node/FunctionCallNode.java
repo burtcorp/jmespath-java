@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.FunctionCallException;
 import io.burt.jmespath.function.ExpressionOrValue;
 
 public class FunctionCallNode extends JmesPathNode {

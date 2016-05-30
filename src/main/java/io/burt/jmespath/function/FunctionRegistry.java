@@ -1,13 +1,10 @@
-package io.burt.jmespath;
+package io.burt.jmespath.function;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
-import io.burt.jmespath.function.ExpressionOrValue;
-import io.burt.jmespath.function.JmesPathFunction;
-import io.burt.jmespath.function.TypeFunction;
-import io.burt.jmespath.function.MapFunction;
+import io.burt.jmespath.Adapter;
 
 public class FunctionRegistry {
   private final Map<String, JmesPathFunction> functions;

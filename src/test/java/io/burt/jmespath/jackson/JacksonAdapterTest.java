@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import io.burt.jmespath.Query;
-import io.burt.jmespath.FunctionCallException;
+import io.burt.jmespath.function.FunctionCallException;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
