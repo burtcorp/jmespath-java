@@ -1,8 +1,12 @@
 package io.burt.jmespath.ast;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.FunctionCallException;
+import io.burt.jmespath.function.ExpressionOrValue;
 
 public class FunctionCallNode extends JmesPathNode {
   private final String name;
@@ -16,9 +20,15 @@ public class FunctionCallNode extends JmesPathNode {
 
   @Override
   protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    String name = getClass().getName();
-    name = name.substring(name.lastIndexOf(".") + 1);
-    throw new UnsupportedOperationException(String.format("%s#evaluate not implemented", name));
+    List<ExpressionOrValue<T>> arguments = new ArrayList<>(args.length);
+    for (JmesPathNode arg : args()) {
+      if (arg instanceof ExpressionReferenceNode) {
+        arguments.add(new ExpressionOrValue<T>(arg));
+      } else {
+        arguments.add(new ExpressionOrValue<T>(arg.evaluate(adapter, currentValue)));
+      }
+    }
+    return adapter.callFunction(name(), arguments);
   }
 
   protected String name() {

@@ -6,15 +6,13 @@ public class ExpressionReferenceNode extends JmesPathNode {
   private final JmesPathNode expression;
 
   public ExpressionReferenceNode(JmesPathNode expression) {
-    super(null);
+    super(new CurrentNode());
     this.expression = expression;
   }
 
   @Override
   protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    String name = getClass().getName();
-    name = name.substring(name.lastIndexOf(".") + 1);
-    throw new UnsupportedOperationException(String.format("%s#evaluate not implemented", name));
+    return expression().evaluate(adapter, currentValue);
   }
 
   protected JmesPathNode expression() {

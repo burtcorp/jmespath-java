@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Comparator;
 import java.util.Map;
 
+import io.burt.jmespath.function.ExpressionOrValue;
+
 public interface Adapter<T> extends Comparator<T> {
   T parseString(String str);
 
@@ -19,6 +21,8 @@ public interface Adapter<T> extends Comparator<T> {
 
   boolean isNull(T value);
 
+  String typeOf(T value);
+
   T getProperty(T value, String name);
 
   T createNull();
@@ -32,4 +36,6 @@ public interface Adapter<T> extends Comparator<T> {
   T createBoolean(boolean b);
 
   T createObject(Map<String, T> obj);
+
+  T callFunction(String name, List<ExpressionOrValue<T>> arguments);
 }

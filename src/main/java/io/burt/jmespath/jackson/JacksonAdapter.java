@@ -13,15 +13,19 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.ParseException;
+import io.burt.jmespath.FunctionRegistry;
+import io.burt.jmespath.FunctionCallException;
+import io.burt.jmespath.function.ExpressionOrValue;
 
 import static com.fasterxml.jackson.databind.node.JsonNodeType.*;
 
 public class JacksonAdapter implements Adapter<JsonNode> {
   private final ObjectMapper jsonParser;
+  private final FunctionRegistry functionRegistry;
 
   public JacksonAdapter() {
     this.jsonParser = new ObjectMapper();
+    this.functionRegistry = FunctionRegistry.createDefaultRegistry();
   }
 
   @Override
@@ -86,6 +90,28 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   @Override
   public boolean isNull(JsonNode value) {
     return value.isNull();
+  }
+
+  @Override
+  public String typeOf(JsonNode value) {
+    switch (value.getNodeType()) {
+      case ARRAY: return "array";
+      case POJO:
+      case OBJECT:
+        return "object";
+      case BINARY:
+      case STRING:
+        return "string";
+      case BOOLEAN:
+        return "boolean";
+      case MISSING:
+      case NULL:
+        return "null";
+      case NUMBER:
+        return "number";
+      default:
+        throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getNodeType()));
+    }
   }
 
   @Override
@@ -154,6 +180,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   @Override
   public JsonNode createObject(Map<String, JsonNode> obj) {
     return new ObjectNode(JsonNodeFactory.instance, obj);
+  }
+
+  @Override
+  public JsonNode callFunction(String name, List<ExpressionOrValue<JsonNode>> arguments) {
+    return functionRegistry.callFunction(this, name, arguments);
   }
 
   private JsonNode nodeOrNullNode(JsonNode node) {

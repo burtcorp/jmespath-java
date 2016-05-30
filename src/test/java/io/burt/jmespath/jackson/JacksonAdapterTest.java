@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import io.burt.jmespath.AstGenerator;
 import io.burt.jmespath.Query;
+import io.burt.jmespath.FunctionCallException;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -642,5 +643,22 @@ public class JacksonAdapterTest {
   public void jsonLiteralInComparison() {
     JsonNode result = evaluate("Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress", cloudtrail);
     assertThat(toStringList(result), contains("72.21.198.64"));
+  }
+
+  @Test
+  public void callFunction() {
+    JsonNode result = evaluate("type(@)", parseString("{}"));
+    assertThat(result.textValue(), is("object"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void callNonExistentFunctionThrowsFunctionCallException() {
+    evaluate("bork()", parseString("{}"));
+  }
+
+  @Test
+  public void callFunctionWithExpressionReference() {
+    JsonNode result = evaluate("map(&userIdentity.userName, Records)", cloudtrail);
+    assertThat(toStringList(result), contains("Alice", "Bob", "Alice"));
   }
 }
