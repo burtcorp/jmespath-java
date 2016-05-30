@@ -14,16 +14,17 @@ public class IndexNode extends JmesPathNode {
 
   @Override
   protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    List<T> elements = adapter.toList(currentValue);
-    int i = index();
-    if (i < 0) {
-      i = elements.size() + i;
+    if (adapter.isArray(currentValue)) {
+      List<T> elements = adapter.toList(currentValue);
+      int i = index();
+      if (i < 0) {
+        i = elements.size() + i;
+      }
+      if (i >= 0 && i < elements.size()) {
+        return elements.get(i);
+      }
     }
-    if (i >= 0 && i < elements.size()) {
-      return elements.get(i);
-    } else {
-      return adapter.createNull();
-    }
+    return adapter.createNull();
   }
 
   protected int index() {

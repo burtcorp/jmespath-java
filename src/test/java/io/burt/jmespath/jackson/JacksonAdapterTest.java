@@ -116,6 +116,12 @@ public class JacksonAdapterTest {
   }
 
   @Test
+  public void indexOnNonArrayProducesNull() {
+    JsonNode result = evaluate("[0]", contact);
+    assertThat(result.isNull(), is(true));
+  }
+
+  @Test
   public void projection() {
     JsonNode result = evaluate("phoneNumbers[*].type", contact);
     assertThat(toStringList(result), contains("home", "office", "mobile"));
