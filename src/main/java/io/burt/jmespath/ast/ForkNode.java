@@ -13,6 +13,15 @@ public class ForkNode extends JmesPathNode {
   }
 
   @Override
+  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
+    if (adapter.isArray(currentValue)) {
+      return super.evaluateWithCurrentValue(adapter, currentValue);
+    } else {
+      return adapter.createNull();
+    }
+  }
+
+  @Override
   protected boolean internalEquals(Object o) {
     return true;
   }

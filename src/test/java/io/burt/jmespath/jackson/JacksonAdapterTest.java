@@ -140,6 +140,12 @@ public class JacksonAdapterTest {
   }
 
   @Test
+  public void projectionOnNonArrayProducesNull() {
+    JsonNode result = evaluate("[*]", contact);
+    assertThat(result.isNull(), is(true));
+  }
+
+  @Test
   public void pipeStopsProjections() {
     JsonNode result = evaluate("Records[*].userIdentity | [1].userName", cloudtrail);
     assertThat(result.textValue(), is("Bob"));
