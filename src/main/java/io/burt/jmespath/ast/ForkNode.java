@@ -8,7 +8,7 @@ public class ForkNode extends JmesPathNode {
   }
 
   @Override
-  public boolean isProjection() {
+  protected boolean isProjection() {
     return true;
   }
 

@@ -12,7 +12,7 @@ public class CurrentNode extends JmesPathNode {
   }
 
   @Override
-  public boolean isProjection() {
+  protected boolean isProjection() {
     return source() == null ? false : super.isProjection();
   }
 

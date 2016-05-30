@@ -8,7 +8,7 @@ public class JoinNode extends JmesPathNode {
   }
 
   @Override
-  public boolean isProjection() {
+  protected boolean isProjection() {
     return false;
   }
 

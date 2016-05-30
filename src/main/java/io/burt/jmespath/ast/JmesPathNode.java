@@ -16,7 +16,7 @@ public abstract class JmesPathNode {
     this.source = source;
   }
 
-  public boolean isProjection() {
+  protected boolean isProjection() {
     return source().isProjection();
   }
 
