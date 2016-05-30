@@ -31,7 +31,7 @@ import io.burt.jmespath.node.SelectionNode;
 import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
-public class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
+class AstGeneratingVisitor extends JmesPathBaseVisitor<JmesPathNode> {
   private final ParseTree tree;
   private final Deque<JmesPathNode> currentSource;
   private final JsonGeneratingVisitor jsonGenerator;

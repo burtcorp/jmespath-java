@@ -13,7 +13,7 @@ import io.burt.jmespath.JmesPathLexer;
 import io.burt.jmespath.JmesPathParser;
 import io.burt.jmespath.Query;
 
-public class AstGenerator {
+class AstGenerator {
   public static Query fromString(String query) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(query), errors), errors);

@@ -18,7 +18,7 @@ public class Main {
       System.exit(1);
     }
     try {
-      Query query = AstGenerator.fromString(args[0]);
+      Query query = Query.fromString(args[0]);
       System.err.println(query);
     } catch (ParseException pe) {
       System.err.println(pe.getMessage());

@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import io.burt.jmespath.AstGenerator;
 import io.burt.jmespath.Query;
 import io.burt.jmespath.FunctionCallException;
 
@@ -58,7 +57,7 @@ public class JacksonAdapterTest {
   }
 
   private JsonNode evaluate(String query, JsonNode input) {
-    return AstGenerator.fromString(query).evaluate(adapter, input);
+    return Query.fromString(query).evaluate(adapter, input);
   }
 
   @Before

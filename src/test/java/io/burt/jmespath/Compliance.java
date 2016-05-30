@@ -87,7 +87,7 @@ public class Compliance {
         String expectedError = testCase.error();
         try {
           if (expectedError == null || expectedError.equals("syntax")) {
-            Query query = AstGenerator.fromString(testCase.expression());
+            Query query = Query.fromString(testCase.expression());
             if (expectedError != null && expectedError.equals("syntax")) {
               System.out.println(String.format("The expression \"%s\" did not fail with a syntax error! (comment: \"%s\")", testCase.expression(), testCase.comment()));
             } else {

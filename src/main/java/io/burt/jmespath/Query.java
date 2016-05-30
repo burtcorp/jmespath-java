@@ -9,6 +9,10 @@ public class Query {
     this.expression = expression;
   }
 
+  public static Query fromString(String query) {
+    return AstGenerator.fromString(query);
+  }
+
   public <T> T evaluate(Adapter<T> adapter, T input) {
     return expression.evaluate(adapter, input);
   }
