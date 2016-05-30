@@ -60,6 +60,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
+  public boolean isBoolean(JsonNode value) {
+    return value.isBoolean();
+  }
+
+  @Override
   public boolean isNumber(JsonNode value) {
     return value.isNumber();
   }

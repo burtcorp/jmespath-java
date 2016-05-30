@@ -36,6 +36,11 @@ public interface Adapter<T> extends Comparator<T> {
   boolean isObject(T value);
 
   /**
+   * Returns true when the argument is a boolean.
+   */
+  boolean isBoolean(T value);
+
+  /**
    * Returns true when the argument is a number.
    */
   boolean isNumber(T value);
