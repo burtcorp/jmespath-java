@@ -6,36 +6,108 @@ import java.util.Map;
 
 import io.burt.jmespath.function.ExpressionOrValue;
 
+/**
+ * An adapter helps the JMESPath parser and interpreter work with a JSON-like
+ * structure without having to know how it works. Implement this interface
+ * to make it possible to query any JSON-like structure with JMESPath.
+ */
 public interface Adapter<T> extends Comparator<T> {
+  /**
+   * Parse a JSON string to a value.
+   */
   T parseString(String str);
 
+  /**
+   * Converts the argument to a List<T>.
+   *
+   * The argument is either an array or an object. In the latter case the
+   * result is the object's values.
+   */
   List<T> toList(T array);
 
+  /**
+   * Returns true when the argument is an array.
+   */
   boolean isArray(T value);
 
+  /**
+   * Returns true when the argument is an object.
+   */
   boolean isObject(T value);
 
+  /**
+   * Returns true when the argument is a number.
+   */
   boolean isNumber(T value);
 
+  /**
+   * Returns true when the argument is truthy.
+   *
+   * All values are truthy, except the following, as per the JMESPath
+   * specification: false, null, empty lists, empty objects, empty strings.
+   */
   boolean isTruthy(T value);
 
+  /**
+   * Returns true when the argument represets null.
+   */
   boolean isNull(T value);
 
+  /**
+   * Returns the JSON type of the argument.
+   *
+   * As per the JMESPath specification the types are: number, string, boolean,
+   * array, object, null.
+   */
   String typeOf(T value);
 
+  /**
+   * Returns a property from an object.
+   *
+   * The first argument must be an object and the second argument may be
+   * a property on that object. When the property does not exist or is null
+   * a null value (but not Java null) is returned.
+   */
   T getProperty(T value, String name);
 
+  /**
+   * Returns a null value (but not Java null).
+   */
   T createNull();
 
+  /**
+   * Returns an array with the specified elements.
+   */
   T createArray(List<T> elements);
 
+  /**
+   * Returns an array with the specified elements, and optionally filters
+   * out null values.
+   */
   T createArray(List<T> elements, boolean compact);
 
+  /**
+   * Returns a string value containing the specified string.
+   */
   T createString(String str);
 
+  /**
+   * Returns a boolean value containing the specified boolean.
+   */
   T createBoolean(boolean b);
 
+  /**
+   * Returns an object with the specified properties.
+   *
+   * Does not support creating nested objects.
+   */
   T createObject(Map<String, T> obj);
 
+  /**
+   * Calls a function with the specified arguments and returns the result.
+   *
+   * Arguments can be either JMESPath expressions or values. How the arguments
+   * are interpreted is up to the function.
+   */
   T callFunction(String name, List<ExpressionOrValue<T>> arguments);
 }
