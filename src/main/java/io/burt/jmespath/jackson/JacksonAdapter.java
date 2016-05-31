@@ -187,6 +187,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
+  public JsonNode createNumber(double d) {
+    return JsonNodeFactory.instance.numberNode(d);
+  }
+
+  @Override
   public JsonNode callFunction(String name, List<ExpressionOrValue<JsonNode>> arguments) {
     return functionRegistry.callFunction(this, name, arguments);
   }

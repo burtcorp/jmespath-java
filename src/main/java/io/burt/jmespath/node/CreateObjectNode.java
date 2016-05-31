@@ -2,7 +2,7 @@ package io.burt.jmespath.node;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import io.burt.jmespath.Adapter;
 
@@ -57,7 +57,7 @@ public class CreateObjectNode extends JmesPathNode {
     if (adapter.isNull(currentValue)) {
       return currentValue;
     } else {
-      Map<String, T> object = new HashMap<>();
+      Map<String, T> object = new LinkedHashMap<>();
       for (Entry entry : entries()) {
         object.put(entry.key(), entry.value().evaluate(adapter, currentValue));
       }

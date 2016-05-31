@@ -109,6 +109,11 @@ public interface Adapter<T> extends Comparator<T> {
   T createObject(Map<String, T> obj);
 
   /**
+   * Returns a number value containing the specified number.
+   */
+  T createNumber(double n);
+
+  /**
    * Calls a function with the specified arguments and returns the result.
    *
    * Arguments can be either JMESPath expressions or values. How the arguments
