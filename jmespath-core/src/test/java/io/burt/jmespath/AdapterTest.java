@@ -13,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,14 +33,16 @@ public abstract class AdapterTest<T> {
 
   protected abstract Adapter<T> adapter();
 
-  protected T loadExample(String path_) {
-    try {
-      Path path = FileSystems.getDefault().getPath(getClass().getResource(path_).getFile());
-      String contents = new String(Files.readAllBytes(path), Charset.forName("UTF-8"));
-      return adapter().parseString(contents);
+  protected T loadExample(String path) {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {
+      StringBuffer buffer = new StringBuffer();
+      String line;
+      while ((line = reader.readLine()) != null) {
+        buffer.append(line);
+      }
+      return adapter().parseString(buffer.toString());
     } catch (IOException ioe) {
-      fail(String.format("Failed parsing %s: \"%s\"", path_, ioe.getMessage()));
-      return null;
+      throw new RuntimeException(String.format("Failed parsing %s", path), ioe);
     }
   }
 
