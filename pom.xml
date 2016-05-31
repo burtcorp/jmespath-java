@@ -8,6 +8,7 @@
   <name>JMESPath</name>
   <description>A JMESPath implementation for Java</description>
   <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
   <properties>
     <junit.version>4.12</junit.version>
@@ -16,22 +17,35 @@
     <antlr.version>4.5.2</antlr.version>
   </properties>
 
+  <licenses>
+    <license>
+      <name>BSD 3-Clause</name>
+      <url>https://opensource.org/licenses/BSD-3-Clause</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Burt AB</name>
+      <url>http://burtcorp.com/</url>
+    </developer>
+  </developers>
+
+  <inceptionYear>2016</inceptionYear>
+
+  <scm>
+    <connection>scm:git:ssh://git@github.com/burtcorp/jmespath-java.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/burtcorp/jmespath-java.git</developerConnection>
+    <url>https://github.com/burtcorp/jmespath-java.git</url>
+    <tag>0.1.0-SNAPSHOT</tag>
+  </scm>
+
+  <modules>
+    <module>jmespath-core</module>
+    <module>jmespath-jackson</module>
+  </modules>
+
   <dependencies>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr4</artifactId>
-      <version>${antlr.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr4-runtime</artifactId>
-      <version>${antlr.version}</version>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -69,22 +83,6 @@
           <source>7</source>
           <target>7</target>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.antlr</groupId>
-        <artifactId>antlr4-maven-plugin</artifactId>
-        <version>${antlr.version}</version>
-        <configuration>
-          <visitor>true</visitor>
-          <listener>false</listener>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>antlr4</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

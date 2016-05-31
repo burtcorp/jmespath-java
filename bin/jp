@@ -1,6 +1,0 @@
-#!/bin/bash
-
-classpath=$(find target/dist/lib -name '*.jar' -exec echo $(pwd)/{} \; | tr '\n' ':')
-classpath="$classpath:target/classes"
-
-exec java -classpath "$classpath" io.burt.jmespath.jp.Main "$@"
