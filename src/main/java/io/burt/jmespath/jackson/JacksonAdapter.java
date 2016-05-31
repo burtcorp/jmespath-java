@@ -50,6 +50,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
+  public String toString(JsonNode str) {
+    return str.textValue();
+  }
+
+  @Override
   public boolean isArray(JsonNode value) {
     return value.isArray();
   }

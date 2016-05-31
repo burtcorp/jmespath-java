@@ -16,13 +16,4 @@ public class JcfTest extends AdapterTest<Object> {
 
   @Override
   protected Adapter<Object> adapter() { return adapter; }
-
-  @Override
-  protected String valueToString(Object node) {
-    if (node instanceof String) {
-      return node.toString();
-    } else {
-      return null;
-    }
-  }
 }

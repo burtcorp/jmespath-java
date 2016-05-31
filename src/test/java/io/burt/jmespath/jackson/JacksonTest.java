@@ -18,9 +18,4 @@ public class JacksonTest extends AdapterTest<JsonNode> {
 
   @Override
   protected Adapter<JsonNode> adapter() { return adapter; }
-
-  @Override
-  protected String valueToString(JsonNode node) {
-    return node.textValue();
-  }
 }

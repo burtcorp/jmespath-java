@@ -35,6 +35,15 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
+  public String toString(Object str) {
+    if (isString(str)) {
+      return (String) str;
+    } else {
+      return null;
+    }
+  }
+
+  @Override
   public boolean isArray(Object value) {
     return value instanceof List;
   }

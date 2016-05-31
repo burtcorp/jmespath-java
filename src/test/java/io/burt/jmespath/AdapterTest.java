@@ -42,8 +42,6 @@ public abstract class AdapterTest<T> {
     }
   }
 
-  protected abstract String valueToString(T node);
-
   protected T evaluate(String query, T input) {
     return Query.fromString(query, adapter()).evaluate(adapter(), input);
   }
@@ -98,11 +96,15 @@ public abstract class AdapterTest<T> {
       @Override
       public boolean matches(final Object n) {
         List<T> input = adapter().toList((T) n);
-        String[] strings = new String[input.size()];
-        for (int i = 0; i < input.size(); i++) {
-          strings[i] = valueToString(input.get(i));
+        if (input.size() != strs.length) {
+          return false;
         }
-        return Arrays.equals(strs, strings);
+        for (int i = 0; i < strs.length; i++) {
+          if (!adapter().toString(input.get(i)).equals(strs[i])) {
+            return false;
+          }
+        }
+        return true;
       }
 
       @Override

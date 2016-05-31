@@ -26,6 +26,12 @@ public interface Adapter<T> extends Comparator<T> {
   List<T> toList(T array);
 
   /**
+   * Converts the argument to a String, or null if the argument does not
+   * represent a string.
+   */
+  String toString(T value);
+
+  /**
    * Returns true when the argument is an array.
    */
   boolean isArray(T value);
