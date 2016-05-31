@@ -19,7 +19,7 @@ public class Main {
     try {
       JsonNode input = new ObjectMapper().readTree(System.in);
       Adapter<JsonNode> adapter = new JacksonAdapter();
-      Query query = Query.fromString(args[0]);
+      Query query = Query.fromString(adapter, args[0]);
       JsonNode result = query.evaluate(adapter, input);
       System.out.println(result.toString());
     } catch (JsonParseException jpe) {

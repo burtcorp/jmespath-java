@@ -46,7 +46,7 @@ public class ParserTest {
   private JacksonAdapter adapter = new JacksonAdapter();
 
   private Query parse(String str) {
-    return Query.fromString(str, adapter);
+    return Query.fromString(adapter, str);
   }
 
   private JsonLiteralNode createJsonLiteralNode(String json) {

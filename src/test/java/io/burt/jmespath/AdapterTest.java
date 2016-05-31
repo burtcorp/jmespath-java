@@ -43,7 +43,7 @@ public abstract class AdapterTest<T> {
   }
 
   protected T evaluate(String query, T input) {
-    return Query.fromString(query, adapter()).evaluate(adapter(), input);
+    return Query.fromString(adapter(), query).evaluate(adapter(), input);
   }
 
   protected Matcher<T> jsonBoolean(final boolean b) {
@@ -688,7 +688,7 @@ public abstract class AdapterTest<T> {
 
   @Test
   public void comparingJsonLiteralsWithRawContents() {
-    Query query = Query.fromString("Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress", null);
+    Query query = Query.fromString(null, "Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress");
     T result = query.evaluate(adapter(), cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("72.21.198.64")));
   }
