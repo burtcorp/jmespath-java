@@ -13,6 +13,7 @@ public class FunctionRegistry {
     FunctionRegistry registry = new FunctionRegistry();
     registry.add(new TypeFunction());
     registry.add(new MapFunction());
+    registry.add(new NotNullFunction());
     return registry;
   }
 

@@ -709,6 +709,12 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
+  @Test
+  public void callVariadicFunction() {
+    T result = evaluate("not_null(Records[0].requestParameters.keyName, Records[1].requestParameters.keyName, Records[2].requestParameters.keyName)", cloudtrail);
+    assertThat(result, is(jsonString("mykeypair")));
+  }
+
   @Test(expected = FunctionCallException.class)
   public void callNonExistentFunctionThrowsFunctionCallException() {
     evaluate("bork()", adapter().parseString("{}"));
