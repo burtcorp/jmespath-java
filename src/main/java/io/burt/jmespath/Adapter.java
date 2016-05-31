@@ -18,12 +18,12 @@ public interface Adapter<T> extends Comparator<T> {
   T parseString(String str);
 
   /**
-   * Converts the argument to a List<T>.
+   * Converts the argument to a List<T>, or an empty list when the argument does
+   * not represent an array or object.
    *
-   * The argument is either an array or an object. In the latter case the
-   * result is the object's values.
+   * When the argument is an object the result is the object's values.
    */
-  List<T> toList(T array);
+  List<T> toList(T value);
 
   /**
    * Converts the argument to a String, or null if the argument does not
