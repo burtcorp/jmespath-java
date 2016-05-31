@@ -1,12 +1,25 @@
 package io.burt.jmespath;
 
-import io.burt.jmespath.ast.JmesPathNode;
+import io.burt.jmespath.parser.JmesPathQueryParser;
+import io.burt.jmespath.node.JmesPathNode;
 
 public class Query {
   private final JmesPathNode expression;
 
   public Query(JmesPathNode expression) {
     this.expression = expression;
+  }
+
+  public static Query fromString(String query) {
+    return fromString(query, null);
+  }
+
+  public static Query fromString(String query, Adapter adapter) {
+    return JmesPathQueryParser.fromString(query, adapter);
+  }
+
+  public <T> T evaluate(Adapter<T> adapter, T input) {
+    return expression.evaluate(adapter, input);
   }
 
   protected JmesPathNode expression() {

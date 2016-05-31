@@ -12,7 +12,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.burt.jmespath.Query;
+import io.burt.jmespath.parser.ParseException;
+import io.burt.jmespath.jackson.JacksonAdapter;
 
 public class Compliance {
   public static class TestGroup implements Iterable<TestCase> {
@@ -32,6 +33,7 @@ public class Compliance {
     }
 
     public Iterator<TestCase> iterator() { return testCases.iterator(); }
+    public JsonNode input() { return input; }
   }
 
   public static class TestCase {
@@ -62,6 +64,7 @@ public class Compliance {
     public String expression() { return expression; }
     public String comment() { return comment; }
     public String error() { return error; }
+    public JsonNode result() { return result; }
   }
 
   public static void main(String[] args) throws IOException {
@@ -79,14 +82,20 @@ public class Compliance {
   }
 
   private static void runTests(List<TestGroup> testGroups) {
+    Adapter<JsonNode> adapter = new JacksonAdapter();
     for (TestGroup testGroup : testGroups) {
       for (TestCase testCase : testGroup) {
         String expectedError = testCase.error();
         try {
           if (expectedError == null || expectedError.equals("syntax")) {
-            AstGenerator.fromString(testCase.expression());
+            Query query = Query.fromString(testCase.expression());
             if (expectedError != null && expectedError.equals("syntax")) {
               System.out.println(String.format("The expression \"%s\" did not fail with a syntax error! (comment: \"%s\")", testCase.expression(), testCase.comment()));
+            } else {
+              JsonNode actualResult = query.evaluate(adapter, testGroup.input());
+              if (!actualResult.equals(testCase.result())) {
+                System.out.println(String.format("The expression \"%s\" did not produce the expected result (actual: %s, expected: %s)", testCase.expression(), actualResult, testCase.result()));
+              }
             }
           } else {
             System.out.println(String.format("Unsure how evaluate \"%s\" (comment: \"%s\", error: \"%s\")", testCase.expression(), testCase.comment(), expectedError));
