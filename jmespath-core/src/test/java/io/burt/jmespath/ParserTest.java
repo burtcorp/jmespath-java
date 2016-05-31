@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Query;
-import io.burt.jmespath.jackson.JacksonAdapter;
+import io.burt.jmespath.Adapter;
+import io.burt.jmespath.jcf.JcfAdapter;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
 import io.burt.jmespath.node.CreateArrayNode;
@@ -43,7 +44,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasEntry;
 
 public class ParserTest {
-  private JacksonAdapter adapter = new JacksonAdapter();
+  private Adapter<Object> adapter = new JcfAdapter();
 
   private Query parse(String str) {
     return Query.fromString(adapter, str);

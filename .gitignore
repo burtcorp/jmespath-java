@@ -1,2 +1,4 @@
 /tmp
 /target
+/jmespath-core/target
+/jmespath-jackson/target
