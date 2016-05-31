@@ -158,21 +158,8 @@ public class JacksonAdapter implements Adapter<JsonNode> {
 
   @Override
   public JsonNode createArray(List<JsonNode> elements) {
-    return createArray(elements, false);
-  }
-
-  @Override
-  public JsonNode createArray(List<JsonNode> elements, boolean compact) {
     ArrayNode array = JsonNodeFactory.instance.arrayNode();
-    if (compact) {
-      for (JsonNode element : elements) {
-        if (!element.isNull()) {
-          array.add(element);
-        }
-      }
-    } else {
-      array.addAll(elements);
-    }
+    array.addAll(elements);
     return array;
   }
 

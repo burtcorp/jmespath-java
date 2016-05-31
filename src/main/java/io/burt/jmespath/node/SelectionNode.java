@@ -23,7 +23,7 @@ public class SelectionNode extends JmesPathNode {
           selectedElements.add(element);
         }
       }
-      return adapter.createArray(selectedElements, true);
+      return adapter.createArray(selectedElements);
     } else {
       return adapter.createNull();
     }

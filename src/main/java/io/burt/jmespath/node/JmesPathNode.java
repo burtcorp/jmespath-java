@@ -31,9 +31,12 @@ public abstract class JmesPathNode {
       } else {
         List<T> outputs = new LinkedList<>();
         for (T projectionElement : adapter.toList(currentValue)) {
-          outputs.add(evaluateOne(adapter, projectionElement));
+          T value = evaluateOne(adapter, projectionElement);
+          if (!adapter.isNull(value)) {
+            outputs.add(value);
+          }
         }
-        return adapter.createArray(outputs, true);
+        return adapter.createArray(outputs);
       }
     } else {
       return evaluateOne(adapter, currentValue);

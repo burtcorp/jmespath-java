@@ -1,8 +1,5 @@
 package io.burt.jmespath.node;
 
-import java.util.List;
-import java.util.LinkedList;
-
 import io.burt.jmespath.Adapter;
 
 public class FlattenObjectNode extends JmesPathNode {
@@ -13,7 +10,7 @@ public class FlattenObjectNode extends JmesPathNode {
   @Override
   protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
     if (adapter.isObject(currentValue)) {
-      return adapter.createArray(adapter.toList(currentValue), true);
+      return adapter.createArray(adapter.toList(currentValue));
     } else {
       return adapter.createNull();
     }

@@ -92,12 +92,6 @@ public interface Adapter<T> extends Comparator<T> {
   T createArray(List<T> elements);
 
   /**
-   * Returns an array with the specified elements, and optionally filters
-   * out null values.
-   */
-  T createArray(List<T> elements, boolean compact);
-
-  /**
    * Returns a string value containing the specified string.
    */
   T createString(String str);

@@ -153,17 +153,6 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
-  public Object createArray(List<Object> elements, boolean compact) {
-    List<Object> compacted = new ArrayList<>(elements.size());
-    for (Object element : elements) {
-      if (element != null) {
-        compacted.add(element);
-      }
-    }
-    return compacted;
-  }
-
-  @Override
   public Object createString(String str) {
     return str;
   }
