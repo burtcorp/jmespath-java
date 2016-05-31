@@ -703,14 +703,24 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(jsonString("object")));
   }
 
+  @Test
+  public void callFunctionWithExpressionReference() {
+    T result = evaluate("map(&userIdentity.userName, Records)", cloudtrail);
+    assertThat(result, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
+  }
+
   @Test(expected = FunctionCallException.class)
   public void callNonExistentFunctionThrowsFunctionCallException() {
     evaluate("bork()", adapter().parseString("{}"));
   }
 
-  @Test
-  public void callFunctionWithExpressionReference() {
-    T result = evaluate("map(&userIdentity.userName, Records)", cloudtrail);
-    assertThat(result, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
+  @Test(expected = FunctionCallException.class)
+  public void callFunctionWithTooFewArgumentsThrowsFunctionCallException() {
+    evaluate("type()", adapter().parseString("{}"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void callFunctionWithTooManyArgumentsThrowsFunctionCallException() {
+    evaluate("type(@, @, @)", adapter().parseString("{}"));
   }
 }
