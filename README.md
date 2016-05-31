@@ -16,7 +16,7 @@ import io.burt.jmespath.jackson.JacksonAdapter;
 
 JsonNode input = new ObjectMapper().readTree(System.in);
 Adapter<JsonNode> adapter = new JacksonAdapter();
-Query query = Query.fromString(args[0]);
+Query query = Query.fromString(adapter, "locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
 JsonNode result = query.evaluate(adapter, input);
 ```
 
