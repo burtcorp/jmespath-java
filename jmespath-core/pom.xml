@@ -7,7 +7,6 @@
   <artifactId>jmespath-core</artifactId>
   <name>JMESPath Core</name>
   <description>A JMESPath implementation for Java</description>
-  <version>0.1.0-SNAPSHOT</version>
 
   <parent>
     <groupId>io.burt</groupId>
