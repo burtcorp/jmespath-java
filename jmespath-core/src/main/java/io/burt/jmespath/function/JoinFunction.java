@@ -1,0 +1,57 @@
+package io.burt.jmespath.function;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import io.burt.jmespath.Adapter;
+
+public class JoinFunction extends JmesPathFunction {
+  public JoinFunction() {
+    super(2, 2);
+  }
+
+  @Override
+  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+    T glue = arguments.get(0).value();
+    T components = arguments.get(1).value();
+    if (isStringArray(adapter, components)) {
+      if (adapter.isString(glue)) {
+        List<T> values = adapter.toList(components);
+        if (values.isEmpty()) {
+          return adapter.createString("");
+        } else {
+          StringBuffer buffer = new StringBuffer();
+          String glueString = adapter.toString(glue);
+          for (T value : values) {
+            buffer.append(adapter.toString(value));
+            buffer.append(glueString);
+          }
+          buffer.delete(buffer.length() - glueString.length(), buffer.length());
+          return adapter.createString(buffer.toString());
+        }
+      } else {
+        throw new FunctionCallException(String.format("Expected string glue, got %s", adapter.typeOf(glue)));
+      }
+    } else {
+      List<T> values = adapter.toList(components);
+      List<String> types = new ArrayList<>(values.size());
+      for (T value : values) {
+        types.add(adapter.typeOf(value));
+      }
+      throw new FunctionCallException(String.format("Expected array of string components, got %s", types));
+    }
+  }
+
+  private <T> boolean isStringArray(Adapter<T> adapter, T array) {
+    if (adapter.isArray(array)) {
+      for (T value : adapter.toList(array)) {
+        if (!adapter.isString(value)) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+}

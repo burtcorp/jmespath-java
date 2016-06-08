@@ -855,4 +855,26 @@ public abstract class AdapterTest<T> {
   public void floorRequiresANumberArgument() {
     evaluate("floor('foo')", adapter().parseString("{}"));
   }
+
+  @Test
+  public void joinSmashesAnArrayOfStringsTogether() {
+    T result = evaluate("join('|', @)", adapter().parseString("[\"foo\", \"bar\", \"baz\"]"));
+    assertThat(result, is(jsonString("foo|bar|baz")));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void joinRequiresAStringAsFirstArgument() {
+    evaluate("join(`3`, @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void joinRequiresAStringArrayAsSecondArgument() {
+    evaluate("join('|', @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
+  }
+
+  @Test
+  public void joinWithAnEmptyArrayReturnsAnEmptyString() {
+    T result = evaluate("join('|', @)", adapter().parseString("[]"));
+    assertThat(result, is(jsonString("")));
+  }
 }
