@@ -842,4 +842,17 @@ public abstract class AdapterTest<T> {
   public void endsWithRequiresAStringAsSecondArgument() {
     evaluate("ends_with('foo', @)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void floorReturnsThePreviousWholeNumber() {
+    T result1 = evaluate("floor(`0.9`)", adapter().parseString("{}"));
+    T result2 = evaluate("floor(`33.3`)", adapter().parseString("{}"));
+    assertThat(result1, is(jsonNumber(0)));
+    assertThat(result2, is(jsonNumber(33)));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void floorRequiresANumberArgument() {
+    evaluate("floor('foo')", adapter().parseString("{}"));
+  }
 }

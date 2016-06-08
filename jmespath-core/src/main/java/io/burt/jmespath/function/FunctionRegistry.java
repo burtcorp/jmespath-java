@@ -16,6 +16,7 @@ public class FunctionRegistry {
     registry.add(new ContainsFunction());
     registry.add(new CeilFunction());
     registry.add(new EndsWithFunction());
+    registry.add(new FloorFunction());
     registry.add(new MapFunction());
     registry.add(new NotNullFunction());
     registry.add(new TypeFunction());
