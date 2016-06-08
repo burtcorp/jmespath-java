@@ -25,9 +25,9 @@ public class JcfAdapter implements Adapter<Object> {
 
   @Override
   public List<Object> toList(Object value) {
-    if (value instanceof List) {
+    if (isArray(value)) {
       return (List<Object>) value;
-    } else if (value instanceof Map) {
+    } else if (isObject(value)) {
       Map<String, Object> object = (Map<String, Object>) value;
       return new ArrayList(object.values());
     } else {
@@ -146,7 +146,7 @@ public class JcfAdapter implements Adapter<Object> {
 
   @Override
   public Object getProperty(Object value, String name) {
-    if (value instanceof Map) {
+    if (isObject(value)) {
       return ((Map<String, Object>) value).get(name);
     } else {
       return null;
