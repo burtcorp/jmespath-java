@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 
 import io.burt.jmespath.Adapter;
@@ -149,6 +150,15 @@ public class JcfAdapter implements Adapter<Object> {
       return ((Map<String, Object>) value).get(name);
     } else {
       return null;
+    }
+  }
+
+  @Override
+  public Collection<String> getPropertyNames(Object value) {
+    if (isObject(value)) {
+      return ((Map<String, Object>) value).keySet();
+    } else {
+      return Collections.emptyList();
     }
   }
 

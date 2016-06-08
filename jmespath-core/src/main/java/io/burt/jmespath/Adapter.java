@@ -3,6 +3,7 @@ package io.burt.jmespath;
 import java.util.List;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Collection;
 
 import io.burt.jmespath.function.ExpressionOrValue;
 
@@ -91,6 +92,12 @@ public interface Adapter<T> extends Comparator<T> {
    * a null value (but not Java null) is returned.
    */
   T getProperty(T value, String name);
+
+  /**
+   * Returns all of the property names of the given object, or an empty list
+   * when the given value is not an object.
+   */
+  Collection<String> getPropertyNames(T value);
 
   /**
    * Returns a null value (but not Java null).

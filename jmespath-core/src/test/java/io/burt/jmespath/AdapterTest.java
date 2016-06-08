@@ -877,4 +877,26 @@ public abstract class AdapterTest<T> {
     T result = evaluate("join('|', @)", adapter().parseString("[]"));
     assertThat(result, is(jsonString("")));
   }
+
+  @Test
+  public void keysReturnsTheNamesOfAnObjectsProperties() {
+    T result = evaluate("keys(@)", adapter().parseString("{\"foo\":3,\"bar\":4}"));
+    assertThat(result, is(jsonArrayOfStrings("foo", "bar")));
+  }
+
+  @Test
+  public void keysReturnsAnEmptyArrayWhenGivenAnEmptyObject() {
+    T result = evaluate("keys(@)", adapter().parseString("{}"));
+    assertThat(adapter().toList(result), is(empty()));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void keysRequiresAnObjectAsArgument() {
+    evaluate("keys(@)", adapter().parseString("[3]"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void keysRequiresASingleArgument() {
+    evaluate("keys(@, @)", adapter().parseString("{}"));
+  }
 }

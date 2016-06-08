@@ -2,8 +2,10 @@ package io.burt.jmespath.jackson;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Iterator;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -159,6 +161,20 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   @Override
   public JsonNode getProperty(JsonNode value, String name) {
     return nodeOrNullNode(value.get(name));
+  }
+
+  @Override
+  public Collection<String> getPropertyNames(JsonNode value) {
+    if (isObject(value)) {
+      List<String> names = new ArrayList<>(value.size());
+      Iterator<String> fieldNames = value.fieldNames();
+      while (fieldNames.hasNext()) {
+        names.add(fieldNames.next());
+      }
+      return names;
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   @Override
