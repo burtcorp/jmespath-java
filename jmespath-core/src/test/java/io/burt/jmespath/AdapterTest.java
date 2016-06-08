@@ -799,7 +799,7 @@ public abstract class AdapterTest<T> {
   }
 
   @Test(expected = FunctionCallException.class)
-  public void containsRequiresAnArrayAsFirstArgument() {
+  public void containsRequiresAnArrayOrStringAsFirstArgument() {
     evaluate("contains(@, 'foo')", adapter().parseString("{}"));
   }
 
@@ -814,5 +814,32 @@ public abstract class AdapterTest<T> {
   @Test(expected = FunctionCallException.class)
   public void ceilRequiresANumberArgument() {
     evaluate("ceil('foo')", adapter().parseString("{}"));
+  }
+
+  @Test
+  public void endsWithReturnsTrueWhenTheFirstArgumentEndsWithTheSecond() {
+    T result = evaluate("ends_with(@, 'rld')", adapter().parseString("\"world\""));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void endsWithReturnsFalseWhenTheFirstArgumentDoesNotEndWithTheSecond() {
+    T result = evaluate("ends_with(@, 'rld')", adapter().parseString("\"hello\""));
+    assertThat(result, is(jsonBoolean(false)));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void endsWithRequiresTwoArguments() {
+    evaluate("ends_with(@)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void endsWithRequiresAStringAsFirstArgument() {
+    evaluate("ends_with(@, 'foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void endsWithRequiresAStringAsSecondArgument() {
+    evaluate("ends_with('foo', @)", adapter().parseString("{}"));
   }
 }
