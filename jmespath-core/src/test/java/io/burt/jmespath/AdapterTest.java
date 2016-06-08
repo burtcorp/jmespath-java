@@ -802,4 +802,17 @@ public abstract class AdapterTest<T> {
   public void containsRequiresAnArrayAsFirstArgument() {
     evaluate("contains(@, 'foo')", adapter().parseString("{}"));
   }
+
+  @Test
+  public void ceilReturnsTheNextWholeNumber() {
+    T result1 = evaluate("ceil(`0.9`)", adapter().parseString("{}"));
+    T result2 = evaluate("ceil(`33.3`)", adapter().parseString("{}"));
+    assertThat(result1, is(jsonNumber(1)));
+    assertThat(result2, is(jsonNumber(34)));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void ceilRequiresANumberArgument() {
+    evaluate("ceil('foo')", adapter().parseString("{}"));
+  }
 }

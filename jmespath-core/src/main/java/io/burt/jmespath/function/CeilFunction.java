@@ -5,8 +5,8 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.node.JmesPathNode;
 
-public class AbsFunction extends JmesPathFunction {
-  public AbsFunction() {
+public class CeilFunction extends JmesPathFunction {
+  public CeilFunction() {
     super(1, 1);
   }
 
@@ -15,7 +15,7 @@ public class AbsFunction extends JmesPathFunction {
     T value = arguments.get(0).value();
     if (adapter.isNumber(value)) {
       Double d = adapter.toDouble(value);
-      return adapter.createNumber(Math.abs(d));
+      return adapter.createNumber(Math.ceil(d));
     } else {
       throw new FunctionCallException(String.format("Expected number got %s", adapter.typeOf(value)));
     }
