@@ -3,7 +3,6 @@ package io.burt.jmespath.function;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.node.JmesPathNode;
 
 public class CeilFunction extends JmesPathFunction {
   public CeilFunction() {
