@@ -22,11 +22,13 @@ public class JoinFunction extends JmesPathFunction {
         } else {
           StringBuilder buffer = new StringBuilder();
           String glueString = adapter.toString(glue);
+          T lastValue = values.get(values.size() - 1);
           for (T value : values) {
             buffer.append(adapter.toString(value));
-            buffer.append(glueString);
+            if (value != lastValue) {
+              buffer.append(glueString);
+            }
           }
-          buffer.delete(buffer.length() - glueString.length(), buffer.length());
           return adapter.createString(buffer.toString());
         }
       } else {
