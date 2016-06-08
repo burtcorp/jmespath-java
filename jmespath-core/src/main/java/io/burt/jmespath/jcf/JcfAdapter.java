@@ -72,6 +72,7 @@ public class JcfAdapter implements Adapter<Object> {
     return value instanceof Number;
   }
 
+  @Override
   public boolean isString(Object value) {
     return value instanceof String;
   }

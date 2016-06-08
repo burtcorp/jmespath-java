@@ -71,6 +71,11 @@ public interface Adapter<T> extends Comparator<T> {
   boolean isNull(T value);
 
   /**
+   * Returns true when the argument represets a string.
+   */
+  boolean isString(T value);
+
+  /**
    * Returns the JSON type of the argument.
    *
    * As per the JMESPath specification the types are: number, string, boolean,

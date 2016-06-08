@@ -768,4 +768,38 @@ public abstract class AdapterTest<T> {
   public void avgRequiresAnArrayOfNumbers() {
     evaluate("avg('foo')", adapter().parseString("{}"));
   }
+
+  @Test
+  public void containsReturnsTrueWhenTheNeedleIsFoundInTheHaystack() {
+    T result = evaluate("contains(@, `3`)", adapter().parseString("[1, 2, 3, \"foo\"]"));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void containsComparesDeeply() {
+    T result = evaluate("contains(@, `[\"bar\", {\"baz\": 42}]`)", adapter().parseString("[1, 2, 3, \"foo\", [\"bar\", {\"baz\": 42}]]"));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void containsReturnsFalseWhenTheNeedleIsNotFoundInTheHaystack() {
+    T result = evaluate("contains(@, `4`)", adapter().parseString("[1, 2, 3, \"foo\"]"));
+    assertThat(result, is(jsonBoolean(false)));
+  }
+
+  @Test
+  public void containsSearchesInStrings() {
+    T result = evaluate("contains('hello', 'hell')", adapter().parseString("{}"));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void containsRequiresTwoArguments() {
+    evaluate("contains(@)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void containsRequiresAnArrayAsFirstArgument() {
+    evaluate("contains(@, 'foo')", adapter().parseString("{}"));
+  }
 }

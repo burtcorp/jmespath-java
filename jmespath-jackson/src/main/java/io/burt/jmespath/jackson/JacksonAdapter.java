@@ -107,6 +107,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
+  public boolean isString(JsonNode value) {
+    return value.isTextual();
+  }
+
+  @Override
   public String typeOf(JsonNode value) {
     switch (value.getNodeType()) {
       case ARRAY: return "array";

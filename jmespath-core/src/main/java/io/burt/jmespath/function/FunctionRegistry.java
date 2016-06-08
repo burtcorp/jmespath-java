@@ -13,6 +13,7 @@ public class FunctionRegistry {
     FunctionRegistry registry = new FunctionRegistry();
     registry.add(new AbsFunction());
     registry.add(new AvgFunction());
+    registry.add(new ContainsFunction());
     registry.add(new MapFunction());
     registry.add(new NotNullFunction());
     registry.add(new TypeFunction());
