@@ -32,7 +32,7 @@ public class AvgFunction extends JmesPathFunction {
   }
 
   private <T> boolean isNumberArray(Adapter<T> adapter, T array) {
-    if (adapter.typeOf(array).equals("array")) {
+    if (adapter.isArray(array)) {
       for (T element : adapter.toList(array)) {
         if (!adapter.isNumber(element)) {
           return false;
