@@ -758,6 +758,11 @@ public abstract class AdapterTest<T> {
     evaluate("abs('foo')", adapter().parseString("{}"));
   }
 
+  @Test(expected = FunctionCallException.class)
+  public void absRequiresExactlyOneArgument() {
+    evaluate("abs(`1`, `2`)", adapter().parseString("{}"));
+  }
+
   @Test
   public void avgReturnsTheAverageOfAnArrayOfNumbers() {
     T result = evaluate("avg(`[0, 1, 2, 3.5, 4]`)", adapter().parseString("{}"));
@@ -767,6 +772,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = FunctionCallException.class)
   public void avgRequiresAnArrayOfNumbers() {
     evaluate("avg('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void avgRequiresExactlyOneArgument() {
+    evaluate("avg(`[]`, `[]`)", adapter().parseString("{}"));
   }
 
   @Test
@@ -803,6 +813,16 @@ public abstract class AdapterTest<T> {
     evaluate("contains(@, 'foo')", adapter().parseString("{}"));
   }
 
+  @Test(expected = FunctionCallException.class)
+  public void containsRequiresTwoArguments1() {
+    evaluate("contains('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void containsRequiresTwoArguments2() {
+    evaluate("contains('foo', 'bar', 'baz')", adapter().parseString("{}"));
+  }
+
   @Test
   public void ceilReturnsTheNextWholeNumber() {
     T result1 = evaluate("ceil(`0.9`)", adapter().parseString("{}"));
@@ -814,6 +834,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = FunctionCallException.class)
   public void ceilRequiresANumberArgument() {
     evaluate("ceil('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void ceilRequiresExactlyOneArgument() {
+    evaluate("ceil(`1`, `2`)", adapter().parseString("{}"));
   }
 
   @Test
@@ -843,6 +868,16 @@ public abstract class AdapterTest<T> {
     evaluate("ends_with('foo', @)", adapter().parseString("{}"));
   }
 
+  @Test(expected = FunctionCallException.class)
+  public void endsWithRequiresTwoArguments1() {
+    evaluate("ends_with('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void endsWithRequiresTwoArguments2() {
+    evaluate("ends_with('foo', @, @)", adapter().parseString("{}"));
+  }
+
   @Test
   public void floorReturnsThePreviousWholeNumber() {
     T result1 = evaluate("floor(`0.9`)", adapter().parseString("{}"));
@@ -854,6 +889,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = FunctionCallException.class)
   public void floorRequiresANumberArgument() {
     evaluate("floor('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void floorRequiresExactlyOneArgument() {
+    evaluate("floor(`1`, `2`)", adapter().parseString("{}"));
   }
 
   @Test
@@ -870,6 +910,16 @@ public abstract class AdapterTest<T> {
   @Test(expected = FunctionCallException.class)
   public void joinRequiresAStringArrayAsSecondArgument() {
     evaluate("join('|', @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void joinRequiresTwoArguments1() {
+    evaluate("join('|')", adapter().parseString("[]"));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void joinRequiresTwoArguments2() {
+    evaluate("join('|', @, @)", adapter().parseString("[]"));
   }
 
   @Test
