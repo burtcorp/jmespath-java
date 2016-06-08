@@ -13,7 +13,7 @@ public class ParseException extends JmesPathException implements Iterable<ParseE
   }
 
   private static String joinMessages(Iterable<ParseError> errors) {
-    StringBuffer s = new StringBuffer();
+    StringBuilder s = new StringBuilder();
     for (ParseError e : errors) {
       s.append(String.format(", %s at position %d", e.message(), e.position()));
     }

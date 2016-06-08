@@ -20,7 +20,7 @@ public class JoinFunction extends JmesPathFunction {
         if (values.isEmpty()) {
           return adapter.createString("");
         } else {
-          StringBuffer buffer = new StringBuffer();
+          StringBuilder buffer = new StringBuilder();
           String glueString = adapter.toString(glue);
           for (T value : values) {
             buffer.append(adapter.toString(value));

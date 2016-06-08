@@ -37,7 +37,7 @@ public abstract class AdapterTest<T> {
 
   protected T loadExample(String path) {
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       String line;
       while ((line = reader.readLine()) != null) {
         buffer.append(line);

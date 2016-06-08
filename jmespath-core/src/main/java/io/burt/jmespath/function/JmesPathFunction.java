@@ -24,7 +24,7 @@ public abstract class JmesPathFunction {
     n = n.substring(n.lastIndexOf(".") + 1);
     Matcher m = CAMEL_CASE_COMPONENT_RE.matcher(n);
     int offset = 0;
-    StringBuffer snakeCaseName = new StringBuffer();
+    StringBuilder snakeCaseName = new StringBuilder();
     while (m.find(offset)) {
       String piece = n.substring(m.start(), m.end()).toLowerCase();
       if (piece.equals("function")) {
