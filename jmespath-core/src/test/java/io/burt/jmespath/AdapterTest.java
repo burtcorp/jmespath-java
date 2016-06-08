@@ -65,6 +65,21 @@ public abstract class AdapterTest<T> {
     };
   }
 
+  protected Matcher<T> jsonNumber(final double d) {
+    return new BaseMatcher<T>() {
+      @Override
+      public boolean matches(final Object n) {
+        T node = (T) n;
+        return adapter().isNumber(node) && n.equals(adapter().createNumber(d));
+      }
+
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("JSON number with value ").appendValue(d);
+      }
+    };
+  }
+
   protected Matcher<T> jsonNull() {
     return new BaseMatcher<T>() {
       @Override
@@ -728,5 +743,29 @@ public abstract class AdapterTest<T> {
   @Test(expected = FunctionCallException.class)
   public void callFunctionWithTooManyArgumentsThrowsFunctionCallException() {
     evaluate("type(@, @, @)", adapter().parseString("{}"));
+  }
+
+  @Test
+  public void absReturnsTheAbsoluteValueOfANumber() {
+    T result1 = evaluate("abs(`-1`)", adapter().parseString("{}"));
+    T result2 = evaluate("abs(`1`)", adapter().parseString("{}"));
+    assertThat(result1, is(jsonNumber(1)));
+    assertThat(result2, is(jsonNumber(1)));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void absRequiresANumberArgument() {
+    evaluate("abs('foo')", adapter().parseString("{}"));
+  }
+
+  @Test
+  public void avgReturnsTheAverageOfAnArrayOfNumbers() {
+    T result = evaluate("avg(`[0, 1, 2, 3.5, 4]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNumber(2.1)));
+  }
+
+  @Test(expected = FunctionCallException.class)
+  public void avgRequiresAnArrayOfNumbers() {
+    evaluate("avg('foo')", adapter().parseString("{}"));
   }
 }

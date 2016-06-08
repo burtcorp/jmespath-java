@@ -55,6 +55,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
+  public Double toDouble(JsonNode n) {
+    return n.doubleValue();
+  }
+
+  @Override
   public boolean isArray(JsonNode value) {
     return value.isArray();
   }

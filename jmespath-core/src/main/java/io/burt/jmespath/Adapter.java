@@ -32,6 +32,12 @@ public interface Adapter<T> extends Comparator<T> {
   String toString(T value);
 
   /**
+   * Converts the argument to a Double, or null if the argument does not
+   * represent a number.
+   */
+  Double toDouble(T value);
+
+  /**
    * Returns true when the argument is an array.
    */
   boolean isArray(T value);

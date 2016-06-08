@@ -11,9 +11,11 @@ public class FunctionRegistry {
 
   public static FunctionRegistry createDefaultRegistry() {
     FunctionRegistry registry = new FunctionRegistry();
-    registry.add(new TypeFunction());
+    registry.add(new AbsFunction());
+    registry.add(new AvgFunction());
     registry.add(new MapFunction());
     registry.add(new NotNullFunction());
+    registry.add(new TypeFunction());
     return registry;
   }
 

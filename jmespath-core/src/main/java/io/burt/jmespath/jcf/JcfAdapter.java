@@ -44,6 +44,15 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
+  public Double toDouble(Object n) {
+    if (isNumber(n)) {
+      return (Double) n;
+    } else {
+      return null;
+    }
+  }
+
+  @Override
   public boolean isArray(Object value) {
     return value instanceof List;
   }
