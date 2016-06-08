@@ -16,7 +16,7 @@ public abstract class MathFunction extends JmesPathFunction {
       Double d = adapter.toDouble(value);
       return adapter.createNumber(performMathOperation(d));
     } else {
-      throw new FunctionCallException(String.format("Expected number got %s", adapter.typeOf(value)));
+      throw new ArgumentTypeException(name(), "number", adapter.typeOf(value));
     }
   }
 

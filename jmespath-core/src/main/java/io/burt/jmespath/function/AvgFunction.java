@@ -1,6 +1,7 @@
 package io.burt.jmespath.function;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
 
@@ -21,7 +22,12 @@ public class AvgFunction extends JmesPathFunction {
       }
       return adapter.createNumber(sum/count);
     } else {
-      throw new FunctionCallException(String.format("Expected array of numbers"));
+      List<T> values = adapter.toList(array);
+      List<String> types = new ArrayList<>(values.size());
+      for (T value : values) {
+        types.add(adapter.typeOf(value));
+      }
+      throw new ArgumentTypeException(name(), "array of numbers", types.toString());
     }
   }
 

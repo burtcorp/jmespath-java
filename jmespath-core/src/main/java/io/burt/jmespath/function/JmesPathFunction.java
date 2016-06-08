@@ -47,15 +47,7 @@ public abstract class JmesPathFunction {
     if (numArguments >= minArity && numArguments <= maxArity) {
       return internalCall(adapter, arguments);
     } else {
-      String message;
-      if (maxArity == minArity) {
-        message = String.format("Wrong number of arguments calling %s: expected %d but was %d", name(), minArity, numArguments);
-      } else if (arguments.size() < minArity) {
-        message = String.format("Wrong number of arguments calling %s: expected at least %d but was %d", name(), minArity, numArguments);
-      } else {
-        message = String.format("Wrong number of arguments calling %s: expected at most %d but was %d", name(), maxArity, numArguments);
-      }
-      throw new FunctionCallException(message);
+      throw new ArityException(name(), minArity, maxArity, numArguments);
     }
   }
 

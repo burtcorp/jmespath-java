@@ -20,6 +20,8 @@ import java.util.List;
 
 import io.burt.jmespath.Query;
 import io.burt.jmespath.function.FunctionCallException;
+import io.burt.jmespath.function.ArityException;
+import io.burt.jmespath.function.ArgumentTypeException;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -735,13 +737,13 @@ public abstract class AdapterTest<T> {
     evaluate("bork()", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
-  public void callFunctionWithTooFewArgumentsThrowsFunctionCallException() {
+  @Test(expected = ArityException.class)
+  public void callFunctionWithTooFewArgumentsThrowsArityException() {
     evaluate("type()", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
-  public void callFunctionWithTooManyArgumentsThrowsFunctionCallException() {
+  @Test(expected = ArityException.class)
+  public void callFunctionWithTooManyArgumentsThrowsArityException() {
     evaluate("type(@, @, @)", adapter().parseString("{}"));
   }
 
@@ -753,12 +755,12 @@ public abstract class AdapterTest<T> {
     assertThat(result2, is(jsonNumber(1)));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void absRequiresANumberArgument() {
     evaluate("abs('foo')", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void absRequiresExactlyOneArgument() {
     evaluate("abs(`1`, `2`)", adapter().parseString("{}"));
   }
@@ -769,12 +771,12 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(jsonNumber(2.1)));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void avgRequiresAnArrayOfNumbers() {
     evaluate("avg('foo')", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void avgRequiresExactlyOneArgument() {
     evaluate("avg(`[]`, `[]`)", adapter().parseString("{}"));
   }
@@ -803,22 +805,22 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(jsonBoolean(true)));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void containsRequiresTwoArguments() {
     evaluate("contains(@)", adapter().parseString("[]"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void containsRequiresAnArrayOrStringAsFirstArgument() {
     evaluate("contains(@, 'foo')", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void containsRequiresTwoArguments1() {
     evaluate("contains('foo')", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void containsRequiresTwoArguments2() {
     evaluate("contains('foo', 'bar', 'baz')", adapter().parseString("{}"));
   }
@@ -831,12 +833,12 @@ public abstract class AdapterTest<T> {
     assertThat(result2, is(jsonNumber(34)));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void ceilRequiresANumberArgument() {
     evaluate("ceil('foo')", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void ceilRequiresExactlyOneArgument() {
     evaluate("ceil(`1`, `2`)", adapter().parseString("{}"));
   }
@@ -853,27 +855,27 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(jsonBoolean(false)));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments() {
     evaluate("ends_with(@)", adapter().parseString("[]"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAStringAsFirstArgument() {
     evaluate("ends_with(@, 'foo')", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAStringAsSecondArgument() {
     evaluate("ends_with('foo', @)", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments1() {
     evaluate("ends_with('foo')", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments2() {
     evaluate("ends_with('foo', @, @)", adapter().parseString("{}"));
   }
@@ -886,12 +888,12 @@ public abstract class AdapterTest<T> {
     assertThat(result2, is(jsonNumber(33)));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void floorRequiresANumberArgument() {
     evaluate("floor('foo')", adapter().parseString("{}"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void floorRequiresExactlyOneArgument() {
     evaluate("floor(`1`, `2`)", adapter().parseString("{}"));
   }
@@ -902,22 +904,22 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(jsonString("foo|bar|baz")));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAStringAsFirstArgument() {
     evaluate("join(`3`, @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAStringArrayAsSecondArgument() {
     evaluate("join('|', @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void joinRequiresTwoArguments1() {
     evaluate("join('|')", adapter().parseString("[]"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void joinRequiresTwoArguments2() {
     evaluate("join('|', @, @)", adapter().parseString("[]"));
   }
@@ -940,12 +942,12 @@ public abstract class AdapterTest<T> {
     assertThat(adapter().toList(result), is(empty()));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArgumentTypeException.class)
   public void keysRequiresAnObjectAsArgument() {
     evaluate("keys(@)", adapter().parseString("[3]"));
   }
 
-  @Test(expected = FunctionCallException.class)
+  @Test(expected = ArityException.class)
   public void keysRequiresASingleArgument() {
     evaluate("keys(@, @)", adapter().parseString("{}"));
   }

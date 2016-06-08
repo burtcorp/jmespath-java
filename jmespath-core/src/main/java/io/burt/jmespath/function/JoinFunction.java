@@ -30,7 +30,7 @@ public class JoinFunction extends JmesPathFunction {
           return adapter.createString(buffer.toString());
         }
       } else {
-        throw new FunctionCallException(String.format("Expected string glue, got %s", adapter.typeOf(glue)));
+        throw new ArgumentTypeException(name(), "string", adapter.typeOf(glue));
       }
     } else {
       List<T> values = adapter.toList(components);
@@ -38,7 +38,7 @@ public class JoinFunction extends JmesPathFunction {
       for (T value : values) {
         types.add(adapter.typeOf(value));
       }
-      throw new FunctionCallException(String.format("Expected array of string components, got %s", types));
+      throw new ArgumentTypeException(name(), "array of strings", types.toString());
     }
   }
 

@@ -22,7 +22,7 @@ public class KeysFunction extends JmesPathFunction {
       }
       return adapter.createArray(names);
     } else {
-      throw new FunctionCallException(String.format("Expected object got %s", adapter.typeOf(subject)));
+      throw new ArgumentTypeException(name(), "object", adapter.typeOf(subject));
     }
   }
 }
