@@ -142,12 +142,13 @@ public class JacksonAdapter implements Adapter<JsonNode> {
         case ARRAY:
         case BINARY:
         case OBJECT:
-        case STRING:
         case BOOLEAN:
         case MISSING:
         case NULL:
         case POJO:
           return value1.equals(value2) ? 0 : -1;
+        case STRING:
+          return value1.textValue().compareTo(value2.textValue());
         case NUMBER:
           return Double.compare(value1.doubleValue(), value2.doubleValue());
         default:

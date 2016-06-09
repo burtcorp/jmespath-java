@@ -134,7 +134,11 @@ public class JcfAdapter implements Adapter<Object> {
         double d1 = (double) value1;
         double d2 = (double) value2;
         return d1 == d2 ? 0 : (d1 > d2 ? 1 : -1);
-      } else if (isArray(value1) || isObject(value1) || isString(value1)) {
+      } else if (isString(value1)) {
+        String s1 = (String) value1;
+        String s2 = (String) value2;
+        return s1.compareTo(s2);
+      } else if (isArray(value1) || isObject(value1)) {
         return value1.equals(value2) ? 0 : -1;
       } else {
         throw new IllegalStateException(String.format("Unknown node type encountered: %s", value1.getClass().getName()));

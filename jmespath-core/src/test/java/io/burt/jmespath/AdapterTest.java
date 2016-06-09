@@ -988,14 +988,25 @@ public abstract class AdapterTest<T> {
   }
 
   @Test
+  public void maxReturnsTheGreatestOfAnArrayOfStrings() {
+    T result = evaluate("max(`[\"a\", \"d\", \"b\"]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonString("d")));
+  }
+
+  @Test
   public void maxReturnsNullWhenGivenAnEmptyArray() {
     T result = evaluate("max(`[]`)", adapter().parseString("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
-  public void maxRequiresAnArrayOfNumbers() {
+  public void maxRequiresAnArrayOfNumbersOrStrings() {
     evaluate("max('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void maxRequiresTheElementsToBeOfTheSameType() {
+    evaluate("max(`[\"foo\", 1]`)", adapter().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
