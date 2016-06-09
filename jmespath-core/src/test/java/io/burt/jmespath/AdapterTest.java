@@ -71,8 +71,9 @@ public abstract class AdapterTest<T> {
     return new BaseMatcher<T>() {
       @Override
       public boolean matches(final Object n) {
-        T node = (T) n;
-        return adapter().isNumber(node) && n.equals(adapter().createNumber(d));
+        T actual = (T) n;
+        T expected = adapter().createNumber(d);
+        return adapter().isNumber(actual) && adapter().compare(actual, expected) == 0;
       }
 
       @Override
