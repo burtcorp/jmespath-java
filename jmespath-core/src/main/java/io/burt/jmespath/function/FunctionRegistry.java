@@ -19,6 +19,7 @@ public class FunctionRegistry {
     registry.add(new FloorFunction());
     registry.add(new JoinFunction());
     registry.add(new KeysFunction());
+    registry.add(new LengthFunction());
     registry.add(new MapFunction());
     registry.add(new NotNullFunction());
     registry.add(new TypeFunction());

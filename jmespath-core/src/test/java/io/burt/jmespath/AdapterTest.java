@@ -951,4 +951,27 @@ public abstract class AdapterTest<T> {
   public void keysRequiresASingleArgument() {
     evaluate("keys(@, @)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void lengthReturnsTheLengthOfAString() {
+    T result = evaluate("length(foo)", adapter().parseString("{\"foo\":\"bar\"}"));
+    assertThat(result, is(jsonNumber(3)));
+  }
+
+  @Test
+  public void lengthReturnsTheSizeOfAnArray() {
+    T result = evaluate("length(foo)", adapter().parseString("{\"foo\":[0, 1, 2, 3]}"));
+    assertThat(result, is(jsonNumber(4)));
+  }
+
+  @Test
+  public void lengthReturnsTheSizeOfAnObject() {
+    T result = evaluate("length(@)", adapter().parseString("{\"foo\":[0, 1, 2, 3]}"));
+    assertThat(result, is(jsonNumber(1)));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void lengthRequiresAStringArrayOrObjectAsArgument() {
+    evaluate("length(@)", adapter().parseString("3"));
+  }
 }
