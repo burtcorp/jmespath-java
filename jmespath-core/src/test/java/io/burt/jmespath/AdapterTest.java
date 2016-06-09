@@ -771,6 +771,12 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(jsonNumber(2.1)));
   }
 
+  @Test
+  public void avgReturnsNullWhenGivenAnEmptyArray() {
+    T result = evaluate("avg(`[]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNull()));
+  }
+
   @Test(expected = ArgumentTypeException.class)
   public void avgRequiresAnArrayOfNumbers() {
     evaluate("avg('foo')", adapter().parseString("{}"));
@@ -973,5 +979,27 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArgumentTypeException.class)
   public void lengthRequiresAStringArrayOrObjectAsArgument() {
     evaluate("length(@)", adapter().parseString("3"));
+  }
+
+  @Test
+  public void maxReturnsTheGreatestOfAnArrayOfNumbers() {
+    T result = evaluate("max(`[0, 1, 4, 3.5, 2]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNumber(4)));
+  }
+
+  @Test
+  public void maxReturnsNullWhenGivenAnEmptyArray() {
+    T result = evaluate("max(`[]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void maxRequiresAnArrayOfNumbers() {
+    evaluate("max('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void maxRequiresExactlyOneArgument() {
+    evaluate("max(`[]`, `[]`)", adapter().parseString("{}"));
   }
 }

@@ -21,6 +21,7 @@ public class FunctionRegistry {
     registry.add(new KeysFunction());
     registry.add(new LengthFunction());
     registry.add(new MapFunction());
+    registry.add(new MaxFunction());
     registry.add(new NotNullFunction());
     registry.add(new TypeFunction());
     return registry;
