@@ -1137,4 +1137,37 @@ public abstract class AdapterTest<T> {
   public void mergeRequiresAtLeastOneArgument() {
     evaluate("merge()", adapter().parseString("{}"));
   }
+
+  @Test
+  public void minReturnsTheGreatestOfAnArrayOfNumbers() {
+    T result = evaluate("min(`[0, 1, -4, 3.5, 2]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNumber(-4)));
+  }
+
+  @Test
+  public void minReturnsTheGreatestOfAnArrayOfStrings() {
+    T result = evaluate("min(`[\"foo\", \"bar\"]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonString("bar")));
+  }
+
+  @Test
+  public void minReturnsNullWhenGivenAnEmptyArray() {
+    T result = evaluate("min(`[]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void minRequiresAnArrayOfNumbersOrStrings() {
+    evaluate("min('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void minRequiresTheElementsToBeOfTheSameType() {
+    evaluate("min(`[\"foo\", 1]`)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void minRequiresExactlyOneArgument() {
+    evaluate("min(`[]`, `[]`)", adapter().parseString("{}"));
+  }
 }

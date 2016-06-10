@@ -24,6 +24,7 @@ public class FunctionRegistry {
     registry.add(new MaxFunction());
     registry.add(new MaxByFunction());
     registry.add(new MergeFunction());
+    registry.add(new MinFunction());
     registry.add(new NotNullFunction());
     registry.add(new TypeFunction());
     return registry;
