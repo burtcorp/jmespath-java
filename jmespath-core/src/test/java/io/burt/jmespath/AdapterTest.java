@@ -1395,4 +1395,26 @@ public abstract class AdapterTest<T> {
   public void startsWithRequiresTwoArguments2() {
     evaluate("starts_with('foo', @, @)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void sumReturnsTheAverageOfAnArrayOfNumbers() {
+    T result = evaluate("sum(`[0, 1, 2, 3.5, 4]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNumber(10.5)));
+  }
+
+  @Test
+  public void sumReturnsZeroWhenGivenAnEmptyArray() {
+    T result = evaluate("sum(`[]`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNumber(0)));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sumRequiresAnArrayOfNumbers() {
+    evaluate("sum('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void sumRequiresExactlyOneArgument() {
+    evaluate("sum(`[]`, `[]`)", adapter().parseString("{}"));
+  }
 }

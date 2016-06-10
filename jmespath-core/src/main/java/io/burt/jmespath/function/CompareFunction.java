@@ -25,14 +25,18 @@ public abstract class CompareFunction extends ArrayMathFunction {
 
   @Override
   protected <T> T performMathOperation(Adapter<T> adapter, List<T> values) {
-    Iterator<T> vs = values.iterator();
-    T result = vs.next();
-    while (vs.hasNext()) {
-      T candidate = vs.next();
-      if ((compareModifier * adapter.compare(candidate, result)) > 0) {
-        result = candidate;
+    if (values.isEmpty()) {
+      return adapter.createNull();
+    } else {
+      Iterator<T> vs = values.iterator();
+      T result = vs.next();
+      while (vs.hasNext()) {
+        T candidate = vs.next();
+        if ((compareModifier * adapter.compare(candidate, result)) > 0) {
+          result = candidate;
+        }
       }
+      return result;
     }
-    return result;
   }
 }

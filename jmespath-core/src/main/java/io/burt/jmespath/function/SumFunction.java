@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.burt.jmespath.Adapter;
 
-public class AvgFunction extends ArrayMathFunction {
+public class SumFunction extends ArrayMathFunction {
   @Override
   protected <T> boolean isValidArray(Adapter<T> adapter, T array) {
     return TypesHelper.isNumberArray(adapter, array);
@@ -17,16 +17,10 @@ public class AvgFunction extends ArrayMathFunction {
 
   @Override
   protected <T> T performMathOperation(Adapter<T> adapter, List<T> values) {
-    if (values.isEmpty()) {
-      return adapter.createNull();
-    } else {
-      double sum = 0;
-      int count = 0;
-      for (T n : values) {
-        sum += adapter.toDouble(n);
-        count += 1;
-      }
-      return adapter.createNumber(sum/count);
+    double sum = 0;
+    for (T n : values) {
+      sum += adapter.toDouble(n);
     }
+    return adapter.createNumber(sum);
   }
 }

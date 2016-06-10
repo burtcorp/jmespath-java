@@ -15,11 +15,7 @@ public abstract class ArrayMathFunction extends JmesPathFunction {
     T array = arguments.get(0).value();
     if (isValidArray(adapter, array)) {
       List<T> values = adapter.toList(array);
-      if (values.isEmpty()) {
-        return adapter.createNull();
-      } else {
-        return performMathOperation(adapter, values);
-      }
+      return performMathOperation(adapter, values);
     } else {
       List<T> values = adapter.toList(array);
       List<String> types = new ArrayList<>(values.size());
