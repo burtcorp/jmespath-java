@@ -1223,4 +1223,21 @@ public abstract class AdapterTest<T> {
   public void minByRequiresTwoArguments2() {
     evaluate("min_by(@, @, @)", adapter().parseString("[]"));
   }
+
+  @Test
+  public void notNullReturnsTheFirstNonNullArgument() {
+    T result = evaluate("not_null(`null`, `null`, `3`, `null`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNumber(3)));
+  }
+
+  @Test
+  public void notNullReturnsNullWhenGivenOnlyNull() {
+    T result = evaluate("not_null(`null`, `null`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test(expected = ArityException.class)
+  public void notNullRequiresAtLeastOneArgument() {
+    evaluate("not_null()", adapter().parseString("{}"));
+  }
 }
