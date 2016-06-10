@@ -1305,4 +1305,57 @@ public abstract class AdapterTest<T> {
   public void sortDoesNotAcceptMixedInputs() {
     evaluate("sort(@)", adapter().parseString("[1, \"foo\"]"));
   }
+
+  @Test
+  public void sortBySortsTheInputBasedOnStringsReturnedByAnExpression() {
+    T result = evaluate("sort_by(phoneNumbers, &type)[*].type", contact);
+    assertThat(result, is(jsonArrayOfStrings("home", "mobile", "office")));
+  }
+
+  @Test
+  public void sortBySortsTheInputBasedOnNumbersReturnedByAnExpression() {
+    T result = evaluate("sort_by(@, &foo)[*].foo", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
+    assertThat(result, is(adapter().parseString("[-6, 1, 3]")));
+  }
+
+  @Test
+  public void sortByReturnsWithAnEmptyArrayReturnsNull() {
+    T result = evaluate("sort_by(@, &foo)", adapter().parseString("[]"));
+    assertThat(result, is(adapter().parseString("[]")));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sortByDoesNotAcceptMixedResults() {
+    evaluate("sort_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sortByDoesNotAcceptNonStringsOrNumbers() {
+    evaluate("sort_by(@, &foo)", adapter().parseString("[{\"foo\": []}]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sortByRequiresAnArrayAsFirstArgument1() {
+    evaluate("sort_by(@, &foo)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sortByRequiresAnArrayAsFirstArgument2() {
+    evaluate("sort_by(&foo, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sortByRequiresAnExpressionAsSecondArgument() {
+    evaluate("sort_by(@, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void sortByRequiresTwoArguments1() {
+    evaluate("sort_by(@)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void sortByRequiresTwoArguments2() {
+    evaluate("sort_by(@, @, @)", adapter().parseString("[]"));
+  }
 }
