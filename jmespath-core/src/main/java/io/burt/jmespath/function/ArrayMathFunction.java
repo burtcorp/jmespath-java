@@ -35,30 +35,4 @@ public abstract class ArrayMathFunction extends JmesPathFunction {
   protected abstract String expectedType();
 
   protected abstract <T> boolean isValidArray(Adapter<T> adapter, T array);
-
-  protected <T> boolean isNumberArray(Adapter<T> adapter, T array) {
-    if (adapter.isArray(array)) {
-      for (T element : adapter.toList(array)) {
-        if (!adapter.isNumber(element)) {
-          return false;
-        }
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  protected <T> boolean isStringArray(Adapter<T> adapter, T array) {
-    if (adapter.isArray(array)) {
-      for (T element : adapter.toList(array)) {
-        if (!adapter.isString(element)) {
-          return false;
-        }
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
 }

@@ -1267,4 +1267,42 @@ public abstract class AdapterTest<T> {
   public void reverseRequiresAnArrayAsArgument() {
     evaluate("reverse(@)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void sortsSortsAnArrayOfNumbers() {
+    T result = evaluate("sort(@)", adapter().parseString("[6, 7, 1]"));
+    assertThat(result, is(adapter().parseString("[1, 6, 7]")));
+  }
+
+  @Test
+  public void sortsSortsAnArrayOfStrings() {
+    T result = evaluate("sort(@)", adapter().parseString("[\"b\", \"a\", \"x\"]"));
+    assertThat(result, is(adapter().parseString("[\"a\", \"b\", \"x\"]")));
+  }
+
+  @Test
+  public void sortReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
+    T result = evaluate("sort(@)", adapter().parseString("[]"));
+    assertThat(result, is(adapter().parseString("[]")));
+  }
+
+  @Test(expected = ArityException.class)
+  public void sortRequiresOneArgument1() {
+    evaluate("sort()", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void sortRequiresOneArgument2() {
+    evaluate("sort(@, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sortRequiresAnArrayAsArgument() {
+    evaluate("sort(@)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sortDoesNotAcceptMixedInputs() {
+    evaluate("sort(@)", adapter().parseString("[1, \"foo\"]"));
+  }
 }

@@ -15,7 +15,7 @@ public abstract class CompareFunction extends ArrayMathFunction {
 
   @Override
   protected <T> boolean isValidArray(Adapter<T> adapter, T array) {
-    return isNumberArray(adapter, array) || isStringArray(adapter, array);
+    return TypesHelper.isNumberArray(adapter, array) || TypesHelper.isStringArray(adapter, array);
   }
 
   @Override

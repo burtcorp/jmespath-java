@@ -28,6 +28,7 @@ public class FunctionRegistry {
     registry.add(new MinByFunction());
     registry.add(new NotNullFunction());
     registry.add(new ReverseFunction());
+    registry.add(new SortFunction());
     registry.add(new TypeFunction());
     return registry;
   }
