@@ -1358,4 +1358,41 @@ public abstract class AdapterTest<T> {
   public void sortByRequiresTwoArguments2() {
     evaluate("sort_by(@, @, @)", adapter().parseString("[]"));
   }
+
+  @Test
+  public void startsWithReturnsTrueWhenTheFirstArgumentEndsWithTheSecond() {
+    T result = evaluate("starts_with(@, 'wor')", adapter().parseString("\"world\""));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void startsWithReturnsFalseWhenTheFirstArgumentDoesNotEndWithTheSecond() {
+    T result = evaluate("starts_with(@, 'wor')", adapter().parseString("\"hello\""));
+    assertThat(result, is(jsonBoolean(false)));
+  }
+
+  @Test(expected = ArityException.class)
+  public void startsWithRequiresTwoArguments() {
+    evaluate("starts_with(@)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void startsWithRequiresAStringAsFirstArgument() {
+    evaluate("starts_with(@, 'foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void startsWithRequiresAStringAsSecondArgument() {
+    evaluate("starts_with('foo', @)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void startsWithRequiresTwoArguments1() {
+    evaluate("starts_with('foo')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void startsWithRequiresTwoArguments2() {
+    evaluate("starts_with('foo', @, @)", adapter().parseString("{}"));
+  }
 }

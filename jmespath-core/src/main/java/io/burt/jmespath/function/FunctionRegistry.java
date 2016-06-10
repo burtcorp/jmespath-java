@@ -30,6 +30,7 @@ public class FunctionRegistry {
     registry.add(new ReverseFunction());
     registry.add(new SortFunction());
     registry.add(new SortByFunction());
+    registry.add(new StartsWithFunction());
     registry.add(new TypeFunction());
     return registry;
   }
