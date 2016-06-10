@@ -28,6 +28,8 @@ import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.containsString;
 
 public abstract class AdapterTest<T> {
   protected T contact;
@@ -1438,5 +1440,28 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void toArrayRequiresExactlyOneArgument2() {
     evaluate("to_array(`1`, `2`)", adapter().parseString("{}"));
+  }
+
+  @Test
+  public void toStringReturnsTheJsonEncodingOfTheArgument() {
+    T input = adapter().parseString("{\"foo\": [1, 2, [\"bar\"]]}");
+    T result = evaluate("to_string(@)", input);
+    assertThat(adapter().toString(result), both(containsString("\"foo\"")).and(is(adapter().toString(input))));
+  }
+
+  @Test
+  public void toStringWithAStringReturnsTheArgument() {
+    T result = evaluate("to_string('hello')", adapter().parseString("{}"));
+    assertThat(result, is(jsonString("hello")));
+  }
+
+  @Test(expected = ArityException.class)
+  public void toStringRequiresExactlyOneArgument1() {
+    evaluate("to_string()", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void toStringRequiresExactlyOneArgument2() {
+    evaluate("to_string(`1`, `2`)", adapter().parseString("{}"));
   }
 }

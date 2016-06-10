@@ -33,6 +33,7 @@ public class FunctionRegistry {
     registry.add(new StartsWithFunction());
     registry.add(new SumFunction());
     registry.add(new ToArrayFunction());
+    registry.add(new ToStringFunction());
     registry.add(new TypeFunction());
     return registry;
   }

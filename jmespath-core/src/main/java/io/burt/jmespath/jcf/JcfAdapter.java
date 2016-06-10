@@ -40,8 +40,44 @@ public class JcfAdapter implements Adapter<Object> {
     if (isString(str)) {
       return (String) str;
     } else {
-      return null;
+      return unparse(str);
     }
+  }
+
+  private String unparse(Object obj) {
+    if (isNumber(obj) || isBoolean(obj) || isNull(obj)) {
+      return obj.toString();
+    } else if (isString(obj)) {
+      return String.format("\"%s\"", obj);
+    } else if (isObject(obj)) {
+      Map<String, Object> object = (Map<String, Object>) obj;
+      StringBuilder str = new StringBuilder("{");
+      if (!object.isEmpty()) {
+        for (String key : object.keySet()) {
+          str.append("\"").append(key).append("\"");
+          str.append(":").append(unparse(object.get(key)));
+          str.append(",");
+        }
+        str.delete(str.length() - 2, str.length());
+      }
+      str.append("}");
+      return str.toString();
+    } else if (isArray(obj)) {
+      List<Object> array = (List<Object>) obj;
+      StringBuilder str = new StringBuilder("[");
+      if (!array.isEmpty()) {
+        Object firstElement = array.get(0);
+        for (Object element : array) {
+          str.append(unparse(element));
+          if (element != firstElement) {
+            str.append(",");
+          }
+        }
+      }
+      str.append("]");
+      return str.toString();
+    }
+    throw new IllegalStateException();
   }
 
   @Override

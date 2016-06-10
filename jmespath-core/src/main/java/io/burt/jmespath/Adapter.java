@@ -27,8 +27,9 @@ public interface Adapter<T> extends Comparator<T> {
   List<T> toList(T value);
 
   /**
-   * Converts the argument to a String, or null if the argument does not
-   * represent a string.
+   * Converts the argument to a String. When the argument represents a string
+   * its string value is returned, otherwise a string with the value encoded
+   * as JSON is returned.
    */
   String toString(T value);
 

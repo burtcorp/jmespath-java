@@ -53,7 +53,11 @@ public class JacksonAdapter implements Adapter<JsonNode> {
 
   @Override
   public String toString(JsonNode str) {
-    return str.textValue();
+    if (isString(str)) {
+      return str.textValue();
+    } else {
+      return str.toString();
+    }
   }
 
   @Override
