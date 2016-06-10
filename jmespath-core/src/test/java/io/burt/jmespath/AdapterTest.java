@@ -1170,4 +1170,57 @@ public abstract class AdapterTest<T> {
   public void minRequiresExactlyOneArgument() {
     evaluate("min(`[]`, `[]`)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void minByReturnsTheElementWithTheLeastValueForAnExpressionThatReturnsStrings() {
+    T result = evaluate("min_by(phoneNumbers, &type)", contact);
+    assertThat(result, is(adapter().parseString("{\"type\": \"home\",\"number\": \"212 555-1234\"}")));
+  }
+
+  @Test
+  public void minByReturnsTheElementWithTheLeastValueForAnExpressionThatReturnsNumbers() {
+    T result = evaluate("min_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
+    assertThat(result, is(adapter().parseString("{\"foo\": -6}")));
+  }
+
+  @Test
+  public void minByReturnsWithAnEmptyArrayReturnsNull() {
+    T result = evaluate("min_by(@, &foo)", adapter().parseString("[]"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void minByDoesNotAcceptMixedResults() {
+    evaluate("min_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void minByDoesNotAcceptNonStringsOrNumbers() {
+    evaluate("min_by(@, &foo)", adapter().parseString("[{\"foo\": []}]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void minByRequiresAnArrayAsFirstArgument1() {
+    evaluate("min_by(@, &foo)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void minByRequiresAnArrayAsFirstArgument2() {
+    evaluate("min_by(&foo, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void minByRequiresAnExpressionAsSecondArgument() {
+    evaluate("min_by(@, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void minByRequiresTwoArguments1() {
+    evaluate("min_by(@)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void minByRequiresTwoArguments2() {
+    evaluate("min_by(@, @, @)", adapter().parseString("[]"));
+  }
 }
