@@ -1014,4 +1014,57 @@ public abstract class AdapterTest<T> {
   public void maxRequiresExactlyOneArgument() {
     evaluate("max(`[]`, `[]`)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void maxByReturnsTheElementWithTheGreatestValueForAnExpressionThatReturnsStrings() {
+    T result = evaluate("max_by(phoneNumbers, &type)", contact);
+    assertThat(result, is(adapter().parseString("{\"type\": \"office\", \"number\": \"646 555-4567\"}")));
+  }
+
+  @Test
+  public void maxByReturnsTheElementWithTheGreatestValueForAnExpressionThatReturnsNumbers() {
+    T result = evaluate("max_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": 6}, {\"foo\": 1}]"));
+    assertThat(result, is(adapter().parseString("{\"foo\": 6}")));
+  }
+
+  @Test
+  public void maxByReturnsWithAnEmptyArrayReturnsNull() {
+    T result = evaluate("max_by(@, &foo)", adapter().parseString("[]"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void maxByDoesNotAcceptMixedResults() {
+    evaluate("max_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void maxByDoesNotAcceptNonStringsOrNumbers() {
+    evaluate("max_by(@, &foo)", adapter().parseString("[{\"foo\": []}]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void maxByRequiresAnArrayAsFirstArgument1() {
+    evaluate("max_by(@, &foo)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void maxByRequiresAnArrayAsFirstArgument2() {
+    evaluate("max_by(&foo, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void maxByRequiresAnExpressionAsSecondArgument() {
+    evaluate("max_by(@, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void maxByRequiresTwoArguments1() {
+    evaluate("max_by(@)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void maxByRequiresTwoArguments2() {
+    evaluate("max_by(@, @, @)", adapter().parseString("[]"));
+  }
 }
