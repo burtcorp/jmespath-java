@@ -1417,4 +1417,26 @@ public abstract class AdapterTest<T> {
   public void sumRequiresExactlyOneArgument() {
     evaluate("sum(`[]`, `[]`)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void toArrayReturnsASingletonArrayWithTheArgument() {
+    T result = evaluate("to_array(`34`)", adapter().parseString("{}"));
+    assertThat(result, is(adapter().parseString("[34]")));
+  }
+
+  @Test
+  public void toArrayWithAnArrayReturnsTheArgument() {
+    T result = evaluate("to_array(@)", adapter().parseString("[0, 1, 2, 3.5, 4]"));
+    assertThat(result, is(adapter().parseString("[0, 1, 2, 3.5, 4]")));
+  }
+
+  @Test(expected = ArityException.class)
+  public void toArrayRequiresExactlyOneArgument1() {
+    evaluate("to_array()", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void toArrayRequiresExactlyOneArgument2() {
+    evaluate("to_array(`1`, `2`)", adapter().parseString("{}"));
+  }
 }
