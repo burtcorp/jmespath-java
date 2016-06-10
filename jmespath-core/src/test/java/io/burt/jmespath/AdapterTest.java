@@ -1104,4 +1104,37 @@ public abstract class AdapterTest<T> {
   public void maxByRequiresTwoArguments2() {
     evaluate("max_by(@, @, @)", adapter().parseString("[]"));
   }
+
+  @Test
+  public void mergeMergesObjects() {
+    T result = evaluate("merge(foo, bar)", adapter().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
+    assertThat(result, is(adapter().parseString("{\"a\": 1, \"b\": 2}")));
+  }
+
+  @Test
+  public void mergeReturnsTheArgumentWhenOnlyGivenOne() {
+    T result = evaluate("merge(foo)", adapter().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
+    assertThat(result, is(adapter().parseString("{\"a\": 1, \"b\": 1}}")));
+  }
+
+  @Test
+  public void mergeDoesNotMutate() {
+    T result = evaluate("merge(foo, bar) && foo", adapter().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
+    assertThat(result, is(adapter().parseString("{\"a\": 1, \"b\": 1}")));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void mergeRequiresObjectArguments1() {
+    evaluate("merge('foo', 'bar')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void mergeRequiresObjectArguments2() {
+    evaluate("merge(`{}`, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void mergeRequiresAtLeastOneArgument() {
+    evaluate("merge()", adapter().parseString("{}"));
+  }
 }
