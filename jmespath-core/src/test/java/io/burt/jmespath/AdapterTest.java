@@ -1522,4 +1522,24 @@ public abstract class AdapterTest<T> {
   public void toNumberRequiresExactlyOneArgument2() {
     evaluate("to_number(`1`, `2`)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void typeReturnsTheTypeOfTheArgument() {
+    assertThat(evaluate("type(@)", adapter().parseString("null")), is(jsonString("null")));
+    assertThat(evaluate("type(@)", adapter().parseString("false")), is(jsonString("boolean")));
+    assertThat(evaluate("type(@)", adapter().parseString("{\"foo\":3}")), is(jsonString("object")));
+    assertThat(evaluate("type(@)", adapter().parseString("[3, 4]")), is(jsonString("array")));
+    assertThat(evaluate("type(@)", adapter().parseString("\"foo\"")), is(jsonString("string")));
+    assertThat(evaluate("type(@)", adapter().parseString("1")), is(jsonString("number")));
+  }
+
+  @Test(expected = ArityException.class)
+  public void typeRequiresExactlyOneArgument1() {
+    evaluate("type()", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void typeRequiresExactlyOneArgument2() {
+    evaluate("type(`1`, `2`)", adapter().parseString("{}"));
+  }
 }
