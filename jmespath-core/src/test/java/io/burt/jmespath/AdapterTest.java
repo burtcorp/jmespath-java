@@ -983,6 +983,43 @@ public abstract class AdapterTest<T> {
   }
 
   @Test
+  public void mapTransformsAnArrayIntoAnAnotherArrayByApplyingAnExpressionToEachElement() {
+    T result = evaluate("map(&type, phoneNumbers)", contact);
+    assertThat(result, is(jsonArrayOfStrings("home", "office", "mobile")));
+  }
+
+  @Test
+  public void mapReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
+    T result = evaluate("map(&foo, @)", adapter().parseString("[]"));
+    assertThat(adapter().toList(result), is(empty()));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void mapRequiresAnExpressionAsFirstArgument() {
+    evaluate("map(@, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void mapRequiresAnArrayAsSecondArgument1() {
+    evaluate("map(&foo, @)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void mapRequiresAnArrayAsSecondArgument2() {
+    evaluate("map(@, &foo)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void mapRequiresTwoArguments1() {
+    evaluate("map(@)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void mapRequiresTwoArguments2() {
+    evaluate("map(@, @, @)", adapter().parseString("[]"));
+  }
+
+  @Test
   public void maxReturnsTheGreatestOfAnArrayOfNumbers() {
     T result = evaluate("max(`[0, 1, 4, 3.5, 2]`)", adapter().parseString("{}"));
     assertThat(result, is(jsonNumber(4)));

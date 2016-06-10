@@ -14,9 +14,18 @@ public class MapFunction extends JmesPathFunction {
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     JmesPathNode expression = arguments.get(0).expression();
-    List<T> array = adapter.toList(arguments.get(1).value());
-    List<T> result = new ArrayList<>(array.size());
-    for (T element : array) {
+    T array = arguments.get(1).value();
+    if (arguments.get(0).isValue()) {
+      throw new ArgumentTypeException(name(), "expression", adapter.typeOf(arguments.get(0).value()));
+    }
+    if (arguments.get(1).isExpression()) {
+      throw new ArgumentTypeException(name(), "array of objects", "expression");
+    } else if (!adapter.isArray(array)) {
+      throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array));
+    }
+    List<T> elements = adapter.toList(array);
+    List<T> result = new ArrayList<>(elements.size());
+    for (T element : elements) {
       result.add(expression.evaluate(adapter, element));
     }
     return adapter.createArray(result);
