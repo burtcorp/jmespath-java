@@ -34,6 +34,7 @@ public class FunctionRegistry {
     registry.add(new SumFunction());
     registry.add(new ToArrayFunction());
     registry.add(new ToStringFunction());
+    registry.add(new ToNumberFunction());
     registry.add(new TypeFunction());
     return registry;
   }

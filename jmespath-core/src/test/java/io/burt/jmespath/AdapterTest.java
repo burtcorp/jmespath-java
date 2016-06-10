@@ -1464,4 +1464,62 @@ public abstract class AdapterTest<T> {
   public void toStringRequiresExactlyOneArgument2() {
     evaluate("to_string(`1`, `2`)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void toNumberWithANumberReturnsTheArgument() {
+    T result = evaluate("to_number(`3`)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNumber(3)));
+  }
+
+  @Test
+  public void toNumberParsesAnIntegerStringToANumber() {
+    T result = evaluate("to_number('33')", adapter().parseString("{}"));
+    assertThat(result, is(jsonNumber(33)));
+  }
+
+  @Test
+  public void toNumberParsesAnFloatStringToANumber() {
+    T result = evaluate("to_number('3.3')", adapter().parseString("{}"));
+    assertThat(result, is(jsonNumber(3.3)));
+  }
+
+  @Test
+  public void toNumberReturnsNullWhenGivenNonNumberString() {
+    T result = evaluate("to_number('n=3.3')", adapter().parseString("[]"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test
+  public void toNumberReturnsNullWhenGivenAnArray() {
+    T result = evaluate("to_number(@)", adapter().parseString("[]"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test
+  public void toNumberReturnsNullWhenGivenAnObject() {
+    T result = evaluate("to_number(@)", adapter().parseString("{}"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test
+  public void toNumberReturnsNullWhenGivenABoolean() {
+    T result = evaluate("to_number(@)", adapter().parseString("true"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test
+  public void toNumberReturnsNullWhenGivenNull() {
+    T result = evaluate("to_number(@)", adapter().parseString("null"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test(expected = ArityException.class)
+  public void toNumberRequiresExactlyOneArgument1() {
+    evaluate("to_number()", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void toNumberRequiresExactlyOneArgument2() {
+    evaluate("to_number(`1`, `2`)", adapter().parseString("{}"));
+  }
 }
