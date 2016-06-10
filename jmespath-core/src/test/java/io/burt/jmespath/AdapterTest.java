@@ -1240,4 +1240,31 @@ public abstract class AdapterTest<T> {
   public void notNullRequiresAtLeastOneArgument() {
     evaluate("not_null()", adapter().parseString("{}"));
   }
+
+  @Test
+  public void reverseReversesAnArray() {
+    T result = evaluate("reverse(@)", adapter().parseString("[\"foo\", 3, 2, 1]"));
+    assertThat(result, is(adapter().parseString("[1, 2, 3, \"foo\"]")));
+  }
+
+  @Test
+  public void reverseReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
+    T result = evaluate("reverse(@)", adapter().parseString("[]"));
+    assertThat(result, is(adapter().parseString("[]")));
+  }
+
+  @Test(expected = ArityException.class)
+  public void reverseRequiresOneArgument1() {
+    evaluate("reverse()", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void reverseRequiresOneArgument2() {
+    evaluate("reverse(@, @)", adapter().parseString("[]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void reverseRequiresAnArrayAsArgument() {
+    evaluate("reverse(@)", adapter().parseString("{}"));
+  }
 }

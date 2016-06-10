@@ -27,6 +27,7 @@ public class FunctionRegistry {
     registry.add(new MinFunction());
     registry.add(new MinByFunction());
     registry.add(new NotNullFunction());
+    registry.add(new ReverseFunction());
     registry.add(new TypeFunction());
     return registry;
   }
