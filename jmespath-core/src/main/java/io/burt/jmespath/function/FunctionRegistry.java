@@ -36,6 +36,7 @@ public class FunctionRegistry {
     registry.add(new ToStringFunction());
     registry.add(new ToNumberFunction());
     registry.add(new TypeFunction());
+    registry.add(new ValuesFunction());
     return registry;
   }
 

@@ -1542,4 +1542,26 @@ public abstract class AdapterTest<T> {
   public void typeRequiresExactlyOneArgument2() {
     evaluate("type(`1`, `2`)", adapter().parseString("{}"));
   }
+
+  @Test
+  public void valuesReturnsTheValuesOfAnObjectsProperties() {
+    T result = evaluate("values(@)", adapter().parseString("{\"foo\":\"one\",\"bar\":\"two\"}"));
+    assertThat(result, is(jsonArrayOfStrings("one", "two")));
+  }
+
+  @Test
+  public void valuesReturnsAnEmptyArrayWhenGivenAnEmptyObject() {
+    T result = evaluate("values(@)", adapter().parseString("{}"));
+    assertThat(adapter().toList(result), is(empty()));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void valuesRequiresAnObjectAsArgument() {
+    evaluate("values(@)", adapter().parseString("[3]"));
+  }
+
+  @Test(expected = ArityException.class)
+  public void valuesRequiresASingleArgument() {
+    evaluate("values(@, @)", adapter().parseString("{}"));
+  }
 }
