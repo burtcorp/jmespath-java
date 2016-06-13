@@ -1277,6 +1277,12 @@ public abstract class AdapterTest<T> {
   }
 
   @Test
+  public void sortsHandlesDuplicates() {
+    T result = evaluate("sort(@)", adapter().parseString("[6, 6, 7, 1, 1]"));
+    assertThat(result, is(adapter().parseString("[1, 1, 6, 6, 7]")));
+  }
+
+  @Test
   public void sortsSortsAnArrayOfStrings() {
     T result = evaluate("sort(@)", adapter().parseString("[\"b\", \"a\", \"x\"]"));
     assertThat(result, is(adapter().parseString("[\"a\", \"b\", \"x\"]")));
@@ -1318,6 +1324,18 @@ public abstract class AdapterTest<T> {
   public void sortBySortsTheInputBasedOnNumbersReturnedByAnExpression() {
     T result = evaluate("sort_by(@, &foo)[*].foo", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
     assertThat(result, is(adapter().parseString("[-6, 1, 3]")));
+  }
+
+  @Test
+  public void sortByHandlesDuplicates() {
+    T result = evaluate("sort_by(@, &foo)[*].foo", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": -6}, {\"foo\": 1}]"));
+    assertThat(result, is(adapter().parseString("[-6, -6, 1, 3]")));
+  }
+
+  @Test
+  public void sortBySortsIsStable() {
+    T result = evaluate("sort_by(@, &foo)[*].x", adapter().parseString("[{\"foo\": 3, \"x\": 3}, {\"foo\": 3, \"x\": 1}, {\"foo\": 1}]"));
+    assertThat(result, is(adapter().parseString("[3, 1]")));
   }
 
   @Test

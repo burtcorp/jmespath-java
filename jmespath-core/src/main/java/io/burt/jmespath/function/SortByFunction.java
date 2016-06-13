@@ -2,8 +2,6 @@ package io.burt.jmespath.function;
 
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,9 +26,10 @@ public class SortByFunction extends JmesPathFunction {
     if (arguments.get(1).isValue()) {
       throw new ArgumentTypeException(name(), "expression", adapter.typeOf(arguments.get(1).value()));
     }
-    Map<T, T> sortedTransformed = new TreeMap<>(adapter);
-    Iterator<T> elements = adapter.toList(array).iterator();
+    List<T> elementsList = adapter.toList(array);
+    Iterator<T> elements = elementsList.iterator();
     if (elements.hasNext()) {
+      List<Pair<T>> pairs = new ArrayList<>(elementsList.size());
       T element = elements.next();
       T transformedElement = expression.evaluate(adapter, element);
       boolean expectNumbers = true;
@@ -39,19 +38,40 @@ public class SortByFunction extends JmesPathFunction {
       } else if (!adapter.isNumber(transformedElement)) {
         throw new ArgumentTypeException(name(), "number or string", adapter.typeOf(transformedElement));
       }
-      sortedTransformed.put(transformedElement, element);
+      pairs.add(new Pair(transformedElement, element));
       while (elements.hasNext()) {
         element = elements.next();
         transformedElement = expression.evaluate(adapter, element);
-        if ((expectNumbers && !adapter.isNumber(transformedElement)) || (!expectNumbers && !adapter.isString(transformedElement))) {
-          throw new ArgumentTypeException(name(), expectNumbers ? "number" : "string", adapter.typeOf(transformedElement));
+        if (expectNumbers && !adapter.isNumber(transformedElement)) {
+          throw new ArgumentTypeException(name(), "number", adapter.typeOf(transformedElement));
+        } else if (!expectNumbers && !adapter.isString(transformedElement)) {
+          throw new ArgumentTypeException(name(), "string", adapter.typeOf(transformedElement));
         }
-        sortedTransformed.put(transformedElement, element);
+        pairs.add(new Pair(transformedElement, element));
       }
-      return adapter.createArray(new ArrayList<>(sortedTransformed.values()));
+      Collections.sort(pairs, new Comparator<Pair<T>>() {
+        @Override
+        public int compare(Pair<T> a, Pair<T> b) {
+          return adapter.compare(a.transformedElement, b.transformedElement);
+        }
+      });
+      List<T> sorted = new ArrayList<>(pairs.size());
+      for (Pair<T> pair : pairs) {
+        sorted.add(pair.element);
+      }
+      return adapter.createArray(sorted);
     } else {
-      List<T> empty = Collections.emptyList();
-      return adapter.createArray(empty);
+      return array;
+    }
+  }
+
+  private static class Pair<U> {
+    public U transformedElement;
+    public U element;
+
+    public Pair(U transformedElement, U element) {
+      this.transformedElement = transformedElement;
+      this.element = element;
     }
   }
 }
