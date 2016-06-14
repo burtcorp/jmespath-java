@@ -16,15 +16,18 @@ public abstract class CompareByFunction extends JmesPathFunction {
 
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    T array = arguments.get(0).value();
-    JmesPathNode expression = arguments.get(1).expression();
-    if (arguments.get(0).isExpression()) {
+    ExpressionOrValue<T> firstArgument = arguments.get(0);
+    ExpressionOrValue<T> secondArgument = arguments.get(1);
+    if (firstArgument.isExpression()) {
       throw new ArgumentTypeException(name(), "array of objects", "expression");
-    } else if (!adapter.isArray(array)) {
-      throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array));
     }
-    if (arguments.get(1).isValue()) {
+    if (!secondArgument.isExpression()) {
       throw new ArgumentTypeException(name(), "expression", adapter.typeOf(arguments.get(1).value()));
+    }
+    T array = firstArgument.value();
+    JmesPathNode expression = secondArgument.expression();
+    if (!adapter.isArray(array)) {
+      throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array));
     }
     Iterator<T> elements = adapter.toList(array).iterator();
     if (elements.hasNext()) {
