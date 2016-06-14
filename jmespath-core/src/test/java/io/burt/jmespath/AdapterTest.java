@@ -768,6 +768,11 @@ public abstract class AdapterTest<T> {
     evaluate("abs(`1`, `2`)", adapter().parseString("{}"));
   }
 
+  @Test(expected = ArgumentTypeException.class)
+  public void absRequiresAValue() {
+    evaluate("abs(&foo)", adapter().parseString("{}"));
+  }
+
   @Test
   public void avgReturnsTheAverageOfAnArrayOfNumbers() {
     T result = evaluate("avg(`[0, 1, 2, 3.5, 4]`)", adapter().parseString("{}"));
@@ -788,6 +793,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void avgRequiresExactlyOneArgument() {
     evaluate("avg(`[]`, `[]`)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void avgRequiresAValue() {
+    evaluate("avg(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -834,6 +844,16 @@ public abstract class AdapterTest<T> {
     evaluate("contains('foo', 'bar', 'baz')", adapter().parseString("{}"));
   }
 
+  @Test(expected = ArgumentTypeException.class)
+  public void containsRequiresValues1() {
+    evaluate("contains(@, &foo)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void containsRequiresValues2() {
+    evaluate("contains(&foo, 'bar')", adapter().parseString("{}"));
+  }
+
   @Test
   public void ceilReturnsTheNextWholeNumber() {
     T result1 = evaluate("ceil(`0.9`)", adapter().parseString("{}"));
@@ -850,6 +870,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void ceilRequiresExactlyOneArgument() {
     evaluate("ceil(`1`, `2`)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void ceilRequiresAValue() {
+    evaluate("ceil(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -889,6 +914,16 @@ public abstract class AdapterTest<T> {
     evaluate("ends_with('foo', @, @)", adapter().parseString("{}"));
   }
 
+  @Test(expected = ArgumentTypeException.class)
+  public void endsWithRequiresAValue1() {
+    evaluate("ends_with(&foo, 'bar')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void endsWithRequiresAValue2() {
+    evaluate("ends_with('foo', &bar)", adapter().parseString("{}"));
+  }
+
   @Test
   public void floorReturnsThePreviousWholeNumber() {
     T result1 = evaluate("floor(`0.9`)", adapter().parseString("{}"));
@@ -905,6 +940,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void floorRequiresExactlyOneArgument() {
     evaluate("floor(`1`, `2`)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void floorRequiresAValue() {
+    evaluate("floor(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -939,6 +979,16 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(jsonString("")));
   }
 
+  @Test(expected = ArgumentTypeException.class)
+  public void joinRequiresAValue1() {
+    evaluate("join(&foo, @)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void joinRequiresAValue2() {
+    evaluate("join('foo', &bar)", adapter().parseString("{}"));
+  }
+
   @Test
   public void keysReturnsTheNamesOfAnObjectsProperties() {
     T result = evaluate("keys(@)", adapter().parseString("{\"foo\":3,\"bar\":4}"));
@@ -959,6 +1009,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void keysRequiresASingleArgument() {
     evaluate("keys(@, @)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void keysRequiresAValue() {
+    evaluate("keys(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -982,6 +1037,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArgumentTypeException.class)
   public void lengthRequiresAStringArrayOrObjectAsArgument() {
     evaluate("length(@)", adapter().parseString("3"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void lengthRequiresAValue() {
+    evaluate("length(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -1052,6 +1112,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void maxRequiresExactlyOneArgument() {
     evaluate("max(`[]`, `[]`)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void maxRequiresAValue() {
+    evaluate("max(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -1140,6 +1205,11 @@ public abstract class AdapterTest<T> {
     evaluate("merge()", adapter().parseString("{}"));
   }
 
+  @Test(expected = ArgumentTypeException.class)
+  public void mergeRequiresAValue() {
+    evaluate("merge(&foo)", adapter().parseString("{}"));
+  }
+
   @Test
   public void minReturnsTheGreatestOfAnArrayOfNumbers() {
     T result = evaluate("min(`[0, 1, -4, 3.5, 2]`)", adapter().parseString("{}"));
@@ -1171,6 +1241,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void minRequiresExactlyOneArgument() {
     evaluate("min(`[]`, `[]`)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void minRequiresAValue() {
+    evaluate("min(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -1243,6 +1318,17 @@ public abstract class AdapterTest<T> {
     evaluate("not_null()", adapter().parseString("{}"));
   }
 
+  @Test(expected = ArgumentTypeException.class)
+  public void notNullRequiresAValue() {
+    evaluate("not_null(`null`, &foo)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  @Ignore("Not sure if this should be an error or not")
+  public void notNullRequiresAValueForArgumentsThatAreNotInspected() {
+    evaluate("not_null('foo', &foo)", adapter().parseString("{}"));
+  }
+
   @Test
   public void reverseReversesAnArray() {
     T result = evaluate("reverse(@)", adapter().parseString("[\"foo\", 3, 2, 1]"));
@@ -1268,6 +1354,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArgumentTypeException.class)
   public void reverseRequiresAnArrayAsArgument() {
     evaluate("reverse(@)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void reverseRequiresAValue() {
+    evaluate("reverse(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -1312,6 +1403,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArgumentTypeException.class)
   public void sortDoesNotAcceptMixedInputs() {
     evaluate("sort(@)", adapter().parseString("[1, \"foo\"]"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sortRequiresAValue() {
+    evaluate("sort(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -1416,6 +1512,16 @@ public abstract class AdapterTest<T> {
     evaluate("starts_with('foo', @, @)", adapter().parseString("{}"));
   }
 
+  @Test(expected = ArgumentTypeException.class)
+  public void startsWithRequiresAValue1() {
+    evaluate("starts_with(&foo, 'bar')", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void startsWithRequiresAValue2() {
+    evaluate("starts_with('foo', &bar)", adapter().parseString("{}"));
+  }
+
   @Test
   public void sumReturnsTheAverageOfAnArrayOfNumbers() {
     T result = evaluate("sum(`[0, 1, 2, 3.5, 4]`)", adapter().parseString("{}"));
@@ -1436,6 +1542,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void sumRequiresExactlyOneArgument() {
     evaluate("sum(`[]`, `[]`)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void sumRequiresAValue() {
+    evaluate("sum(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -1460,6 +1571,11 @@ public abstract class AdapterTest<T> {
     evaluate("to_array(`1`, `2`)", adapter().parseString("{}"));
   }
 
+  @Test(expected = ArgumentTypeException.class)
+  public void toArrayRequiresAValue() {
+    evaluate("to_array(&foo)", adapter().parseString("{}"));
+  }
+
   @Test
   public void toStringReturnsTheJsonEncodingOfTheArgument() {
     T input = adapter().parseString("{\"foo\": [1, 2, [\"bar\"]]}");
@@ -1481,6 +1597,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void toStringRequiresExactlyOneArgument2() {
     evaluate("to_string(`1`, `2`)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void toStringRequiresAValue() {
+    evaluate("to_string(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -1541,6 +1662,11 @@ public abstract class AdapterTest<T> {
     evaluate("to_number(`1`, `2`)", adapter().parseString("{}"));
   }
 
+  @Test(expected = ArgumentTypeException.class)
+  public void toNumberRequiresAValue() {
+    evaluate("to_number(&foo)", adapter().parseString("{}"));
+  }
+
   @Test
   public void typeReturnsTheTypeOfTheArgument() {
     assertThat(evaluate("type(@)", adapter().parseString("null")), is(jsonString("null")));
@@ -1559,6 +1685,11 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void typeRequiresExactlyOneArgument2() {
     evaluate("type(`1`, `2`)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void typeRequiresAValue() {
+    evaluate("type(&foo)", adapter().parseString("{}"));
   }
 
   @Test
@@ -1581,5 +1712,10 @@ public abstract class AdapterTest<T> {
   @Test(expected = ArityException.class)
   public void valuesRequiresASingleArgument() {
     evaluate("values(@, @)", adapter().parseString("{}"));
+  }
+
+  @Test(expected = ArgumentTypeException.class)
+  public void valuesRequiresAValue() {
+    evaluate("values(&foo)", adapter().parseString("{}"));
   }
 }

@@ -13,13 +13,18 @@ public class ReverseFunction extends JmesPathFunction {
 
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    T array = arguments.get(0).value();
-    if (adapter.isArray(array)) {
-      List<T> elements = new ArrayList(adapter.toList(array));
-      Collections.reverse(elements);
-      return adapter.createArray(elements);
+    ExpressionOrValue<T> argument = arguments.get(0);
+    if (argument.isExpression()) {
+      throw new ArgumentTypeException(name(), "array", "expression");
     } else {
-      throw new ArgumentTypeException(name(), "array", adapter.typeOf(array));
+      T array = argument.value();
+      if (adapter.isArray(array)) {
+        List<T> elements = new ArrayList(adapter.toList(array));
+        Collections.reverse(elements);
+        return adapter.createArray(elements);
+      } else {
+        throw new ArgumentTypeException(name(), "array", adapter.typeOf(array));
+      }
     }
   }
 }

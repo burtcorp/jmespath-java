@@ -12,17 +12,22 @@ public abstract class ArrayMathFunction extends JmesPathFunction {
 
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    T array = arguments.get(0).value();
-    if (isValidArray(adapter, array)) {
-      List<T> values = adapter.toList(array);
-      return performMathOperation(adapter, values);
+    ExpressionOrValue<T> argument = arguments.get(0);
+    if (argument.isExpression()) {
+      throw new ArgumentTypeException(name(), expectedType(), "expression");
     } else {
-      List<T> values = adapter.toList(array);
-      List<String> types = new ArrayList<>(values.size());
-      for (T value : values) {
-        types.add(adapter.typeOf(value));
+      T array = argument.value();
+      if (isValidArray(adapter, array)) {
+        List<T> values = adapter.toList(array);
+        return performMathOperation(adapter, values);
+      } else {
+        List<T> values = adapter.toList(array);
+        List<String> types = new ArrayList<>(values.size());
+        for (T value : values) {
+          types.add(adapter.typeOf(value));
+        }
+        throw new ArgumentTypeException(name(), expectedType(), types.toString());
       }
-      throw new ArgumentTypeException(name(), expectedType(), types.toString());
     }
   }
 

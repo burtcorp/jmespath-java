@@ -13,13 +13,18 @@ public class SortFunction extends JmesPathFunction {
 
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    T array = arguments.get(0).value();
-    if (TypesHelper.isNumberArray(adapter, array) || TypesHelper.isStringArray(adapter, array)) {
-      List<T> elements = new ArrayList(adapter.toList(array));
-      Collections.sort(elements, adapter);
-      return adapter.createArray(elements);
+    ExpressionOrValue<T> argument = arguments.get(0);
+    if (argument.isExpression()) {
+      throw new ArgumentTypeException(name(), "array of numbers or strings", "expression");
     } else {
-      throw new ArgumentTypeException(name(), "array", adapter.typeOf(array));
+      T array = argument.value();
+      if (TypesHelper.isNumberArray(adapter, array) || TypesHelper.isStringArray(adapter, array)) {
+        List<T> elements = new ArrayList(adapter.toList(array));
+        Collections.sort(elements, adapter);
+        return adapter.createArray(elements);
+      } else {
+        throw new ArgumentTypeException(name(), "array of numbers or strings", adapter.typeOf(array));
+      }
     }
   }
 }

@@ -11,17 +11,22 @@ public class ToNumberFunction extends JmesPathFunction {
 
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    T argument = arguments.get(0).value();
-    if (adapter.isNumber(argument)) {
-      return argument;
-    } else if (adapter.isString(argument)) {
-      try {
-        return adapter.createNumber(Double.parseDouble(adapter.toString(argument)));
-      } catch (NumberFormatException nfe) {
+    ExpressionOrValue<T> argument = arguments.get(0);
+    if (argument.isExpression()) {
+      throw new ArgumentTypeException(name(), "any value", "expression");
+    } else {
+      T subject = argument.value();
+      if (adapter.isNumber(subject)) {
+        return subject;
+      } else if (adapter.isString(subject)) {
+        try {
+          return adapter.createNumber(Double.parseDouble(adapter.toString(subject)));
+        } catch (NumberFormatException nfe) {
+          return adapter.createNull();
+        }
+      } else {
         return adapter.createNull();
       }
-    } else {
-      return adapter.createNull();
     }
   }
 }

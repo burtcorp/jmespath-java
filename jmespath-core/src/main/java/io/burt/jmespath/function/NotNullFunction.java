@@ -11,9 +11,13 @@ public class NotNullFunction extends JmesPathFunction {
 
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    for (ExpressionOrValue<T> x : arguments) {
-      if (!adapter.isNull(x.value())) {
-        return x.value();
+    for (ExpressionOrValue<T> argument : arguments) {
+      if (argument.isExpression()) {
+        throw new ArgumentTypeException(name(), "any value", "expression");
+      } else {
+        if (!adapter.isNull(argument.value())) {
+          return argument.value();
+        }
       }
     }
     return adapter.createNull();

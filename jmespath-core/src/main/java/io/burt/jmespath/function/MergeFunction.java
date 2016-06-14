@@ -26,7 +26,11 @@ public class MergeFunction extends JmesPathFunction {
     } else {
       List<String> types = new ArrayList<>(arguments.size());
       for (ExpressionOrValue<T> argument : arguments) {
-        types.add(adapter.typeOf(argument.value()));
+        if (argument.isExpression()) {
+          types.add("expression");
+        } else {
+          types.add(adapter.typeOf(argument.value()));
+        }
       }
       throw new ArgumentTypeException(name(), "array of object", types.toString());
     }
@@ -34,7 +38,7 @@ public class MergeFunction extends JmesPathFunction {
 
   private <T> boolean isObjectArray(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     for (ExpressionOrValue<T> argument : arguments) {
-      if (!adapter.isObject(argument.value())) {
+      if (argument.isExpression() || !adapter.isObject(argument.value())) {
         return false;
       }
     }
