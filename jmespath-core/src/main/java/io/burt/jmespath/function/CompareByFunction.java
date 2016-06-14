@@ -7,13 +7,12 @@ import java.util.ArrayList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.node.JmesPathNode;
 
-public class CompareByFunction extends JmesPathFunction {
-  private final int compareModifier;
-
-  public CompareByFunction(int compareModifier) {
+public abstract class CompareByFunction extends JmesPathFunction {
+  public CompareByFunction() {
     super(2, 2);
-    this.compareModifier = compareModifier;
   }
+
+  protected abstract boolean sortsBefore(int compareResult);
 
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
@@ -43,7 +42,7 @@ public class CompareByFunction extends JmesPathFunction {
         if ((expectNumbers && !adapter.isNumber(candidateValue)) || (!expectNumbers && !adapter.isString(candidateValue))) {
           throw new ArgumentTypeException(name(), expectNumbers ? "number" : "string", adapter.typeOf(resultValue));
         }
-        if ((compareModifier * adapter.compare(candidateValue, resultValue)) > 0) {
+        if (sortsBefore(adapter.compare(candidateValue, resultValue))) {
           result = candidate;
           resultValue = candidateValue;
         }

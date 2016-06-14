@@ -1,7 +1,8 @@
 package io.burt.jmespath.function;
 
 public class MinFunction extends CompareFunction {
-  public MinFunction() {
-    super(-1);
+  @Override
+  protected boolean sortsBefore(int compareResult) {
+    return compareResult < 0;
   }
 }
