@@ -953,6 +953,14 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(jsonString("foo|bar|baz")));
   }
 
+  @Test
+  public void joinHandlesDuplicates() {
+    T string = adapter().createString("foo");
+    T value = adapter().createArray(Arrays.asList(string, string, string));
+    T result = evaluate("join('|', @)", value);
+    assertThat(result, is(jsonString("foo|foo|foo")));
+  }
+
   @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAStringAsFirstArgument() {
     evaluate("join(`3`, @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));

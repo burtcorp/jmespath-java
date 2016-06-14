@@ -2,6 +2,7 @@ package io.burt.jmespath.function;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 
@@ -23,20 +24,18 @@ public class JoinFunction extends JmesPathFunction {
       T components = secondArgument.value();
       if (isStringArray(adapter, components)) {
         if (adapter.isString(glue)) {
-          List<T> values = adapter.toList(components);
-          if (values.isEmpty()) {
-            return adapter.createString("");
-          } else {
+          Iterator<T> values = adapter.toList(components).iterator();
+          if (values.hasNext()) {
             StringBuilder buffer = new StringBuilder();
             String glueString = adapter.toString(glue);
-            T lastValue = values.get(values.size() - 1);
-            for (T value : values) {
-              buffer.append(adapter.toString(value));
-              if (value != lastValue) {
-                buffer.append(glueString);
-              }
+            buffer.append(adapter.toString(values.next()));
+            while (values.hasNext()) {
+              buffer.append(glueString);
+              buffer.append(adapter.toString(values.next()));
             }
             return adapter.createString(buffer.toString());
+          } else {
+            return adapter.createString("");
           }
         } else {
           throw new ArgumentTypeException(name(), "string", adapter.typeOf(glue));
