@@ -21,10 +21,10 @@ public class SortByFunction extends JmesPathFunction {
     if (arguments.get(0).isExpression()) {
       throw new ArgumentTypeException(name(), "array of objects", "expression");
     } else if (!adapter.isArray(array)) {
-      throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array));
+      throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array).toString());
     }
     if (arguments.get(1).isValue()) {
-      throw new ArgumentTypeException(name(), "expression", adapter.typeOf(arguments.get(1).value()));
+      throw new ArgumentTypeException(name(), "expression", adapter.typeOf(arguments.get(1).value()).toString());
     }
     List<T> elementsList = adapter.toList(array);
     Iterator<T> elements = elementsList.iterator();
@@ -36,16 +36,16 @@ public class SortByFunction extends JmesPathFunction {
       if (adapter.isString(transformedElement)) {
         expectNumbers = false;
       } else if (!adapter.isNumber(transformedElement)) {
-        throw new ArgumentTypeException(name(), "number or string", adapter.typeOf(transformedElement));
+        throw new ArgumentTypeException(name(), "number or string", adapter.typeOf(transformedElement).toString());
       }
       pairs.add(new Pair(transformedElement, element));
       while (elements.hasNext()) {
         element = elements.next();
         transformedElement = expression.evaluate(adapter, element);
         if (expectNumbers && !adapter.isNumber(transformedElement)) {
-          throw new ArgumentTypeException(name(), "number", adapter.typeOf(transformedElement));
+          throw new ArgumentTypeException(name(), "number", adapter.typeOf(transformedElement).toString());
         } else if (!expectNumbers && !adapter.isString(transformedElement)) {
-          throw new ArgumentTypeException(name(), "string", adapter.typeOf(transformedElement));
+          throw new ArgumentTypeException(name(), "string", adapter.typeOf(transformedElement).toString());
         }
         pairs.add(new Pair(transformedElement, element));
       }

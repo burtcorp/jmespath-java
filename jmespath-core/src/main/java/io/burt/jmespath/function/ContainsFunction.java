@@ -25,7 +25,7 @@ public class ContainsFunction extends JmesPathFunction {
       } else if (adapter.isString(haystack)) {
         return adapter.createBoolean(adapter.toString(haystack).indexOf(adapter.toString(needle)) >= 0);
       } else {
-        throw new ArgumentTypeException(name(), "array", adapter.typeOf(haystack));
+        throw new ArgumentTypeException(name(), "array", adapter.typeOf(haystack).toString());
       }
     }
   }

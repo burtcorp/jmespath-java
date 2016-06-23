@@ -20,7 +20,7 @@ public abstract class MathFunction extends JmesPathFunction {
         Double d = adapter.toDouble(value);
         return adapter.createNumber(performMathOperation(d));
       } else {
-        throw new ArgumentTypeException(name(), "number", adapter.typeOf(value));
+        throw new ArgumentTypeException(name(), "number", adapter.typeOf(value).toString());
       }
     }
   }

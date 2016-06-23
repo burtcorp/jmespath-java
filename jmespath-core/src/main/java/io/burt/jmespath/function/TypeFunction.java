@@ -15,7 +15,7 @@ public class TypeFunction extends JmesPathFunction {
     if (argument.isExpression()) {
       throw new ArgumentTypeException(name(), "any value", "expression");
     } else {
-      return adapter.createString(adapter.typeOf(argument.value()));
+      return adapter.createString(adapter.typeOf(argument.value()).toString());
     }
   }
 }

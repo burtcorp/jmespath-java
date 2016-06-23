@@ -38,13 +38,13 @@ public class JoinFunction extends JmesPathFunction {
             return adapter.createString("");
           }
         } else {
-          throw new ArgumentTypeException(name(), "string", adapter.typeOf(glue));
+          throw new ArgumentTypeException(name(), "string", adapter.typeOf(glue).toString());
         }
       } else {
         List<T> values = adapter.toList(components);
         List<String> types = new ArrayList<>(values.size());
         for (T value : values) {
-          types.add(adapter.typeOf(value));
+          types.add(adapter.typeOf(value).toString());
         }
         throw new ArgumentTypeException(name(), "array of strings", types.toString());
       }

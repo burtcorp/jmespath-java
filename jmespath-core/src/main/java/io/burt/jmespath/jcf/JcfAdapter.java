@@ -8,8 +8,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.ValueType;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
+
+import static io.burt.jmespath.ValueType.*;
 
 public class JcfAdapter implements Adapter<Object> {
   private final FunctionRegistry functionRegistry;
@@ -139,19 +142,19 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
-  public String typeOf(Object value) {
+  public ValueType typeOf(Object value) {
     if (isNull(value)) {
-      return "null";
+      return NULL;
     } else if (isBoolean(value)) {
-      return "boolean";
+      return BOOLEAN;
     } else if (isNumber(value)) {
-      return "number";
+      return NUMBER;
     } else if (isArray(value)) {
-      return "array";
+      return ARRAY;
     } else if (isObject(value)) {
-      return "object";
+      return OBJECT;
     } else if (isString(value)) {
-      return "string";
+      return STRING;
     } else {
       throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getClass().getName()));
     }
@@ -159,25 +162,27 @@ public class JcfAdapter implements Adapter<Object> {
 
   @Override
   public int compare(Object value1, Object value2) {
-    String type1 = typeOf(value1);
-    String type2 = typeOf(value2);
-    if (type1.equals(type2)) {
-      if (type1.equals("null")) {
-        return 0;
-      } else if (type1.equals("boolean")) {
-        return value1 == value2 ? 0 : -1;
-      } else if (type1.equals("number")) {
-        double d1 = (double) value1;
-        double d2 = (double) value2;
-        return d1 == d2 ? 0 : (d1 > d2 ? 1 : -1);
-      } else if (isString(value1)) {
-        String s1 = (String) value1;
-        String s2 = (String) value2;
-        return s1.compareTo(s2);
-      } else if (isArray(value1) || isObject(value1)) {
-        return value1.equals(value2) ? 0 : -1;
-      } else {
-        throw new IllegalStateException(String.format("Unknown node type encountered: %s", value1.getClass().getName()));
+    ValueType type1 = typeOf(value1);
+    ValueType type2 = typeOf(value2);
+    if (type1 == type2) {
+      switch (type1) {
+        case NULL:
+          return 0;
+        case BOOLEAN:
+          return value1 == value2 ? 0 : -1;
+        case NUMBER:
+          double d1 = (double) value1;
+          double d2 = (double) value2;
+          return d1 == d2 ? 0 : (d1 > d2 ? 1 : -1);
+        case STRING:
+          String s1 = (String) value1;
+          String s2 = (String) value2;
+          return s1.compareTo(s2);
+        case ARRAY:
+        case OBJECT:
+          return value1.equals(value2) ? 0 : -1;
+        default:
+          throw new IllegalStateException(String.format("Unknown node type encountered: %s", value1.getClass().getName()));
       }
     } else {
       return -1;

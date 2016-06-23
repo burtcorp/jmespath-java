@@ -22,12 +22,12 @@ public abstract class CompareByFunction extends JmesPathFunction {
       throw new ArgumentTypeException(name(), "array of objects", "expression");
     }
     if (!secondArgument.isExpression()) {
-      throw new ArgumentTypeException(name(), "expression", adapter.typeOf(arguments.get(1).value()));
+      throw new ArgumentTypeException(name(), "expression", adapter.typeOf(arguments.get(1).value()).toString());
     }
     T array = firstArgument.value();
     JmesPathNode expression = secondArgument.expression();
     if (!adapter.isArray(array)) {
-      throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array));
+      throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array).toString());
     }
     Iterator<T> elements = adapter.toList(array).iterator();
     if (elements.hasNext()) {
@@ -37,13 +37,13 @@ public abstract class CompareByFunction extends JmesPathFunction {
       if (adapter.isString(resultValue)) {
         expectNumbers = false;
       } else if (!adapter.isNumber(resultValue)) {
-        throw new ArgumentTypeException(name(), "number or string", adapter.typeOf(resultValue));
+        throw new ArgumentTypeException(name(), "number or string", adapter.typeOf(resultValue).toString());
       }
       while (elements.hasNext()) {
         T candidate = elements.next();
         T candidateValue = expression.evaluate(adapter, candidate);
         if ((expectNumbers && !adapter.isNumber(candidateValue)) || (!expectNumbers && !adapter.isString(candidateValue))) {
-          throw new ArgumentTypeException(name(), expectNumbers ? "number" : "string", adapter.typeOf(resultValue));
+          throw new ArgumentTypeException(name(), expectNumbers ? "number" : "string", adapter.typeOf(resultValue).toString());
         }
         if (sortsBefore(adapter.compare(candidateValue, resultValue))) {
           result = candidate;

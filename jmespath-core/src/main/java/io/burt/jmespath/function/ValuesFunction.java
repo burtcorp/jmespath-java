@@ -19,7 +19,7 @@ public class ValuesFunction extends JmesPathFunction {
       if (adapter.isObject(subject)) {
         return adapter.createArray(adapter.toList(subject));
       } else {
-        throw new ArgumentTypeException(name(), "object", adapter.typeOf(subject));
+        throw new ArgumentTypeException(name(), "object", adapter.typeOf(subject).toString());
       }
     }
   }

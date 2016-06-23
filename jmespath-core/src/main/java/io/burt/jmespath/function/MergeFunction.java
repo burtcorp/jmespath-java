@@ -29,7 +29,7 @@ public class MergeFunction extends JmesPathFunction {
         if (argument.isExpression()) {
           types.add("expression");
         } else {
-          types.add(adapter.typeOf(argument.value()));
+          types.add(adapter.typeOf(argument.value()).toString());
         }
       }
       throw new ArgumentTypeException(name(), "array of object", types.toString());

@@ -21,9 +21,9 @@ public class EndsWithFunction extends JmesPathFunction {
       if (adapter.isString(subject) && adapter.isString(suffix)) {
         return adapter.createBoolean(adapter.toString(subject).endsWith(adapter.toString(suffix)));
       } else if (!adapter.isString(subject)) {
-        throw new ArgumentTypeException(name(), "string", adapter.typeOf(subject));
+        throw new ArgumentTypeException(name(), "string", adapter.typeOf(subject).toString());
       } else {
-        throw new ArgumentTypeException(name(), "string", adapter.typeOf(suffix));
+        throw new ArgumentTypeException(name(), "string", adapter.typeOf(suffix).toString());
       }
     }
   }

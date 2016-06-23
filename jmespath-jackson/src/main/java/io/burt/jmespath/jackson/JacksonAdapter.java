@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.ValueType;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
 
@@ -118,22 +119,23 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
-  public String typeOf(JsonNode value) {
+  public ValueType typeOf(JsonNode value) {
     switch (value.getNodeType()) {
-      case ARRAY: return "array";
+      case ARRAY:
+        return ValueType.ARRAY;
       case POJO:
       case OBJECT:
-        return "object";
+        return ValueType.OBJECT;
       case BINARY:
       case STRING:
-        return "string";
+        return ValueType.STRING;
       case BOOLEAN:
-        return "boolean";
+        return ValueType.BOOLEAN;
       case MISSING:
       case NULL:
-        return "null";
+        return ValueType.NULL;
       case NUMBER:
-        return "number";
+        return ValueType.NUMBER;
       default:
         throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getNodeType()));
     }

@@ -23,7 +23,7 @@ public class ReverseFunction extends JmesPathFunction {
         Collections.reverse(elements);
         return adapter.createArray(elements);
       } else {
-        throw new ArgumentTypeException(name(), "array", adapter.typeOf(array));
+        throw new ArgumentTypeException(name(), "array", adapter.typeOf(array).toString());
       }
     }
   }

@@ -23,7 +23,7 @@ public class SortFunction extends JmesPathFunction {
         Collections.sort(elements, adapter);
         return adapter.createArray(elements);
       } else {
-        throw new ArgumentTypeException(name(), "array of numbers or strings", adapter.typeOf(array));
+        throw new ArgumentTypeException(name(), "array of numbers or strings", adapter.typeOf(array).toString());
       }
     }
   }

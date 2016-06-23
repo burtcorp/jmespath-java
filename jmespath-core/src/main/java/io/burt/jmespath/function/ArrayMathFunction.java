@@ -24,7 +24,7 @@ public abstract class ArrayMathFunction extends JmesPathFunction {
         List<T> values = adapter.toList(array);
         List<String> types = new ArrayList<>(values.size());
         for (T value : values) {
-          types.add(adapter.typeOf(value));
+          types.add(adapter.typeOf(value).toString());
         }
         throw new ArgumentTypeException(name(), expectedType(), types.toString());
       }
