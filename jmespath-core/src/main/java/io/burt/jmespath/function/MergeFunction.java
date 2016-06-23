@@ -15,10 +15,10 @@ public class MergeFunction extends JmesPathFunction {
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     if (isObjectArray(adapter, arguments)) {
-      Map<String, T> accumulator = new LinkedHashMap<>();
+      Map<T, T> accumulator = new LinkedHashMap<>();
       for (ExpressionOrValue<T> argument : arguments) {
         T value = argument.value();
-        for (String property : adapter.getPropertyNames(value)) {
+        for (T property : adapter.getPropertyNames(value)) {
           accumulator.put(property, adapter.getProperty(value, property));
         }
       }

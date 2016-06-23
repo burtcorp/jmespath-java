@@ -171,12 +171,17 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
-  public Collection<String> getPropertyNames(JsonNode value) {
+  public JsonNode getProperty(JsonNode value, JsonNode name) {
+    return getProperty(value, name.textValue());
+  }
+
+  @Override
+  public Collection<JsonNode> getPropertyNames(JsonNode value) {
     if (isObject(value)) {
-      List<String> names = new ArrayList<>(value.size());
+      List<JsonNode> names = new ArrayList<>(value.size());
       Iterator<String> fieldNames = value.fieldNames();
       while (fieldNames.hasNext()) {
-        names.add(fieldNames.next());
+        names.add(createString(fieldNames.next()));
       }
       return names;
     } else {
@@ -190,7 +195,7 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
-  public JsonNode createArray(List<JsonNode> elements) {
+  public JsonNode createArray(Collection<JsonNode> elements) {
     ArrayNode array = JsonNodeFactory.instance.arrayNode();
     array.addAll(elements);
     return array;
@@ -207,8 +212,12 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
-  public JsonNode createObject(Map<String, JsonNode> obj) {
-    return new ObjectNode(JsonNodeFactory.instance, obj);
+  public JsonNode createObject(Map<JsonNode, JsonNode> obj) {
+    ObjectNode object = new ObjectNode(JsonNodeFactory.instance);
+    for (Map.Entry<JsonNode, JsonNode> entry : obj.entrySet()) {
+      object.set(entry.getKey().textValue(), entry.getValue());
+    }
+    return object;
   }
 
   @Override

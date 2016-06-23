@@ -89,16 +89,28 @@ public interface Adapter<T> extends Comparator<T> {
    * Returns a property from an object.
    *
    * The first argument must be an object and the second argument may be
-   * a property on that object. When the property does not exist or is null
-   * a null value (but not Java null) is returned.
+   * the name of a property on that object. When the property does not exist
+   * or is null a null value (but not Java null) is returned.
    */
   T getProperty(T value, String name);
 
   /**
+   * Returns a property from an object.
+   *
+   * The first argument must be an object and the second argument may be
+   * the name (which must be a string value) of a property on that object.
+   * When the property does not exist or is null a null value (but not Java
+   * null) is returned.
+   */
+  T getProperty(T value, T name);
+
+  /**
    * Returns all of the property names of the given object, or an empty list
    * when the given value is not an object.
+   *
+   * The property names are always string values.
    */
-  Collection<String> getPropertyNames(T value);
+  Collection<T> getPropertyNames(T value);
 
   /**
    * Returns a null value (but not Java null).
@@ -108,7 +120,7 @@ public interface Adapter<T> extends Comparator<T> {
   /**
    * Returns an array with the specified elements.
    */
-  T createArray(List<T> elements);
+  T createArray(Collection<T> elements);
 
   /**
    * Returns a string value containing the specified string.
@@ -123,9 +135,11 @@ public interface Adapter<T> extends Comparator<T> {
   /**
    * Returns an object with the specified properties.
    *
+   * The map keys must be string values.
+   *
    * Does not support creating nested objects.
    */
-  T createObject(Map<String, T> obj);
+  T createObject(Map<T, T> obj);
 
   /**
    * Returns a number value containing the specified floating point number.

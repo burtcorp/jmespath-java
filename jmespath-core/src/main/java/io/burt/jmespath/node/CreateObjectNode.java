@@ -57,9 +57,9 @@ public class CreateObjectNode extends JmesPathNode {
     if (adapter.isNull(currentValue)) {
       return currentValue;
     } else {
-      Map<String, T> object = new LinkedHashMap<>();
+      Map<T, T> object = new LinkedHashMap<>();
       for (Entry entry : entries()) {
-        object.put(entry.key(), entry.value().evaluate(adapter, currentValue));
+        object.put(adapter.createString(entry.key()), entry.value().evaluate(adapter, currentValue));
       }
       return adapter.createObject(object);
     }

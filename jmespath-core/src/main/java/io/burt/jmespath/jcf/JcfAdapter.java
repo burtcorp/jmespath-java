@@ -29,10 +29,14 @@ public class JcfAdapter implements Adapter<Object> {
   @Override
   public List<Object> toList(Object value) {
     if (isArray(value)) {
-      return (List<Object>) value;
+      if (value instanceof List) {
+        return (List<Object>) value;
+      } else {
+        return new ArrayList<Object>((Collection<Object>) value);
+      }
     } else if (isObject(value)) {
-      Map<String, Object> object = (Map<String, Object>) value;
-      return new ArrayList(object.values());
+      Map<Object, Object> object = (Map<Object, Object>) value;
+      return new ArrayList<Object>(object.values());
     } else {
       return Collections.emptyList();
     }
@@ -94,7 +98,7 @@ public class JcfAdapter implements Adapter<Object> {
 
   @Override
   public boolean isArray(Object value) {
-    return value instanceof List;
+    return value instanceof Collection;
   }
 
   @Override
@@ -199,9 +203,14 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
-  public Collection<String> getPropertyNames(Object value) {
+  public Object getProperty(Object value, Object name) {
+    return getProperty(value, (String) name);
+  }
+
+  @Override
+  public Collection<Object> getPropertyNames(Object value) {
     if (isObject(value)) {
-      return ((Map<String, Object>) value).keySet();
+      return ((Map<Object, Object>) value).keySet();
     } else {
       return Collections.emptyList();
     }
@@ -213,7 +222,7 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
-  public Object createArray(List<Object> elements) {
+  public Object createArray(Collection<Object> elements) {
     return elements;
   }
 
@@ -228,7 +237,7 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
-  public Object createObject(Map<String, Object> obj) {
+  public Object createObject(Map<Object, Object> obj) {
     return obj;
   }
 

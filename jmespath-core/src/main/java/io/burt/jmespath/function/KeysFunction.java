@@ -19,12 +19,7 @@ public class KeysFunction extends JmesPathFunction {
     } else {
       T subject = argument.value();
       if (adapter.isObject(subject)) {
-        Collection<String> propertyNames = adapter.getPropertyNames(subject);
-        List<T> names = new ArrayList<>(propertyNames.size());
-        for (String name : propertyNames) {
-          names.add(adapter.createString(name));
-        }
-        return adapter.createArray(names);
+        return adapter.createArray(adapter.getPropertyNames(subject));
       } else {
         throw new ArgumentTypeException(name(), "object", adapter.typeOf(subject).toString());
       }
