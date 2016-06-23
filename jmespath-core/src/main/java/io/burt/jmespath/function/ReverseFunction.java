@@ -15,15 +15,17 @@ public class ReverseFunction extends JmesPathFunction {
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     ExpressionOrValue<T> argument = arguments.get(0);
     if (argument.isExpression()) {
-      throw new ArgumentTypeException(name(), "array", "expression");
+      throw new ArgumentTypeException(name(), "array or string", "expression");
     } else {
-      T array = argument.value();
-      if (adapter.isArray(array)) {
-        List<T> elements = new ArrayList(adapter.toList(array));
+      T subject = argument.value();
+      if (adapter.isArray(subject)) {
+        List<T> elements = new ArrayList(adapter.toList(subject));
         Collections.reverse(elements);
         return adapter.createArray(elements);
+      } else if (adapter.isString(subject)) {
+        return adapter.createString(new StringBuilder(adapter.toString(subject)).reverse().toString());
       } else {
-        throw new ArgumentTypeException(name(), "array", adapter.typeOf(array).toString());
+        throw new ArgumentTypeException(name(), "array or string", adapter.typeOf(subject).toString());
       }
     }
   }

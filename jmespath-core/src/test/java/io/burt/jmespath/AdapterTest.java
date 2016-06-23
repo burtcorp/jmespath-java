@@ -1349,6 +1349,18 @@ public abstract class AdapterTest<T> {
     assertThat(result, is(adapter().parseString("[]")));
   }
 
+  @Test
+  public void reverseReversesAString() {
+    T result = evaluate("reverse('hello world')", adapter().parseString("{}"));
+    assertThat(result, is(jsonString("dlrow olleh")));
+  }
+
+  @Test
+  public void reverseReturnsAnEmptyStringWhenGivenAnEmptyString() {
+    T result = evaluate("reverse('')", adapter().parseString("{}"));
+    assertThat(result, is(jsonString("")));
+  }
+
   @Test(expected = ArityException.class)
   public void reverseRequiresOneArgument1() {
     evaluate("reverse()", adapter().parseString("[]"));
