@@ -17,13 +17,13 @@ public abstract class MathFunction extends JmesPathFunction {
     } else {
       T value = argument.value();
       if (adapter.isNumber(value)) {
-        Double d = adapter.toDouble(value);
-        return adapter.createNumber(performMathOperation(d));
+        double n = adapter.toNumber(value).doubleValue();
+        return adapter.createNumber(performMathOperation(n));
       } else {
         throw new ArgumentTypeException(name(), "number", adapter.typeOf(value).toString());
       }
     }
   }
 
-  protected abstract Double performMathOperation(Double d);
+  protected abstract double performMathOperation(double n);
 }

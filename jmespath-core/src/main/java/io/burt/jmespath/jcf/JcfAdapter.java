@@ -84,9 +84,9 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
-  public Double toDouble(Object n) {
+  public Number toNumber(Object n) {
     if (isNumber(n)) {
-      return (Double) n;
+      return (Number) n;
     } else {
       return null;
     }
@@ -171,9 +171,9 @@ public class JcfAdapter implements Adapter<Object> {
         case BOOLEAN:
           return value1 == value2 ? 0 : -1;
         case NUMBER:
-          double d1 = (double) value1;
-          double d2 = (double) value2;
-          return d1 == d2 ? 0 : (d1 > d2 ? 1 : -1);
+          Comparable d1 = ((Number) value1).doubleValue();
+          Comparable d2 = ((Number) value2).doubleValue();
+          return d1.compareTo(d2);
         case STRING:
           String s1 = (String) value1;
           String s2 = (String) value2;
@@ -233,8 +233,13 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
-  public Object createNumber(double d) {
-    return d;
+  public Object createNumber(double n) {
+    return n;
+  }
+
+  @Override
+  public Object createNumber(long n) {
+    return n;
   }
 
   @Override

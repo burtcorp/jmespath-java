@@ -69,18 +69,18 @@ public abstract class AdapterTest<T> {
     };
   }
 
-  protected Matcher<T> jsonNumber(final double d) {
+  protected Matcher<T> jsonNumber(final Number e) {
     return new BaseMatcher<T>() {
       @Override
       public boolean matches(final Object n) {
         T actual = (T) n;
-        T expected = adapter().createNumber(d);
+        T expected = adapter().createNumber(e.doubleValue());
         return adapter().isNumber(actual) && adapter().compare(actual, expected) == 0;
       }
 
       @Override
       public void describeTo(Description description) {
-        description.appendText("JSON number with value ").appendValue(d);
+        description.appendText("JSON number with value ").appendValue(e);
       }
     };
   }

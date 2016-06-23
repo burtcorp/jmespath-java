@@ -17,9 +17,9 @@ public class LengthFunction extends JmesPathFunction {
     } else {
       T subject = argument.value();
       if (adapter.isString(subject)) {
-        return adapter.createNumber(adapter.toString(subject).length());
+        return adapter.createNumber((long) adapter.toString(subject).length());
       } else if (adapter.isArray(subject) || adapter.isObject(subject)) {
-        return adapter.createNumber(adapter.toList(subject).size());
+        return adapter.createNumber((long) adapter.toList(subject).size());
       } else {
         throw new ArgumentTypeException(name(), "string, array or object", adapter.typeOf(subject).toString());
       }

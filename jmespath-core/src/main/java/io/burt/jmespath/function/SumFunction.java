@@ -19,7 +19,7 @@ public class SumFunction extends ArrayMathFunction {
   protected <T> T performMathOperation(Adapter<T> adapter, List<T> values) {
     double sum = 0;
     for (T n : values) {
-      sum += adapter.toDouble(n);
+      sum += adapter.toNumber(n).doubleValue();
     }
     return adapter.createNumber(sum);
   }

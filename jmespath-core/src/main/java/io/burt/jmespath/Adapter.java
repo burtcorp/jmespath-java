@@ -34,10 +34,10 @@ public interface Adapter<T> extends Comparator<T> {
   String toString(T value);
 
   /**
-   * Converts the argument to a Double, or null if the argument does not
+   * Converts the argument to a Number, or null if the argument does not
    * represent a number.
    */
-  Double toDouble(T value);
+  Number toNumber(T value);
 
   /**
    * Returns true when the argument is an array.
@@ -128,9 +128,14 @@ public interface Adapter<T> extends Comparator<T> {
   T createObject(Map<String, T> obj);
 
   /**
-   * Returns a number value containing the specified number.
+   * Returns a number value containing the specified floating point number.
    */
   T createNumber(double n);
+
+  /**
+   * Returns a number value containing the specified integer.
+   */
+  T createNumber(long n);
 
   /**
    * Calls a function with the specified arguments and returns the result.

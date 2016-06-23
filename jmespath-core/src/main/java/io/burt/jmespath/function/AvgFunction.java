@@ -23,7 +23,7 @@ public class AvgFunction extends ArrayMathFunction {
       double sum = 0;
       int count = 0;
       for (T n : values) {
-        sum += adapter.toDouble(n);
+        sum += adapter.toNumber(n).doubleValue();
         count += 1;
       }
       return adapter.createNumber(sum/count);

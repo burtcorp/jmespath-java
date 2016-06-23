@@ -62,8 +62,8 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
-  public Double toDouble(JsonNode n) {
-    return n.doubleValue();
+  public Number toNumber(JsonNode n) {
+    return n.numberValue();
   }
 
   @Override
@@ -212,8 +212,13 @@ public class JacksonAdapter implements Adapter<JsonNode> {
   }
 
   @Override
-  public JsonNode createNumber(double d) {
-    return JsonNodeFactory.instance.numberNode(d);
+  public JsonNode createNumber(double n) {
+    return JsonNodeFactory.instance.numberNode(n);
+  }
+
+  @Override
+  public JsonNode createNumber(long n) {
+    return JsonNodeFactory.instance.numberNode(n);
   }
 
   @Override
