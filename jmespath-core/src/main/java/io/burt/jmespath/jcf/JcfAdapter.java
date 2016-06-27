@@ -8,11 +8,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.ValueType;
+import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
 
-import static io.burt.jmespath.ValueType.*;
+import static io.burt.jmespath.JmesPathType.*;
 
 public class JcfAdapter implements Adapter<Object> {
   private final FunctionRegistry functionRegistry;
@@ -146,7 +146,7 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
-  public ValueType typeOf(Object value) {
+  public JmesPathType typeOf(Object value) {
     if (isNull(value)) {
       return NULL;
     } else if (isBoolean(value)) {
@@ -166,8 +166,8 @@ public class JcfAdapter implements Adapter<Object> {
 
   @Override
   public int compare(Object value1, Object value2) {
-    ValueType type1 = typeOf(value1);
-    ValueType type2 = typeOf(value2);
+    JmesPathType type1 = typeOf(value1);
+    JmesPathType type2 = typeOf(value2);
     if (type1 == type2) {
       switch (type1) {
         case NULL:

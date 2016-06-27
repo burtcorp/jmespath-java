@@ -83,7 +83,7 @@ public interface Adapter<T> extends Comparator<T> {
    * As per the JMESPath specification the types are: number, string, boolean,
    * array, object, null.
    */
-  ValueType typeOf(T value);
+  JmesPathType typeOf(T value);
 
   /**
    * Returns a property from an object.

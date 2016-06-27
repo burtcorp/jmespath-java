@@ -1,6 +1,6 @@
 package io.burt.jmespath;
 
-public enum ValueType {
+public enum JmesPathType {
   NUMBER,
   STRING,
   BOOLEAN,
