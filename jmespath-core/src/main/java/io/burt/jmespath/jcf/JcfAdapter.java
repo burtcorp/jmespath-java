@@ -7,20 +7,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.BaseAdapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
 
 import static io.burt.jmespath.JmesPathType.*;
 
-public class JcfAdapter implements Adapter<Object> {
-  private final FunctionRegistry functionRegistry;
-
-  public JcfAdapter() {
-    this.functionRegistry = FunctionRegistry.createDefaultRegistry();
-  }
-
+public class JcfAdapter extends BaseAdapter<Object> {
   @Override
   public Object parseString(String string) {
     return JsonParser.fromString(string, this);
@@ -146,54 +140,6 @@ public class JcfAdapter implements Adapter<Object> {
   }
 
   @Override
-  public JmesPathType typeOf(Object value) {
-    if (isNull(value)) {
-      return NULL;
-    } else if (isBoolean(value)) {
-      return BOOLEAN;
-    } else if (isNumber(value)) {
-      return NUMBER;
-    } else if (isArray(value)) {
-      return ARRAY;
-    } else if (isObject(value)) {
-      return OBJECT;
-    } else if (isString(value)) {
-      return STRING;
-    } else {
-      throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getClass().getName()));
-    }
-  }
-
-  @Override
-  public int compare(Object value1, Object value2) {
-    JmesPathType type1 = typeOf(value1);
-    JmesPathType type2 = typeOf(value2);
-    if (type1 == type2) {
-      switch (type1) {
-        case NULL:
-          return 0;
-        case BOOLEAN:
-          return value1 == value2 ? 0 : -1;
-        case NUMBER:
-          Comparable d1 = ((Number) value1).doubleValue();
-          Comparable d2 = ((Number) value2).doubleValue();
-          return d1.compareTo(d2);
-        case STRING:
-          String s1 = (String) value1;
-          String s2 = (String) value2;
-          return s1.compareTo(s2);
-        case ARRAY:
-        case OBJECT:
-          return value1.equals(value2) ? 0 : -1;
-        default:
-          throw new IllegalStateException(String.format("Unknown node type encountered: %s", value1.getClass().getName()));
-      }
-    } else {
-      return -1;
-    }
-  }
-
-  @Override
   public Object getProperty(Object value, String name) {
     if (isObject(value)) {
       return ((Map<String, Object>) value).get(name);
@@ -249,15 +195,5 @@ public class JcfAdapter implements Adapter<Object> {
   @Override
   public Object createNumber(long n) {
     return n;
-  }
-
-  @Override
-  public Object callFunction(String name, List<ExpressionOrValue<Object>> arguments) {
-    return functionRegistry.callFunction(this, name, arguments);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    return o instanceof JcfAdapter;
   }
 }
