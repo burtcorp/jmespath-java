@@ -3,6 +3,7 @@ package io.burt.jmespath.node;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class IndexNode extends JmesPathNode {
   private final int index;
@@ -14,7 +15,7 @@ public class IndexNode extends JmesPathNode {
 
   @Override
   protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    if (adapter.isArray(currentValue)) {
+    if (adapter.typeOf(currentValue) == JmesPathType.ARRAY) {
       List<T> elements = adapter.toList(currentValue);
       int i = index();
       if (i < 0) {

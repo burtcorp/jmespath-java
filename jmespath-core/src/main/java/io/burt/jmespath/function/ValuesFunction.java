@@ -3,6 +3,7 @@ package io.burt.jmespath.function;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class ValuesFunction extends JmesPathFunction {
   public ValuesFunction() {
@@ -16,10 +17,11 @@ public class ValuesFunction extends JmesPathFunction {
       throw new ArgumentTypeException(name(), "object", "expression");
     } else {
       T subject = argument.value();
-      if (adapter.isObject(subject)) {
+      JmesPathType subjectType = adapter.typeOf(subject);
+      if (subjectType == JmesPathType.OBJECT) {
         return adapter.createArray(adapter.toList(subject));
       } else {
-        throw new ArgumentTypeException(name(), "object", adapter.typeOf(subject).toString());
+        throw new ArgumentTypeException(name(), "object", subjectType.toString());
       }
     }
   }

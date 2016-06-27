@@ -3,6 +3,7 @@ package io.burt.jmespath.function;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class NotNullFunction extends JmesPathFunction {
   public NotNullFunction() {
@@ -15,7 +16,7 @@ public class NotNullFunction extends JmesPathFunction {
       if (argument.isExpression()) {
         throw new ArgumentTypeException(name(), "any value", "expression");
       } else {
-        if (!adapter.isNull(argument.value())) {
+        if (adapter.typeOf(argument.value()) != JmesPathType.NULL) {
           return argument.value();
         }
       }

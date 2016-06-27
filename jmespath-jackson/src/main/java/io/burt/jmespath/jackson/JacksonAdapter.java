@@ -53,7 +53,7 @@ public class JacksonAdapter extends BaseAdapter<JsonNode> {
 
   @Override
   public String toString(JsonNode str) {
-    if (isString(str)) {
+    if (str.isTextual()) {
       return str.textValue();
     } else {
       return str.toString();
@@ -63,26 +63,6 @@ public class JacksonAdapter extends BaseAdapter<JsonNode> {
   @Override
   public Number toNumber(JsonNode n) {
     return n.numberValue();
-  }
-
-  @Override
-  public boolean isArray(JsonNode value) {
-    return value.isArray();
-  }
-
-  @Override
-  public boolean isObject(JsonNode value) {
-    return value.isObject();
-  }
-
-  @Override
-  public boolean isBoolean(JsonNode value) {
-    return value.isBoolean();
-  }
-
-  @Override
-  public boolean isNumber(JsonNode value) {
-    return value.isNumber();
   }
 
   @Override
@@ -105,16 +85,6 @@ public class JacksonAdapter extends BaseAdapter<JsonNode> {
       default:
         throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getNodeType()));
     }
-  }
-
-  @Override
-  public boolean isNull(JsonNode value) {
-    return value.isNull();
-  }
-
-  @Override
-  public boolean isString(JsonNode value) {
-    return value.isTextual();
   }
 
   @Override
@@ -152,7 +122,7 @@ public class JacksonAdapter extends BaseAdapter<JsonNode> {
 
   @Override
   public Collection<JsonNode> getPropertyNames(JsonNode value) {
-    if (isObject(value)) {
+    if (value.isObject()) {
       List<JsonNode> names = new ArrayList<>(value.size());
       Iterator<String> fieldNames = value.fieldNames();
       while (fieldNames.hasNext()) {

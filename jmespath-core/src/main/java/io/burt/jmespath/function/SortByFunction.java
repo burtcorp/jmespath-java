@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
 public class SortByFunction extends JmesPathFunction {
@@ -20,7 +21,7 @@ public class SortByFunction extends JmesPathFunction {
     final JmesPathNode expression = arguments.get(1).expression();
     if (arguments.get(0).isExpression()) {
       throw new ArgumentTypeException(name(), "array of objects", "expression");
-    } else if (!adapter.isArray(array)) {
+    } else if (adapter.typeOf(array) != JmesPathType.ARRAY) {
       throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array).toString());
     }
     if (arguments.get(1).isValue()) {
@@ -33,19 +34,21 @@ public class SortByFunction extends JmesPathFunction {
       T element = elements.next();
       T transformedElement = expression.evaluate(adapter, element);
       boolean expectNumbers = true;
-      if (adapter.isString(transformedElement)) {
+      JmesPathType elementType = adapter.typeOf(transformedElement);
+      if (elementType == JmesPathType.STRING) {
         expectNumbers = false;
-      } else if (!adapter.isNumber(transformedElement)) {
-        throw new ArgumentTypeException(name(), "number or string", adapter.typeOf(transformedElement).toString());
+      } else if (elementType != JmesPathType.NUMBER) {
+        throw new ArgumentTypeException(name(), "number or string", elementType.toString());
       }
       pairs.add(new Pair(transformedElement, element));
       while (elements.hasNext()) {
         element = elements.next();
         transformedElement = expression.evaluate(adapter, element);
-        if (expectNumbers && !adapter.isNumber(transformedElement)) {
-          throw new ArgumentTypeException(name(), "number", adapter.typeOf(transformedElement).toString());
-        } else if (!expectNumbers && !adapter.isString(transformedElement)) {
-          throw new ArgumentTypeException(name(), "string", adapter.typeOf(transformedElement).toString());
+        elementType = adapter.typeOf(transformedElement);
+        if (expectNumbers && elementType != JmesPathType.NUMBER) {
+          throw new ArgumentTypeException(name(), "number", elementType.toString());
+        } else if (!expectNumbers && elementType != JmesPathType.STRING) {
+          throw new ArgumentTypeException(name(), "string", elementType.toString());
         }
         pairs.add(new Pair(transformedElement, element));
       }

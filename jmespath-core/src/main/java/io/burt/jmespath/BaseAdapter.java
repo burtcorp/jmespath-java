@@ -32,32 +32,6 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
   }
 
   /**
-   * Basic implementation of {@link Adapter#typeOf}.
-   *
-   * Subclasses should override this method if they have a more efficient way to
-   * determine the type of a value than using the methods {@link Adapter#isNull},
-   * {@link Adapter#isBoolean}, etc.
-   */
-  @Override
-  public JmesPathType typeOf(T value) {
-    if (isNull(value)) {
-      return NULL;
-    } else if (isBoolean(value)) {
-      return BOOLEAN;
-    } else if (isNumber(value)) {
-      return NUMBER;
-    } else if (isArray(value)) {
-      return ARRAY;
-    } else if (isObject(value)) {
-      return OBJECT;
-    } else if (isString(value)) {
-      return STRING;
-    } else {
-      throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getClass().getName()));
-    }
-  }
-
-  /**
    * Basic implementation of {@link Adapter#compare}.
    *
    * Subclasses should override this method if they have a more efficient way to

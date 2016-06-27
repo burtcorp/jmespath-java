@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class MergeFunction extends JmesPathFunction {
   public MergeFunction() {
@@ -38,7 +39,7 @@ public class MergeFunction extends JmesPathFunction {
 
   private <T> boolean isObjectArray(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     for (ExpressionOrValue<T> argument : arguments) {
-      if (argument.isExpression() || !adapter.isObject(argument.value())) {
+      if (argument.isExpression() || adapter.typeOf(argument.value()) != JmesPathType.OBJECT) {
         return false;
       }
     }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Arrays;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class ToArrayFunction extends JmesPathFunction {
   public ToArrayFunction() {
@@ -17,7 +18,7 @@ public class ToArrayFunction extends JmesPathFunction {
       throw new ArgumentTypeException(name(), "any value", "expression");
     } else {
       T subject = argument.value();
-      if (adapter.isArray(subject)) {
+      if (adapter.typeOf(subject) == JmesPathType.ARRAY) {
         return subject;
       } else {
         return adapter.createArray(Arrays.asList(subject));

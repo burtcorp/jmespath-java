@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class SelectionNode extends JmesPathNode {
   private final JmesPathNode test;
@@ -15,7 +16,7 @@ public class SelectionNode extends JmesPathNode {
 
   @Override
   public <T> T evaluateOne(Adapter<T> adapter, T projectionElement) {
-    if (adapter.isArray(projectionElement)) {
+    if (adapter.typeOf(projectionElement) == JmesPathType.ARRAY) {
       List<T> selectedElements = new LinkedList<>();
       for (T element : adapter.toList(projectionElement)) {
         T testResult = test().evaluate(adapter, element);

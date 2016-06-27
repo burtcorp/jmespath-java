@@ -59,7 +59,7 @@ public abstract class AdapterTest<T> {
       @Override
       public boolean matches(final Object n) {
         T node = (T) n;
-        return adapter().isBoolean(node) && adapter().isTruthy(node) == b;
+        return adapter().typeOf(node) == JmesPathType.BOOLEAN && adapter().isTruthy(node) == b;
       }
 
       @Override
@@ -75,7 +75,7 @@ public abstract class AdapterTest<T> {
       public boolean matches(final Object n) {
         T actual = (T) n;
         T expected = adapter().createNumber(e.doubleValue());
-        return adapter().isNumber(actual) && adapter().compare(actual, expected) == 0;
+        return adapter().typeOf(actual) == JmesPathType.NUMBER && adapter().compare(actual, expected) == 0;
       }
 
       @Override
@@ -90,7 +90,7 @@ public abstract class AdapterTest<T> {
       @Override
       public boolean matches(final Object n) {
         T node = (T) n;
-        return adapter().isNull(node);
+        return adapter().typeOf(node) == JmesPathType.NULL;
       }
 
       @Override
@@ -388,7 +388,7 @@ public abstract class AdapterTest<T> {
   @Test
   public void selectionWithTrueTest() {
     T result = evaluate("Records[?@]", cloudtrail);
-    assertThat(adapter().isArray(result), is(true));
+    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
     assertThat(adapter().toList(result), hasSize(3));
   }
 
@@ -401,7 +401,7 @@ public abstract class AdapterTest<T> {
   @Test
   public void selectionWithFalseTest() {
     T result = evaluate("Records[?'']", cloudtrail);
-    assertThat(adapter().isArray(result), is(true));
+    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
     assertThat(adapter().toList(result), is(empty()));
   }
 
@@ -415,7 +415,7 @@ public abstract class AdapterTest<T> {
   public void selectionTestReferencingProperty() {
     T result = evaluate("Records[*].responseElements | [?keyFingerprint]", cloudtrail);
     List<T> elements = adapter().toList(result);
-    assertThat(adapter().isArray(result), is(true));
+    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
     assertThat(elements, hasSize(1));
     assertThat(adapter().getProperty(elements.get(0), "keyName"), is(jsonString("mykeypair")));
   }
@@ -423,7 +423,7 @@ public abstract class AdapterTest<T> {
   @Test
   public void selectionDoesNotSelectProjectionPutEachProjectedElement() {
     T result = evaluate("Records[*].responseElements.keyName[?@]", cloudtrail);
-    assertThat(adapter().isArray(result), is(true));
+    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
     assertThat(adapter().toList(result), is(empty()));
   }
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
 public abstract class CompareByFunction extends JmesPathFunction {
@@ -26,7 +27,7 @@ public abstract class CompareByFunction extends JmesPathFunction {
     }
     T array = firstArgument.value();
     JmesPathNode expression = secondArgument.expression();
-    if (!adapter.isArray(array)) {
+    if (adapter.typeOf(array) != JmesPathType.ARRAY) {
       throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array).toString());
     }
     Iterator<T> elements = adapter.toList(array).iterator();
@@ -34,18 +35,19 @@ public abstract class CompareByFunction extends JmesPathFunction {
       T result = elements.next();
       T resultValue = expression.evaluate(adapter, result);
       boolean expectNumbers = true;
-      if (adapter.isString(resultValue)) {
+      if (adapter.typeOf(resultValue) == JmesPathType.STRING) {
         expectNumbers = false;
-      } else if (!adapter.isNumber(resultValue)) {
+      } else if (adapter.typeOf(resultValue) != JmesPathType.NUMBER) {
         throw new ArgumentTypeException(name(), "number or string", adapter.typeOf(resultValue).toString());
       }
       while (elements.hasNext()) {
         T candidate = elements.next();
         T candidateValue = expression.evaluate(adapter, candidate);
-        if (expectNumbers && !adapter.isNumber(candidateValue)) {
-          throw new ArgumentTypeException(name(), "number", adapter.typeOf(resultValue).toString());
-        } else if (!expectNumbers && !adapter.isString(candidateValue)) {
-          throw new ArgumentTypeException(name(), "string", adapter.typeOf(resultValue).toString());
+        JmesPathType candidateType = adapter.typeOf(candidateValue);
+        if (expectNumbers && candidateType != JmesPathType.NUMBER) {
+          throw new ArgumentTypeException(name(), "number", candidateType.toString());
+        } else if (!expectNumbers && candidateType != JmesPathType.STRING) {
+          throw new ArgumentTypeException(name(), "string", candidateType.toString());
         }
         if (sortsBefore(adapter.compare(candidateValue, resultValue))) {
           result = candidate;

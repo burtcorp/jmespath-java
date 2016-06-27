@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class JoinFunction extends JmesPathFunction {
   public JoinFunction() {
@@ -22,8 +23,9 @@ public class JoinFunction extends JmesPathFunction {
     } else {
       T glue = firstArgument.value();
       T components = secondArgument.value();
+      JmesPathType glueType = adapter.typeOf(glue);
       if (isStringArray(adapter, components)) {
-        if (adapter.isString(glue)) {
+        if (glueType == JmesPathType.STRING) {
           Iterator<T> values = adapter.toList(components).iterator();
           if (values.hasNext()) {
             StringBuilder buffer = new StringBuilder();
@@ -38,7 +40,7 @@ public class JoinFunction extends JmesPathFunction {
             return adapter.createString("");
           }
         } else {
-          throw new ArgumentTypeException(name(), "string", adapter.typeOf(glue).toString());
+          throw new ArgumentTypeException(name(), "string", glueType.toString());
         }
       } else {
         List<T> values = adapter.toList(components);
@@ -52,9 +54,9 @@ public class JoinFunction extends JmesPathFunction {
   }
 
   private <T> boolean isStringArray(Adapter<T> adapter, T array) {
-    if (adapter.isArray(array)) {
+    if (adapter.typeOf(array) == JmesPathType.ARRAY) {
       for (T value : adapter.toList(array)) {
-        if (!adapter.isString(value)) {
+        if (adapter.typeOf(value) != JmesPathType.STRING) {
           return false;
         }
       }

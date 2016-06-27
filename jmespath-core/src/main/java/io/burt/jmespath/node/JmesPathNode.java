@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public abstract class JmesPathNode {
   private final JmesPathNode source;
@@ -26,13 +27,13 @@ public abstract class JmesPathNode {
 
   protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
     if (isProjection()) {
-      if (adapter.isNull(currentValue)) {
+      if (adapter.typeOf(currentValue) == JmesPathType.NULL) {
         return currentValue;
       } else {
         List<T> outputs = new LinkedList<>();
         for (T projectionElement : adapter.toList(currentValue)) {
           T value = evaluateOne(adapter, projectionElement);
-          if (!adapter.isNull(value)) {
+          if (adapter.typeOf(value) != JmesPathType.NULL) {
             outputs.add(value);
           }
         }

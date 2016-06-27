@@ -44,26 +44,6 @@ public interface Adapter<T> extends Comparator<T> {
   Number toNumber(T value);
 
   /**
-   * Returns true when the argument represents an array.
-   */
-  boolean isArray(T value);
-
-  /**
-   * Returns true when the argument represents an object.
-   */
-  boolean isObject(T value);
-
-  /**
-   * Returns true when the argument represents a boolean.
-   */
-  boolean isBoolean(T value);
-
-  /**
-   * Returns true when the argument represents a number.
-   */
-  boolean isNumber(T value);
-
-  /**
    * Returns true when the argument is truthy.
    *
    * All values are truthy, except the following, as per the JMESPath
@@ -71,16 +51,6 @@ public interface Adapter<T> extends Comparator<T> {
    * objects, empty strings.
    */
   boolean isTruthy(T value);
-
-  /**
-   * Returns true when the argument represets <code>null</code>.
-   */
-  boolean isNull(T value);
-
-  /**
-   * Returns true when the argument represets a string.
-   */
-  boolean isString(T value);
 
   /**
    * Returns the JSON type of the argument.

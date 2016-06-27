@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class KeysFunction extends JmesPathFunction {
   public KeysFunction() {
@@ -18,10 +19,11 @@ public class KeysFunction extends JmesPathFunction {
       throw new ArgumentTypeException(name(), "object", "expression");
     } else {
       T subject = argument.value();
-      if (adapter.isObject(subject)) {
+      JmesPathType subjectType = adapter.typeOf(subject);
+      if (subjectType == JmesPathType.OBJECT) {
         return adapter.createArray(adapter.getPropertyNames(subject));
       } else {
-        throw new ArgumentTypeException(name(), "object", adapter.typeOf(subject).toString());
+        throw new ArgumentTypeException(name(), "object", subjectType.toString());
       }
     }
   }

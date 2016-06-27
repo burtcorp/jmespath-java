@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
 public class MapFunction extends JmesPathFunction {
@@ -20,7 +21,7 @@ public class MapFunction extends JmesPathFunction {
     }
     if (arguments.get(1).isExpression()) {
       throw new ArgumentTypeException(name(), "array of objects", "expression");
-    } else if (!adapter.isArray(array)) {
+    } else if (adapter.typeOf(array) != JmesPathType.ARRAY) {
       throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array).toString());
     }
     List<T> elements = adapter.toList(array);

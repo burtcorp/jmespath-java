@@ -1,6 +1,7 @@
 package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class ComparisonNode extends OperatorNode {
   private final String operator;
@@ -14,7 +15,9 @@ public class ComparisonNode extends OperatorNode {
   protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
     T leftResult = operands()[0].evaluate(adapter, currentValue);
     T rightResult = operands()[1].evaluate(adapter, currentValue);
-    if (adapter.isNumber(leftResult) && adapter.isNumber(rightResult)) {
+    JmesPathType leftType = adapter.typeOf(leftResult);
+    JmesPathType rightType = adapter.typeOf(rightResult);
+    if (leftType == JmesPathType.NUMBER && rightType == JmesPathType.NUMBER) {
       return compareNumbers(adapter, leftResult, rightResult);
     } else {
       return compareObjects(adapter, leftResult, rightResult);

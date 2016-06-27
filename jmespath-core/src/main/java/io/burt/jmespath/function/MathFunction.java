@@ -3,6 +3,7 @@ package io.burt.jmespath.function;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public abstract class MathFunction extends JmesPathFunction {
   public MathFunction() {
@@ -16,11 +17,12 @@ public abstract class MathFunction extends JmesPathFunction {
       throw new ArgumentTypeException(name(), "number", "expression");
     } else {
       T value = argument.value();
-      if (adapter.isNumber(value)) {
+      JmesPathType type = adapter.typeOf(value);
+      if (type == JmesPathType.NUMBER) {
         double n = adapter.toNumber(value).doubleValue();
         return adapter.createNumber(performMathOperation(n));
       } else {
-        throw new ArgumentTypeException(name(), "number", adapter.typeOf(value).toString());
+        throw new ArgumentTypeException(name(), "number", type.toString());
       }
     }
   }

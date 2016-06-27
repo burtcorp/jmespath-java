@@ -3,6 +3,7 @@ package io.burt.jmespath.function;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class ContainsFunction extends JmesPathFunction {
   public ContainsFunction() {
@@ -20,12 +21,13 @@ public class ContainsFunction extends JmesPathFunction {
     } else {
       T haystack = firstArgument.value();
       T needle = secondArgument.value();
-      if (adapter.isArray(haystack)) {
+      JmesPathType haystackType = adapter.typeOf(haystack);
+      if (haystackType == JmesPathType.ARRAY) {
         return adapter.createBoolean(adapter.toList(haystack).contains(needle));
-      } else if (adapter.isString(haystack)) {
+      } else if (haystackType == JmesPathType.STRING) {
         return adapter.createBoolean(adapter.toString(haystack).indexOf(adapter.toString(needle)) >= 0);
       } else {
-        throw new ArgumentTypeException(name(), "array", adapter.typeOf(haystack).toString());
+        throw new ArgumentTypeException(name(), "array", haystackType.toString());
       }
     }
   }

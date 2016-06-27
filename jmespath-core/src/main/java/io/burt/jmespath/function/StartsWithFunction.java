@@ -3,6 +3,7 @@ package io.burt.jmespath.function;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class StartsWithFunction extends JmesPathFunction {
   public StartsWithFunction() {
@@ -18,12 +19,14 @@ public class StartsWithFunction extends JmesPathFunction {
     } else {
       T subject = firstArgument.value();
       T suffix = secondArgument.value();
-      if (adapter.isString(subject) && adapter.isString(suffix)) {
+      JmesPathType subjectType = adapter.typeOf(subject);
+      JmesPathType suffixType = adapter.typeOf(suffix);
+      if (subjectType == JmesPathType.STRING && suffixType == JmesPathType.STRING) {
         return adapter.createBoolean(adapter.toString(subject).startsWith(adapter.toString(suffix)));
-      } else if (!adapter.isString(subject)) {
-        throw new ArgumentTypeException(name(), "string", adapter.typeOf(subject).toString());
+      } else if (subjectType != JmesPathType.STRING) {
+        throw new ArgumentTypeException(name(), "string", subjectType.toString());
       } else {
-        throw new ArgumentTypeException(name(), "string", adapter.typeOf(suffix).toString());
+        throw new ArgumentTypeException(name(), "string", suffixType.toString());
       }
     }
   }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class ReverseFunction extends JmesPathFunction {
   public ReverseFunction() {
@@ -18,14 +19,15 @@ public class ReverseFunction extends JmesPathFunction {
       throw new ArgumentTypeException(name(), "array or string", "expression");
     } else {
       T subject = argument.value();
-      if (adapter.isArray(subject)) {
+      JmesPathType subjectType = adapter.typeOf(subject);
+      if (subjectType == JmesPathType.ARRAY) {
         List<T> elements = new ArrayList(adapter.toList(subject));
         Collections.reverse(elements);
         return adapter.createArray(elements);
-      } else if (adapter.isString(subject)) {
+      } else if (subjectType == JmesPathType.STRING) {
         return adapter.createString(new StringBuilder(adapter.toString(subject)).reverse().toString());
       } else {
-        throw new ArgumentTypeException(name(), "array or string", adapter.typeOf(subject).toString());
+        throw new ArgumentTypeException(name(), "array or string", subjectType.toString());
       }
     }
   }

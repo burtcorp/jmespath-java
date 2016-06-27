@@ -22,23 +22,24 @@ public class JcfAdapter extends BaseAdapter<Object> {
 
   @Override
   public List<Object> toList(Object value) {
-    if (isArray(value)) {
-      if (value instanceof List) {
-        return (List<Object>) value;
-      } else {
-        return new ArrayList<Object>((Collection<Object>) value);
-      }
-    } else if (isObject(value)) {
-      Map<Object, Object> object = (Map<Object, Object>) value;
-      return new ArrayList<Object>(object.values());
-    } else {
-      return Collections.emptyList();
+    switch (typeOf(value)) {
+      case ARRAY:
+        if (value instanceof List) {
+          return (List<Object>) value;
+        } else {
+          return new ArrayList<Object>((Collection<Object>) value);
+        }
+      case OBJECT:
+        Map<Object, Object> object = (Map<Object, Object>) value;
+        return new ArrayList<Object>(object.values());
+      default:
+        return Collections.emptyList();
     }
   }
 
   @Override
   public String toString(Object str) {
-    if (isString(str)) {
+    if (typeOf(str) == STRING) {
       return (String) str;
     } else {
       return unparse(str);
@@ -46,44 +47,48 @@ public class JcfAdapter extends BaseAdapter<Object> {
   }
 
   private String unparse(Object obj) {
-    if (isNumber(obj) || isBoolean(obj) || isNull(obj)) {
-      return obj.toString();
-    } else if (isString(obj)) {
-      return String.format("\"%s\"", obj);
-    } else if (isObject(obj)) {
-      Map<String, Object> object = (Map<String, Object>) obj;
-      StringBuilder str = new StringBuilder("{");
-      if (!object.isEmpty()) {
-        for (String key : object.keySet()) {
-          str.append("\"").append(key).append("\"");
-          str.append(":").append(unparse(object.get(key)));
-          str.append(",");
+    switch (typeOf(obj)) {
+      case NUMBER:
+      case BOOLEAN:
+      case NULL:
+        return obj.toString();
+      case STRING:
+        return String.format("\"%s\"", obj);
+      case OBJECT:
+        Map<String, Object> object = (Map<String, Object>) obj;
+        StringBuilder astr = new StringBuilder("{");
+        if (!object.isEmpty()) {
+          for (String key : object.keySet()) {
+            astr.append("\"").append(key).append("\"");
+            astr.append(":").append(unparse(object.get(key)));
+            astr.append(",");
+          }
+          astr.delete(astr.length() - 2, astr.length());
         }
-        str.delete(str.length() - 2, str.length());
-      }
-      str.append("}");
-      return str.toString();
-    } else if (isArray(obj)) {
-      List<Object> array = (List<Object>) obj;
-      StringBuilder str = new StringBuilder("[");
-      if (!array.isEmpty()) {
-        Object firstElement = array.get(0);
-        for (Object element : array) {
-          str.append(unparse(element));
-          if (element != firstElement) {
-            str.append(",");
+        astr.append("}");
+        return astr.toString();
+      case ARRAY:
+        List<Object> array = (List<Object>) obj;
+        StringBuilder ostr = new StringBuilder("[");
+        if (!array.isEmpty()) {
+          Object firstElement = array.get(0);
+          for (Object element : array) {
+            ostr.append(unparse(element));
+            if (element != firstElement) {
+              ostr.append(",");
+            }
           }
         }
-      }
-      str.append("]");
-      return str.toString();
+        ostr.append("]");
+        return ostr.toString();
+      default:
+        throw new IllegalStateException();
     }
-    throw new IllegalStateException();
   }
 
   @Override
   public Number toNumber(Object n) {
-    if (isNumber(n)) {
+    if (typeOf(n) == NUMBER) {
       return (Number) n;
     } else {
       return null;
@@ -91,57 +96,46 @@ public class JcfAdapter extends BaseAdapter<Object> {
   }
 
   @Override
-  public boolean isArray(Object value) {
-    return value instanceof Collection;
-  }
-
-  @Override
-  public boolean isObject(Object value) {
-    return value instanceof Map;
-  }
-
-  @Override
-  public boolean isBoolean(Object value) {
-    return value instanceof Boolean;
-  }
-
-  @Override
-  public boolean isNumber(Object value) {
-    return value instanceof Number;
-  }
-
-  @Override
-  public boolean isString(Object value) {
-    return value instanceof String;
-  }
-
-  @Override
-  public boolean isTruthy(Object value) {
-    if (isNull(value)) {
-      return false;
-    } else if (isBoolean(value)) {
-      return value == Boolean.TRUE;
-    } else if (isNumber(value)) {
-      return false;
-    } else if (isArray(value)) {
-      return !((List) value).isEmpty();
-    } else if (isObject(value)) {
-      return !((Map) value).isEmpty();
-    } else if (isString(value)) {
-      return !((String) value).isEmpty();
+  public JmesPathType typeOf(Object value) {
+    if (value == null) {
+      return NULL;
+    } else if (value instanceof Boolean) {
+      return BOOLEAN;
+    } else if (value instanceof Number) {
+      return NUMBER;
+    } else if (value instanceof Map) {
+      return OBJECT;
+    } else if (value instanceof Collection) {
+      return ARRAY;
+    } else if (value instanceof String) {
+      return STRING;
     } else {
       throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getClass().getName()));
     }
   }
 
   @Override
-  public boolean isNull(Object value) {
-    return value == null;
+  public boolean isTruthy(Object value) {
+    switch (typeOf(value)) {
+      case NULL:
+      case NUMBER:
+        return false;
+      case BOOLEAN:
+        return value == Boolean.TRUE;
+      case ARRAY:
+        return !((List) value).isEmpty();
+      case OBJECT:
+        return !((Map) value).isEmpty();
+      case STRING:
+        return !((String) value).isEmpty();
+      default:
+        throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getClass().getName()));
+    }
   }
 
   @Override
   public Object getProperty(Object value, String name) {
-    if (isObject(value)) {
+    if (typeOf(value) == OBJECT) {
       return ((Map<String, Object>) value).get(name);
     } else {
       return null;
@@ -155,7 +149,7 @@ public class JcfAdapter extends BaseAdapter<Object> {
 
   @Override
   public Collection<Object> getPropertyNames(Object value) {
-    if (isObject(value)) {
+    if (typeOf(value) == OBJECT) {
       return ((Map<Object, Object>) value).keySet();
     } else {
       return Collections.emptyList();

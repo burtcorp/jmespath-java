@@ -3,14 +3,15 @@ package io.burt.jmespath.function;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 class TypesHelper {
   private TypesHelper() { }
 
   static <T> boolean isNumberArray(Adapter<T> adapter, T array) {
-    if (adapter.isArray(array)) {
+    if (adapter.typeOf(array) == JmesPathType.ARRAY) {
       for (T element : adapter.toList(array)) {
-        if (!adapter.isNumber(element)) {
+        if (adapter.typeOf(element) != JmesPathType.NUMBER) {
           return false;
         }
       }
@@ -21,9 +22,9 @@ class TypesHelper {
   }
 
   static <T> boolean isStringArray(Adapter<T> adapter, T array) {
-    if (adapter.isArray(array)) {
+    if (adapter.typeOf(array) == JmesPathType.ARRAY) {
       for (T element : adapter.toList(array)) {
-        if (!adapter.isString(element)) {
+        if (adapter.typeOf(element) != JmesPathType.STRING) {
           return false;
         }
       }
