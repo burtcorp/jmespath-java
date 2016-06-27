@@ -18,15 +18,15 @@ public class StartsWithFunction extends JmesPathFunction {
       throw new ArgumentTypeException(name(), "string", "expression");
     } else {
       T subject = firstArgument.value();
-      T suffix = secondArgument.value();
+      T prefix = secondArgument.value();
       JmesPathType subjectType = adapter.typeOf(subject);
-      JmesPathType suffixType = adapter.typeOf(suffix);
-      if (subjectType == JmesPathType.STRING && suffixType == JmesPathType.STRING) {
-        return adapter.createBoolean(adapter.toString(subject).startsWith(adapter.toString(suffix)));
+      JmesPathType prefixType = adapter.typeOf(prefix);
+      if (subjectType == JmesPathType.STRING && prefixType == JmesPathType.STRING) {
+        return adapter.createBoolean(adapter.toString(subject).startsWith(adapter.toString(prefix)));
       } else if (subjectType != JmesPathType.STRING) {
         throw new ArgumentTypeException(name(), "string", subjectType.toString());
       } else {
-        throw new ArgumentTypeException(name(), "string", suffixType.toString());
+        throw new ArgumentTypeException(name(), "string", prefixType.toString());
       }
     }
   }
