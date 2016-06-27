@@ -42,8 +42,10 @@ public abstract class CompareByFunction extends JmesPathFunction {
       while (elements.hasNext()) {
         T candidate = elements.next();
         T candidateValue = expression.evaluate(adapter, candidate);
-        if ((expectNumbers && !adapter.isNumber(candidateValue)) || (!expectNumbers && !adapter.isString(candidateValue))) {
-          throw new ArgumentTypeException(name(), expectNumbers ? "number" : "string", adapter.typeOf(resultValue).toString());
+        if (expectNumbers && !adapter.isNumber(candidateValue)) {
+          throw new ArgumentTypeException(name(), "number", adapter.typeOf(resultValue).toString());
+        } else if (!expectNumbers && !adapter.isString(candidateValue)) {
+          throw new ArgumentTypeException(name(), "string", adapter.typeOf(resultValue).toString());
         }
         if (sortsBefore(adapter.compare(candidateValue, resultValue))) {
           result = candidate;
