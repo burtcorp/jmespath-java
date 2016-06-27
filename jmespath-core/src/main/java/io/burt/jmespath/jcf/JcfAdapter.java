@@ -118,8 +118,9 @@ public class JcfAdapter extends BaseAdapter<Object> {
   public boolean isTruthy(Object value) {
     switch (typeOf(value)) {
       case NULL:
-      case NUMBER:
         return false;
+      case NUMBER:
+        return true;
       case BOOLEAN:
         return value == Boolean.TRUE;
       case ARRAY:

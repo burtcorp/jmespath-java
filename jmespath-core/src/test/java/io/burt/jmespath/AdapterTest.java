@@ -718,6 +718,66 @@ public abstract class AdapterTest<T> {
   }
 
   @Test
+  public void numbersAreTruthy() {
+    T result = evaluate("!@", adapter().parseString("1"));
+    assertThat(result, is(jsonBoolean(false)));
+  }
+
+  @Test
+  public void stringsAreTruthy() {
+    T result = evaluate("!@", adapter().parseString("\"foo\""));
+    assertThat(result, is(jsonBoolean(false)));
+  }
+
+  @Test
+  public void nonEmptyArraysAreTruthy() {
+    T result = evaluate("!@", adapter().parseString("[\"foo\"]"));
+    assertThat(result, is(jsonBoolean(false)));
+  }
+
+  @Test
+  public void nonEmptyObjectsAreTruthy() {
+    T result = evaluate("!@", adapter().parseString("{\"foo\":3}"));
+    assertThat(result, is(jsonBoolean(false)));
+  }
+
+  @Test
+  public void trueIsTruthy() {
+    T result = evaluate("!@", adapter().parseString("true"));
+    assertThat(result, is(jsonBoolean(false)));
+  }
+
+  @Test
+  public void falseIsNotTruthy() {
+    T result = evaluate("!@", adapter().parseString("false"));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void nullIsNotTruthy() {
+    T result = evaluate("!@", adapter().parseString("null"));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void anEmptyStringIsNotTruthy() {
+    T result = evaluate("!@", adapter().parseString("\"\""));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void anEmptyArrayIsNotTruthy() {
+    T result = evaluate("!@", adapter().parseString("[]"));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void anEmptyObjectIsNotTruthy() {
+    T result = evaluate("!@", adapter().parseString("{}"));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
   public void callFunction() {
     T result = evaluate("type(@)", adapter().parseString("{}"));
     assertThat(result, is(jsonString("object")));
