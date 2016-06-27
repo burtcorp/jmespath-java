@@ -15,47 +15,51 @@ import io.burt.jmespath.function.ExpressionOrValue;
 public interface Adapter<T> extends Comparator<T> {
   /**
    * Parse a JSON string to a value.
+   *
+   * May throw exceptions when the given string is not valid JSON. The exact
+   * exceptions thrown will depend on the concrete implementation.
    */
   T parseString(String str);
 
   /**
-   * Converts the argument to a List<T>, or an empty list when the argument does
-   * not represent an array or object.
+   * Converts the argument to a {@link List}.
    *
-   * When the argument is an object the result is the object's values.
+   * When the argument represents an array the list will contain the elements of
+   * the array, when the argument represents an object the result is a list of
+   * the object's values and for all other types the result is an empty list.
    */
   List<T> toList(T value);
 
   /**
-   * Converts the argument to a String. When the argument represents a string
+   * Converts the argument to a {@link String}. When the argument represents a string
    * its string value is returned, otherwise a string with the value encoded
    * as JSON is returned.
    */
   String toString(T value);
 
   /**
-   * Converts the argument to a Number, or null if the argument does not
+   * Converts the argument to a {@link Number}, or null if the argument does not
    * represent a number.
    */
   Number toNumber(T value);
 
   /**
-   * Returns true when the argument is an array.
+   * Returns true when the argument represents an array.
    */
   boolean isArray(T value);
 
   /**
-   * Returns true when the argument is an object.
+   * Returns true when the argument represents an object.
    */
   boolean isObject(T value);
 
   /**
-   * Returns true when the argument is a boolean.
+   * Returns true when the argument represents a boolean.
    */
   boolean isBoolean(T value);
 
   /**
-   * Returns true when the argument is a number.
+   * Returns true when the argument represents a number.
    */
   boolean isNumber(T value);
 
@@ -63,12 +67,13 @@ public interface Adapter<T> extends Comparator<T> {
    * Returns true when the argument is truthy.
    *
    * All values are truthy, except the following, as per the JMESPath
-   * specification: false, null, empty lists, empty objects, empty strings.
+   * specification: <code>false</code>, <code>null</code>, empty lists, empty
+   * objects, empty strings.
    */
   boolean isTruthy(T value);
 
   /**
-   * Returns true when the argument represets null.
+   * Returns true when the argument represets <code>null</code>.
    */
   boolean isNull(T value);
 
@@ -80,8 +85,11 @@ public interface Adapter<T> extends Comparator<T> {
   /**
    * Returns the JSON type of the argument.
    *
-   * As per the JMESPath specification the types are: number, string, boolean,
-   * array, object, null.
+   * As per the JMESPath specification the types are: <code>number</code>,
+   * <code>string</code>, <code>boolean</code>, <code>array</code>,
+   * <code>object</code>, <code>null</code>.
+   *
+   * @see JmesPathType
    */
   JmesPathType typeOf(T value);
 
@@ -90,35 +98,35 @@ public interface Adapter<T> extends Comparator<T> {
    *
    * The first argument must be an object and the second argument may be
    * the name of a property on that object. When the property does not exist
-   * or is null a null value (but not Java null) is returned.
+   * a null value (<em>not</em> Java <code>null</code>) is returned.
    */
   T getProperty(T value, String name);
 
   /**
-   * Returns a property from an object.
+   * Returns the value of a property of an object.
    *
-   * The first argument must be an object and the second argument may be
-   * the name (which must be a string value) of a property on that object.
-   * When the property does not exist or is null a null value (but not Java
-   * null) is returned.
+   * The first argument must represent an object and the second argument may be
+   * the name (which must be a string value) of a property of that object.
+   * When the property does not exist or represents null a null value (but not
+   * Java null) is returned.
    */
   T getProperty(T value, T name);
 
   /**
-   * Returns all of the property names of the given object, or an empty list
-   * when the given value is not an object.
+   * Returns all the property names of the given object, or an empty list
+   * when the given value does not represent an object.
    *
    * The property names are always string values.
    */
   Collection<T> getPropertyNames(T value);
 
   /**
-   * Returns a null value (but not Java null).
+   * Returns a null value (<em>not</em> Java <code>null</code>).
    */
   T createNull();
 
   /**
-   * Returns an array with the specified elements.
+   * Returns an array value with the specified elements.
    */
   T createArray(Collection<T> elements);
 
@@ -133,11 +141,11 @@ public interface Adapter<T> extends Comparator<T> {
   T createBoolean(boolean b);
 
   /**
-   * Returns an object with the specified properties.
+   * Returns an object value with the specified properties.
    *
-   * The map keys must be string values.
+   * The map keys must all be string values.
    *
-   * Does not support creating nested objects.
+   * Creating nested objects is not supported.
    */
   T createObject(Map<T, T> obj);
 
