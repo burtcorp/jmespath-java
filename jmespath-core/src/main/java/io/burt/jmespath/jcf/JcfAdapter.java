@@ -46,46 +46,6 @@ public class JcfAdapter extends BaseAdapter<Object> {
     }
   }
 
-  private String unparse(Object obj) {
-    switch (typeOf(obj)) {
-      case NUMBER:
-      case BOOLEAN:
-      case NULL:
-        return obj.toString();
-      case STRING:
-        return String.format("\"%s\"", obj);
-      case OBJECT:
-        Map<String, Object> object = (Map<String, Object>) obj;
-        StringBuilder astr = new StringBuilder("{");
-        if (!object.isEmpty()) {
-          for (String key : object.keySet()) {
-            astr.append("\"").append(key).append("\"");
-            astr.append(":").append(unparse(object.get(key)));
-            astr.append(",");
-          }
-          astr.delete(astr.length() - 2, astr.length());
-        }
-        astr.append("}");
-        return astr.toString();
-      case ARRAY:
-        List<Object> array = (List<Object>) obj;
-        StringBuilder ostr = new StringBuilder("[");
-        if (!array.isEmpty()) {
-          Object firstElement = array.get(0);
-          for (Object element : array) {
-            ostr.append(unparse(element));
-            if (element != firstElement) {
-              ostr.append(",");
-            }
-          }
-        }
-        ostr.append("]");
-        return ostr.toString();
-      default:
-        throw new IllegalStateException();
-    }
-  }
-
   @Override
   public Number toNumber(Object n) {
     if (typeOf(n) == NUMBER) {

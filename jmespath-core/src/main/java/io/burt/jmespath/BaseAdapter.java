@@ -1,6 +1,7 @@
 package io.burt.jmespath;
 
 import java.util.List;
+import java.util.Iterator;
 
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
@@ -96,5 +97,57 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
   @Override
   public boolean equals(Object o) {
     return o.getClass().isAssignableFrom(this.getClass());
+  }
+
+  /**
+   * Helper method to render a value as JSON.
+   *
+   * Assumes that <code>null</code>, <code>number</code> and <code>boolean</code>
+   * render themseves correctly with <code>toString</code>, and that
+   * <code>string</code> renders itself as an unquoted string.
+   */
+  protected String unparse(T obj) {
+    switch (typeOf(obj)) {
+      case NUMBER:
+      case BOOLEAN:
+      case NULL:
+        return obj.toString();
+      case STRING:
+        return String.format("\"%s\"", obj);
+      case OBJECT:
+        return unparseObject(obj);
+      case ARRAY:
+        return unparseArray(obj);
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  private String unparseObject(T object) {
+    StringBuilder str = new StringBuilder("{");
+    Iterator<T> keys = getPropertyNames(object).iterator();
+    while (keys.hasNext()) {
+      T key = keys.next();
+      str.append("\"").append(toString(key)).append("\"");
+      str.append(":").append(unparse(getProperty(object, key)));
+      if (keys.hasNext()) {
+        str.append(",");
+      }
+    }
+    str.append("}");
+    return str.toString();
+  }
+
+  private String unparseArray(T array) {
+    StringBuilder str = new StringBuilder("[");
+    Iterator<T> elements = toList(array).iterator();
+    while (elements.hasNext()) {
+      str.append(unparse(elements.next()));
+      if (elements.hasNext()) {
+        str.append(",");
+      }
+    }
+    str.append("]");
+    return str.toString();
   }
 }
