@@ -7,11 +7,8 @@ import java.util.ArrayList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
+@Function(arity = 1)
 public class KeysFunction extends JmesPathFunction {
-  public KeysFunction() {
-    super(1, 1);
-  }
-
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     ExpressionOrValue<T> argument = arguments.get(0);

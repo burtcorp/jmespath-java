@@ -10,11 +10,8 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
+@Function(arity = 2)
 public class SortByFunction extends JmesPathFunction {
-  public SortByFunction() {
-    super(2, 2);
-  }
-
   @Override
   protected <T> T internalCall(final Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     T array = arguments.get(0).value();

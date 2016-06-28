@@ -8,11 +8,8 @@ import java.util.LinkedHashMap;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
+@Function(minArity = 1, maxArity = Integer.MAX_VALUE)
 public class MergeFunction extends JmesPathFunction {
-  public MergeFunction() {
-    super(1, Integer.MAX_VALUE);
-  }
-
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     if (isObjectArray(adapter, arguments)) {

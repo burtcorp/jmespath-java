@@ -5,11 +5,8 @@ import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
 
+@Function(arity = 1)
 public abstract class ArrayMathFunction extends JmesPathFunction {
-  public ArrayMathFunction() {
-    super(1, 1);
-  }
-
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     ExpressionOrValue<T> argument = arguments.get(0);

@@ -13,15 +13,59 @@ public abstract class JmesPathFunction {
 
   private static Pattern CAMEL_CASE_COMPONENT_RE = Pattern.compile("[A-Z][^A-Z]+");
 
-  public JmesPathFunction(int minArity, int maxArity) {
-    this.minArity = minArity;
-    this.maxArity = maxArity;
-    this.name = classNameToFunctionName();
+  public JmesPathFunction() {
+    Function metadata = findFunctionMetadata();
+    this.name = findFunctionName(metadata);
+    this.minArity = findMinArity(metadata);
+    this.maxArity = findMaxArity(metadata);
+  }
+
+  private Function findFunctionMetadata() {
+    Function metadata = (Function) getClass().getAnnotation(Function.class);
+    if (metadata == null) {
+      throw new FunctionConfigurationException(String.format("The class %s does not have a @Function annotation", getClass().getName()));
+    }
+    return metadata;
+  }
+
+  private String findFunctionName(Function metadata) {
+    if (metadata.name().length() > 0) {
+      return metadata.name();
+    } else {
+      return classNameToFunctionName();
+    }
+  }
+
+  private int findMaxArity(Function metadata) {
+    if (metadata.maxArity() > -1) {
+      return metadata.maxArity();
+    } else if (metadata.arity() > -1) {
+      return metadata.arity();
+    } else {
+      throw new FunctionConfigurationException(String.format("The class %s's @Function annotation must specify either maxArity or arity", getClass().getName()));
+    }
+  }
+
+  private int findMinArity(Function metadata) {
+    if (metadata.minArity() > -1) {
+      return metadata.minArity();
+    } else if (metadata.arity() > -1) {
+      return metadata.arity();
+    } else {
+      throw new FunctionConfigurationException(String.format("The class %s's @Function annotation must specify either minArity or arity", getClass().getName()));
+    }
   }
 
   private String classNameToFunctionName() {
     String n = getClass().getName();
-    n = n.substring(n.lastIndexOf(".") + 1);
+    if (n.indexOf("$") > -1) {
+      n = n.substring(n.lastIndexOf("$") + 1);
+    } else {
+      n = n.substring(n.lastIndexOf(".") + 1);
+    }
+    if (!n.endsWith("Function")) {
+      throw new FunctionConfigurationException(String.format("The function defined by %s must either declare its name using the @Function annotation or the class name must end with \"Function\"", getClass().getName()));
+    }
     Matcher m = CAMEL_CASE_COMPONENT_RE.matcher(n);
     int offset = 0;
     StringBuilder snakeCaseName = new StringBuilder();

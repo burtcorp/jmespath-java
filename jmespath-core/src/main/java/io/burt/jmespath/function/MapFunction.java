@@ -7,11 +7,8 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
+@Function(arity = 2)
 public class MapFunction extends JmesPathFunction {
-  public MapFunction() {
-    super(2, 2);
-  }
-
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     JmesPathNode expression = arguments.get(0).expression();

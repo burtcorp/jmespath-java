@@ -5,11 +5,8 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
+@Function(minArity = 1, maxArity = Integer.MAX_VALUE)
 public class NotNullFunction extends JmesPathFunction {
-  public NotNullFunction() {
-    super(1, Integer.MAX_VALUE);
-  }
-
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     for (ExpressionOrValue<T> argument : arguments) {

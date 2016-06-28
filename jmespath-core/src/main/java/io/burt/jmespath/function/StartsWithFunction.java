@@ -5,11 +5,8 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
+@Function(arity = 2)
 public class StartsWithFunction extends JmesPathFunction {
-  public StartsWithFunction() {
-    super(2, 2);
-  }
-
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     ExpressionOrValue<T> firstArgument = arguments.get(0);

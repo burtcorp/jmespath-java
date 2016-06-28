@@ -7,11 +7,8 @@ import java.util.ArrayList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
+@Function(arity = 1)
 public class ReverseFunction extends JmesPathFunction {
-  public ReverseFunction() {
-    super(1, 1);
-  }
-
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     ExpressionOrValue<T> argument = arguments.get(0);

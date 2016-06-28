@@ -7,11 +7,8 @@ import java.util.Iterator;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
+@Function(arity = 2)
 public class JoinFunction extends JmesPathFunction {
-  public JoinFunction() {
-    super(2, 2);
-  }
-
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     ExpressionOrValue<T> firstArgument = arguments.get(0);

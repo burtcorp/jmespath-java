@@ -8,11 +8,8 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
+@Function(arity = 2)
 public abstract class CompareByFunction extends JmesPathFunction {
-  public CompareByFunction() {
-    super(2, 2);
-  }
-
   protected abstract boolean sortsBefore(int compareResult);
 
   @Override
