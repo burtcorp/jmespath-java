@@ -951,7 +951,7 @@ public abstract class AdapterTest<T> {
 
   @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments() {
-    evaluate("ends_with(@)", adapter().parseString("[]"));
+    evaluate("ends_with('')", adapter().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
@@ -971,7 +971,7 @@ public abstract class AdapterTest<T> {
 
   @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments2() {
-    evaluate("ends_with('foo', @, @)", adapter().parseString("{}"));
+    evaluate("ends_with('foo', 'bar', @)", adapter().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
@@ -1141,12 +1141,12 @@ public abstract class AdapterTest<T> {
 
   @Test(expected = ArityException.class)
   public void mapRequiresTwoArguments1() {
-    evaluate("map(@)", adapter().parseString("[]"));
+    evaluate("map(&foo.bar)", adapter().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void mapRequiresTwoArguments2() {
-    evaluate("map(@, @, @)", adapter().parseString("[]"));
+    evaluate("map(&foo.bar, @, @)", adapter().parseString("[]"));
   }
 
   @Test
@@ -1237,7 +1237,7 @@ public abstract class AdapterTest<T> {
 
   @Test(expected = ArityException.class)
   public void maxByRequiresTwoArguments2() {
-    evaluate("max_by(@, @, @)", adapter().parseString("[]"));
+    evaluate("max_by(@, &foo, @)", adapter().parseString("[]"));
   }
 
   @Test
@@ -1366,7 +1366,7 @@ public abstract class AdapterTest<T> {
 
   @Test(expected = ArityException.class)
   public void minByRequiresTwoArguments2() {
-    evaluate("min_by(@, @, @)", adapter().parseString("[]"));
+    evaluate("min_by(@, &foo, @)", adapter().parseString("[]"));
   }
 
   @Test
@@ -1552,7 +1552,7 @@ public abstract class AdapterTest<T> {
 
   @Test(expected = ArityException.class)
   public void sortByRequiresTwoArguments2() {
-    evaluate("sort_by(@, @, @)", adapter().parseString("[]"));
+    evaluate("sort_by(@, &foo, @)", adapter().parseString("[]"));
   }
 
   @Test
@@ -1569,7 +1569,7 @@ public abstract class AdapterTest<T> {
 
   @Test(expected = ArityException.class)
   public void startsWithRequiresTwoArguments() {
-    evaluate("starts_with(@)", adapter().parseString("[]"));
+    evaluate("starts_with('')", adapter().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
@@ -1589,7 +1589,7 @@ public abstract class AdapterTest<T> {
 
   @Test(expected = ArityException.class)
   public void startsWithRequiresTwoArguments2() {
-    evaluate("starts_with('foo', @, @)", adapter().parseString("{}"));
+    evaluate("starts_with('foo', 'bar', @)", adapter().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)

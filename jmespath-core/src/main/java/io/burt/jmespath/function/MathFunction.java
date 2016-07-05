@@ -5,8 +5,11 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-@Function(arity = 1)
 public abstract class MathFunction extends JmesPathFunction {
+  public MathFunction() {
+    super(ArgumentConstraints.typeOf(JmesPathType.NUMBER));
+  }
+
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     ExpressionOrValue<T> argument = arguments.get(0);

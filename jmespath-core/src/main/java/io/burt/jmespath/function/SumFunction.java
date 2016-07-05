@@ -3,16 +3,11 @@ package io.burt.jmespath.function;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class SumFunction extends ArrayMathFunction {
-  @Override
-  protected <T> boolean isValidArray(Adapter<T> adapter, T array) {
-    return TypesHelper.isNumberArray(adapter, array);
-  }
-
-  @Override
-  protected String expectedType() {
-    return "array of numbers";
+  public SumFunction() {
+    super(ArgumentConstraints.typeOf(JmesPathType.NUMBER));
   }
 
   @Override

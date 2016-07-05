@@ -8,26 +8,24 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
-@Function(arity = 2)
 public abstract class CompareByFunction extends JmesPathFunction {
+  public CompareByFunction() {
+    super(
+      ArgumentConstraints.listOf(
+        ArgumentConstraints.arrayOf(
+          ArgumentConstraints.typeOf(JmesPathType.OBJECT)
+        ),
+        ArgumentConstraints.expression()
+      )
+    );
+  }
+
   protected abstract boolean sortsBefore(int compareResult);
 
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    ExpressionOrValue<T> firstArgument = arguments.get(0);
-    ExpressionOrValue<T> secondArgument = arguments.get(1);
-    if (firstArgument.isExpression()) {
-      throw new ArgumentTypeException(name(), "array of objects", "expression");
-    }
-    if (!secondArgument.isExpression()) {
-      throw new ArgumentTypeException(name(), "expression", adapter.typeOf(arguments.get(1).value()).toString());
-    }
-    T array = firstArgument.value();
-    JmesPathNode expression = secondArgument.expression();
-    if (adapter.typeOf(array) != JmesPathType.ARRAY) {
-      throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array).toString());
-    }
-    Iterator<T> elements = adapter.toList(array).iterator();
+    Iterator<T> elements = adapter.toList(arguments.get(0).value()).iterator();
+    JmesPathNode expression = arguments.get(1).expression();
     if (elements.hasNext()) {
       T result = elements.next();
       T resultValue = expression.evaluate(adapter, result);

@@ -10,21 +10,22 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
-@Function(arity = 2)
 public class SortByFunction extends JmesPathFunction {
+  public SortByFunction() {
+    super(
+      ArgumentConstraints.listOf(
+        ArgumentConstraints.arrayOf(
+          ArgumentConstraints.typeOf(JmesPathType.OBJECT)
+        ),
+        ArgumentConstraints.expression()
+      )
+    );
+  }
+
   @Override
   protected <T> T internalCall(final Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    T array = arguments.get(0).value();
-    final JmesPathNode expression = arguments.get(1).expression();
-    if (arguments.get(0).isExpression()) {
-      throw new ArgumentTypeException(name(), "array of objects", "expression");
-    } else if (adapter.typeOf(array) != JmesPathType.ARRAY) {
-      throw new ArgumentTypeException(name(), "array of objects", adapter.typeOf(array).toString());
-    }
-    if (arguments.get(1).isValue()) {
-      throw new ArgumentTypeException(name(), "expression", adapter.typeOf(arguments.get(1).value()).toString());
-    }
-    List<T> elementsList = adapter.toList(array);
+    List<T> elementsList = adapter.toList(arguments.get(0).value());
+    JmesPathNode expression = arguments.get(1).expression();
     Iterator<T> elements = elementsList.iterator();
     if (elements.hasNext()) {
       List<Pair<T>> pairs = new ArrayList<>(elementsList.size());
@@ -61,7 +62,7 @@ public class SortByFunction extends JmesPathFunction {
       }
       return adapter.createArray(sorted);
     } else {
-      return array;
+      return adapter.createArray(new ArrayList<T>());
     }
   }
 

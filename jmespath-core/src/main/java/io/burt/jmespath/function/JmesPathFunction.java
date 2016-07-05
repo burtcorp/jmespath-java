@@ -1,5 +1,6 @@
 package io.burt.jmespath.function;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -7,53 +8,18 @@ import java.util.regex.Matcher;
 import io.burt.jmespath.Adapter;
 
 public abstract class JmesPathFunction {
-  private final int minArity;
-  private final int maxArity;
+  private final ArgumentConstraint argumentConstraints;
   private final String name;
 
   private static Pattern CAMEL_CASE_COMPONENT_RE = Pattern.compile("[A-Z][^A-Z]+");
 
-  public JmesPathFunction() {
-    Function metadata = findFunctionMetadata();
-    this.name = findFunctionName(metadata);
-    this.minArity = findMinArity(metadata);
-    this.maxArity = findMaxArity(metadata);
+  public JmesPathFunction(ArgumentConstraint argumentConstraints) {
+    this(null, argumentConstraints);
   }
 
-  private Function findFunctionMetadata() {
-    Function metadata = (Function) getClass().getAnnotation(Function.class);
-    if (metadata == null) {
-      throw new FunctionConfigurationException(String.format("The class %s does not have a @Function annotation", getClass().getName()));
-    }
-    return metadata;
-  }
-
-  private String findFunctionName(Function metadata) {
-    if (metadata.name().length() > 0) {
-      return metadata.name();
-    } else {
-      return classNameToFunctionName();
-    }
-  }
-
-  private int findMaxArity(Function metadata) {
-    if (metadata.maxArity() > -1) {
-      return metadata.maxArity();
-    } else if (metadata.arity() > -1) {
-      return metadata.arity();
-    } else {
-      throw new FunctionConfigurationException(String.format("The class %s's @Function annotation must specify either maxArity or arity", getClass().getName()));
-    }
-  }
-
-  private int findMinArity(Function metadata) {
-    if (metadata.minArity() > -1) {
-      return metadata.minArity();
-    } else if (metadata.arity() > -1) {
-      return metadata.arity();
-    } else {
-      throw new FunctionConfigurationException(String.format("The class %s's @Function annotation must specify either minArity or arity", getClass().getName()));
-    }
+  public JmesPathFunction(String name, ArgumentConstraint argumentConstraints) {
+    this.name = name == null ? classNameToFunctionName() : name;
+    this.argumentConstraints = argumentConstraints;
   }
 
   private String classNameToFunctionName() {
@@ -64,7 +30,7 @@ public abstract class JmesPathFunction {
       n = n.substring(n.lastIndexOf(".") + 1);
     }
     if (!n.endsWith("Function")) {
-      throw new FunctionConfigurationException(String.format("The function defined by %s must either declare its name using the @Function annotation or the class name must end with \"Function\"", getClass().getName()));
+      throw new FunctionConfigurationException(String.format("The function defined by %s must either pass a name to the JmesPathFunction constructor or the class name must end with \"Function\"", getClass().getName()));
     }
     Matcher m = CAMEL_CASE_COMPONENT_RE.matcher(n);
     int offset = 0;
@@ -86,12 +52,24 @@ public abstract class JmesPathFunction {
     return name;
   }
 
+  protected ArgumentConstraint argumentConstraints() {
+    return argumentConstraints;
+  }
+
   public <T> T call(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    int numArguments = arguments.size();
-    if (numArguments >= minArity && numArguments <= maxArity) {
-      return internalCall(adapter, arguments);
-    } else {
-      throw new ArityException(name(), minArity, maxArity, numArguments);
+    int totalArguments = arguments.size();
+    try {
+      Iterator<ExpressionOrValue<T>> argumentIterator = arguments.iterator();
+      argumentConstraints.check(adapter, argumentIterator);
+      if (argumentIterator.hasNext()) {
+        throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), totalArguments);
+      } else {
+        return internalCall(adapter, arguments);
+      }
+    } catch (ArgumentConstraints.InternalArityException e) {
+      throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), totalArguments);
+    } catch (ArgumentConstraints.InternalArgumentTypeException e) {
+      throw new ArgumentTypeException(name(), e.expectedType(), e.actualType());
     }
   }
 

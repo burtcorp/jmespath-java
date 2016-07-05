@@ -4,33 +4,17 @@ import java.util.List;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
-@Function(arity = 1)
 public abstract class ArrayMathFunction extends JmesPathFunction {
+  public ArrayMathFunction(ArgumentConstraint innerConstraint) {
+    super(ArgumentConstraints.arrayOf(innerConstraint));
+  }
+
   @Override
   protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    ExpressionOrValue<T> argument = arguments.get(0);
-    if (argument.isExpression()) {
-      throw new ArgumentTypeException(name(), expectedType(), "expression");
-    } else {
-      T array = argument.value();
-      if (isValidArray(adapter, array)) {
-        List<T> values = adapter.toList(array);
-        return performMathOperation(adapter, values);
-      } else {
-        List<T> values = adapter.toList(array);
-        List<String> types = new ArrayList<>(values.size());
-        for (T value : values) {
-          types.add(adapter.typeOf(value).toString());
-        }
-        throw new ArgumentTypeException(name(), expectedType(), types.toString());
-      }
-    }
+    return performMathOperation(adapter, adapter.toList(arguments.get(0).value()));
   }
 
   protected abstract <T> T performMathOperation(Adapter<T> adapter, List<T> values);
-
-  protected abstract String expectedType();
-
-  protected abstract <T> boolean isValidArray(Adapter<T> adapter, T array);
 }

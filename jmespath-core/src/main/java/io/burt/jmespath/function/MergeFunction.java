@@ -8,38 +8,20 @@ import java.util.LinkedHashMap;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-@Function(minArity = 1, maxArity = Integer.MAX_VALUE)
 public class MergeFunction extends JmesPathFunction {
-  @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    if (isObjectArray(adapter, arguments)) {
-      Map<T, T> accumulator = new LinkedHashMap<>();
-      for (ExpressionOrValue<T> argument : arguments) {
-        T value = argument.value();
-        for (T property : adapter.getPropertyNames(value)) {
-          accumulator.put(property, adapter.getProperty(value, property));
-        }
-      }
-      return adapter.createObject(accumulator);
-    } else {
-      List<String> types = new ArrayList<>(arguments.size());
-      for (ExpressionOrValue<T> argument : arguments) {
-        if (argument.isExpression()) {
-          types.add("expression");
-        } else {
-          types.add(adapter.typeOf(argument.value()).toString());
-        }
-      }
-      throw new ArgumentTypeException(name(), "array of object", types.toString());
-    }
+  public MergeFunction() {
+    super(ArgumentConstraints.listOf(1, Integer.MAX_VALUE, ArgumentConstraints.typeOf(JmesPathType.OBJECT)));
   }
 
-  private <T> boolean isObjectArray(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  @Override
+  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+    Map<T, T> accumulator = new LinkedHashMap<>();
     for (ExpressionOrValue<T> argument : arguments) {
-      if (argument.isExpression() || adapter.typeOf(argument.value()) != JmesPathType.OBJECT) {
-        return false;
+      T value = argument.value();
+      for (T property : adapter.getPropertyNames(value)) {
+        accumulator.put(property, adapter.getProperty(value, property));
       }
     }
-    return true;
+    return adapter.createObject(accumulator);
   }
 }
