@@ -19,7 +19,7 @@ public class SortByFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(final Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(final Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     List<T> elementsList = adapter.toList(arguments.get(0).value());
     JmesPathNode expression = arguments.get(1).expression();
     Iterator<T> elements = elementsList.iterator();

@@ -14,7 +14,7 @@ public class ContainsFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     T haystack = arguments.get(0).value();
     T needle = arguments.get(1).value();
     JmesPathType haystackType = adapter.typeOf(haystack);

@@ -17,7 +17,7 @@ public class SortFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     List<T> elements = new ArrayList(adapter.toList(arguments.get(0).value()));
     Collections.sort(elements, adapter);
     return adapter.createArray(elements);

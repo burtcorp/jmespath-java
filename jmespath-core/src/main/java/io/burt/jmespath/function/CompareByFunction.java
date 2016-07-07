@@ -19,7 +19,7 @@ public abstract class CompareByFunction extends JmesPathFunction {
   protected abstract boolean sortsBefore(int compareResult);
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     Iterator<T> elements = adapter.toList(arguments.get(0).value()).iterator();
     JmesPathNode expression = arguments.get(1).expression();
     if (elements.hasNext()) {

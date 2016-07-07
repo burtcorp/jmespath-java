@@ -14,7 +14,7 @@ public class StartsWithFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     T subject = arguments.get(0).value();
     T prefix = arguments.get(1).value();
     return adapter.createBoolean(adapter.toString(subject).startsWith(adapter.toString(prefix)));

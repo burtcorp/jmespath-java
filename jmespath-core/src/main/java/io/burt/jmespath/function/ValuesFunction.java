@@ -11,7 +11,7 @@ public class ValuesFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     return adapter.createArray(adapter.toList(arguments.get(0).value()));
   }
 }

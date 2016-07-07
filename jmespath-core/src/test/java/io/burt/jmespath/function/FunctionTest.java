@@ -40,7 +40,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+    protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
       return adapter.createNull();
     }
   }
@@ -51,7 +51,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) { return null; }
+    protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) { return null; }
   }
 
   private static class NameFromClassNameFunction extends JmesPathFunction {
@@ -60,7 +60,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+    protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
       return adapter.createNull();
     }
   }

@@ -16,7 +16,7 @@ public class MapFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     JmesPathNode expression = arguments.get(0).expression();
     T array = arguments.get(1).value();
     List<T> elements = adapter.toList(array);

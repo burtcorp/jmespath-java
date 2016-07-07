@@ -12,7 +12,7 @@ public abstract class ArrayMathFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     return performMathOperation(adapter, adapter.toList(arguments.get(0).value()));
   }
 

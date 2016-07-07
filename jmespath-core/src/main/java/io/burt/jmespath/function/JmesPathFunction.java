@@ -66,7 +66,7 @@ public abstract class JmesPathFunction {
 
   public <T> T call(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     checkArguments(adapter, arguments);
-    return internalCall(adapter, arguments);
+    return callFunction(adapter, arguments);
   }
 
   protected <T> void checkArguments(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
@@ -83,5 +83,5 @@ public abstract class JmesPathFunction {
     }
   }
 
-  protected abstract <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments);
+  protected abstract <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments);
 }

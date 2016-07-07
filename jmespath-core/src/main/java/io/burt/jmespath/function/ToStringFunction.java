@@ -11,7 +11,7 @@ public class ToStringFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     T subject = arguments.get(0).value();
     if (adapter.typeOf(subject) == JmesPathType.STRING) {
       return subject;

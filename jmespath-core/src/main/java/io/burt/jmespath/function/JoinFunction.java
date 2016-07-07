@@ -16,7 +16,7 @@ public class JoinFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     T glue = arguments.get(0).value();
     T components = arguments.get(1).value();
     JmesPathType glueType = adapter.typeOf(glue);

@@ -14,7 +14,7 @@ public class MergeFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     Map<T, T> accumulator = new LinkedHashMap<>();
     for (ExpressionOrValue<T> argument : arguments) {
       T value = argument.value();

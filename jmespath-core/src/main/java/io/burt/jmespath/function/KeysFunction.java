@@ -13,7 +13,7 @@ public class KeysFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     return adapter.createArray(adapter.getPropertyNames(arguments.get(0).value()));
   }
 }

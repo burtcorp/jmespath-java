@@ -13,7 +13,7 @@ public class ReverseFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     T subject = arguments.get(0).value();
     JmesPathType subjectType = adapter.typeOf(subject);
     if (subjectType == JmesPathType.ARRAY) {

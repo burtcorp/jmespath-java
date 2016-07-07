@@ -10,7 +10,7 @@ public class TypeFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T internalCall(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     return adapter.createString(adapter.typeOf(arguments.get(0).value()).toString());
   }
 }
