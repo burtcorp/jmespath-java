@@ -11,12 +11,8 @@ import io.burt.jmespath.node.JmesPathNode;
 public abstract class CompareByFunction extends JmesPathFunction {
   public CompareByFunction() {
     super(
-      ArgumentConstraints.listOf(
-        ArgumentConstraints.arrayOf(
-          ArgumentConstraints.typeOf(JmesPathType.OBJECT)
-        ),
-        ArgumentConstraints.expression()
-      )
+      ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.OBJECT)),
+      ArgumentConstraints.expression()
     );
   }
 

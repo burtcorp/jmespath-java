@@ -10,12 +10,8 @@ import io.burt.jmespath.node.JmesPathNode;
 public class MapFunction extends JmesPathFunction {
   public MapFunction() {
     super(
-      ArgumentConstraints.listOf(
-        ArgumentConstraints.expression(),
-        ArgumentConstraints.arrayOf(
-          ArgumentConstraints.typeOf(JmesPathType.OBJECT)
-        )
-      )
+      ArgumentConstraints.expression(),
+      ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.OBJECT))
     );
   }
 

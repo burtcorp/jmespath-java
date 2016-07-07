@@ -13,12 +13,8 @@ import io.burt.jmespath.node.JmesPathNode;
 public class SortByFunction extends JmesPathFunction {
   public SortByFunction() {
     super(
-      ArgumentConstraints.listOf(
-        ArgumentConstraints.arrayOf(
-          ArgumentConstraints.typeOf(JmesPathType.OBJECT)
-        ),
-        ArgumentConstraints.expression()
-      )
+      ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.OBJECT)),
+      ArgumentConstraints.expression()
     );
   }
 

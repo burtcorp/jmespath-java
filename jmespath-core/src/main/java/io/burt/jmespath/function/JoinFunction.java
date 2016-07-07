@@ -10,12 +10,8 @@ import io.burt.jmespath.JmesPathType;
 public class JoinFunction extends JmesPathFunction {
   public JoinFunction() {
     super(
-      ArgumentConstraints.listOf(
-        ArgumentConstraints.typeOf(JmesPathType.STRING),
-        ArgumentConstraints.arrayOf(
-          ArgumentConstraints.typeOf(JmesPathType.STRING)
-        )
-      )
+      ArgumentConstraints.typeOf(JmesPathType.STRING),
+      ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.STRING))
     );
   }
 

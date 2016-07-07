@@ -8,10 +8,8 @@ import io.burt.jmespath.JmesPathType;
 public class EndsWithFunction extends JmesPathFunction {
   public EndsWithFunction() {
     super(
-      ArgumentConstraints.listOf(
-        ArgumentConstraints.typeOf(JmesPathType.STRING),
-        ArgumentConstraints.typeOf(JmesPathType.STRING)
-      )
+      ArgumentConstraints.typeOf(JmesPathType.STRING),
+      ArgumentConstraints.typeOf(JmesPathType.STRING)
     );
   }
 

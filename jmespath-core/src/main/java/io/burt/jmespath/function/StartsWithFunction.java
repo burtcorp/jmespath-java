@@ -8,10 +8,8 @@ import io.burt.jmespath.JmesPathType;
 public class StartsWithFunction extends JmesPathFunction {
   public StartsWithFunction() {
     super(
-      ArgumentConstraints.listOf(
-        ArgumentConstraints.typeOf(JmesPathType.STRING),
-        ArgumentConstraints.typeOf(JmesPathType.STRING)
-      )
+      ArgumentConstraints.typeOf(JmesPathType.STRING),
+      ArgumentConstraints.typeOf(JmesPathType.STRING)
     );
   }
 

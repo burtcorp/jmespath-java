@@ -8,10 +8,8 @@ import io.burt.jmespath.JmesPathType;
 public class ContainsFunction extends JmesPathFunction {
   public ContainsFunction() {
     super(
-      ArgumentConstraints.listOf(
-        ArgumentConstraints.typeOf(JmesPathType.ARRAY, JmesPathType.STRING),
-        ArgumentConstraints.anyValue()
-      )
+      ArgumentConstraints.typeOf(JmesPathType.ARRAY, JmesPathType.STRING),
+      ArgumentConstraints.anyValue()
     );
   }
 

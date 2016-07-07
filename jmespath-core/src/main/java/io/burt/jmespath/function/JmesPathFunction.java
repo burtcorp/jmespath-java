@@ -17,6 +17,14 @@ public abstract class JmesPathFunction {
     this(null, argumentConstraints);
   }
 
+  public JmesPathFunction(ArgumentConstraint... argumentConstraints) {
+    this(null, ArgumentConstraints.listOf(argumentConstraints));
+  }
+
+  public JmesPathFunction(String name, ArgumentConstraint... argumentConstraints) {
+    this(name, ArgumentConstraints.listOf(argumentConstraints));
+  }
+
   public JmesPathFunction(String name, ArgumentConstraint argumentConstraints) {
     this.name = name == null ? classNameToFunctionName() : name;
     this.argumentConstraints = argumentConstraints;
