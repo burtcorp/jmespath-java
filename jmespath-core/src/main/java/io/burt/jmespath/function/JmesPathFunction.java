@@ -65,17 +65,19 @@ public abstract class JmesPathFunction {
   }
 
   public <T> T call(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    int totalArguments = arguments.size();
+    checkArguments(adapter, arguments);
+    return internalCall(adapter, arguments);
+  }
+
+  protected <T> void checkArguments(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     try {
       Iterator<ExpressionOrValue<T>> argumentIterator = arguments.iterator();
       argumentConstraints.check(adapter, argumentIterator);
       if (argumentIterator.hasNext()) {
-        throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), totalArguments);
-      } else {
-        return internalCall(adapter, arguments);
+        throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), arguments.size());
       }
     } catch (ArgumentConstraints.InternalArityException e) {
-      throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), totalArguments);
+      throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), arguments.size());
     } catch (ArgumentConstraints.InternalArgumentTypeException e) {
       throw new ArgumentTypeException(name(), e.expectedType(), e.actualType());
     }
