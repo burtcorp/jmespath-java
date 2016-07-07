@@ -39,7 +39,7 @@ public final class ArgumentConstraints {
     return new Expression();
   }
 
-  public static class InternalArgumentTypeException extends FunctionCallException {
+  static class InternalArgumentTypeException extends FunctionCallException {
     private final String expectedType;
     private final String actualType;
 
@@ -54,7 +54,7 @@ public final class ArgumentConstraints {
     public String actualType() { return actualType; }
   }
 
-  public static class InternalArityException extends FunctionCallException {
+  static class InternalArityException extends FunctionCallException {
     public InternalArityException() {
       super("");
     }
