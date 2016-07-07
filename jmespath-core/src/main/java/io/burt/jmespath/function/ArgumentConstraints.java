@@ -10,31 +10,92 @@ import java.util.LinkedHashSet;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
+/**
+ * A DSL for describing argument constraints of functions.
+ * <p>
+ * For example, this is how <code>join</code> describes its arguments:
+ * <p>
+ * <pre>
+ * public JoinFunction() {
+ *   super(
+ *     ArgumentConstraints.typeOf(JmesPathType.STRING),
+ *     ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.STRING))
+ *   );
+ * }
+ * </pre>
+ * I.e. accept exactly two argument, where the first must be a string and the
+ * second must be an array of strings.
+ * <p>
+ * The static methods of this class can be used to compose constraints for most
+ * situations, but you can also create your own constraints (that can be combined
+ * with other constraints) by implementing the {@link ArgumentConstraint}
+ * interface.
+ */
 public final class ArgumentConstraints {
+  /**
+   * Describes a heterogenous list of arguments. Each argument is checked against
+   * the corresponding constraint. An {@link ArityException} will be thrown when
+   * the number of arguments does not exactly match the number of constraints.
+   * <p>
+   * May only be used as a top level constraint – and is already built in to
+   * {@link JmesPathFunction}, so direct usage of this method should not be needed.
+   */
   public static ArgumentConstraint listOf(ArgumentConstraint... constraints) {
     return new HeterogenousListOf(constraints);
   }
 
+  /**
+   * Descripes a homogenous list of arguments, of fixed or variable length.
+   * An {@link ArityException} will be thrown when there are fewer arguments
+   * than the specified minimum arity, or when there are more arguments than
+   * the specified maximum arity.
+   * <p>
+   * May only be used as a top level constraint.
+   */
   public static ArgumentConstraint listOf(int min, int max, ArgumentConstraint constraint) {
     return new HomogenousListOf(min, max, constraint);
   }
 
+  /**
+   * Describes a single argument of any value. An {@link ArgumentTypeException}
+   * will be thrown when the argument is an expression.
+   */
   public static ArgumentConstraint anyValue() {
     return new AnyValue();
   }
 
+  /**
+   * Describes a single argument of a specified value type. An {@link ArgumentTypeException}
+   * will be thrown when the argument is of the wrong type (as determined by
+   * {@link Adapter#typeOf}) or is an expression.
+   */
   public static ArgumentConstraint typeOf(JmesPathType type) {
     return new TypeOf(type);
   }
 
+  /**
+   * Describes a single argument that is of one of the specified value types.
+   * An {@link ArgumentTypeException} will be thrown when the argument is not of
+   * one of the specified types (as determined by {@link Adapter#typeOf}) or is
+   * an expression.
+   */
   public static ArgumentConstraint typeOf(JmesPathType... types) {
     return new TypeOfEither(types);
   }
 
+  /**
+   * Describes a single argument that is an array. Each element in the array
+   * will be checked against the specified constraint. An {@link ArgumentTypeException}
+   * is thrown when the argument does not represent an array value.
+   */
   public static ArgumentConstraint arrayOf(ArgumentConstraint constraint) {
     return new ArrayOf(constraint);
   }
 
+  /**
+   * Describes a single expression argument. An {@link ArgumentTypeException}
+   * will be thrown when the argument is not an expression.
+   */
   public static ArgumentConstraint expression() {
     return new Expression();
   }
