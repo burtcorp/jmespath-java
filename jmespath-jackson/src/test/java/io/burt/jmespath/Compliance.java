@@ -18,17 +18,14 @@ import io.burt.jmespath.jackson.JacksonAdapter;
 public class Compliance {
   public static class TestGroup implements Iterable<TestCase> {
     private final JsonNode input;
-    private final String comment;
     private final List<TestCase> testCases;
 
     @JsonCreator
     public TestGroup(
       @JsonProperty("given") JsonNode input,
-      @JsonProperty("comment") String comment,
       @JsonProperty("cases") List<TestCase> testCases
     ) {
       this.input = input;
-      this.comment = comment;
       this.testCases = testCases;
     }
 
@@ -39,9 +36,7 @@ public class Compliance {
   public static class TestCase {
     private final String expression;
     private final String comment;
-    private final String description;
     private final String error;
-    private final String bench;
     private final JsonNode result;
 
     @JsonCreator
@@ -55,9 +50,7 @@ public class Compliance {
     ) {
       this.expression = expression;
       this.comment = comment;
-      this.description = description;
       this.error = error;
-      this.bench = bench;
       this.result = result;
     }
 

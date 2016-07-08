@@ -171,7 +171,6 @@ public final class ArgumentConstraints {
     private final ArgumentConstraint[] subConstraints;
     private final int minArity;
     private final int maxArity;
-    private String expectedType;
 
     public HeterogenousListOf(ArgumentConstraint[] subConstraints) {
       this.subConstraints = subConstraints;

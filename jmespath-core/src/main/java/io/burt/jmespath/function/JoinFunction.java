@@ -19,7 +19,6 @@ public class JoinFunction extends JmesPathFunction {
   protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     T glue = arguments.get(0).value();
     T components = arguments.get(1).value();
-    JmesPathType glueType = adapter.typeOf(glue);
     Iterator<T> values = adapter.toList(components).iterator();
     if (values.hasNext()) {
       StringBuilder buffer = new StringBuilder();
