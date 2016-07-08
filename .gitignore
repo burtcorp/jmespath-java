@@ -2,3 +2,6 @@
 /target
 /jmespath-core/target
 /jmespath-jackson/target
+.classpath
+.project
+.settings
