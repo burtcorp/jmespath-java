@@ -14,6 +14,7 @@ import io.burt.jmespath.function.ExpressionOrValue;
 
 import static io.burt.jmespath.JmesPathType.*;
 
+@SuppressWarnings("unchecked")
 public class JcfAdapter extends BaseAdapter<Object> {
   @Override
   public Object parseString(String string) {

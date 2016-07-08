@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
 
+@SuppressWarnings("unchecked")
 public abstract class AdapterTest<T> {
   protected T contact;
   protected T cloudtrail;

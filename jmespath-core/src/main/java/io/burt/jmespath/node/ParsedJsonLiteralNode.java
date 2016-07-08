@@ -11,6 +11,7 @@ public class ParsedJsonLiteralNode extends JsonLiteralNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T evaluate(Adapter<T> adapter, T input) {
     return (T) tree();
   }
