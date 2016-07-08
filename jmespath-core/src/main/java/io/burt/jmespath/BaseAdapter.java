@@ -60,8 +60,8 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
         case BOOLEAN:
           return (isTruthy(value1) && isTruthy(value2)) || (!isTruthy(value1) && !isTruthy(value2)) ? 0 : -1;
         case NUMBER:
-          Comparable d1 = toNumber(value1).doubleValue();
-          Comparable d2 = toNumber(value2).doubleValue();
+          Double d1 = toNumber(value1).doubleValue();
+          Double d2 = toNumber(value2).doubleValue();
           return d1.compareTo(d2);
         case STRING:
           String s1 = toString(value1);

@@ -20,9 +20,9 @@ import io.burt.jmespath.parser.JmesPathLexer;
 
 public class JsonParser extends JmesPathBaseVisitor<Object> {
   private final ParseTree tree;
-  private final Adapter adapter;
+  private final Adapter<Object> adapter;
 
-  public static Object fromString(String json, Adapter adapter) {
+  public static Object fromString(String json, Adapter<Object> adapter) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(json), errors), errors);
     ParseTree tree = parser.jsonValue();
@@ -53,7 +53,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
     return parser;
   }
 
-  private JsonParser(ParseTree tree, Adapter adapter) {
+  private JsonParser(ParseTree tree, Adapter<Object> adapter) {
     this.tree = tree;
     this.adapter = adapter;
   }
@@ -68,7 +68,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonObject(JmesPathParser.JsonObjectContext ctx) {
-    Map<String, Object> object = new LinkedHashMap<>(ctx.jsonObjectPair().size());
+    Map<Object, Object> object = new LinkedHashMap<>(ctx.jsonObjectPair().size());
     for (final JmesPathParser.JsonObjectPairContext pair : ctx.jsonObjectPair()) {
       String key = unquote(pair.STRING().getText());
       Object value = visit(pair.jsonValue());
@@ -79,7 +79,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonArray(JmesPathParser.JsonArrayContext ctx) {
-    List<Object> array = new ArrayList(ctx.jsonValue().size());
+    List<Object> array = new ArrayList<Object>(ctx.jsonValue().size());
     for (final JmesPathParser.JsonValueContext entry : ctx.jsonValue()) {
       array.add(visit(entry));
     }

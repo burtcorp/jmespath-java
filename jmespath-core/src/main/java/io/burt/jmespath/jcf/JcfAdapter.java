@@ -84,9 +84,9 @@ public class JcfAdapter extends BaseAdapter<Object> {
       case BOOLEAN:
         return value == Boolean.TRUE;
       case ARRAY:
-        return !((List) value).isEmpty();
+        return !((List<Object>) value).isEmpty();
       case OBJECT:
-        return !((Map) value).isEmpty();
+        return !((Map<Object,Object>) value).isEmpty();
       case STRING:
         return !((String) value).isEmpty();
       default:
