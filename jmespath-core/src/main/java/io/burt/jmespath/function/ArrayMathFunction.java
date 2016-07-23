@@ -1,10 +1,8 @@
 package io.burt.jmespath.function;
 
 import java.util.List;
-import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.JmesPathType;
 
 public abstract class ArrayMathFunction extends JmesPathFunction {
   public ArrayMathFunction(ArgumentConstraint innerConstraint) {

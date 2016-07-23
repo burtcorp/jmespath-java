@@ -6,8 +6,6 @@ import java.util.Iterator;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
 
-import static io.burt.jmespath.JmesPathType.*;
-
 /**
  * This class can be extended instead of implementing {@link Adapter} directly,
  * in order to not have to implement a few of the methods that have non-specific

@@ -2,10 +2,6 @@ package io.burt.jmespath.parser;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;

@@ -3,14 +3,11 @@ package io.burt.jmespath.jcf;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import io.burt.jmespath.BaseAdapter;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.function.FunctionRegistry;
-import io.burt.jmespath.function.ExpressionOrValue;
 
 import static io.burt.jmespath.JmesPathType.*;
 

@@ -1,7 +1,6 @@
 package io.burt.jmespath.function;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
