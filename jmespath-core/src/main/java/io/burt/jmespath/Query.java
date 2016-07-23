@@ -14,7 +14,7 @@ public class Query {
     return fromString(null, query);
   }
 
-  public static Query fromString(Adapter adapter, String query) {
+  public static <T> Query fromString(Adapter<T> adapter, String query) {
     return JmesPathQueryParser.fromString(query, adapter);
   }
 
