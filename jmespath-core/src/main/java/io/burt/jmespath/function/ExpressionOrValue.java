@@ -29,6 +29,6 @@ public class ExpressionOrValue<T> {
   }
 
   public boolean isValue() {
-    return value != null;
+    return expression == null;
   }
 }

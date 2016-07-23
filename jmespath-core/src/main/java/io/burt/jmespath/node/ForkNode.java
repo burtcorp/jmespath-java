@@ -1,6 +1,7 @@
 package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class ForkNode extends JmesPathNode {
   public ForkNode(JmesPathNode source) {
@@ -14,7 +15,7 @@ public class ForkNode extends JmesPathNode {
 
   @Override
   protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
-    if (adapter.isArray(currentValue)) {
+    if (adapter.typeOf(currentValue) == JmesPathType.ARRAY) {
       return super.evaluateWithCurrentValue(adapter, currentValue);
     } else {
       return adapter.createNull();

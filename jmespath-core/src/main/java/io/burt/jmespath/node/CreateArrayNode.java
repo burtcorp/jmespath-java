@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathType;
 
 public class CreateArrayNode extends JmesPathNode {
   private final JmesPathNode[] entries;
@@ -20,7 +21,7 @@ public class CreateArrayNode extends JmesPathNode {
 
   @Override
   protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    if (adapter.isNull(currentValue)) {
+    if (adapter.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {
       List<T> array = new ArrayList<>();
