@@ -29,6 +29,11 @@ public class JacksonAdapter extends BaseAdapter<JsonNode> {
     this.jsonParser = new ObjectMapper();
   }
 
+  public JacksonAdapter(FunctionRegistry functionRegistry) {
+    super(functionRegistry);
+    this.jsonParser = new ObjectMapper();
+  }
+
   @Override
   public JsonNode parseString(String string) {
     try {
