@@ -11,41 +11,43 @@ import io.burt.jmespath.Adapter;
  * by name.
  */
 public class FunctionRegistry {
+  private final static FunctionRegistry defaultRegistry = new FunctionRegistry(
+    new AbsFunction(),
+    new AvgFunction(),
+    new ContainsFunction(),
+    new CeilFunction(),
+    new EndsWithFunction(),
+    new FloorFunction(),
+    new JoinFunction(),
+    new KeysFunction(),
+    new LengthFunction(),
+    new MapFunction(),
+    new MaxFunction(),
+    new MaxByFunction(),
+    new MergeFunction(),
+    new MinFunction(),
+    new MinByFunction(),
+    new NotNullFunction(),
+    new ReverseFunction(),
+    new SortFunction(),
+    new SortByFunction(),
+    new StartsWithFunction(),
+    new SumFunction(),
+    new ToArrayFunction(),
+    new ToStringFunction(),
+    new ToNumberFunction(),
+    new TypeFunction(),
+    new ValuesFunction()
+  );
+
   private final Map<String, JmesPathFunction> functions;
 
   /**
-   * Create a registry with the the functions specified in the JMESPath
+   * Returns a registry with all the the functions specified in the JMESPath
    * specification.
    */
-  public static FunctionRegistry createDefaultRegistry() {
-    return new FunctionRegistry(
-      new AbsFunction(),
-      new AvgFunction(),
-      new ContainsFunction(),
-      new CeilFunction(),
-      new EndsWithFunction(),
-      new FloorFunction(),
-      new JoinFunction(),
-      new KeysFunction(),
-      new LengthFunction(),
-      new MapFunction(),
-      new MaxFunction(),
-      new MaxByFunction(),
-      new MergeFunction(),
-      new MinFunction(),
-      new MinByFunction(),
-      new NotNullFunction(),
-      new ReverseFunction(),
-      new SortFunction(),
-      new SortByFunction(),
-      new StartsWithFunction(),
-      new SumFunction(),
-      new ToArrayFunction(),
-      new ToStringFunction(),
-      new ToNumberFunction(),
-      new TypeFunction(),
-      new ValuesFunction()
-    );
+  public static FunctionRegistry defaultRegistry() {
+    return defaultRegistry;
   }
 
   public FunctionRegistry(JmesPathFunction... functions) {

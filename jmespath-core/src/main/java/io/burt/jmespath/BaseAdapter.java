@@ -28,7 +28,7 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
    */
   public BaseAdapter(FunctionRegistry functionRegistry) {
     if (functionRegistry == null) {
-      this.functionRegistry = FunctionRegistry.createDefaultRegistry();
+      this.functionRegistry = FunctionRegistry.defaultRegistry();
     } else {
       this.functionRegistry = functionRegistry;
     }
