@@ -50,6 +50,10 @@ public class FunctionRegistry {
     return defaultRegistry;
   }
 
+  /**
+   * Creates a new function registry containing the specified functions.
+   * When there are multiple functions with the same name the last one is used.
+   */
   public FunctionRegistry(JmesPathFunction... functions) {
     this.functions = new HashMap<>();
     for (JmesPathFunction function : functions) {

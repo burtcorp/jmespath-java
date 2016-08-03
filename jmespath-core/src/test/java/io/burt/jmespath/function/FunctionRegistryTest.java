@@ -79,6 +79,15 @@ public class FunctionRegistryTest {
   }
 
   @Test
+  public void theLastFunctionIsUsedWhenThereAreDuplicatedNames() {
+    FunctionRegistry registry = new FunctionRegistry(
+      new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING)),
+      new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.NUMBER))
+    );
+    registry.callFunction(adapter, "foo", createValueArguments(3));
+  }
+
+  @Test
   public void callingAMissingFunctionThrowsFunctionCallException() {
     FunctionRegistry registry = FunctionRegistry.defaultRegistry();
     try {
