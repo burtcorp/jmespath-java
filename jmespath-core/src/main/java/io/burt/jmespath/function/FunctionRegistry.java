@@ -55,8 +55,12 @@ public class FunctionRegistry {
    * When there are multiple functions with the same name the last one is used.
    */
   public FunctionRegistry(JmesPathFunction... functions) {
-    this.functions = new HashMap<>();
-    for (JmesPathFunction function : functions) {
+    this(null, functions);
+  }
+
+  private FunctionRegistry(Map<String, JmesPathFunction> functions0, JmesPathFunction... functions1) {
+    this.functions = functions0 == null ? new HashMap<String, JmesPathFunction>() : new HashMap<String, JmesPathFunction>(functions0);
+    for (JmesPathFunction function : functions1) {
       this.functions.put(function.name(), function);
     }
   }
@@ -75,5 +79,14 @@ public class FunctionRegistry {
     } else {
       throw new FunctionCallException(String.format("Unknown function: \"%s\"", functionName));
     }
+  }
+
+  /**
+   * Creates a new function registry that contains all the functions of this
+   * registry and the specified functions. When a new function has the same name
+   * as one of the functions in this registry, the new function will be used.
+   */
+  public FunctionRegistry extend(JmesPathFunction... functions) {
+    return new FunctionRegistry(this.functions, functions);
   }
 }

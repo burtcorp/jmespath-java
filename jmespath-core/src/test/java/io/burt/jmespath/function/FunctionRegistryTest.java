@@ -96,4 +96,30 @@ public class FunctionRegistryTest {
       assertThat(fce.getMessage(), containsString("Unknown function: \"foo\""));
     }
   }
+
+  @Test
+  public void extendIsUsedToCreateRegistriesWithExtraFunctions() {
+    FunctionRegistry defaultRegistry = FunctionRegistry.defaultRegistry();
+    FunctionRegistry extendedRegistry = defaultRegistry.extend(
+      new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING)),
+      new TestFunction("bar", ArgumentConstraints.typeOf(JmesPathType.NUMBER))
+    );
+    Object result;
+    result = extendedRegistry.callFunction(adapter, "to_number", createValueArguments("3"));
+    assertThat(result, is((Object) 3.0));
+    result = extendedRegistry.callFunction(adapter, "foo", createValueArguments("hello"));
+    assertThat(result, is((Object) "hello"));
+    result = extendedRegistry.callFunction(adapter, "bar", createValueArguments(42));
+    assertThat(result, is((Object) 42));
+  }
+
+  @Test
+  public void functionsCanBeOverriddenWithExtend() {
+    FunctionRegistry defaultRegistry = FunctionRegistry.defaultRegistry();
+    FunctionRegistry extendedRegistry = defaultRegistry.extend(
+      new TestFunction("to_number", ArgumentConstraints.typeOf(JmesPathType.STRING))
+    );
+    Object result = extendedRegistry.callFunction(adapter, "to_number", createValueArguments("hello"));
+    assertThat(result, is((Object) "hello"));
+  }
 }
