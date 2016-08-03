@@ -8,11 +8,20 @@ import java.util.Collections;
 
 import io.burt.jmespath.BaseAdapter;
 import io.burt.jmespath.JmesPathType;
+import io.burt.jmespath.function.FunctionRegistry;
 
 import static io.burt.jmespath.JmesPathType.*;
 
 @SuppressWarnings("unchecked")
 public class JcfAdapter extends BaseAdapter<Object> {
+  public JcfAdapter() {
+    super();
+  }
+
+  public JcfAdapter(FunctionRegistry functionRegistry) {
+    super(functionRegistry);
+  }
+
   @Override
   public Object parseString(String string) {
     return JsonParser.fromString(string, this);

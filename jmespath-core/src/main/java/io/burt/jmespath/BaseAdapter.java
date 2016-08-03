@@ -20,14 +20,18 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
    * Create a new adapter with a default function registry.
    */
   public BaseAdapter() {
-    this(FunctionRegistry.createDefaultRegistry());
+    this(null);
   }
 
   /**
    * Create a new adapter with a custom function registry.
    */
   public BaseAdapter(FunctionRegistry functionRegistry) {
-    this.functionRegistry = functionRegistry;
+    if (functionRegistry == null) {
+      this.functionRegistry = FunctionRegistry.createDefaultRegistry();
+    } else {
+      this.functionRegistry = functionRegistry;
+    }
   }
 
   /**
