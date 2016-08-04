@@ -15,6 +15,14 @@ import io.burt.jmespath.function.ExpressionOrValue;
 import static io.burt.jmespath.JmesPathType.*;
 
 public class JcfAdapter extends BaseAdapter<Object> {
+  public JcfAdapter() {
+    super();
+  }
+
+  public JcfAdapter(FunctionRegistry functionRegistry) {
+    super(functionRegistry);
+  }
+
   @Override
   public Object parseString(String string) {
     return JsonParser.fromString(string, this);
