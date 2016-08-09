@@ -20,10 +20,10 @@ public abstract class CompareByFunction extends JmesPathFunction {
   @Override
   protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
     Iterator<T> elements = runtime.toList(arguments.get(0).value()).iterator();
-    JmesPathNode expression = arguments.get(1).expression();
+    JmesPathNode<T> expression = arguments.get(1).expression();
     if (elements.hasNext()) {
       T result = elements.next();
-      T resultValue = expression.evaluate(runtime, result);
+      T resultValue = expression.evaluate(result);
       boolean expectNumbers = true;
       if (runtime.typeOf(resultValue) == JmesPathType.STRING) {
         expectNumbers = false;
@@ -32,7 +32,7 @@ public abstract class CompareByFunction extends JmesPathFunction {
       }
       while (elements.hasNext()) {
         T candidate = elements.next();
-        T candidateValue = expression.evaluate(runtime, candidate);
+        T candidateValue = expression.evaluate(candidate);
         JmesPathType candidateType = runtime.typeOf(candidateValue);
         if (expectNumbers && candidateType != JmesPathType.NUMBER) {
           throw new ArgumentTypeException(name(), "number", candidateType.toString());

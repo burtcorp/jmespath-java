@@ -2,16 +2,16 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class StringNode extends JmesPathNode {
+public class StringNode<T> extends JmesPathNode<T> {
   private final String string;
 
-  public StringNode(String string) {
-    super();
+  public StringNode(Adapter<T> runtime, String string) {
+    super(runtime);
     this.string = string;
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> runtime, T input) {
+  public T evaluate(T input) {
     return runtime.createString(string());
   }
 
@@ -25,8 +25,9 @@ public class StringNode extends JmesPathNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    StringNode other = (StringNode) o;
+    StringNode<T> other = (StringNode<T>) o;
     return string().equals(other.string());
   }
 

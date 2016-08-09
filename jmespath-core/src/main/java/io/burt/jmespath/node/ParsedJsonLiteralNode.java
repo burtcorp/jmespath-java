@@ -2,17 +2,17 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class ParsedJsonLiteralNode extends JsonLiteralNode {
+public class ParsedJsonLiteralNode<T> extends JsonLiteralNode<T> {
   private final Object tree;
 
-  public ParsedJsonLiteralNode(String raw, Object tree) {
-    super(raw);
+  public ParsedJsonLiteralNode(Adapter<T> runtime, String raw, Object tree) {
+    super(runtime, raw);
     this.tree = tree;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T evaluate(Adapter<T> runtime, T input) {
+  public T evaluate(T input) {
     return (T) tree();
   }
 
@@ -26,9 +26,10 @@ public class ParsedJsonLiteralNode extends JsonLiteralNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
     if (o instanceof ParsedJsonLiteralNode) {
-      ParsedJsonLiteralNode other = (ParsedJsonLiteralNode) o;
+      ParsedJsonLiteralNode<T> other = (ParsedJsonLiteralNode<T>) o;
       return tree().equals(other.tree());
     } else {
       return super.internalEquals(o);

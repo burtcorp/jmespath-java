@@ -7,26 +7,26 @@ import java.util.ArrayList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class CreateArrayNode extends JmesPathNode {
-  private final JmesPathNode[] entries;
+public class CreateArrayNode<T> extends JmesPathNode<T> {
+  private final JmesPathNode<T>[] entries;
 
-  public CreateArrayNode(JmesPathNode[] entries, JmesPathNode source) {
-    super(source);
+  public CreateArrayNode(Adapter<T> runtime, JmesPathNode<T>[] entries, JmesPathNode<T> source) {
+    super(runtime, source);
     this.entries = entries;
   }
 
-  protected JmesPathNode[] entries() {
+  protected JmesPathNode<T>[] entries() {
     return entries;
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
+  protected T evaluateOne(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {
       List<T> array = new ArrayList<>();
-      for (JmesPathNode entry : entries) {
-        array.add(entry.evaluate(runtime, currentValue));
+      for (JmesPathNode<T> entry : entries) {
+        array.add(entry.evaluate(currentValue));
       }
       return runtime.createArray(array);
     }
@@ -35,7 +35,7 @@ public class CreateArrayNode extends JmesPathNode {
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder("[");
-    for (JmesPathNode entry : entries) {
+    for (JmesPathNode<T> entry : entries) {
       str.append(entry).append(", ");
     }
     str.delete(str.length() - 2, str.length());
@@ -44,15 +44,16 @@ public class CreateArrayNode extends JmesPathNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    CreateArrayNode other = (CreateArrayNode) o;
+    CreateArrayNode<T> other = (CreateArrayNode<T>) o;
     return Arrays.equals(entries(), other.entries());
   }
 
   @Override
   protected int internalHashCode() {
     int h = 1;
-    for (JmesPathNode node : entries) {
+    for (JmesPathNode<T> node : entries) {
       h = h * 31 + node.hashCode();
     }
     return h;

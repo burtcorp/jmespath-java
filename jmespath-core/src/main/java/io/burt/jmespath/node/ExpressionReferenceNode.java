@@ -2,20 +2,20 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class ExpressionReferenceNode extends JmesPathNode {
-  private final JmesPathNode expression;
+public class ExpressionReferenceNode<T> extends JmesPathNode<T> {
+  private final JmesPathNode<T> expression;
 
-  public ExpressionReferenceNode(JmesPathNode expression) {
-    super(new CurrentNode());
+  public ExpressionReferenceNode(Adapter<T> runtime, JmesPathNode<T> expression) {
+    super(runtime, new CurrentNode<T>(runtime));
     this.expression = expression;
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
-    return expression().evaluate(runtime, currentValue);
+  protected T evaluateOne(T currentValue) {
+    return expression().evaluate(currentValue);
   }
 
-  protected JmesPathNode expression() {
+  protected JmesPathNode<T> expression() {
     return expression;
   }
 
@@ -25,8 +25,9 @@ public class ExpressionReferenceNode extends JmesPathNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    ExpressionReferenceNode other = (ExpressionReferenceNode) o;
+    ExpressionReferenceNode<T> other = (ExpressionReferenceNode<T>) o;
     return expression().equals(other.expression());
   }
 

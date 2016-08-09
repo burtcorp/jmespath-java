@@ -21,12 +21,12 @@ public class SortByFunction extends JmesPathFunction {
   @Override
   protected <T> T callFunction(final Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
     List<T> elementsList = runtime.toList(arguments.get(0).value());
-    JmesPathNode expression = arguments.get(1).expression();
+    JmesPathNode<T> expression = arguments.get(1).expression();
     Iterator<T> elements = elementsList.iterator();
     if (elements.hasNext()) {
       List<Pair<T>> pairs = new ArrayList<>(elementsList.size());
       T element = elements.next();
-      T transformedElement = expression.evaluate(runtime, element);
+      T transformedElement = expression.evaluate(element);
       boolean expectNumbers = true;
       JmesPathType elementType = runtime.typeOf(transformedElement);
       if (elementType == JmesPathType.STRING) {
@@ -37,7 +37,7 @@ public class SortByFunction extends JmesPathFunction {
       pairs.add(new Pair<T>(transformedElement, element));
       while (elements.hasNext()) {
         element = elements.next();
-        transformedElement = expression.evaluate(runtime, element);
+        transformedElement = expression.evaluate(element);
         elementType = runtime.typeOf(transformedElement);
         if (expectNumbers && elementType != JmesPathType.NUMBER) {
           throw new ArgumentTypeException(name(), "number", elementType.toString());

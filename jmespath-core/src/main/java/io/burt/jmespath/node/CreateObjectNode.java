@@ -7,14 +7,14 @@ import java.util.LinkedHashMap;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class CreateObjectNode extends JmesPathNode {
-  private final Entry[] entries;
+public class CreateObjectNode<T> extends JmesPathNode<T> {
+  private final Entry<T>[] entries;
 
-  public static class Entry {
+  public static class Entry<U> {
     private final String key;
-    private final JmesPathNode value;
+    private final JmesPathNode<U> value;
 
-    public Entry(String key, JmesPathNode value) {
+    public Entry(String key, JmesPathNode<U> value) {
       this.key = key;
       this.value = value;
     }
@@ -23,11 +23,12 @@ public class CreateObjectNode extends JmesPathNode {
       return key;
     }
 
-    protected JmesPathNode value() {
+    protected JmesPathNode<U> value() {
       return value;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -35,7 +36,7 @@ public class CreateObjectNode extends JmesPathNode {
       if (!(o instanceof Entry)) {
         return false;
       }
-      Entry other = (Entry) o;
+      Entry<U> other = (Entry<U>) o;
       return key().equals(other.key()) && value().equals(other.value());
     }
 
@@ -48,32 +49,32 @@ public class CreateObjectNode extends JmesPathNode {
     }
   }
 
-  public CreateObjectNode(Entry[] entries, JmesPathNode source) {
-    super(source);
+  public CreateObjectNode(Adapter<T> runtime, Entry<T>[] entries, JmesPathNode<T> source) {
+    super(runtime, source);
     this.entries = entries;
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
+  public T evaluateOne(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {
       Map<T, T> object = new LinkedHashMap<>();
-      for (Entry entry : entries()) {
-        object.put(runtime.createString(entry.key()), entry.value().evaluate(runtime, currentValue));
+      for (Entry<T> entry : entries()) {
+        object.put(runtime.createString(entry.key()), entry.value().evaluate(currentValue));
       }
       return runtime.createObject(object);
     }
   }
 
-  protected Entry[] entries() {
+  protected Entry<T>[] entries() {
     return entries;
   }
 
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder("{");
-    for (Entry entry : entries) {
+    for (Entry<T> entry : entries) {
       str.append(entry.key()).append("=").append(entry.value()).append(", ");
     }
     str.delete(str.length() - 2, str.length());
@@ -82,15 +83,16 @@ public class CreateObjectNode extends JmesPathNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    CreateObjectNode other = (CreateObjectNode) o;
+    CreateObjectNode<T> other = (CreateObjectNode<T>) o;
     return Arrays.equals(entries(), other.entries());
   }
 
   @Override
   protected int internalHashCode() {
     int h = 1;
-    for (Entry entry : entries) {
+    for (Entry<T> entry : entries) {
       h = h * 31 + entry.hashCode();
     }
     return h;

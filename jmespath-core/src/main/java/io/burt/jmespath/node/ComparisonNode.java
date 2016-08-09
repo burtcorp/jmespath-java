@@ -3,28 +3,28 @@ package io.burt.jmespath.node;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ComparisonNode extends OperatorNode {
+public class ComparisonNode<T> extends OperatorNode<T> {
   private final String operator;
 
-  public ComparisonNode(String operator, JmesPathNode left, JmesPathNode right) {
-    super(left, right);
+  public ComparisonNode(Adapter<T> runtime, String operator, JmesPathNode<T> left, JmesPathNode<T> right) {
+    super(runtime, left, right);
     this.operator = operator;
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
-    T leftResult = operands()[0].evaluate(runtime, currentValue);
-    T rightResult = operands()[1].evaluate(runtime, currentValue);
+  protected T evaluateOne(T currentValue) {
+    T leftResult = operands()[0].evaluate(currentValue);
+    T rightResult = operands()[1].evaluate(currentValue);
     JmesPathType leftType = runtime.typeOf(leftResult);
     JmesPathType rightType = runtime.typeOf(rightResult);
     if (leftType == JmesPathType.NUMBER && rightType == JmesPathType.NUMBER) {
-      return compareNumbers(runtime, leftResult, rightResult);
+      return compareNumbers(leftResult, rightResult);
     } else {
-      return compareObjects(runtime, leftResult, rightResult);
+      return compareObjects(leftResult, rightResult);
     }
   }
 
-  private <T> T compareObjects(Adapter<T> runtime, T leftResult, T rightResult) {
+  private T compareObjects(T leftResult, T rightResult) {
     int result = runtime.compare(leftResult, rightResult);
     if (operator.equals("==")) {
       return runtime.createBoolean(result == 0);
@@ -34,7 +34,7 @@ public class ComparisonNode extends OperatorNode {
     return runtime.createNull();
   }
 
-  private <T> T compareNumbers(Adapter<T> runtime, T leftResult, T rightResult) {
+  private T compareNumbers(T leftResult, T rightResult) {
     int result = runtime.compare(leftResult, rightResult);
     if (operator.equals("==")) {
       return runtime.createBoolean(result == 0);

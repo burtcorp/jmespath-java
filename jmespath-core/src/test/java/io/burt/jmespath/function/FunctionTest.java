@@ -21,7 +21,11 @@ import static org.hamcrest.Matchers.containsString;
 public class FunctionTest {
   private final Adapter<Object> runtime = new JcfRuntime();
 
-  private final ExpressionOrValue<Object> expressionReference = new ExpressionOrValue<Object>(new ExpressionReferenceNode(new PropertyNode("foo", new CurrentNode())));
+  private final ExpressionOrValue<Object> expressionReference = new ExpressionOrValue<Object>(
+    new ExpressionReferenceNode<Object>(runtime,
+      new PropertyNode<Object>(runtime, "foo", new CurrentNode<Object>(runtime))
+    )
+  );
 
   private List<ExpressionOrValue<Object>> createValueArguments(Object... values) {
     List<ExpressionOrValue<Object>> arguments = new ArrayList<>();

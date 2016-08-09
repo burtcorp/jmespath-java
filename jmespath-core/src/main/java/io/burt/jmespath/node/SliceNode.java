@@ -5,20 +5,20 @@ import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
 
-public class SliceNode extends JmesPathNode {
+public class SliceNode<T> extends JmesPathNode<T> {
   private final int start;
   private final int stop;
   private final int step;
 
-  public SliceNode(int start, int stop, int step, JmesPathNode source) {
-    super(source);
+  public SliceNode(Adapter<T> runtime, int start, int stop, int step, JmesPathNode<T> source) {
+    super(runtime, source);
     this.start = start;
     this.stop = stop;
     this.step = step;
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> runtime, T projectionElement) {
+  public T evaluateOne(T projectionElement) {
     List<T> elements = runtime.toList(projectionElement);
     List<T> output = new LinkedList<>();
     int i = start < 0 ? elements.size() + start : start;
@@ -54,8 +54,9 @@ public class SliceNode extends JmesPathNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    SliceNode other = (SliceNode) o;
+    SliceNode<T> other = (SliceNode<T>) o;
     return start() == other.start() && stop() == other.stop() && step() == other.step();
   }
 

@@ -4,15 +4,15 @@ import io.burt.jmespath.node.JmesPathNode;
 
 public class StandardExpression<T> implements JmesPathExpression<T> {
   private final Adapter<T> runtime;
-  private final JmesPathNode expression;
+  private final JmesPathNode<T> expression;
 
-  public StandardExpression(Adapter<T> runtime, JmesPathNode expression) {
+  public StandardExpression(Adapter<T> runtime, JmesPathNode<T> expression) {
     this.runtime = runtime;
     this.expression = expression;
   }
 
   public T search(T input) {
-    return expression.evaluate(runtime, input);
+    return expression.evaluate(input);
   }
 
   protected JmesPathRuntime runtime() {

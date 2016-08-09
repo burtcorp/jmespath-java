@@ -7,24 +7,24 @@ import java.util.ArrayList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.function.ExpressionOrValue;
 
-public class FunctionCallNode extends JmesPathNode {
+public class FunctionCallNode<T> extends JmesPathNode<T> {
   private final String name;
-  private final JmesPathNode[] args;
+  private final JmesPathNode<T>[] args;
 
-  public FunctionCallNode(String name, JmesPathNode[] args, JmesPathNode source) {
-    super(source);
+  public FunctionCallNode(Adapter<T> runtime, String name, JmesPathNode<T>[] args, JmesPathNode<T> source) {
+    super(runtime, source);
     this.name = name;
     this.args = args;
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
+  protected T evaluateOne(T currentValue) {
     List<ExpressionOrValue<T>> arguments = new ArrayList<>(args.length);
-    for (JmesPathNode arg : args()) {
+    for (JmesPathNode<T> arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {
         arguments.add(new ExpressionOrValue<T>(arg));
       } else {
-        arguments.add(new ExpressionOrValue<T>(arg.evaluate(runtime, currentValue)));
+        arguments.add(new ExpressionOrValue<T>(arg.evaluate(currentValue)));
       }
     }
     return runtime.callFunction(name(), arguments);
@@ -34,14 +34,14 @@ public class FunctionCallNode extends JmesPathNode {
     return name;
   }
 
-  protected JmesPathNode[] args() {
+  protected JmesPathNode<T>[] args() {
     return args;
   }
 
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder(name).append(", [");
-    for (JmesPathNode node : args) {
+    for (JmesPathNode<T> node : args) {
       str.append(node).append(", ");
     }
     str.delete(str.length() - 2, str.length());
@@ -50,8 +50,9 @@ public class FunctionCallNode extends JmesPathNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    FunctionCallNode other = (FunctionCallNode) o;
+    FunctionCallNode<T> other = (FunctionCallNode<T>) o;
     return name().equals(other.name()) && Arrays.equals(args(), other.args());
   }
 
@@ -59,7 +60,7 @@ public class FunctionCallNode extends JmesPathNode {
   protected int internalHashCode() {
     int h = 1;
     h = h * 31 + name.hashCode();
-    for (JmesPathNode node : args) {
+    for (JmesPathNode<T> node : args) {
       h = h * 31 + node.hashCode();
     }
     return h;

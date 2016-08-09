@@ -17,12 +17,12 @@ public class MapFunction extends JmesPathFunction {
 
   @Override
   protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
-    JmesPathNode expression = arguments.get(0).expression();
+    JmesPathNode<T> expression = arguments.get(0).expression();
     T array = arguments.get(1).value();
     List<T> elements = runtime.toList(array);
     List<T> result = new ArrayList<>(elements.size());
     for (T element : elements) {
-      result.add(expression.evaluate(runtime, element));
+      result.add(expression.evaluate(element));
     }
     return runtime.createArray(result);
   }

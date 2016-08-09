@@ -3,10 +3,10 @@ package io.burt.jmespath.function;
 import io.burt.jmespath.node.JmesPathNode;
 
 public class ExpressionOrValue<T> {
-  private final JmesPathNode expression;
+  private final JmesPathNode<T> expression;
   private final T value;
 
-  public ExpressionOrValue(JmesPathNode expression) {
+  public ExpressionOrValue(JmesPathNode<T> expression) {
     this.expression = expression;
     this.value = null;
   }
@@ -16,7 +16,7 @@ public class ExpressionOrValue<T> {
     this.value = value;
   }
 
-  public JmesPathNode expression() {
+  public JmesPathNode<T> expression() {
     return expression;
   }
 

@@ -6,20 +6,20 @@ import java.util.LinkedList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class SelectionNode extends JmesPathNode {
-  private final JmesPathNode test;
+public class SelectionNode<T> extends JmesPathNode<T> {
+  private final JmesPathNode<T> test;
 
-  public SelectionNode(JmesPathNode test, JmesPathNode source) {
-    super(source);
+  public SelectionNode(Adapter<T> runtime, JmesPathNode<T> test, JmesPathNode<T> source) {
+    super(runtime, source);
     this.test = test;
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> runtime, T projectionElement) {
+  public T evaluateOne(T projectionElement) {
     if (runtime.typeOf(projectionElement) == JmesPathType.ARRAY) {
       List<T> selectedElements = new LinkedList<>();
       for (T element : runtime.toList(projectionElement)) {
-        T testResult = test().evaluate(runtime, element);
+        T testResult = test().evaluate(element);
         if (runtime.isTruthy(testResult)) {
           selectedElements.add(element);
         }
@@ -30,7 +30,7 @@ public class SelectionNode extends JmesPathNode {
     }
   }
 
-  protected JmesPathNode test() {
+  protected JmesPathNode<T> test() {
     return test;
   }
 
@@ -40,8 +40,9 @@ public class SelectionNode extends JmesPathNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    SelectionNode other = (SelectionNode) o;
+    SelectionNode<T> other = (SelectionNode<T>) o;
     return test().equals(other.test());
   }
 

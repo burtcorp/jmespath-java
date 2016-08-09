@@ -6,14 +6,16 @@ import java.util.LinkedList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public abstract class JmesPathNode {
-  private final JmesPathNode source;
+public abstract class JmesPathNode<T> {
+  protected final Adapter<T> runtime;
+  private final JmesPathNode<T> source;
 
-  public JmesPathNode() {
-    this(new CurrentNode());
+  public JmesPathNode(Adapter<T> runtime) {
+    this(runtime, new CurrentNode<T>(runtime));
   }
 
-  public JmesPathNode(JmesPathNode source) {
+  public JmesPathNode(Adapter<T> runtime, JmesPathNode<T> source) {
+    this.runtime = runtime;
     this.source = source;
   }
 
@@ -21,18 +23,18 @@ public abstract class JmesPathNode {
     return source().isProjection();
   }
 
-  public <T> T evaluate(Adapter<T> runtime, T input) {
-    return evaluateWithCurrentValue(runtime, source().evaluate(runtime, input));
+  public T evaluate(T input) {
+    return evaluateWithCurrentValue(source().evaluate(input));
   }
 
-  protected <T> T evaluateWithCurrentValue(Adapter<T> runtime, T currentValue) {
+  protected T evaluateWithCurrentValue(T currentValue) {
     if (isProjection()) {
       if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
         return currentValue;
       } else {
         List<T> outputs = new LinkedList<>();
         for (T projectionElement : runtime.toList(currentValue)) {
-          T value = evaluateOne(runtime, projectionElement);
+          T value = evaluateOne(projectionElement);
           if (runtime.typeOf(value) != JmesPathType.NULL) {
             outputs.add(value);
           }
@@ -40,15 +42,15 @@ public abstract class JmesPathNode {
         return runtime.createArray(outputs);
       }
     } else {
-      return evaluateOne(runtime, currentValue);
+      return evaluateOne(currentValue);
     }
   }
 
-  protected <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
+  protected T evaluateOne(T currentValue) {
     return currentValue;
   }
 
-  protected JmesPathNode source() {
+  protected JmesPathNode<T> source() {
     return source;
   }
 
@@ -76,6 +78,7 @@ public abstract class JmesPathNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -83,7 +86,7 @@ public abstract class JmesPathNode {
     if (!getClass().isInstance(o)) {
       return false;
     }
-    JmesPathNode other = (JmesPathNode) o;
+    JmesPathNode<T> other = (JmesPathNode<T>) o;
     return internalEquals(o) && (source() == other.source() || (source() != null && other.source() != null && source().equals(other.source())));
   }
 

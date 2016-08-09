@@ -2,15 +2,16 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class JsonLiteralNode extends JmesPathNode {
+public class JsonLiteralNode<T> extends JmesPathNode<T> {
   private final String raw;
 
-  public JsonLiteralNode(String raw) {
+  public JsonLiteralNode(Adapter<T> runtime, String raw) {
+    super(runtime);
     this.raw = raw;
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> runtime, T input) {
+  public T evaluate(T input) {
     return runtime.parseString(raw());
   }
 
@@ -24,8 +25,9 @@ public class JsonLiteralNode extends JmesPathNode {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    JsonLiteralNode other = (JsonLiteralNode) o;
+    JsonLiteralNode<T> other = (JsonLiteralNode<T>) o;
     return raw().equals(other.raw());
   }
 
