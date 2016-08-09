@@ -106,7 +106,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
    */
   @Override
   public boolean equals(Object o) {
-    return o.getClass().isAssignableFrom(this.getClass());
+    return getClass().isInstance(o);
   }
 
   /**
