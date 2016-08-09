@@ -11,7 +11,7 @@ public class JsonLiteralNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  public T evaluate(T input) {
+  public T search(T input) {
     return runtime.parseString(raw());
   }
 

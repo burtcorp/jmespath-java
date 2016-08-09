@@ -22,7 +22,7 @@ public class MapFunction extends JmesPathFunction {
     List<T> elements = runtime.toList(array);
     List<T> result = new ArrayList<>(elements.size());
     for (T element : elements) {
-      result.add(expression.evaluate(element));
+      result.add(expression.search(element));
     }
     return runtime.createArray(result);
   }

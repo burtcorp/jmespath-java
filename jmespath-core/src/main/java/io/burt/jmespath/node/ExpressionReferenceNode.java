@@ -11,8 +11,8 @@ public class ExpressionReferenceNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  protected T evaluateOne(T currentValue) {
-    return expression().evaluate(currentValue);
+  protected T searchOne(T currentValue) {
+    return expression().search(currentValue);
   }
 
   protected JmesPathNode<T> expression() {

@@ -11,7 +11,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.JmesPathExpression;
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.StandardExpression;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
 import io.burt.jmespath.node.CreateArrayNode;
@@ -78,7 +77,7 @@ public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNod
   }
 
   public JmesPathExpression<T> expression() {
-    return new StandardExpression<T>(runtime, visit(tree));
+    return visit(tree);
   }
 
   private String identifierToString(JmesPathParser.IdentifierContext ctx) {

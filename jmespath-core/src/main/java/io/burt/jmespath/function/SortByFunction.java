@@ -26,7 +26,7 @@ public class SortByFunction extends JmesPathFunction {
     if (elements.hasNext()) {
       List<Pair<T>> pairs = new ArrayList<>(elementsList.size());
       T element = elements.next();
-      T transformedElement = expression.evaluate(element);
+      T transformedElement = expression.search(element);
       boolean expectNumbers = true;
       JmesPathType elementType = runtime.typeOf(transformedElement);
       if (elementType == JmesPathType.STRING) {
@@ -37,7 +37,7 @@ public class SortByFunction extends JmesPathFunction {
       pairs.add(new Pair<T>(transformedElement, element));
       while (elements.hasNext()) {
         element = elements.next();
-        transformedElement = expression.evaluate(element);
+        transformedElement = expression.search(element);
         elementType = runtime.typeOf(transformedElement);
         if (expectNumbers && elementType != JmesPathType.NUMBER) {
           throw new ArgumentTypeException(name(), "number", elementType.toString());

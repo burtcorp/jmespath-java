@@ -8,7 +8,7 @@ public class NegateNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  protected T evaluateOne(T currentValue) {
+  protected T searchOne(T currentValue) {
     return runtime.createBoolean(!runtime.isTruthy(currentValue));
   }
 

@@ -15,11 +15,11 @@ public class SelectionNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  public T evaluateOne(T projectionElement) {
+  public T searchOne(T projectionElement) {
     if (runtime.typeOf(projectionElement) == JmesPathType.ARRAY) {
       List<T> selectedElements = new LinkedList<>();
       for (T element : runtime.toList(projectionElement)) {
-        T testResult = test().evaluate(element);
+        T testResult = test().search(element);
         if (runtime.isTruthy(testResult)) {
           selectedElements.add(element);
         }

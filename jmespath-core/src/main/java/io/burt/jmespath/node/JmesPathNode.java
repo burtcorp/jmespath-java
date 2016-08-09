@@ -5,8 +5,9 @@ import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
+import io.burt.jmespath.JmesPathExpression;
 
-public abstract class JmesPathNode<T> {
+public abstract class JmesPathNode<T> implements JmesPathExpression<T> {
   protected final Adapter<T> runtime;
   private final JmesPathNode<T> source;
 
@@ -23,18 +24,18 @@ public abstract class JmesPathNode<T> {
     return source().isProjection();
   }
 
-  public T evaluate(T input) {
-    return evaluateWithCurrentValue(source().evaluate(input));
+  public T search(T input) {
+    return searchWithCurrentValue(source().search(input));
   }
 
-  protected T evaluateWithCurrentValue(T currentValue) {
+  protected T searchWithCurrentValue(T currentValue) {
     if (isProjection()) {
       if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
         return currentValue;
       } else {
         List<T> outputs = new LinkedList<>();
         for (T projectionElement : runtime.toList(currentValue)) {
-          T value = evaluateOne(projectionElement);
+          T value = searchOne(projectionElement);
           if (runtime.typeOf(value) != JmesPathType.NULL) {
             outputs.add(value);
           }
@@ -42,11 +43,11 @@ public abstract class JmesPathNode<T> {
         return runtime.createArray(outputs);
       }
     } else {
-      return evaluateOne(currentValue);
+      return searchOne(currentValue);
     }
   }
 
-  protected T evaluateOne(T currentValue) {
+  protected T searchOne(T currentValue) {
     return currentValue;
   }
 

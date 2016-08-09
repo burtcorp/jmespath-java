@@ -20,13 +20,13 @@ public class CreateArrayNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  protected T evaluateOne(T currentValue) {
+  protected T searchOne(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {
       List<T> array = new ArrayList<>();
       for (JmesPathNode<T> entry : entries) {
-        array.add(entry.evaluate(currentValue));
+        array.add(entry.search(currentValue));
       }
       return runtime.createArray(array);
     }

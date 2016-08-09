@@ -23,7 +23,7 @@ public abstract class CompareByFunction extends JmesPathFunction {
     JmesPathNode<T> expression = arguments.get(1).expression();
     if (elements.hasNext()) {
       T result = elements.next();
-      T resultValue = expression.evaluate(result);
+      T resultValue = expression.search(result);
       boolean expectNumbers = true;
       if (runtime.typeOf(resultValue) == JmesPathType.STRING) {
         expectNumbers = false;
@@ -32,7 +32,7 @@ public abstract class CompareByFunction extends JmesPathFunction {
       }
       while (elements.hasNext()) {
         T candidate = elements.next();
-        T candidateValue = expression.evaluate(candidate);
+        T candidateValue = expression.search(candidate);
         JmesPathType candidateType = runtime.typeOf(candidateValue);
         if (expectNumbers && candidateType != JmesPathType.NUMBER) {
           throw new ArgumentTypeException(name(), "number", candidateType.toString());

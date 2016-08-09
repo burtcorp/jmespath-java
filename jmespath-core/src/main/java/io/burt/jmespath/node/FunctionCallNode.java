@@ -18,13 +18,13 @@ public class FunctionCallNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  protected T evaluateOne(T currentValue) {
+  protected T searchOne(T currentValue) {
     List<ExpressionOrValue<T>> arguments = new ArrayList<>(args.length);
     for (JmesPathNode<T> arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {
         arguments.add(new ExpressionOrValue<T>(arg));
       } else {
-        arguments.add(new ExpressionOrValue<T>(arg.evaluate(currentValue)));
+        arguments.add(new ExpressionOrValue<T>(arg.search(currentValue)));
       }
     }
     return runtime.callFunction(name(), arguments);

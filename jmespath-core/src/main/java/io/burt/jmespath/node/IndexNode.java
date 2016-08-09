@@ -14,7 +14,7 @@ public class IndexNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  protected T evaluateOne(T currentValue) {
+  protected T searchOne(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.ARRAY) {
       List<T> elements = runtime.toList(currentValue);
       int i = index();

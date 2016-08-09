@@ -55,13 +55,13 @@ public class CreateObjectNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  public T evaluateOne(T currentValue) {
+  public T searchOne(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {
       Map<T, T> object = new LinkedHashMap<>();
       for (Entry<T> entry : entries()) {
-        object.put(runtime.createString(entry.key()), entry.value().evaluate(currentValue));
+        object.put(runtime.createString(entry.key()), entry.value().search(currentValue));
       }
       return runtime.createObject(object);
     }

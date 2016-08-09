@@ -12,9 +12,9 @@ public class ComparisonNode<T> extends OperatorNode<T> {
   }
 
   @Override
-  protected T evaluateOne(T currentValue) {
-    T leftResult = operands()[0].evaluate(currentValue);
-    T rightResult = operands()[1].evaluate(currentValue);
+  protected T searchOne(T currentValue) {
+    T leftResult = operands()[0].search(currentValue);
+    T rightResult = operands()[1].search(currentValue);
     JmesPathType leftType = runtime.typeOf(leftResult);
     JmesPathType rightType = runtime.typeOf(rightResult);
     if (leftType == JmesPathType.NUMBER && rightType == JmesPathType.NUMBER) {

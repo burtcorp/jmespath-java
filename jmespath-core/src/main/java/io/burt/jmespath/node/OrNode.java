@@ -8,12 +8,12 @@ public class OrNode<T> extends OperatorNode<T> {
   }
 
   @Override
-  protected T evaluateOne(T currentValue) {
-    T leftResult = operands()[0].evaluate(currentValue);
+  protected T searchOne(T currentValue) {
+    T leftResult = operands()[0].search(currentValue);
     if (runtime.isTruthy(leftResult)) {
       return leftResult;
     } else {
-      return operands()[1].evaluate(currentValue);
+      return operands()[1].search(currentValue);
     }
   }
 }

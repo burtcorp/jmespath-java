@@ -11,7 +11,7 @@ public class PropertyNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  public T evaluateOne(T projectionElement) {
+  public T searchOne(T projectionElement) {
     return runtime.getProperty(projectionElement, propertyName());
   }
 

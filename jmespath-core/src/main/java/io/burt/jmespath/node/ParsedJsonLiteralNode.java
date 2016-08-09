@@ -12,7 +12,7 @@ public class ParsedJsonLiteralNode<T> extends JsonLiteralNode<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public T evaluate(T input) {
+  public T search(T input) {
     return (T) tree();
   }
 

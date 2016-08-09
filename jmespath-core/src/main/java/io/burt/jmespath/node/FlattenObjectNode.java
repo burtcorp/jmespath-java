@@ -9,7 +9,7 @@ public class FlattenObjectNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  protected T evaluateOne(T currentValue) {
+  protected T searchOne(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.OBJECT) {
       return runtime.createArray(runtime.toList(currentValue));
     } else {

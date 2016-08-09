@@ -12,7 +12,7 @@ public class FlattenArrayNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  protected T evaluateWithCurrentValue(T currentValue) {
+  protected T searchWithCurrentValue(T currentValue) {
     if (!isProjection() && runtime.typeOf(currentValue) != JmesPathType.ARRAY) {
       return runtime.createNull();
     } else {

@@ -14,9 +14,9 @@ public class ForkNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  protected T evaluateWithCurrentValue(T currentValue) {
+  protected T searchWithCurrentValue(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.ARRAY) {
-      return super.evaluateWithCurrentValue(currentValue);
+      return super.searchWithCurrentValue(currentValue);
     } else {
       return runtime.createNull();
     }

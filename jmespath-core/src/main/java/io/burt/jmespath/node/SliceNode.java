@@ -18,7 +18,7 @@ public class SliceNode<T> extends JmesPathNode<T> {
   }
 
   @Override
-  public T evaluateOne(T projectionElement) {
+  public T searchOne(T projectionElement) {
     List<T> elements = runtime.toList(projectionElement);
     List<T> output = new LinkedList<>();
     int i = start < 0 ? elements.size() + start : start;
