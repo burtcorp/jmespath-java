@@ -50,12 +50,12 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
    * {@link JmesPathRuntime#toString}, etc.
    *
    * This only implements {@link Comparator#compare} fully for <code>null</code>,
-   * <code>boolean</code>, <code>number</code> and <code>string</code>, for
+   * <code>number</code> and <code>string</code>, for <code>boolean</code>
    * <code>array</code> and <code>object</code> it only does equality –
-   * specifically this means that it will return 0 for equal objects or arrays,
-   * and -1 otherwise. The reason is that JMESPath doesn't have any mechanisms
-   * for comparing objects or arrays, and doesn't define how objects and arrays
-   * should be compared.
+   * specifically this means that it will return 0 for equal booleans, objects
+   * or arrays, and -1 otherwise. The reason is that JMESPath doesn't have any
+   * mechanisms for comparing objects or arrays, and doesn't define how objects
+   * and arrays should be compared.
    *
    * When the arguments are not of the same type -1 is returned.
    */
@@ -68,7 +68,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
         case NULL:
           return 0;
         case BOOLEAN:
-          return (isTruthy(value1) && isTruthy(value2)) || (!isTruthy(value1) && !isTruthy(value2)) ? 0 : -1;
+          return isTruthy(value1) == isTruthy(value2) ? 0 : -1;
         case NUMBER:
           Double d1 = toNumber(value1).doubleValue();
           Double d2 = toNumber(value2).doubleValue();
