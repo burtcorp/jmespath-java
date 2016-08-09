@@ -8,7 +8,7 @@ An implementation of [JMESPath](http://jmespath.org/) for Java. It supports sear
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import io.burt.jmespath.Query;
+import io.burt.jmespath.JmesPathExpression;
 import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.jackson.JacksonRuntime;
 
@@ -16,8 +16,8 @@ import io.burt.jmespath.jackson.JacksonRuntime;
 
 JsonNode input = new ObjectMapper().readTree(System.in);
 JmesPathRuntime<JsonNode> jmespath = new JacksonRuntime();
-Query query = jmespath.compile("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
-JsonNode result = query.search(input);
+JmesPathExpression expression = jmespath.compile("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
+JsonNode result = expression.search(input);
 ```
 
 ### Adding custom functions
@@ -67,7 +67,6 @@ public class SinFunction extends JmesPathFunction {
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import io.burt.jmespath.Query;
 import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.jackson.JacksonRuntime;
