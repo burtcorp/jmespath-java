@@ -3,6 +3,7 @@ package io.burt.jmespath;
 import java.util.List;
 import java.util.Iterator;
 
+import io.burt.jmespath.parser.JmesPathExpressionParser;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
 
@@ -33,6 +34,11 @@ public abstract class BaseRuntime<T> implements JmesPathRuntime<T> {
     } else {
       this.functionRegistry = functionRegistry;
     }
+  }
+
+  @Override
+  public JmesPathExpression<T> compile(String expression) {
+    return JmesPathExpressionParser.fromString(this, expression);
   }
 
   /**

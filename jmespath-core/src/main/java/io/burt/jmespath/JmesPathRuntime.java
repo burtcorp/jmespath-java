@@ -14,6 +14,13 @@ import io.burt.jmespath.function.ExpressionOrValue;
  */
 public interface JmesPathRuntime<T> extends Comparator<T> {
   /**
+   * Compile a JMESPath expression into a reusable expression object.
+   *
+   * @throw ParseException when the string is not a valid JMESPath expression
+   */
+  public JmesPathExpression<T> compile(String expression);
+
+  /**
    * Parse a JSON string to a value.
    *
    * May throw exceptions when the given string is not valid JSON. The exact

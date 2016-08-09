@@ -81,11 +81,11 @@ public class Compliance {
         String expectedError = testCase.error();
         try {
           if (expectedError == null || expectedError.equals("syntax")) {
-            JmesPathExpression query = JmesPathExpression.fromString(testCase.expression());
+            JmesPathExpression<JsonNode> expression = runtime.compile(testCase.expression());
             if (expectedError != null && expectedError.equals("syntax")) {
               System.out.println(String.format("The expression \"%s\" did not fail with a syntax error! (comment: \"%s\")", testCase.expression(), testCase.comment()));
             } else {
-              JsonNode actualResult = query.evaluate(runtime, testGroup.input());
+              JsonNode actualResult = expression.search(testGroup.input());
               if (!actualResult.equals(testCase.result())) {
                 System.out.println(String.format("The expression \"%s\" did not produce the expected result (actual: %s, expected: %s)", testCase.expression(), actualResult, testCase.result()));
               }

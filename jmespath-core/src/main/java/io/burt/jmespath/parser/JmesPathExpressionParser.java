@@ -38,16 +38,12 @@ public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNod
   private final Deque<JmesPathNode> currentSource;
   private final JmesPathRuntime<T> runtime;
 
-  public static JmesPathExpression fromString(String expression) {
-    return fromString(expression, null);
-  }
-
-  public static <T> JmesPathExpression fromString(String expression, JmesPathRuntime<T> runtime) {
+  public static <U> JmesPathExpression<U> fromString(JmesPathRuntime<U> runtime, String expression) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(expression), errors), errors);
     ParseTree tree = parser.jmesPathExpression();
     if (errors.isEmpty()) {
-      JmesPathExpressionParser<T> visitor = new JmesPathExpressionParser<T>(tree, runtime);
+      JmesPathExpressionParser<U> visitor = new JmesPathExpressionParser<U>(runtime, tree);
       return visitor.expression();
     } else {
       throw new ParseException(expression, errors);
@@ -74,14 +70,14 @@ public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNod
     return parser;
   }
 
-  private JmesPathExpressionParser(ParseTree tree, JmesPathRuntime<T> runtime) {
+  private JmesPathExpressionParser(JmesPathRuntime<T> runtime, ParseTree tree) {
+    this.runtime = runtime;
     this.tree = tree;
     this.currentSource = new LinkedList<>();
-    this.runtime = runtime;
   }
 
-  public JmesPathExpression expression() {
-    return new JmesPathExpression(visit(tree));
+  public JmesPathExpression<T> expression() {
+    return new JmesPathExpression<T>(runtime, visit(tree));
   }
 
   private String identifierToString(JmesPathParser.IdentifierContext ctx) {

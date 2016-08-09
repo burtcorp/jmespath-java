@@ -1,25 +1,22 @@
 package io.burt.jmespath;
 
-import io.burt.jmespath.parser.JmesPathExpressionParser;
 import io.burt.jmespath.node.JmesPathNode;
 
-public class JmesPathExpression {
+public class JmesPathExpression<T> {
+  private final JmesPathRuntime<T> runtime;
   private final JmesPathNode expression;
 
-  public JmesPathExpression(JmesPathNode expression) {
+  public JmesPathExpression(JmesPathRuntime<T> runtime, JmesPathNode expression) {
+    this.runtime = runtime;
     this.expression = expression;
   }
 
-  public static JmesPathExpression fromString(String expression) {
-    return fromString(null, expression);
-  }
-
-  public static <T> JmesPathExpression fromString(JmesPathRuntime<T> runtime, String expression) {
-    return JmesPathExpressionParser.fromString(expression, runtime);
-  }
-
-  public <T> T evaluate(JmesPathRuntime<T> runtime, T input) {
+  public T search(T input) {
     return expression.evaluate(runtime, input);
+  }
+
+  protected JmesPathRuntime runtime() {
+    return runtime;
   }
 
   protected JmesPathNode expression() {
@@ -40,12 +37,13 @@ public class JmesPathExpression {
       return false;
     }
     JmesPathExpression other = (JmesPathExpression) o;
-    return this.expression().equals(other.expression());
+    return this.runtime().equals(other.runtime()) && this.expression().equals(other.expression());
   }
 
   @Override
   public int hashCode() {
     int h = 1;
+    h = h * 31 + runtime.hashCode();
     h = h * 31 + expression.hashCode();
     return h;
   }
