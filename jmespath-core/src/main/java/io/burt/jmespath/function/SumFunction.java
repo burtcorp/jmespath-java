@@ -2,7 +2,7 @@ package io.burt.jmespath.function;
 
 import java.util.List;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class SumFunction extends ArrayMathFunction {
@@ -11,7 +11,7 @@ public class SumFunction extends ArrayMathFunction {
   }
 
   @Override
-  protected <T> T performMathOperation(JmesPathRuntime<T> runtime, List<T> values) {
+  protected <T> T performMathOperation(Adapter<T> runtime, List<T> values) {
     double sum = 0;
     for (T n : values) {
       sum += runtime.toNumber(n).doubleValue();

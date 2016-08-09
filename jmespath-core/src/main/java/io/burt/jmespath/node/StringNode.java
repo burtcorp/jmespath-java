@@ -1,6 +1,6 @@
 package io.burt.jmespath.node;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 
 public class StringNode extends JmesPathNode {
   private final String string;
@@ -11,7 +11,7 @@ public class StringNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(JmesPathRuntime<T> runtime, T input) {
+  public <T> T evaluate(Adapter<T> runtime, T input) {
     return runtime.createString(string());
   }
 

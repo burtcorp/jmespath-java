@@ -3,7 +3,7 @@ package io.burt.jmespath.function;
 import java.util.List;
 import java.util.Iterator;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class JoinFunction extends JmesPathFunction {
@@ -15,7 +15,7 @@ public class JoinFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
     T glue = arguments.get(0).value();
     T components = arguments.get(1).value();
     Iterator<T> values = runtime.toList(components).iterator();

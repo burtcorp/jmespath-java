@@ -2,7 +2,7 @@ package io.burt.jmespath.function;
 
 import java.util.List;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class ContainsFunction extends JmesPathFunction {
@@ -14,7 +14,7 @@ public class ContainsFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
     T haystack = arguments.get(0).value();
     T needle = arguments.get(1).value();
     JmesPathType haystackType = runtime.typeOf(haystack);

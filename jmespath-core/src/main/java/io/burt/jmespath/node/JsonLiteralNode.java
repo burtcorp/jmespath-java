@@ -1,6 +1,6 @@
 package io.burt.jmespath.node;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 
 public class JsonLiteralNode extends JmesPathNode {
   private final String raw;
@@ -10,7 +10,7 @@ public class JsonLiteralNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(JmesPathRuntime<T> runtime, T input) {
+  public <T> T evaluate(Adapter<T> runtime, T input) {
     return runtime.parseString(raw());
   }
 

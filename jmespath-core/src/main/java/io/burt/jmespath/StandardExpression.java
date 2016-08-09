@@ -3,10 +3,10 @@ package io.burt.jmespath;
 import io.burt.jmespath.node.JmesPathNode;
 
 public class StandardExpression<T> implements JmesPathExpression<T> {
-  private final JmesPathRuntime<T> runtime;
+  private final Adapter<T> runtime;
   private final JmesPathNode expression;
 
-  public StandardExpression(JmesPathRuntime<T> runtime, JmesPathNode expression) {
+  public StandardExpression(Adapter<T> runtime, JmesPathNode expression) {
     this.runtime = runtime;
     this.expression = expression;
   }

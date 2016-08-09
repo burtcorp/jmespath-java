@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.JmesPathExpression;
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.StandardExpression;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
@@ -37,9 +37,9 @@ import io.burt.jmespath.node.StringNode;
 public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode> {
   private final ParseTree tree;
   private final Deque<JmesPathNode> currentSource;
-  private final JmesPathRuntime<T> runtime;
+  private final Adapter<T> runtime;
 
-  public static <U> JmesPathExpression<U> fromString(JmesPathRuntime<U> runtime, String expression) {
+  public static <U> JmesPathExpression<U> fromString(Adapter<U> runtime, String expression) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(expression), errors), errors);
     ParseTree tree = parser.jmesPathExpression();
@@ -71,7 +71,7 @@ public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNod
     return parser;
   }
 
-  private JmesPathExpressionParser(JmesPathRuntime<T> runtime, ParseTree tree) {
+  private JmesPathExpressionParser(Adapter<T> runtime, ParseTree tree) {
     this.runtime = runtime;
     this.tree = tree;
     this.currentSource = new LinkedList<>();

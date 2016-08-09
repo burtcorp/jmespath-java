@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.LinkedHashSet;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 /**
@@ -66,7 +66,7 @@ public final class ArgumentConstraints {
   /**
    * Describes a single argument of a specified value type. An {@link ArgumentTypeException}
    * will be thrown when the argument is of the wrong type (as determined by
-   * {@link JmesPathRuntime#typeOf}) or is an expression.
+   * {@link Adapter#typeOf}) or is an expression.
    */
   public static ArgumentConstraint typeOf(JmesPathType type) {
     return new TypeOf(type);
@@ -75,7 +75,7 @@ public final class ArgumentConstraints {
   /**
    * Describes a single argument that is of one of the specified value types.
    * An {@link ArgumentTypeException} will be thrown when the argument is not of
-   * one of the specified types (as determined by {@link JmesPathRuntime#typeOf})
+   * one of the specified types (as determined by {@link Adapter#typeOf})
    * or is an expression.
    */
   public static ArgumentConstraint typeOf(JmesPathType... types) {
@@ -132,7 +132,7 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> void check(JmesPathRuntime<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
       int i = 0;
       for (; i < minArity; i++) {
         if (!arguments.hasNext()) {
@@ -184,7 +184,7 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> void check(JmesPathRuntime<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
       for (int i = 0; i < subConstraints.length; i++) {
         if (arguments.hasNext()) {
           subConstraints[i].check(runtime, arguments);
@@ -212,7 +212,7 @@ public final class ArgumentConstraints {
 
   private static abstract class TypeCheck implements ArgumentConstraint {
     @Override
-    public <T> void check(JmesPathRuntime<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
       if (arguments.hasNext()) {
         checkType(runtime, arguments.next());
       } else {
@@ -220,7 +220,7 @@ public final class ArgumentConstraints {
       }
     }
 
-    protected abstract <T> void checkType(JmesPathRuntime<T> runtime, ExpressionOrValue<T> argument);
+    protected abstract <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument);
 
     @Override
     public int minArity() {
@@ -235,7 +235,7 @@ public final class ArgumentConstraints {
 
   private static class AnyValue extends TypeCheck {
     @Override
-    protected <T> void checkType(JmesPathRuntime<T> runtime, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument) {
       if (argument.isExpression()) {
         throw new InternalArgumentTypeException("any value", "expression");
       }
@@ -255,7 +255,7 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> void checkType(JmesPathRuntime<T> runtime, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument) {
       if (argument.isExpression()) {
         throw new InternalArgumentTypeException(expectedType.toString(), "expression");
       } else {
@@ -295,7 +295,7 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> void checkType(JmesPathRuntime<T> runtime, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument) {
       if (argument.isExpression()) {
         throw new InternalArgumentTypeException(expectedTypeString, "expression");
       } else {
@@ -317,7 +317,7 @@ public final class ArgumentConstraints {
 
   private static class Expression extends TypeCheck {
     @Override
-    protected <T> void checkType(JmesPathRuntime<T> runtime, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument) {
       if (!argument.isExpression()) {
         throw new InternalArgumentTypeException("expression", runtime.typeOf(argument.value()).toString());
       }
@@ -347,7 +347,7 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> void check(JmesPathRuntime<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
       if (arguments.hasNext()) {
         ExpressionOrValue<T> argument = arguments.next();
         if (argument.isExpression()) {
@@ -366,7 +366,7 @@ public final class ArgumentConstraints {
       }
     }
 
-    private <T> void checkElements(JmesPathRuntime<T> runtime, T value) {
+    private <T> void checkElements(Adapter<T> runtime, T value) {
       List<T> elements = runtime.toList(value);
       if (!elements.isEmpty()) {
         List<ExpressionOrValue<T>> wrappedElements = new ArrayList<>(elements.size());

@@ -29,7 +29,7 @@ Here's how you add a `sin` function:
 ```java
 import java.util.List;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.function.ArgumentConstraints;
 import io.burt.jmespath.function.ExpressionOrValue;
@@ -43,7 +43,7 @@ public class SinFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
     // Arguments can be either values or expressions, but most functions only
     // accept expressions. You don't need to do any type checking here, the
     // the runtime has made sure that if this code runs the types are correct.

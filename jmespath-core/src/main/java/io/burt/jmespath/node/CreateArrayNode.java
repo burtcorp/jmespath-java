@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class CreateArrayNode extends JmesPathNode {
@@ -20,7 +20,7 @@ public class CreateArrayNode extends JmesPathNode {
   }
 
   @Override
-  protected <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
+  protected <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {

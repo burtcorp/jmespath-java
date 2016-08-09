@@ -15,7 +15,7 @@ import io.burt.jmespath.function.ExpressionOrValue;
  * encouraged to override these methods if they have more efficient means to
  * perform the same job.
  */
-public abstract class BaseRuntime<T> implements JmesPathRuntime<T> {
+public abstract class BaseRuntime<T> implements Adapter<T> {
   private final FunctionRegistry functionRegistry;
 
   /**

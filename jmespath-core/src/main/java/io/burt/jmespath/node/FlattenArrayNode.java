@@ -3,7 +3,7 @@ package io.burt.jmespath.node;
 import java.util.List;
 import java.util.LinkedList;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class FlattenArrayNode extends JmesPathNode {
@@ -12,7 +12,7 @@ public class FlattenArrayNode extends JmesPathNode {
   }
 
   @Override
-  protected <T> T evaluateWithCurrentValue(JmesPathRuntime<T> runtime, T currentValue) {
+  protected <T> T evaluateWithCurrentValue(Adapter<T> runtime, T currentValue) {
     if (!isProjection() && runtime.typeOf(currentValue) != JmesPathType.ARRAY) {
       return runtime.createNull();
     } else {

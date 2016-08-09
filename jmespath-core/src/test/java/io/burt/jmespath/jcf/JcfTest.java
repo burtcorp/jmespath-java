@@ -1,11 +1,11 @@
 package io.burt.jmespath.jcf;
 
 import io.burt.jmespath.JmesPathRuntimeTest;
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 
 public class JcfTest extends JmesPathRuntimeTest<Object> {
-  private JmesPathRuntime<Object> runtime = new JcfRuntime();
+  private Adapter<Object> runtime = new JcfRuntime();
 
   @Override
-  protected JmesPathRuntime<Object> runtime() { return runtime; }
+  protected Adapter<Object> runtime() { return runtime; }
 }

@@ -1,6 +1,6 @@
 package io.burt.jmespath.node;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class FlattenObjectNode extends JmesPathNode {
@@ -9,7 +9,7 @@ public class FlattenObjectNode extends JmesPathNode {
   }
 
   @Override
-  protected <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
+  protected <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.OBJECT) {
       return runtime.createArray(runtime.toList(currentValue));
     } else {

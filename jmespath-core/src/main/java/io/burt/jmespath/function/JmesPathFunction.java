@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 
 /**
  * Base class of all functions.
@@ -113,7 +113,7 @@ public abstract class JmesPathFunction {
    * The arguments can be either values or expressions, and will be checked
    * by the function's argument constraints before the function runs.
    */
-  public <T> T call(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  public <T> T call(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
     checkArguments(runtime, arguments);
     return callFunction(runtime, arguments);
   }
@@ -124,7 +124,7 @@ public abstract class JmesPathFunction {
    * @throws ArgumentTypeException when an arguments type does not match the constraints
    * @throws ArityException when there are too few or too many arguments
    */
-  protected <T> void checkArguments(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> void checkArguments(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
     try {
       Iterator<ExpressionOrValue<T>> argumentIterator = arguments.iterator();
       argumentConstraints.check(runtime, argumentIterator);
@@ -148,5 +148,5 @@ public abstract class JmesPathFunction {
    * that accept expressions are responsible for checking the types of the values
    * produced by those expressions.
    */
-  protected abstract <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments);
+  protected abstract <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments);
 }

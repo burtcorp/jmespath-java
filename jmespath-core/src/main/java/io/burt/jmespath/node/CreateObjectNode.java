@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class CreateObjectNode extends JmesPathNode {
@@ -54,7 +54,7 @@ public class CreateObjectNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
+  public <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {

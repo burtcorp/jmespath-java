@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.junit.Ignore;
 
 import io.burt.jmespath.JmesPathExpression;
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.StandardExpression;
 import io.burt.jmespath.jcf.JcfRuntime;
 import io.burt.jmespath.node.AndNode;
@@ -34,7 +34,7 @@ import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
 
 public class ParserTest {
-  private JmesPathRuntime<Object> runtime = new JcfRuntime();
+  private Adapter<Object> runtime = new JcfRuntime();
 
   private JmesPathExpression<Object> compile(String str) {
     return runtime.compile(str);

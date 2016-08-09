@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.parser.ParseErrorAccumulator;
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.parser.JmesPathBaseVisitor;
@@ -20,9 +20,9 @@ import io.burt.jmespath.parser.JmesPathLexer;
 
 public class JsonParser extends JmesPathBaseVisitor<Object> {
   private final ParseTree tree;
-  private final JmesPathRuntime<Object> runtime;
+  private final Adapter<Object> runtime;
 
-  public static Object fromString(String json, JmesPathRuntime<Object> runtime) {
+  public static Object fromString(String json, Adapter<Object> runtime) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(json), errors), errors);
     ParseTree tree = parser.jsonValue();
@@ -53,7 +53,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
     return parser;
   }
 
-  private JsonParser(ParseTree tree, JmesPathRuntime<Object> runtime) {
+  private JsonParser(ParseTree tree, Adapter<Object> runtime) {
     this.tree = tree;
     this.runtime = runtime;
   }

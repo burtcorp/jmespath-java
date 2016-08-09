@@ -3,7 +3,7 @@ package io.burt.jmespath.function;
 import java.util.Iterator;
 import java.util.List;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
@@ -18,7 +18,7 @@ public abstract class CompareByFunction extends JmesPathFunction {
   protected abstract boolean sortsBefore(int compareResult);
 
   @Override
-  protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
     Iterator<T> elements = runtime.toList(arguments.get(0).value()).iterator();
     JmesPathNode expression = arguments.get(1).expression();
     if (elements.hasNext()) {

@@ -31,7 +31,7 @@ public abstract class JmesPathRuntimeTest<T> {
   protected T contact;
   protected T cloudtrail;
 
-  protected abstract JmesPathRuntime<T> runtime();
+  protected abstract Adapter<T> runtime();
 
   protected T loadExample(String path) {
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {

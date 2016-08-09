@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 
 /**
  * A collection of functions, used by the runtimes to look up and call functions
@@ -72,7 +72,7 @@ public class FunctionRegistry {
    * @throws ArityException when there are too few or too many arguments
    * @throws ArgumentTypeException when an argument does not match the function's argument type constraints
    */
-  public <T> T callFunction(JmesPathRuntime<T> runtime, String functionName, List<ExpressionOrValue<T>> arguments) {
+  public <T> T callFunction(Adapter<T> runtime, String functionName, List<ExpressionOrValue<T>> arguments) {
     JmesPathFunction function = functions.get(functionName);
     if (function != null) {
       return function.call(runtime, arguments);

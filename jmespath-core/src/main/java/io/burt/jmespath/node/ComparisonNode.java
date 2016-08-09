@@ -1,6 +1,6 @@
 package io.burt.jmespath.node;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class ComparisonNode extends OperatorNode {
@@ -12,7 +12,7 @@ public class ComparisonNode extends OperatorNode {
   }
 
   @Override
-  protected <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
+  protected <T> T evaluateOne(Adapter<T> runtime, T currentValue) {
     T leftResult = operands()[0].evaluate(runtime, currentValue);
     T rightResult = operands()[1].evaluate(runtime, currentValue);
     JmesPathType leftType = runtime.typeOf(leftResult);
@@ -24,7 +24,7 @@ public class ComparisonNode extends OperatorNode {
     }
   }
 
-  private <T> T compareObjects(JmesPathRuntime<T> runtime, T leftResult, T rightResult) {
+  private <T> T compareObjects(Adapter<T> runtime, T leftResult, T rightResult) {
     int result = runtime.compare(leftResult, rightResult);
     if (operator.equals("==")) {
       return runtime.createBoolean(result == 0);
@@ -34,7 +34,7 @@ public class ComparisonNode extends OperatorNode {
     return runtime.createNull();
   }
 
-  private <T> T compareNumbers(JmesPathRuntime<T> runtime, T leftResult, T rightResult) {
+  private <T> T compareNumbers(Adapter<T> runtime, T leftResult, T rightResult) {
     int result = runtime.compare(leftResult, rightResult);
     if (operator.equals("==")) {
       return runtime.createBoolean(result == 0);

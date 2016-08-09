@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.ExpressionReferenceNode;
 import io.burt.jmespath.node.PropertyNode;
@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
 
 public class FunctionRegistryTest {
-  private final JmesPathRuntime<Object> runtime = new JcfRuntime();
+  private final Adapter<Object> runtime = new JcfRuntime();
 
   private List<ExpressionOrValue<Object>> createValueArguments(Object... values) {
     List<ExpressionOrValue<Object>> arguments = new ArrayList<>();
@@ -38,7 +38,7 @@ public class FunctionRegistryTest {
     }
 
     @Override
-    protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+    protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
       return arguments.get(0).value();
     }
   }
