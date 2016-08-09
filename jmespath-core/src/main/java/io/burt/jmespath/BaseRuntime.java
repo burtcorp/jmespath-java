@@ -115,24 +115,42 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
    * render themseves correctly with <code>toString</code>, and that
    * <code>string</code> renders itself as an unquoted string.
    */
-  protected String unparse(T obj) {
-    switch (typeOf(obj)) {
+  protected String unparse(T object) {
+    switch (typeOf(object)) {
       case NUMBER:
+        return unparseNumber(object);
       case BOOLEAN:
+        return unparseBoolean(object);
       case NULL:
-        return obj.toString();
+        return unparseNull(object);
       case STRING:
-        return String.format("\"%s\"", obj);
+        return unparseString(object);
       case OBJECT:
-        return unparseObject(obj);
+        return unparseObject(object);
       case ARRAY:
-        return unparseArray(obj);
+        return unparseArray(object);
       default:
         throw new IllegalStateException();
     }
   }
 
-  private String unparseObject(T object) {
+  protected String unparseNumber(T object) {
+    return object.toString();
+  }
+
+  protected String unparseBoolean(T object) {
+    return object.toString();
+  }
+
+  protected String unparseNull(T object) {
+    return object.toString();
+  }
+
+  protected String unparseString(T object) {
+    return String.format("\"%s\"", object);
+  }
+
+  protected String unparseObject(T object) {
     StringBuilder str = new StringBuilder("{");
     Iterator<T> keys = getPropertyNames(object).iterator();
     while (keys.hasNext()) {
@@ -147,7 +165,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     return str.toString();
   }
 
-  private String unparseArray(T array) {
+  protected String unparseArray(T array) {
     StringBuilder str = new StringBuilder("[");
     Iterator<T> elements = toList(array).iterator();
     while (elements.hasNext()) {

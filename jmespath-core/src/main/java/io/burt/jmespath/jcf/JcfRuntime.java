@@ -161,4 +161,9 @@ public class JcfRuntime extends BaseRuntime<Object> {
   public Object createNumber(long n) {
     return n;
   }
+
+  @Override
+  protected String unparseNull(Object object) {
+    return "null";
+  }
 }

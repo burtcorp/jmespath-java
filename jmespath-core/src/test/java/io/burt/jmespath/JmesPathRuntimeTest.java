@@ -1662,6 +1662,12 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void toStringReturnsTheJsonEncodingOfNull() {
+    T result = search("to_string(`null`)", parse("{}"));
+    assertThat(runtime().toString(result), is("null"));
+  }
+
+  @Test
   public void toStringWithAStringReturnsTheArgument() {
     T result = search("to_string('hello')", parse("{}"));
     assertThat(result, is(jsonString("hello")));
