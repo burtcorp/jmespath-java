@@ -8,12 +8,11 @@ import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
 
 /**
- * This class can be extended instead of implementing {@link JmesPathRuntime}
- * directly, in order to not have to implement a few of the methods that have
- * non-specific implementations, like {@link JmesPathRuntime#callFunction},
- * {@link JmesPathRuntime#typeOf} or the {@link Comparable} interface. Subclasses are
- * encouraged to override these methods if they have more efficient means to
- * perform the same job.
+ * This class can be extended instead of implementing {@link Adapter} directly,
+ * in order to not have to implement a few of the methods that have non-specific
+ * implementations, like {@link Adapter#callFunction}, {@link Adapter#typeOf} or
+ * the {@link Comparable} interface. Subclasses are encouraged to override these
+ * methods if they have more efficient means to perform the same job.
  */
 public abstract class BaseRuntime<T> implements Adapter<T> {
   private final FunctionRegistry functionRegistry;
