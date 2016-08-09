@@ -11,49 +11,58 @@ import io.burt.jmespath.Adapter;
  * by name.
  */
 public class FunctionRegistry {
+  private final static FunctionRegistry defaultRegistry = new FunctionRegistry(
+    new AbsFunction(),
+    new AvgFunction(),
+    new ContainsFunction(),
+    new CeilFunction(),
+    new EndsWithFunction(),
+    new FloorFunction(),
+    new JoinFunction(),
+    new KeysFunction(),
+    new LengthFunction(),
+    new MapFunction(),
+    new MaxFunction(),
+    new MaxByFunction(),
+    new MergeFunction(),
+    new MinFunction(),
+    new MinByFunction(),
+    new NotNullFunction(),
+    new ReverseFunction(),
+    new SortFunction(),
+    new SortByFunction(),
+    new StartsWithFunction(),
+    new SumFunction(),
+    new ToArrayFunction(),
+    new ToStringFunction(),
+    new ToNumberFunction(),
+    new TypeFunction(),
+    new ValuesFunction()
+  );
+
   private final Map<String, JmesPathFunction> functions;
 
   /**
-   * Create a registry with the the functions specified in the JMESPath
+   * Returns a registry with all the the functions specified in the JMESPath
    * specification.
    */
-  public static FunctionRegistry createDefaultRegistry() {
-    FunctionRegistry registry = new FunctionRegistry();
-    registry.add(new AbsFunction());
-    registry.add(new AvgFunction());
-    registry.add(new ContainsFunction());
-    registry.add(new CeilFunction());
-    registry.add(new EndsWithFunction());
-    registry.add(new FloorFunction());
-    registry.add(new JoinFunction());
-    registry.add(new KeysFunction());
-    registry.add(new LengthFunction());
-    registry.add(new MapFunction());
-    registry.add(new MaxFunction());
-    registry.add(new MaxByFunction());
-    registry.add(new MergeFunction());
-    registry.add(new MinFunction());
-    registry.add(new MinByFunction());
-    registry.add(new NotNullFunction());
-    registry.add(new ReverseFunction());
-    registry.add(new SortFunction());
-    registry.add(new SortByFunction());
-    registry.add(new StartsWithFunction());
-    registry.add(new SumFunction());
-    registry.add(new ToArrayFunction());
-    registry.add(new ToStringFunction());
-    registry.add(new ToNumberFunction());
-    registry.add(new TypeFunction());
-    registry.add(new ValuesFunction());
-    return registry;
+  public static FunctionRegistry defaultRegistry() {
+    return defaultRegistry;
   }
 
-  public FunctionRegistry() {
-    this.functions = new HashMap<>();
+  /**
+   * Creates a new function registry containing the specified functions.
+   * When there are multiple functions with the same name the last one is used.
+   */
+  public FunctionRegistry(JmesPathFunction... functions) {
+    this(null, functions);
   }
 
-  public void add(JmesPathFunction function) {
-    functions.put(function.name(), function);
+  private FunctionRegistry(Map<String, JmesPathFunction> functions0, JmesPathFunction... functions1) {
+    this.functions = functions0 == null ? new HashMap<String, JmesPathFunction>() : new HashMap<String, JmesPathFunction>(functions0);
+    for (JmesPathFunction function : functions1) {
+      this.functions.put(function.name(), function);
+    }
   }
 
   /**
@@ -70,5 +79,14 @@ public class FunctionRegistry {
     } else {
       throw new FunctionCallException(String.format("Unknown function: \"%s\"", functionName));
     }
+  }
+
+  /**
+   * Creates a new function registry that contains all the functions of this
+   * registry and the specified functions. When a new function has the same name
+   * as one of the functions in this registry, the new function will be used.
+   */
+  public FunctionRegistry extend(JmesPathFunction... functions) {
+    return new FunctionRegistry(this.functions, functions);
   }
 }
