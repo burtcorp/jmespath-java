@@ -27,7 +27,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
 
-@SuppressWarnings("unchecked")
 public abstract class JmesPathRuntimeTest<T> {
   protected T contact;
   protected T cloudtrail;
@@ -58,6 +57,7 @@ public abstract class JmesPathRuntimeTest<T> {
   protected Matcher<T> jsonBoolean(final boolean b) {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
         T node = (T) n;
         return runtime().typeOf(node) == JmesPathType.BOOLEAN && runtime().isTruthy(node) == b;
@@ -73,6 +73,7 @@ public abstract class JmesPathRuntimeTest<T> {
   protected Matcher<T> jsonNumber(final Number e) {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
         T actual = (T) n;
         T expected = runtime().createNumber(e.doubleValue());
@@ -89,6 +90,7 @@ public abstract class JmesPathRuntimeTest<T> {
   protected Matcher<T> jsonNull() {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
         T node = (T) n;
         return runtime().typeOf(node) == JmesPathType.NULL;
@@ -104,6 +106,7 @@ public abstract class JmesPathRuntimeTest<T> {
   protected Matcher<T> jsonString(final String str) {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
         T node = (T) n;
         return runtime().createString(str).equals(node);
@@ -119,6 +122,7 @@ public abstract class JmesPathRuntimeTest<T> {
   protected Matcher<T> jsonArrayOfStrings(final String... strs) {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
         List<T> input = runtime().toList((T) n);
         if (input.size() != strs.length) {

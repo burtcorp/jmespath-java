@@ -12,7 +12,6 @@ import io.burt.jmespath.function.FunctionRegistry;
 
 import static io.burt.jmespath.JmesPathType.*;
 
-@SuppressWarnings("unchecked")
 public class JcfRuntime extends BaseRuntime<Object> {
   public JcfRuntime() {
     super();
@@ -28,6 +27,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public List<Object> toList(Object value) {
     switch (typeOf(value)) {
       case ARRAY:
@@ -82,6 +82,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public boolean isTruthy(Object value) {
     switch (typeOf(value)) {
       case NULL:
@@ -102,6 +103,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Object getProperty(Object value, String name) {
     if (typeOf(value) == OBJECT) {
       return ((Map<String, Object>) value).get(name);
@@ -116,6 +118,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Collection<Object> getPropertyNames(Object value) {
     if (typeOf(value) == OBJECT) {
       return ((Map<Object, Object>) value).keySet();
