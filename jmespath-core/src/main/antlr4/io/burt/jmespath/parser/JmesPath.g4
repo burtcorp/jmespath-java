@@ -1,6 +1,6 @@
 grammar JmesPath;
 
-query : expression EOF ;
+jmesPathExpression : expression EOF ;
 
 expression
   : expression '.' chainedExpression # chainExpression

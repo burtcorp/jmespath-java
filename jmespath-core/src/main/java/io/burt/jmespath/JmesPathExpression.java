@@ -1,21 +1,21 @@
 package io.burt.jmespath;
 
-import io.burt.jmespath.parser.JmesPathQueryParser;
+import io.burt.jmespath.parser.JmesPathExpressionParser;
 import io.burt.jmespath.node.JmesPathNode;
 
-public class Query {
+public class JmesPathExpression {
   private final JmesPathNode expression;
 
-  public Query(JmesPathNode expression) {
+  public JmesPathExpression(JmesPathNode expression) {
     this.expression = expression;
   }
 
-  public static Query fromString(String query) {
-    return fromString(null, query);
+  public static JmesPathExpression fromString(String expression) {
+    return fromString(null, expression);
   }
 
-  public static <T> Query fromString(JmesPathRuntime<T> runtime, String query) {
-    return JmesPathQueryParser.fromString(query, runtime);
+  public static <T> JmesPathExpression fromString(JmesPathRuntime<T> runtime, String expression) {
+    return JmesPathExpressionParser.fromString(expression, runtime);
   }
 
   public <T> T evaluate(JmesPathRuntime<T> runtime, T input) {
@@ -28,7 +28,7 @@ public class Query {
 
   @Override
   public String toString() {
-    return String.format("Query(%s)", expression);
+    return String.format("Expression(%s)", expression);
   }
 
   @Override
@@ -36,10 +36,10 @@ public class Query {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof Query)) {
+    if (!(o instanceof JmesPathExpression)) {
       return false;
     }
-    Query other = (Query) o;
+    JmesPathExpression other = (JmesPathExpression) o;
     return this.expression().equals(other.expression());
   }
 

@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-import io.burt.jmespath.Query;
+import io.burt.jmespath.JmesPathExpression;
 import io.burt.jmespath.function.FunctionCallException;
 import io.burt.jmespath.function.ArityException;
 import io.burt.jmespath.function.ArgumentTypeException;
@@ -47,7 +47,7 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   protected T evaluate(String query, T input) {
-    return Query.fromString(runtime(), query).evaluate(runtime(), input);
+    return JmesPathExpression.fromString(runtime(), query).evaluate(runtime(), input);
   }
 
   protected Matcher<T> jsonBoolean(final boolean b) {
@@ -708,7 +708,7 @@ public abstract class JmesPathRuntimeTest<T> {
 
   @Test
   public void comparingJsonLiteralsWithRawContents() {
-    Query query = Query.fromString(null, "Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress");
+    JmesPathExpression query = JmesPathExpression.fromString(null, "Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress");
     T result = query.evaluate(runtime(), cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("72.21.198.64")));
   }

@@ -3,7 +3,7 @@ package io.burt.jmespath.parser;
 import org.junit.Test;
 import org.junit.Ignore;
 
-import io.burt.jmespath.Query;
+import io.burt.jmespath.JmesPathExpression;
 import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.jcf.JcfRuntime;
 import io.burt.jmespath.node.AndNode;
@@ -35,8 +35,8 @@ import static org.hamcrest.Matchers.is;
 public class ParserTest {
   private JmesPathRuntime<Object> runtime = new JcfRuntime();
 
-  private Query parse(String str) {
-    return Query.fromString(runtime, str);
+  private JmesPathExpression parse(String str) {
+    return JmesPathExpression.fromString(runtime, str);
   }
 
   private JsonLiteralNode createJsonLiteralNode(String json) {
@@ -45,32 +45,32 @@ public class ParserTest {
 
   @Test
   public void identifierExpression() {
-    Query expected = new Query(new PropertyNode("foo", new CurrentNode()));
-    Query actual = parse("foo");
+    JmesPathExpression expected = new JmesPathExpression(new PropertyNode("foo", new CurrentNode()));
+    JmesPathExpression actual = parse("foo");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void quotedIdentifierExpression() {
-    Query expected = new Query(new PropertyNode("foo-bar", new CurrentNode()));
-    Query actual = parse("\"foo-bar\"");
+    JmesPathExpression expected = new JmesPathExpression(new PropertyNode("foo-bar", new CurrentNode()));
+    JmesPathExpression actual = parse("\"foo-bar\"");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void chainExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new PropertyNode("bar",
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo.bar");
+    JmesPathExpression actual = parse("foo.bar");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void longChainExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new PropertyNode("qux",
         new PropertyNode("baz",
           new PropertyNode("bar",
@@ -79,26 +79,26 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo.bar.baz.qux");
+    JmesPathExpression actual = parse("foo.bar.baz.qux");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void pipeExpressionWithoutProjection() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new PropertyNode("bar",
         new JoinNode(
           new PropertyNode("foo", new CurrentNode())
         )
       )
     );
-    Query actual = parse("foo | bar");
+    JmesPathExpression actual = parse("foo | bar");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void longPipeExpressionWithoutProjection() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new PropertyNode("qux",
         new JoinNode(
           new PropertyNode("baz",
@@ -113,13 +113,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo | bar | baz | qux");
+    JmesPathExpression actual = parse("foo | bar | baz | qux");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void pipesAndChains() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new PropertyNode("qux",
         new PropertyNode("baz",
           new JoinNode(
@@ -130,109 +130,109 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo.bar | baz.qux");
+    JmesPathExpression actual = parse("foo.bar | baz.qux");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void indexExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new IndexNode(3,
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo[3]");
+    JmesPathExpression actual = parse("foo[3]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareIndexExpression() {
-    Query expected = new Query(new IndexNode(3, new CurrentNode()));
-    Query actual = parse("[3]");
+    JmesPathExpression expected = new JmesPathExpression(new IndexNode(3, new CurrentNode()));
+    JmesPathExpression actual = parse("[3]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new SliceNode(3, 4, 1,
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo[3:4]");
+    JmesPathExpression actual = parse("foo[3:4]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithoutStopExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new SliceNode(3, 0, 1,
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo[3:]");
+    JmesPathExpression actual = parse("foo[3:]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithoutStartExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new SliceNode(0, 4, 1,
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo[:4]");
+    JmesPathExpression actual = parse("foo[:4]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithStepExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new SliceNode(3, 4, 5,
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo[3:4:5]");
+    JmesPathExpression actual = parse("foo[3:4:5]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithStepButWithoutStopExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new SliceNode(3, 0, 5,
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo[3::5]");
+    JmesPathExpression actual = parse("foo[3::5]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithJustColonExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new SliceNode(0, 0, 1,
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo[:]");
+    JmesPathExpression actual = parse("foo[:]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithJustTwoColonsExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new SliceNode(0, 0, 1,
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo[::]");
+    JmesPathExpression actual = parse("foo[::]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareSliceExpression() {
-    Query expected = new Query(new SliceNode(0, 1, 2, new CurrentNode()));
-    Query actual = parse("[0:1:2]");
+    JmesPathExpression expected = new JmesPathExpression(new SliceNode(0, 1, 2, new CurrentNode()));
+    JmesPathExpression actual = parse("[0:1:2]");
     assertThat(actual, is(expected));
   }
 
@@ -244,68 +244,68 @@ public class ParserTest {
 
   @Test
   public void flattenExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new FlattenArrayNode(
           new PropertyNode("foo", new CurrentNode())
         )
       )
     );
-    Query actual = parse("foo[]");
+    JmesPathExpression actual = parse("foo[]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareFlattenExpression() {
-    Query expected = new Query(new ForkNode(new FlattenArrayNode(new CurrentNode())));
-    Query actual = parse("[]");
+    JmesPathExpression expected = new JmesPathExpression(new ForkNode(new FlattenArrayNode(new CurrentNode())));
+    JmesPathExpression actual = parse("[]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void listWildcardExpression() {
-    Query expected = new Query(new ForkNode(new PropertyNode("foo", new CurrentNode())));
-    Query actual = parse("foo[*]");
+    JmesPathExpression expected = new JmesPathExpression(new ForkNode(new PropertyNode("foo", new CurrentNode())));
+    JmesPathExpression actual = parse("foo[*]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareListWildcardExpression() {
-    Query expected = new Query(new ForkNode(new CurrentNode()));
-    Query actual = parse("[*]");
+    JmesPathExpression expected = new JmesPathExpression(new ForkNode(new CurrentNode()));
+    JmesPathExpression actual = parse("[*]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void hashWildcardExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new FlattenObjectNode(
           new PropertyNode("foo", new CurrentNode())
         )
       )
     );
-    Query actual = parse("foo.*");
+    JmesPathExpression actual = parse("foo.*");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareHashWildcardExpression() {
-    Query expected = new Query(new ForkNode(new FlattenObjectNode(new CurrentNode())));
-    Query actual = parse("*");
+    JmesPathExpression expected = new JmesPathExpression(new ForkNode(new FlattenObjectNode(new CurrentNode())));
+    JmesPathExpression actual = parse("*");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void currentNodeExpression() {
-    Query expected = new Query(new CurrentNode());
-    Query actual = parse("@");
+    JmesPathExpression expected = new JmesPathExpression(new CurrentNode());
+    JmesPathExpression actual = parse("@");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void currentNodeInPipes() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new CurrentNode(
         new JoinNode(
           new PropertyNode("bar",
@@ -324,13 +324,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("@ | foo | @ | bar | @");
+    JmesPathExpression actual = parse("@ | foo | @ | bar | @");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void selectionExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new SelectionNode(
           new PropertyNode("bar", new CurrentNode()),
@@ -338,13 +338,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo[?bar]");
+    JmesPathExpression actual = parse("foo[?bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void selectionWithConditionExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new SelectionNode(
           new ComparisonNode("==",
@@ -355,13 +355,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo[?bar == baz]");
+    JmesPathExpression actual = parse("foo[?bar == baz]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareSelection() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new SelectionNode(
           new PropertyNode("bar", new CurrentNode()),
@@ -369,37 +369,37 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("[?bar]");
+    JmesPathExpression actual = parse("[?bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void simpleFunctionCallExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new FunctionCallNode("foo",
         new JmesPathNode[] {},
         new CurrentNode()
       )
     );
-    Query actual = parse("foo()");
+    JmesPathExpression actual = parse("foo()");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void functionCallWithArgumentExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new FunctionCallNode("foo",
         new JmesPathNode[] {new PropertyNode("bar", new CurrentNode())},
         new CurrentNode()
       )
     );
-    Query actual = parse("foo(bar)");
+    JmesPathExpression actual = parse("foo(bar)");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void functionCallWithMultipleArgumentsExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new FunctionCallNode("foo",
         new JmesPathNode[] {
           new PropertyNode("bar", new CurrentNode()),
@@ -409,25 +409,25 @@ public class ParserTest {
         new CurrentNode()
       )
     );
-    Query actual = parse("foo(bar, baz, @)");
+    JmesPathExpression actual = parse("foo(bar, baz, @)");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void chainedFunctionCallExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new FunctionCallNode("to_string",
         new JmesPathNode[] {new CurrentNode()},
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("foo.to_string(@)");
+    JmesPathExpression actual = parse("foo.to_string(@)");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void functionCallWithExpressionReference() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new FunctionCallNode(
         "foo",
         new JmesPathNode[] {
@@ -440,20 +440,20 @@ public class ParserTest {
         new CurrentNode()
       )
     );
-    Query actual = parse("foo(&bar.bar)");
+    JmesPathExpression actual = parse("foo(&bar.bar)");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareRawStringExpression() {
-    Query expected = new Query(new StringNode("foo"));
-    Query actual = parse("'foo'");
+    JmesPathExpression expected = new JmesPathExpression(new StringNode("foo"));
+    JmesPathExpression actual = parse("'foo'");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void rawStringComparisonExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new SelectionNode(
           new ComparisonNode("!=",
@@ -464,76 +464,76 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo[?bar != 'baz']");
+    JmesPathExpression actual = parse("foo[?bar != 'baz']");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void andExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new AndNode(
         new PropertyNode("foo", new CurrentNode()),
         new PropertyNode("bar", new CurrentNode())
       )
     );
-    Query actual = parse("foo && bar");
+    JmesPathExpression actual = parse("foo && bar");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void orExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new OrNode(
         new PropertyNode("foo", new CurrentNode()),
         new PropertyNode("bar", new CurrentNode())
       )
     );
-    Query actual = parse("foo || bar");
+    JmesPathExpression actual = parse("foo || bar");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void wildcardAfterPipe() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new JoinNode(
           new PropertyNode("foo", new CurrentNode())
         )
       )
     );
-    Query actual = parse("foo | [*]");
+    JmesPathExpression actual = parse("foo | [*]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void indexAfterPipe() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new IndexNode(1,
         new JoinNode(
           new PropertyNode("foo", new CurrentNode())
         )
       )
     );
-    Query actual = parse("foo | [1]");
+    JmesPathExpression actual = parse("foo | [1]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceAfterPipe() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new SliceNode(1, 2, 1,
         new JoinNode(
           new PropertyNode("foo", new CurrentNode())
         )
       )
     );
-    Query actual = parse("foo | [1:2]");
+    JmesPathExpression actual = parse("foo | [1:2]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void flattenAfterPipe() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new FlattenArrayNode(
           new JoinNode(
@@ -542,13 +542,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo | []");
+    JmesPathExpression actual = parse("foo | []");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void selectionAfterPipe() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new SelectionNode(
           new PropertyNode("bar", new CurrentNode()),
@@ -558,13 +558,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo | [?bar]");
+    JmesPathExpression actual = parse("foo | [?bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void booleanComparisonExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new SelectionNode(
           new OrNode(
@@ -578,13 +578,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
+    JmesPathExpression actual = parse("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void chainPipeFunctionCallCombination() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new FunctionCallNode("sort",
         new JmesPathNode[] {new CurrentNode()},
         new JoinNode(
@@ -598,13 +598,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo.bar[] | sort(@)");
+    JmesPathExpression actual = parse("foo.bar[] | sort(@)");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void chainPipeIndexSliceCombination() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new SliceNode(2, 3, 1,
         new PropertyNode("qux",
           new PropertyNode("baz",
@@ -619,7 +619,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo[3].bar | baz.qux[2:3]");
+    JmesPathExpression actual = parse("foo[3].bar | baz.qux[2:3]");
     assertThat(actual, is(expected));
   }
 
@@ -629,8 +629,8 @@ public class ParserTest {
       new CreateObjectNode.Entry("foo", new StringNode("bar")),
       new CreateObjectNode.Entry("baz", new CurrentNode())
     };
-    Query expected = new Query(new CreateObjectNode(pieces, new CurrentNode()));
-    Query actual = parse("{foo: 'bar', baz: @}");
+    JmesPathExpression expected = new JmesPathExpression(new CreateObjectNode(pieces, new CurrentNode()));
+    JmesPathExpression actual = parse("{foo: 'bar', baz: @}");
     assertThat(actual, is(expected));
   }
 
@@ -640,7 +640,7 @@ public class ParserTest {
       new CreateObjectNode.Entry("foo", new StringNode("bar")),
       new CreateObjectNode.Entry("baz", new CurrentNode())
     };
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new CreateObjectNode(pieces,
         new PropertyNode("world",
           new JoinNode(
@@ -649,7 +649,7 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("hello | world.{foo: 'bar', baz: @}");
+    JmesPathExpression actual = parse("hello | world.{foo: 'bar', baz: @}");
     assertThat(actual, is(expected));
   }
 
@@ -659,8 +659,8 @@ public class ParserTest {
       new CreateObjectNode.Entry("foo", new StringNode("bar")),
       new CreateObjectNode.Entry("baz", new CurrentNode())
     };
-    Query expected = new Query(new CreateObjectNode(pieces, new CurrentNode()));
-    Query actual = parse("{\"foo\": 'bar', \"baz\": @}");
+    JmesPathExpression expected = new JmesPathExpression(new CreateObjectNode(pieces, new CurrentNode()));
+    JmesPathExpression actual = parse("{\"foo\": 'bar', \"baz\": @}");
     assertThat(actual, is(expected));
   }
 
@@ -677,7 +677,7 @@ public class ParserTest {
         )
       )
     };
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new CreateObjectNode(pieces,
         new JoinNode(
           new FunctionCallNode("sort",
@@ -699,13 +699,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
+    JmesPathExpression actual = parse("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareMultiSelectListExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new CreateArrayNode(
         new JmesPathNode[] {
           new StringNode("bar"),
@@ -714,13 +714,13 @@ public class ParserTest {
         new CurrentNode()
       )
     );
-    Query actual = parse("['bar', @]");
+    JmesPathExpression actual = parse("['bar', @]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void chainedMultiSelectListExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new CreateArrayNode(
         new JmesPathNode[] {
           new StringNode("bar"),
@@ -733,13 +733,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("hello | world.['bar', @]");
+    JmesPathExpression actual = parse("hello | world.['bar', @]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void parenthesizedPipeExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new PropertyNode("baz",
         new JoinNode(
           new PropertyNode("bar",
@@ -750,13 +750,13 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo | (bar | baz)");
+    JmesPathExpression actual = parse("foo | (bar | baz)");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void parenthesizedComparisonExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new SelectionNode(
           new AndNode(
@@ -779,24 +779,24 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
+    JmesPathExpression actual = parse("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareNegatedExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new NegateNode(
         new PropertyNode("foo", new CurrentNode())
       )
     );
-    Query actual = parse("!foo");
+    JmesPathExpression actual = parse("!foo");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void negatedSelectionExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new SelectionNode(
           new NegateNode(new PropertyNode("bar", new CurrentNode())),
@@ -804,50 +804,50 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo[?!bar]");
+    JmesPathExpression actual = parse("foo[?!bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralExpression() {
-    Query expected = new Query(createJsonLiteralNode("{}"));
-    Query actual = parse("`{}`");
+    JmesPathExpression expected = new JmesPathExpression(createJsonLiteralNode("{}"));
+    JmesPathExpression actual = parse("`{}`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralArray() {
-    Query expected = new Query(createJsonLiteralNode("[]"));
-    Query actual = parse("`[]`");
+    JmesPathExpression expected = new JmesPathExpression(createJsonLiteralNode("[]"));
+    JmesPathExpression actual = parse("`[]`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralNumber() {
-    Query expected = new Query(createJsonLiteralNode("3.14"));
-    Query actual = parse("`3.14`");
+    JmesPathExpression expected = new JmesPathExpression(createJsonLiteralNode("3.14"));
+    JmesPathExpression actual = parse("`3.14`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralString() {
-    Query expected = new Query(createJsonLiteralNode("\"foo\""));
-    Query actual = parse("`\"foo\"`");
+    JmesPathExpression expected = new JmesPathExpression(createJsonLiteralNode("\"foo\""));
+    JmesPathExpression actual = parse("`\"foo\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralConstant() {
-    Query expected = new Query(createJsonLiteralNode("false"));
-    Query actual = parse("`false`");
+    JmesPathExpression expected = new JmesPathExpression(createJsonLiteralNode("false"));
+    JmesPathExpression actual = parse("`false`");
     assertThat(actual, is(expected));
   }
 
   @Test
   @Ignore
   public void escapedBacktickInJsonString() {
-    Query expected = new Query(createJsonLiteralNode("\"fo`o\""));
-    Query actual = parse("`\"fo\\`o\"`");
+    JmesPathExpression expected = new JmesPathExpression(createJsonLiteralNode("\"fo`o\""));
+    JmesPathExpression actual = parse("`\"fo\\`o\"`");
     assertThat(actual, is(expected));
   }
 
@@ -870,7 +870,7 @@ public class ParserTest {
 
   @Test
   public void comparisonWithJsonLiteralExpression() {
-    Query expected = new Query(
+    JmesPathExpression expected = new JmesPathExpression(
       new ForkNode(
         new SelectionNode(
           new ComparisonNode("==",
@@ -881,15 +881,15 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("foo[?bar == `{\"foo\": \"bar\"}`]");
+    JmesPathExpression actual = parse("foo[?bar == `{\"foo\": \"bar\"}`]");
     assertThat(actual, is(expected));
   }
 
   @Test
   @Ignore("Known issue")
   public void jsonBuiltinsAsNames() {
-    Query expected = new Query(new PropertyNode("false", new CurrentNode()));
-    Query actual = parse("false");
+    JmesPathExpression expected = new JmesPathExpression(new PropertyNode("false", new CurrentNode()));
+    JmesPathExpression actual = parse("false");
     assertThat(actual, is(expected));
   }
 }
