@@ -1,13 +1,10 @@
 package io.burt.jmespath.function;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;

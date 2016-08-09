@@ -17,7 +17,7 @@ public class ReverseFunction extends JmesPathFunction {
     T subject = arguments.get(0).value();
     JmesPathType subjectType = adapter.typeOf(subject);
     if (subjectType == JmesPathType.ARRAY) {
-      List<T> elements = new ArrayList(adapter.toList(subject));
+      List<T> elements = new ArrayList<T>(adapter.toList(subject));
       Collections.reverse(elements);
       return adapter.createArray(elements);
     } else {

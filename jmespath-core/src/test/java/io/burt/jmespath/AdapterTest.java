@@ -8,10 +8,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -24,13 +20,13 @@ import io.burt.jmespath.function.ArityException;
 import io.burt.jmespath.function.ArgumentTypeException;
 
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
 
+@SuppressWarnings("unchecked")
 public abstract class AdapterTest<T> {
   protected T contact;
   protected T cloudtrail;

@@ -2,10 +2,6 @@ package io.burt.jmespath.parser;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -37,21 +33,21 @@ import io.burt.jmespath.node.SelectionNode;
 import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
-public class JmesPathQueryParser extends JmesPathBaseVisitor<JmesPathNode> {
+public class JmesPathQueryParser<T> extends JmesPathBaseVisitor<JmesPathNode> {
   private final ParseTree tree;
   private final Deque<JmesPathNode> currentSource;
-  private final Adapter adapter;
+  private final Adapter<T> adapter;
 
   public static Query fromString(String query) {
     return fromString(query, null);
   }
 
-  public static Query fromString(String query, Adapter adapter) {
+  public static <T> Query fromString(String query, Adapter<T> adapter) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(query), errors), errors);
     ParseTree tree = parser.query();
     if (errors.isEmpty()) {
-      JmesPathQueryParser visitor = new JmesPathQueryParser(tree, adapter);
+      JmesPathQueryParser<T> visitor = new JmesPathQueryParser<T>(tree, adapter);
       return visitor.query();
     } else {
       throw new ParseException(query, errors);
@@ -78,7 +74,7 @@ public class JmesPathQueryParser extends JmesPathBaseVisitor<JmesPathNode> {
     return parser;
   }
 
-  private JmesPathQueryParser(ParseTree tree, Adapter adapter) {
+  private JmesPathQueryParser(ParseTree tree, Adapter<T> adapter) {
     this.tree = tree;
     this.currentSource = new LinkedList<>();
     this.adapter = adapter;

@@ -34,7 +34,7 @@ public class SortByFunction extends JmesPathFunction {
       } else if (elementType != JmesPathType.NUMBER) {
         throw new ArgumentTypeException(name(), "number or string", elementType.toString());
       }
-      pairs.add(new Pair(transformedElement, element));
+      pairs.add(new Pair<T>(transformedElement, element));
       while (elements.hasNext()) {
         element = elements.next();
         transformedElement = expression.evaluate(adapter, element);
@@ -44,7 +44,7 @@ public class SortByFunction extends JmesPathFunction {
         } else if (!expectNumbers && elementType != JmesPathType.STRING) {
           throw new ArgumentTypeException(name(), "string", elementType.toString());
         }
-        pairs.add(new Pair(transformedElement, element));
+        pairs.add(new Pair<T>(transformedElement, element));
       }
       Collections.sort(pairs, new Comparator<Pair<T>>() {
         @Override

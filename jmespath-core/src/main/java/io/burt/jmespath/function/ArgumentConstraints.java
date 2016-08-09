@@ -3,7 +3,6 @@ package io.burt.jmespath.function;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.LinkedHashSet;
 
@@ -171,7 +170,6 @@ public final class ArgumentConstraints {
     private final ArgumentConstraint[] subConstraints;
     private final int minArity;
     private final int maxArity;
-    private String expectedType;
 
     public HeterogenousListOf(ArgumentConstraint[] subConstraints) {
       this.subConstraints = subConstraints;

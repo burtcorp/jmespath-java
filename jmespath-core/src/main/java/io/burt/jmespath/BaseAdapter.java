@@ -6,8 +6,6 @@ import java.util.Iterator;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
 
-import static io.burt.jmespath.JmesPathType.*;
-
 /**
  * This class can be extended instead of implementing {@link Adapter} directly,
  * in order to not have to implement a few of the methods that have non-specific
@@ -60,8 +58,8 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
         case BOOLEAN:
           return (isTruthy(value1) && isTruthy(value2)) || (!isTruthy(value1) && !isTruthy(value2)) ? 0 : -1;
         case NUMBER:
-          Comparable d1 = toNumber(value1).doubleValue();
-          Comparable d2 = toNumber(value2).doubleValue();
+          Double d1 = toNumber(value1).doubleValue();
+          Double d2 = toNumber(value2).doubleValue();
           return d1.compareTo(d2);
         case STRING:
           String s1 = toString(value1);

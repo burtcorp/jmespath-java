@@ -1,7 +1,6 @@
 package io.burt.jmespath.function;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
@@ -19,7 +18,6 @@ public class JoinFunction extends JmesPathFunction {
   protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
     T glue = arguments.get(0).value();
     T components = arguments.get(1).value();
-    JmesPathType glueType = adapter.typeOf(glue);
     Iterator<T> values = adapter.toList(components).iterator();
     if (values.hasNext()) {
       StringBuilder buffer = new StringBuilder();

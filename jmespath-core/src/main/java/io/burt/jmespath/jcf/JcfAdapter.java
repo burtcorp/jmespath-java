@@ -3,17 +3,15 @@ package io.burt.jmespath.jcf;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import io.burt.jmespath.BaseAdapter;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.function.FunctionRegistry;
-import io.burt.jmespath.function.ExpressionOrValue;
 
 import static io.burt.jmespath.JmesPathType.*;
 
+@SuppressWarnings("unchecked")
 public class JcfAdapter extends BaseAdapter<Object> {
   @Override
   public Object parseString(String string) {
@@ -84,9 +82,9 @@ public class JcfAdapter extends BaseAdapter<Object> {
       case BOOLEAN:
         return value == Boolean.TRUE;
       case ARRAY:
-        return !((List) value).isEmpty();
+        return !((List<Object>) value).isEmpty();
       case OBJECT:
-        return !((Map) value).isEmpty();
+        return !((Map<Object,Object>) value).isEmpty();
       case STRING:
         return !((String) value).isEmpty();
       default:

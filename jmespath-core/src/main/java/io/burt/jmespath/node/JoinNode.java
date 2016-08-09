@@ -1,7 +1,5 @@
 package io.burt.jmespath.node;
 
-import io.burt.jmespath.Adapter;
-
 public class JoinNode extends JmesPathNode {
   public JoinNode(JmesPathNode source) {
     super(source);

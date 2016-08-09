@@ -1,13 +1,7 @@
 package io.burt.jmespath.parser;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.Ignore;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 import io.burt.jmespath.Query;
 import io.burt.jmespath.Adapter;
@@ -37,11 +31,6 @@ import io.burt.jmespath.node.StringNode;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.hasEntry;
 
 public class ParserTest {
   private Adapter<Object> adapter = new JcfAdapter();
