@@ -9,9 +9,9 @@ public class AndNode<T> extends OperatorNode<T> {
 
   @Override
   protected T searchOne(T currentValue) {
-    T leftResult = operands()[0].search(currentValue);
+    T leftResult = operand(0).search(currentValue);
     if (runtime.isTruthy(leftResult)) {
-      return operands()[1].search(currentValue);
+      return operand(1).search(currentValue);
     } else {
       return leftResult;
     }

@@ -1,5 +1,8 @@
 package io.burt.jmespath.parser;
 
+import java.util.Arrays;
+import java.util.ArrayList;
+
 import org.junit.Test;
 import org.junit.Ignore;
 
@@ -346,7 +349,7 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void simpleFunctionCallExpression() {
     JmesPathExpression<Object> expected = new FunctionCallNode<Object>(runtime, "foo",
-      (JmesPathNode<Object>[]) new JmesPathNode[] {},
+      new ArrayList<JmesPathNode<Object>>(),
       currentNode
     );
     JmesPathExpression<Object> actual = compile("foo()");
@@ -357,7 +360,9 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void functionCallWithArgumentExpression() {
     JmesPathExpression<Object> expected = new FunctionCallNode<Object>(runtime, "foo",
-      (JmesPathNode<Object>[]) new JmesPathNode[] {new PropertyNode<Object>(runtime, "bar", currentNode)},
+      Arrays.asList(
+        new PropertyNode<Object>(runtime, "bar", currentNode)
+      ),
       currentNode
     );
     JmesPathExpression<Object> actual = compile("foo(bar)");
@@ -368,11 +373,11 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void functionCallWithMultipleArgumentsExpression() {
     JmesPathExpression<Object> expected = new FunctionCallNode<Object>(runtime, "foo",
-      (JmesPathNode<Object>[]) new JmesPathNode[] {
+      Arrays.asList(
         new PropertyNode<Object>(runtime, "bar", currentNode),
         new PropertyNode<Object>(runtime, "baz", currentNode),
         currentNode
-      },
+      ),
       currentNode
     );
     JmesPathExpression<Object> actual = compile("foo(bar, baz, @)");
@@ -383,7 +388,7 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void chainedFunctionCallExpression() {
     JmesPathExpression<Object> expected = new FunctionCallNode<Object>(runtime, "to_string",
-      (JmesPathNode<Object>[]) new JmesPathNode[] {currentNode},
+      Arrays.asList(currentNode),
       new PropertyNode<Object>(runtime, "foo", currentNode)
     );
     JmesPathExpression<Object> actual = compile("foo.to_string(@)");
@@ -395,13 +400,13 @@ public class ParserTest {
   public void functionCallWithExpressionReference() {
     JmesPathExpression<Object> expected = new FunctionCallNode<Object>(runtime,
       "foo",
-      (JmesPathNode<Object>[]) new JmesPathNode[] {
+      Arrays.asList(
         new ExpressionReferenceNode<Object>(runtime,
           new PropertyNode<Object>(runtime, "bar",
             new PropertyNode<Object>(runtime, "bar", currentNode)
           )
         )
-      },
+      ),
       currentNode
     );
     JmesPathExpression<Object> actual = compile("foo(&bar.bar)");
@@ -541,7 +546,7 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void chainPipeFunctionCallCombination() {
     JmesPathExpression<Object> expected = new FunctionCallNode<Object>(runtime, "sort",
-      (JmesPathNode<Object>[]) new JmesPathNode[] {currentNode},
+      Arrays.asList(currentNode),
       new JoinNode<Object>(runtime,
         new ForkNode<Object>(runtime,
           new FlattenArrayNode<Object>(runtime,
@@ -578,11 +583,13 @@ public class ParserTest {
   @Test
   @SuppressWarnings("unchecked")
   public void bareMultiSelectHashExpression() {
-    CreateObjectNode.Entry<Object>[] pieces = (CreateObjectNode.Entry<Object>[]) new CreateObjectNode.Entry[] {
-      new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
-      new CreateObjectNode.Entry<Object>("baz", currentNode)
-    };
-    JmesPathExpression<Object> expected = new CreateObjectNode<Object>(runtime, pieces, currentNode);
+    JmesPathExpression<Object> expected = new CreateObjectNode<Object>(runtime,
+      Arrays.asList(
+        new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
+        new CreateObjectNode.Entry<Object>("baz", currentNode)
+      ),
+      currentNode
+    );
     JmesPathExpression<Object> actual = compile("{foo: 'bar', baz: @}");
     assertThat(actual, is(expected));
   }
@@ -590,11 +597,11 @@ public class ParserTest {
   @Test
   @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashExpression() {
-    CreateObjectNode.Entry<Object>[] pieces = (CreateObjectNode.Entry<Object>[]) new CreateObjectNode.Entry[] {
-      new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
-      new CreateObjectNode.Entry<Object>("baz", currentNode)
-    };
-    JmesPathExpression<Object> expected = new CreateObjectNode<Object>(runtime, pieces,
+    JmesPathExpression<Object> expected = new CreateObjectNode<Object>(runtime,
+      Arrays.asList(
+        new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
+        new CreateObjectNode.Entry<Object>("baz", currentNode)
+      ),
       new PropertyNode<Object>(runtime, "world",
         new JoinNode<Object>(runtime,
           new PropertyNode<Object>(runtime, "hello", currentNode)
@@ -608,11 +615,13 @@ public class ParserTest {
   @Test
   @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashWithQuotedKeys() {
-    CreateObjectNode.Entry<Object>[] pieces = (CreateObjectNode.Entry<Object>[]) new CreateObjectNode.Entry[] {
-      new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
-      new CreateObjectNode.Entry<Object>("baz", currentNode)
-    };
-    JmesPathExpression<Object> expected = new CreateObjectNode<Object>(runtime, pieces, currentNode);
+    JmesPathExpression<Object> expected = new CreateObjectNode<Object>(runtime,
+      Arrays.asList(
+        new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
+        new CreateObjectNode.Entry<Object>("baz", currentNode)
+      ),
+      currentNode
+    );
     JmesPathExpression<Object> actual = compile("{\"foo\": 'bar', \"baz\": @}");
     assertThat(actual, is(expected));
   }
@@ -620,21 +629,21 @@ public class ParserTest {
   @Test
   @SuppressWarnings("unchecked")
   public void jmesPathSiteExampleExpression() {
-    CreateObjectNode.Entry<Object>[] pieces = (CreateObjectNode.Entry<Object>[]) new CreateObjectNode.Entry[] {
-      new CreateObjectNode.Entry<Object>("WashingtonCities",
-        new FunctionCallNode<Object>(runtime, "join",
-          (JmesPathNode<Object>[]) new JmesPathNode[] {
-            new StringNode<Object>(runtime, ", "),
+    JmesPathExpression<Object> expected = new CreateObjectNode<Object>(runtime,
+      Arrays.asList(
+        new CreateObjectNode.Entry<Object>("WashingtonCities",
+          new FunctionCallNode<Object>(runtime, "join",
+            Arrays.asList(
+              new StringNode<Object>(runtime, ", "),
+              currentNode
+            ),
             currentNode
-          },
-          currentNode
+          )
         )
-      )
-    };
-    JmesPathExpression<Object> expected = new CreateObjectNode<Object>(runtime, pieces,
+      ),
       new JoinNode<Object>(runtime,
         new FunctionCallNode<Object>(runtime, "sort",
-          (JmesPathNode<Object>[]) new JmesPathNode[] {currentNode},
+          Arrays.asList(currentNode),
           new JoinNode<Object>(runtime,
             new PropertyNode<Object>(runtime, "name",
               new ForkNode<Object>(runtime,
@@ -659,10 +668,10 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void bareMultiSelectListExpression() {
     JmesPathExpression<Object> expected = new CreateArrayNode<Object>(runtime,
-      (JmesPathNode<Object>[]) new JmesPathNode[] {
+      Arrays.asList(
         new StringNode<Object>(runtime, "bar"),
         currentNode
-      },
+      ),
       currentNode
     );
     JmesPathExpression<Object> actual = compile("['bar', @]");
@@ -673,10 +682,10 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void chainedMultiSelectListExpression() {
     JmesPathExpression<Object> expected = new CreateArrayNode<Object>(runtime,
-      (JmesPathNode<Object>[]) new JmesPathNode[] {
+      Arrays.asList(
         new StringNode<Object>(runtime, "bar"),
         currentNode
-      },
+      ),
       new PropertyNode<Object>(runtime, "world",
         new JoinNode<Object>(runtime,
           new PropertyNode<Object>(runtime, "hello", currentNode)

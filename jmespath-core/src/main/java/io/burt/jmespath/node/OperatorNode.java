@@ -1,27 +1,38 @@
 package io.burt.jmespath.node;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 
 public class OperatorNode<T> extends JmesPathNode<T> {
-  private final JmesPathNode<T>[] operands;
+  private final List<JmesPathNode<T>> operands;
 
   @SafeVarargs
   public OperatorNode(Adapter<T> runtime, JmesPathNode<T>... operands) {
     super(runtime);
-    this.operands = operands;
+    this.operands = Arrays.asList(operands);
   }
 
-  protected JmesPathNode<T>[] operands() {
+  protected List<JmesPathNode<T>> operands() {
     return operands;
+  }
+
+  protected JmesPathNode<T> operand(int index) {
+    return operands.get(index);
   }
 
   @Override
   protected String internalToString() {
     StringBuilder operandsString = new StringBuilder();
-    for (JmesPathNode<T> node : operands) {
-      operandsString.append(", ").append(node);
+    Iterator<JmesPathNode<T>> operandIterator = operands.iterator();
+    while (operandIterator.hasNext()) {
+      JmesPathNode<T> operand = operandIterator.next();
+      operandsString.append(operand);
+      if (operandIterator.hasNext()) {
+        operandsString.append(", ");
+      }
     }
     return operandsString.toString();
   }
@@ -30,7 +41,7 @@ public class OperatorNode<T> extends JmesPathNode<T> {
   @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
     OperatorNode<T> other = (OperatorNode<T>) o;
-    return Arrays.equals(operands(), other.operands());
+    return operands().equals(other.operands());
   }
 
   @Override

@@ -3,15 +3,16 @@ package io.burt.jmespath.node;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.function.ExpressionOrValue;
 
 public class FunctionCallNode<T> extends JmesPathNode<T> {
   private final String name;
-  private final JmesPathNode<T>[] args;
+  private final List<? extends JmesPathNode<T>> args;
 
-  public FunctionCallNode(Adapter<T> runtime, String name, JmesPathNode<T>[] args, JmesPathNode<T> source) {
+  public FunctionCallNode(Adapter<T> runtime, String name, List<? extends JmesPathNode<T>> args, JmesPathNode<T> source) {
     super(runtime, source);
     this.name = name;
     this.args = args;
@@ -19,7 +20,7 @@ public class FunctionCallNode<T> extends JmesPathNode<T> {
 
   @Override
   protected T searchOne(T currentValue) {
-    List<ExpressionOrValue<T>> arguments = new ArrayList<>(args.length);
+    List<ExpressionOrValue<T>> arguments = new ArrayList<>(args.size());
     for (JmesPathNode<T> arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {
         arguments.add(new ExpressionOrValue<T>(arg));
@@ -34,17 +35,21 @@ public class FunctionCallNode<T> extends JmesPathNode<T> {
     return name;
   }
 
-  protected JmesPathNode<T>[] args() {
+  protected List<? extends JmesPathNode<T>> args() {
     return args;
   }
 
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder(name).append(", [");
-    for (JmesPathNode<T> node : args) {
-      str.append(node).append(", ");
+    Iterator<? extends JmesPathNode<T>> argIterator = args.iterator();
+    while (argIterator.hasNext()) {
+      JmesPathNode<T> arg = argIterator.next();
+      str.append(arg);
+      if (argIterator.hasNext()) {
+        str.append(", ");
+      }
     }
-    str.delete(str.length() - 2, str.length());
     str.append("]");
     return str.toString();
   }
@@ -53,7 +58,7 @@ public class FunctionCallNode<T> extends JmesPathNode<T> {
   @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
     FunctionCallNode<T> other = (FunctionCallNode<T>) o;
-    return name().equals(other.name()) && Arrays.equals(args(), other.args());
+    return name().equals(other.name()) && args().equals(other.args());
   }
 
   @Override

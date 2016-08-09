@@ -13,8 +13,8 @@ public class ComparisonNode<T> extends OperatorNode<T> {
 
   @Override
   protected T searchOne(T currentValue) {
-    T leftResult = operands()[0].search(currentValue);
-    T rightResult = operands()[1].search(currentValue);
+    T leftResult = operand(0).search(currentValue);
+    T rightResult = operand(1).search(currentValue);
     JmesPathType leftType = runtime.typeOf(leftResult);
     JmesPathType rightType = runtime.typeOf(rightResult);
     if (leftType == JmesPathType.NUMBER && rightType == JmesPathType.NUMBER) {
@@ -58,7 +58,7 @@ public class ComparisonNode<T> extends OperatorNode<T> {
 
   @Override
   protected String internalToString() {
-    return String.format("%s, %s, %s", operator, operands()[0], operands()[1]);
+    return String.format("%s, %s, %s", operator, operand(0), operand(1));
   }
 
   @Override

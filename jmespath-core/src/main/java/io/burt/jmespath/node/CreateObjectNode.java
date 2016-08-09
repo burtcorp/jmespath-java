@@ -3,12 +3,14 @@ package io.burt.jmespath.node;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class CreateObjectNode<T> extends JmesPathNode<T> {
-  private final Entry<T>[] entries;
+  private final List<Entry<T>> entries;
 
   public static class Entry<U> {
     private final String key;
@@ -49,7 +51,7 @@ public class CreateObjectNode<T> extends JmesPathNode<T> {
     }
   }
 
-  public CreateObjectNode(Adapter<T> runtime, Entry<T>[] entries, JmesPathNode<T> source) {
+  public CreateObjectNode(Adapter<T> runtime, List<Entry<T>> entries, JmesPathNode<T> source) {
     super(runtime, source);
     this.entries = entries;
   }
@@ -67,17 +69,21 @@ public class CreateObjectNode<T> extends JmesPathNode<T> {
     }
   }
 
-  protected Entry<T>[] entries() {
+  protected List<Entry<T>> entries() {
     return entries;
   }
 
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder("{");
-    for (Entry<T> entry : entries) {
-      str.append(entry.key()).append("=").append(entry.value()).append(", ");
+    Iterator<Entry<T>> entryIterator = entries.iterator();
+    while (entryIterator.hasNext()) {
+      Entry<T> entry = entryIterator.next();
+      str.append(entry.key()).append("=").append(entry.value());
+      if (entryIterator.hasNext()) {
+        str.append(", ");
+      }
     }
-    str.delete(str.length() - 2, str.length());
     str.append("}");
     return str.toString();
   }
@@ -86,7 +92,7 @@ public class CreateObjectNode<T> extends JmesPathNode<T> {
   @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
     CreateObjectNode<T> other = (CreateObjectNode<T>) o;
-    return Arrays.equals(entries(), other.entries());
+    return entries().equals(other.entries());
   }
 
   @Override

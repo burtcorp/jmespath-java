@@ -3,19 +3,20 @@ package io.burt.jmespath.node;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class CreateArrayNode<T> extends JmesPathNode<T> {
-  private final JmesPathNode<T>[] entries;
+  private final List<JmesPathNode<T>> entries;
 
-  public CreateArrayNode(Adapter<T> runtime, JmesPathNode<T>[] entries, JmesPathNode<T> source) {
+  public CreateArrayNode(Adapter<T> runtime, List<JmesPathNode<T>> entries, JmesPathNode<T> source) {
     super(runtime, source);
     this.entries = entries;
   }
 
-  protected JmesPathNode<T>[] entries() {
+  protected List<JmesPathNode<T>> entries() {
     return entries;
   }
 
@@ -35,10 +36,14 @@ public class CreateArrayNode<T> extends JmesPathNode<T> {
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder("[");
-    for (JmesPathNode<T> entry : entries) {
-      str.append(entry).append(", ");
+    Iterator<JmesPathNode<T>> entryIterator = entries.iterator();
+    while (entryIterator.hasNext()) {
+      JmesPathNode<T> entry = entryIterator.next();
+      str.append(entry);
+      if (entryIterator.hasNext()) {
+        str.append(", ");
+      }
     }
-    str.delete(str.length() - 2, str.length());
     str.append("]");
     return str.toString();
   }
@@ -47,7 +52,7 @@ public class CreateArrayNode<T> extends JmesPathNode<T> {
   @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
     CreateArrayNode<T> other = (CreateArrayNode<T>) o;
-    return Arrays.equals(entries(), other.entries());
+    return entries().equals(other.entries());
   }
 
   @Override

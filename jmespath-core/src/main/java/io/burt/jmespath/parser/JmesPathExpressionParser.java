@@ -1,7 +1,9 @@
 package io.burt.jmespath.parser;
 
 import java.util.Deque;
+import java.util.List;
 import java.util.LinkedList;
+import java.util.ArrayList;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -185,9 +187,9 @@ public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNod
   public JmesPathNode<T> visitMultiSelectList(JmesPathParser.MultiSelectListContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
     int n = ctx.expression().size();
-    JmesPathNode<T>[] entries = (JmesPathNode<T>[]) new JmesPathNode[n];
+    List<JmesPathNode<T>> entries = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
-      entries[i] = visit(ctx.expression(i));
+      entries.add(visit(ctx.expression(i)));
     }
     currentSource.pop();
     return new CreateArrayNode<T>(runtime, entries, currentSource.peek());
@@ -198,12 +200,12 @@ public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNod
   public JmesPathNode<T> visitMultiSelectHash(JmesPathParser.MultiSelectHashContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
     int n = ctx.keyvalExpr().size();
-    CreateObjectNode.Entry<T>[] entries = (CreateObjectNode.Entry<T>[]) new CreateObjectNode.Entry[n];
+    List<CreateObjectNode.Entry<T>> entries = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       JmesPathParser.KeyvalExprContext kvCtx = ctx.keyvalExpr(i);
       String key = identifierToString(kvCtx.identifier());
       JmesPathNode<T> value = visit(kvCtx.expression());
-      entries[i] = new CreateObjectNode.Entry<T>(key, value);
+      entries.add(new CreateObjectNode.Entry<T>(key, value));
     }
     currentSource.pop();
     return new CreateObjectNode<T>(runtime, entries, currentSource.peek());
@@ -257,9 +259,9 @@ public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNod
     currentSource.push(new CurrentNode(runtime));
     String name = ctx.NAME().getText();
     int n = ctx.functionArg().size();
-    JmesPathNode<T>[] args = (JmesPathNode<T>[]) new JmesPathNode[n];
+    List<JmesPathNode<T>> args = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
-      args[i] = visit(ctx.functionArg(i));
+      args.add(visit(ctx.functionArg(i)));
     }
     currentSource.pop();
     return new FunctionCallNode<T>(runtime, name, args, currentSource.peek());
