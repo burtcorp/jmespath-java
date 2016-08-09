@@ -80,7 +80,7 @@ public abstract class JmesPathNode {
     if (this == o) {
       return true;
     }
-    if (!o.getClass().isAssignableFrom(this.getClass())) {
+    if (!getClass().isInstance(o)) {
       return false;
     }
     JmesPathNode other = (JmesPathNode) o;
