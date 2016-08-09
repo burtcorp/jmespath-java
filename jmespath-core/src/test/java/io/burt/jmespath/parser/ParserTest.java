@@ -5,6 +5,7 @@ import org.junit.Ignore;
 
 import io.burt.jmespath.JmesPathExpression;
 import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.StandardExpression;
 import io.burt.jmespath.jcf.JcfRuntime;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
@@ -40,7 +41,7 @@ public class ParserTest {
   }
 
   private JmesPathExpression<Object> build(JmesPathNode node) {
-    return new JmesPathExpression<Object>(runtime, node);
+    return new StandardExpression<Object>(runtime, node);
   }
 
   private JsonLiteralNode createJsonLiteralNode(String json) {
