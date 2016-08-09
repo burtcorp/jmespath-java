@@ -2,7 +2,7 @@ package io.burt.jmespath.function;
 
 import java.util.List;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 
 public class TypeFunction extends JmesPathFunction {
   public TypeFunction() {
@@ -10,7 +10,7 @@ public class TypeFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    return adapter.createString(adapter.typeOf(arguments.get(0).value()).toString());
+  protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+    return runtime.createString(runtime.typeOf(arguments.get(0).value()).toString());
   }
 }

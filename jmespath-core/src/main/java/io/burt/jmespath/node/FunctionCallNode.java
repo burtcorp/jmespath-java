@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.function.ExpressionOrValue;
 
 public class FunctionCallNode extends JmesPathNode {
@@ -18,16 +18,16 @@ public class FunctionCallNode extends JmesPathNode {
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
+  protected <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
     List<ExpressionOrValue<T>> arguments = new ArrayList<>(args.length);
     for (JmesPathNode arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {
         arguments.add(new ExpressionOrValue<T>(arg));
       } else {
-        arguments.add(new ExpressionOrValue<T>(arg.evaluate(adapter, currentValue)));
+        arguments.add(new ExpressionOrValue<T>(arg.evaluate(runtime, currentValue)));
       }
     }
-    return adapter.callFunction(name(), arguments);
+    return runtime.callFunction(name(), arguments);
   }
 
   protected String name() {

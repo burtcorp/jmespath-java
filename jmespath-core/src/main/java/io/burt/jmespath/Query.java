@@ -14,12 +14,12 @@ public class Query {
     return fromString(null, query);
   }
 
-  public static <T> Query fromString(Adapter<T> adapter, String query) {
-    return JmesPathQueryParser.fromString(query, adapter);
+  public static <T> Query fromString(JmesPathRuntime<T> runtime, String query) {
+    return JmesPathQueryParser.fromString(query, runtime);
   }
 
-  public <T> T evaluate(Adapter<T> adapter, T input) {
-    return expression.evaluate(adapter, input);
+  public <T> T evaluate(JmesPathRuntime<T> runtime, T input) {
+    return expression.evaluate(runtime, input);
   }
 
   protected JmesPathNode expression() {

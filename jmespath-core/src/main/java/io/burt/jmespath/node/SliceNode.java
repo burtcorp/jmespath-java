@@ -3,7 +3,7 @@ package io.burt.jmespath.node;
 import java.util.List;
 import java.util.LinkedList;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 
 public class SliceNode extends JmesPathNode {
   private final int start;
@@ -18,8 +18,8 @@ public class SliceNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> adapter, T projectionElement) {
-    List<T> elements = adapter.toList(projectionElement);
+  public <T> T evaluateOne(JmesPathRuntime<T> runtime, T projectionElement) {
+    List<T> elements = runtime.toList(projectionElement);
     List<T> output = new LinkedList<>();
     int i = start < 0 ? elements.size() + start : start;
     int n = stop <= 0 ? elements.size() + stop : Math.min(elements.size(), stop);
@@ -33,7 +33,7 @@ public class SliceNode extends JmesPathNode {
         output.add(elements.get(n));
       }
     }
-    return adapter.createArray(output);
+    return runtime.createArray(output);
   }
 
   protected int start() {

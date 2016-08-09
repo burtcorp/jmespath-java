@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 
 public class SortFunction extends JmesPathFunction {
@@ -17,9 +17,9 @@ public class SortFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    List<T> elements = new ArrayList<T>(adapter.toList(arguments.get(0).value()));
-    Collections.sort(elements, adapter);
-    return adapter.createArray(elements);
+  protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+    List<T> elements = new ArrayList<T>(runtime.toList(arguments.get(0).value()));
+    Collections.sort(elements, runtime);
+    return runtime.createArray(elements);
   }
 }

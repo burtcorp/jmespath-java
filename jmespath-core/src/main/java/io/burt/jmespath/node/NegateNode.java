@@ -1,6 +1,6 @@
 package io.burt.jmespath.node;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 
 public class NegateNode extends JmesPathNode {
   public NegateNode(JmesPathNode source) {
@@ -8,8 +8,8 @@ public class NegateNode extends JmesPathNode {
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    return adapter.createBoolean(!adapter.isTruthy(currentValue));
+  protected <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
+    return runtime.createBoolean(!runtime.isTruthy(currentValue));
   }
 
   @Override

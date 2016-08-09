@@ -27,11 +27,11 @@ import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
 
 @SuppressWarnings("unchecked")
-public abstract class AdapterTest<T> {
+public abstract class JmesPathRuntimeTest<T> {
   protected T contact;
   protected T cloudtrail;
 
-  protected abstract Adapter<T> adapter();
+  protected abstract JmesPathRuntime<T> runtime();
 
   protected T loadExample(String path) {
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {
@@ -40,14 +40,14 @@ public abstract class AdapterTest<T> {
       while ((line = reader.readLine()) != null) {
         buffer.append(line);
       }
-      return adapter().parseString(buffer.toString());
+      return runtime().parseString(buffer.toString());
     } catch (IOException ioe) {
       throw new RuntimeException(String.format("Failed parsing %s", path), ioe);
     }
   }
 
   protected T evaluate(String query, T input) {
-    return Query.fromString(adapter(), query).evaluate(adapter(), input);
+    return Query.fromString(runtime(), query).evaluate(runtime(), input);
   }
 
   protected Matcher<T> jsonBoolean(final boolean b) {
@@ -55,7 +55,7 @@ public abstract class AdapterTest<T> {
       @Override
       public boolean matches(final Object n) {
         T node = (T) n;
-        return adapter().typeOf(node) == JmesPathType.BOOLEAN && adapter().isTruthy(node) == b;
+        return runtime().typeOf(node) == JmesPathType.BOOLEAN && runtime().isTruthy(node) == b;
       }
 
       @Override
@@ -70,8 +70,8 @@ public abstract class AdapterTest<T> {
       @Override
       public boolean matches(final Object n) {
         T actual = (T) n;
-        T expected = adapter().createNumber(e.doubleValue());
-        return adapter().typeOf(actual) == JmesPathType.NUMBER && adapter().compare(actual, expected) == 0;
+        T expected = runtime().createNumber(e.doubleValue());
+        return runtime().typeOf(actual) == JmesPathType.NUMBER && runtime().compare(actual, expected) == 0;
       }
 
       @Override
@@ -86,7 +86,7 @@ public abstract class AdapterTest<T> {
       @Override
       public boolean matches(final Object n) {
         T node = (T) n;
-        return adapter().typeOf(node) == JmesPathType.NULL;
+        return runtime().typeOf(node) == JmesPathType.NULL;
       }
 
       @Override
@@ -101,7 +101,7 @@ public abstract class AdapterTest<T> {
       @Override
       public boolean matches(final Object n) {
         T node = (T) n;
-        return adapter().createString(str).equals(node);
+        return runtime().createString(str).equals(node);
       }
 
       @Override
@@ -115,12 +115,12 @@ public abstract class AdapterTest<T> {
     return new BaseMatcher<T>() {
       @Override
       public boolean matches(final Object n) {
-        List<T> input = adapter().toList((T) n);
+        List<T> input = runtime().toList((T) n);
         if (input.size() != strs.length) {
           return false;
         }
         for (int i = 0; i < strs.length; i++) {
-          if (!adapter().toString(input.get(i)).equals(strs[i])) {
+          if (!runtime().toString(input.get(i)).equals(strs[i])) {
             return false;
           }
         }
@@ -243,9 +243,9 @@ public abstract class AdapterTest<T> {
 
   @Test
   public void flattenArray() {
-    T nestedArray = adapter().parseString("[[0, 1, 2]]");
+    T nestedArray = runtime().parseString("[[0, 1, 2]]");
     T result = evaluate("[]", nestedArray);
-    assertThat(result, is(adapter().parseString("[0, 1, 2]")));
+    assertThat(result, is(runtime().parseString("[0, 1, 2]")));
   }
 
   @Test
@@ -256,16 +256,16 @@ public abstract class AdapterTest<T> {
 
   @Test
   public void flattenMultipleTimes() {
-    T nestedArray = adapter().parseString("[[0, 1, 2]]");
+    T nestedArray = runtime().parseString("[[0, 1, 2]]");
     T result = evaluate("[][][][][][][][][][][][][]", nestedArray);
-    assertThat(result, is(adapter().parseString("[0, 1, 2]")));
+    assertThat(result, is(runtime().parseString("[0, 1, 2]")));
   }
 
   @Test
   public void flattenInProjection() {
-    T nestedArray = adapter().parseString("[{\"a\":[0]},{\"a\":[1]}]");
+    T nestedArray = runtime().parseString("[{\"a\":[0]},{\"a\":[1]}]");
     T result = evaluate("[*].a[]", nestedArray);
-    assertThat(result, is(adapter().parseString("[0, 1]")));
+    assertThat(result, is(runtime().parseString("[0, 1]")));
   }
 
   @Test
@@ -282,19 +282,19 @@ public abstract class AdapterTest<T> {
 
   @Test
   public void multipleFlattenObject() {
-    T nestedObject = adapter().parseString("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
+    T nestedObject = runtime().parseString("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
     T result = evaluate("*.*", nestedObject);
-    assertThat(result, is(adapter().parseString("[[{\"inner\":1}],[{\"inner\":2}]]")));
+    assertThat(result, is(runtime().parseString("[[{\"inner\":1}],[{\"inner\":2}]]")));
   }
 
   @Test
   @Ignore("How can the result in the first assertion be the basis for the result in the second?")
   public void multipleFlattenObjectWithFollowingProjection() {
-    T nestedObject = adapter().parseString("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
+    T nestedObject = runtime().parseString("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
     T result1 = evaluate("*.*.inner", nestedObject);
-    assertThat(result1, is(adapter().parseString("[[1],[2]]")));
+    assertThat(result1, is(runtime().parseString("[[1],[2]]")));
     T result = evaluate("*.*.inner[]", nestedObject);
-    assertThat(result, is(adapter().parseString("[1,2]")));
+    assertThat(result, is(runtime().parseString("[1,2]")));
   }
 
   @Test
@@ -312,7 +312,7 @@ public abstract class AdapterTest<T> {
   @Test
   public void sliceNotFound() {
     T result = evaluate("Records[0].userIdentity.* | [99:]", cloudtrail);
-    assertThat(adapter().toList(result), is(empty()));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test
@@ -336,7 +336,7 @@ public abstract class AdapterTest<T> {
   @Test
   public void currentNodeReturnsInput() {
     T result = evaluate("@", cloudtrail);
-    assertThat(adapter().toList(adapter().getProperty(result, "Records")), hasSize(3));
+    assertThat(runtime().toList(runtime().getProperty(result, "Records")), hasSize(3));
   }
 
   @Test
@@ -384,8 +384,8 @@ public abstract class AdapterTest<T> {
   @Test
   public void selectionWithTrueTest() {
     T result = evaluate("Records[?@]", cloudtrail);
-    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
-    assertThat(adapter().toList(result), hasSize(3));
+    assertThat(runtime().typeOf(result), is(JmesPathType.ARRAY));
+    assertThat(runtime().toList(result), hasSize(3));
   }
 
   @Test
@@ -397,8 +397,8 @@ public abstract class AdapterTest<T> {
   @Test
   public void selectionWithFalseTest() {
     T result = evaluate("Records[?'']", cloudtrail);
-    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
-    assertThat(adapter().toList(result), is(empty()));
+    assertThat(runtime().typeOf(result), is(JmesPathType.ARRAY));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test
@@ -410,17 +410,17 @@ public abstract class AdapterTest<T> {
   @Test
   public void selectionTestReferencingProperty() {
     T result = evaluate("Records[*].responseElements | [?keyFingerprint]", cloudtrail);
-    List<T> elements = adapter().toList(result);
-    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
+    List<T> elements = runtime().toList(result);
+    assertThat(runtime().typeOf(result), is(JmesPathType.ARRAY));
     assertThat(elements, hasSize(1));
-    assertThat(adapter().getProperty(elements.get(0), "keyName"), is(jsonString("mykeypair")));
+    assertThat(runtime().getProperty(elements.get(0), "keyName"), is(jsonString("mykeypair")));
   }
 
   @Test
   public void selectionDoesNotSelectProjectionPutEachProjectedElement() {
     T result = evaluate("Records[*].responseElements.keyName[?@]", cloudtrail);
-    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
-    assertThat(adapter().toList(result), is(empty()));
+    assertThat(runtime().typeOf(result), is(JmesPathType.ARRAY));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test
@@ -594,8 +594,8 @@ public abstract class AdapterTest<T> {
   @Test
   public void createObject() {
     T result = evaluate("{userNames: Records[*].userIdentity.userName, keyName: Records[2].responseElements.keyName}", cloudtrail);
-    T userNames = adapter().getProperty(result, "userNames");
-    T keyName = adapter().getProperty(result, "keyName");
+    T userNames = runtime().getProperty(result, "userNames");
+    T keyName = runtime().getProperty(result, "keyName");
     assertThat(userNames, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(keyName, is(jsonString("mykeypair")));
   }
@@ -603,8 +603,8 @@ public abstract class AdapterTest<T> {
   @Test
   public void createObjectInPipe() {
     T result = evaluate("Records[*].userIdentity | {userNames: [*].userName, anyUsedMfa: ([?sessionContext.attributes.mfaAuthenticated] | !!@)}", cloudtrail);
-    T userNames = adapter().getProperty(result, "userNames");
-    T anyUsedMfa = adapter().getProperty(result, "anyUsedMfa");
+    T userNames = runtime().getProperty(result, "userNames");
+    T anyUsedMfa = runtime().getProperty(result, "anyUsedMfa");
     assertThat(userNames, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(anyUsedMfa, is(jsonBoolean(true)));
   }
@@ -612,16 +612,16 @@ public abstract class AdapterTest<T> {
   @Test
   public void createObjectInProjection() {
     T result = evaluate("Records[*].userIdentity.{userName: userName, usedMfa: sessionContext.attributes.mfaAuthenticated}", cloudtrail);
-    List<T> elements = adapter().toList(result);
-    assertThat(adapter().getProperty(elements.get(0), "usedMfa"), is(jsonNull()));
-    assertThat(adapter().getProperty(elements.get(1), "usedMfa"), is(jsonNull()));
-    assertThat(adapter().getProperty(elements.get(2), "usedMfa"), is(jsonBoolean(true)));
+    List<T> elements = runtime().toList(result);
+    assertThat(runtime().getProperty(elements.get(0), "usedMfa"), is(jsonNull()));
+    assertThat(runtime().getProperty(elements.get(1), "usedMfa"), is(jsonNull()));
+    assertThat(runtime().getProperty(elements.get(2), "usedMfa"), is(jsonBoolean(true)));
   }
 
   @Test
   public void nestedCreateObject() {
     T result = evaluate("Records[*].userIdentity | {users: {names: [*].userName}}", cloudtrail);
-    T names = adapter().getProperty(adapter().getProperty(result, "users"), "names");
+    T names = runtime().getProperty(runtime().getProperty(result, "users"), "names");
     assertThat(names, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
@@ -634,7 +634,7 @@ public abstract class AdapterTest<T> {
   @Test
   public void createArray() {
     T result = evaluate("[Records[*].userIdentity.userName, Records[2].responseElements.keyName]", cloudtrail);
-    List<T> elements = adapter().toList(result);
+    List<T> elements = runtime().toList(result);
     assertThat(elements.get(0), is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(elements.get(1), is(jsonString("mykeypair")));
   }
@@ -642,7 +642,7 @@ public abstract class AdapterTest<T> {
   @Test
   public void createArrayInPipe() {
     T result = evaluate("Records[*].userIdentity | [[*].userName, ([?sessionContext.attributes.mfaAuthenticated] | !!@)]", cloudtrail);
-    List<T> elements = adapter().toList(result);
+    List<T> elements = runtime().toList(result);
     assertThat(elements.get(0), is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(elements.get(1), is(jsonBoolean(true)));
   }
@@ -650,18 +650,18 @@ public abstract class AdapterTest<T> {
   @Test
   public void createArrayInProjection() {
     T result = evaluate("Records[*].userIdentity.[userName, sessionContext.attributes.mfaAuthenticated]", cloudtrail);
-    List<T> elements = adapter().toList(result);
-    assertThat(adapter().toList(elements.get(0)).get(1), is(jsonNull()));
-    assertThat(adapter().toList(elements.get(1)).get(1), is(jsonNull()));
-    assertThat(adapter().toList(elements.get(2)).get(1), is(jsonBoolean(true)));
+    List<T> elements = runtime().toList(result);
+    assertThat(runtime().toList(elements.get(0)).get(1), is(jsonNull()));
+    assertThat(runtime().toList(elements.get(1)).get(1), is(jsonNull()));
+    assertThat(runtime().toList(elements.get(2)).get(1), is(jsonBoolean(true)));
   }
 
   @Test
   public void nestedCreateArray() {
     T result = evaluate("Records[*].userIdentity | [[*].type, [[*].userName]]", cloudtrail);
-    List<T> elements = adapter().toList(result);
+    List<T> elements = runtime().toList(result);
     assertThat(elements.get(0), is(jsonArrayOfStrings("IAMUser", "IAMUser", "IAMUser")));
-    assertThat(adapter().toList(elements.get(1)).get(0), is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
+    assertThat(runtime().toList(elements.get(1)).get(0), is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
   @Test
@@ -672,32 +672,32 @@ public abstract class AdapterTest<T> {
 
   @Test
   public void jsonLiteralNumber() {
-    T result = evaluate("`42`", adapter().parseString("{}"));
-    assertThat(result, is(adapter().parseString("42")));
+    T result = evaluate("`42`", runtime().parseString("{}"));
+    assertThat(result, is(runtime().parseString("42")));
   }
 
   @Test
   public void jsonLiteralString() {
-    T result = evaluate("`\"foo\"`", adapter().parseString("{}"));
+    T result = evaluate("`\"foo\"`", runtime().parseString("{}"));
     assertThat(result, is(jsonString("foo")));
   }
 
   @Test
   public void jsonLiteralBoolean() {
-    T result = evaluate("`true`", adapter().parseString("{}"));
+    T result = evaluate("`true`", runtime().parseString("{}"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void jsonLiteralArray() {
-    T result = evaluate("`[42, \"foo\", true]`", adapter().parseString("{}"));
-    assertThat(result, is(adapter().parseString("[42, \"foo\", true]")));
+    T result = evaluate("`[42, \"foo\", true]`", runtime().parseString("{}"));
+    assertThat(result, is(runtime().parseString("[42, \"foo\", true]")));
   }
 
   @Test
   public void jsonLiteralObject() {
-    T result = evaluate("`{\"n\": 42, \"s\": \"foo\", \"b\": true}`", adapter().parseString("{}"));
-    assertThat(result, is(adapter().parseString("{\"n\": 42, \"s\": \"foo\", \"b\": true}")));
+    T result = evaluate("`{\"n\": 42, \"s\": \"foo\", \"b\": true}`", runtime().parseString("{}"));
+    assertThat(result, is(runtime().parseString("{\"n\": 42, \"s\": \"foo\", \"b\": true}")));
   }
 
   @Test
@@ -709,73 +709,73 @@ public abstract class AdapterTest<T> {
   @Test
   public void comparingJsonLiteralsWithRawContents() {
     Query query = Query.fromString(null, "Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress");
-    T result = query.evaluate(adapter(), cloudtrail);
+    T result = query.evaluate(runtime(), cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("72.21.198.64")));
   }
 
   @Test
   public void numbersAreTruthy() {
-    T result = evaluate("!@", adapter().parseString("1"));
+    T result = evaluate("!@", runtime().parseString("1"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void stringsAreTruthy() {
-    T result = evaluate("!@", adapter().parseString("\"foo\""));
+    T result = evaluate("!@", runtime().parseString("\"foo\""));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void nonEmptyArraysAreTruthy() {
-    T result = evaluate("!@", adapter().parseString("[\"foo\"]"));
+    T result = evaluate("!@", runtime().parseString("[\"foo\"]"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void nonEmptyObjectsAreTruthy() {
-    T result = evaluate("!@", adapter().parseString("{\"foo\":3}"));
+    T result = evaluate("!@", runtime().parseString("{\"foo\":3}"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void trueIsTruthy() {
-    T result = evaluate("!@", adapter().parseString("true"));
+    T result = evaluate("!@", runtime().parseString("true"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void falseIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("false"));
+    T result = evaluate("!@", runtime().parseString("false"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void nullIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("null"));
+    T result = evaluate("!@", runtime().parseString("null"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void anEmptyStringIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("\"\""));
+    T result = evaluate("!@", runtime().parseString("\"\""));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void anEmptyArrayIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("[]"));
+    T result = evaluate("!@", runtime().parseString("[]"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void anEmptyObjectIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("{}"));
+    T result = evaluate("!@", runtime().parseString("{}"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void callFunction() {
-    T result = evaluate("type(@)", adapter().parseString("{}"));
+    T result = evaluate("type(@)", runtime().parseString("{}"));
     assertThat(result, is(jsonString("object")));
   }
 
@@ -793,319 +793,319 @@ public abstract class AdapterTest<T> {
 
   @Test(expected = FunctionCallException.class)
   public void callNonExistentFunctionThrowsFunctionCallException() {
-    evaluate("bork()", adapter().parseString("{}"));
+    evaluate("bork()", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void callFunctionWithTooFewArgumentsThrowsArityException() {
-    evaluate("type()", adapter().parseString("{}"));
+    evaluate("type()", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void callFunctionWithTooManyArgumentsThrowsArityException() {
-    evaluate("type(@, @, @)", adapter().parseString("{}"));
+    evaluate("type(@, @, @)", runtime().parseString("{}"));
   }
 
   @Test
   public void absReturnsTheAbsoluteValueOfANumber() {
-    T result1 = evaluate("abs(`-1`)", adapter().parseString("{}"));
-    T result2 = evaluate("abs(`1`)", adapter().parseString("{}"));
+    T result1 = evaluate("abs(`-1`)", runtime().parseString("{}"));
+    T result2 = evaluate("abs(`1`)", runtime().parseString("{}"));
     assertThat(result1, is(jsonNumber(1)));
     assertThat(result2, is(jsonNumber(1)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void absRequiresANumberArgument() {
-    evaluate("abs('foo')", adapter().parseString("{}"));
+    evaluate("abs('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void absRequiresExactlyOneArgument() {
-    evaluate("abs(`1`, `2`)", adapter().parseString("{}"));
+    evaluate("abs(`1`, `2`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void absRequiresAValue() {
-    evaluate("abs(&foo)", adapter().parseString("{}"));
+    evaluate("abs(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void avgReturnsTheAverageOfAnArrayOfNumbers() {
-    T result = evaluate("avg(`[0, 1, 2, 3.5, 4]`)", adapter().parseString("{}"));
+    T result = evaluate("avg(`[0, 1, 2, 3.5, 4]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNumber(2.1)));
   }
 
   @Test
   public void avgReturnsNullWhenGivenAnEmptyArray() {
-    T result = evaluate("avg(`[]`)", adapter().parseString("{}"));
+    T result = evaluate("avg(`[]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void avgRequiresAnArrayOfNumbers() {
-    evaluate("avg('foo')", adapter().parseString("{}"));
+    evaluate("avg('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void avgRequiresExactlyOneArgument() {
-    evaluate("avg(`[]`, `[]`)", adapter().parseString("{}"));
+    evaluate("avg(`[]`, `[]`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void avgRequiresAValue() {
-    evaluate("avg(&foo)", adapter().parseString("{}"));
+    evaluate("avg(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void containsReturnsTrueWhenTheNeedleIsFoundInTheHaystack() {
-    T result = evaluate("contains(@, `3`)", adapter().parseString("[1, 2, 3, \"foo\"]"));
+    T result = evaluate("contains(@, `3`)", runtime().parseString("[1, 2, 3, \"foo\"]"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void containsComparesDeeply() {
-    T result = evaluate("contains(@, `[\"bar\", {\"baz\": 42}]`)", adapter().parseString("[1, 2, 3, \"foo\", [\"bar\", {\"baz\": 42}]]"));
+    T result = evaluate("contains(@, `[\"bar\", {\"baz\": 42}]`)", runtime().parseString("[1, 2, 3, \"foo\", [\"bar\", {\"baz\": 42}]]"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void containsReturnsFalseWhenTheNeedleIsNotFoundInTheHaystack() {
-    T result = evaluate("contains(@, `4`)", adapter().parseString("[1, 2, 3, \"foo\"]"));
+    T result = evaluate("contains(@, `4`)", runtime().parseString("[1, 2, 3, \"foo\"]"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void containsSearchesInStrings() {
-    T result = evaluate("contains('hello', 'hell')", adapter().parseString("{}"));
+    T result = evaluate("contains('hello', 'hell')", runtime().parseString("{}"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test(expected = ArityException.class)
   public void containsRequiresTwoArguments() {
-    evaluate("contains(@)", adapter().parseString("[]"));
+    evaluate("contains(@)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void containsRequiresAnArrayOrStringAsFirstArgument() {
-    evaluate("contains(@, 'foo')", adapter().parseString("{}"));
+    evaluate("contains(@, 'foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void containsRequiresTwoArguments1() {
-    evaluate("contains('foo')", adapter().parseString("{}"));
+    evaluate("contains('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void containsRequiresTwoArguments2() {
-    evaluate("contains('foo', 'bar', 'baz')", adapter().parseString("{}"));
+    evaluate("contains('foo', 'bar', 'baz')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void containsRequiresValues1() {
-    evaluate("contains(@, &foo)", adapter().parseString("{}"));
+    evaluate("contains(@, &foo)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void containsRequiresValues2() {
-    evaluate("contains(&foo, 'bar')", adapter().parseString("{}"));
+    evaluate("contains(&foo, 'bar')", runtime().parseString("{}"));
   }
 
   @Test
   public void ceilReturnsTheNextWholeNumber() {
-    T result1 = evaluate("ceil(`0.9`)", adapter().parseString("{}"));
-    T result2 = evaluate("ceil(`33.3`)", adapter().parseString("{}"));
+    T result1 = evaluate("ceil(`0.9`)", runtime().parseString("{}"));
+    T result2 = evaluate("ceil(`33.3`)", runtime().parseString("{}"));
     assertThat(result1, is(jsonNumber(1)));
     assertThat(result2, is(jsonNumber(34)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void ceilRequiresANumberArgument() {
-    evaluate("ceil('foo')", adapter().parseString("{}"));
+    evaluate("ceil('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void ceilRequiresExactlyOneArgument() {
-    evaluate("ceil(`1`, `2`)", adapter().parseString("{}"));
+    evaluate("ceil(`1`, `2`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void ceilRequiresAValue() {
-    evaluate("ceil(&foo)", adapter().parseString("{}"));
+    evaluate("ceil(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void endsWithReturnsTrueWhenTheFirstArgumentEndsWithTheSecond() {
-    T result = evaluate("ends_with(@, 'rld')", adapter().parseString("\"world\""));
+    T result = evaluate("ends_with(@, 'rld')", runtime().parseString("\"world\""));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void endsWithReturnsFalseWhenTheFirstArgumentDoesNotEndWithTheSecond() {
-    T result = evaluate("ends_with(@, 'rld')", adapter().parseString("\"hello\""));
+    T result = evaluate("ends_with(@, 'rld')", runtime().parseString("\"hello\""));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments() {
-    evaluate("ends_with('')", adapter().parseString("{}"));
+    evaluate("ends_with('')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAStringAsFirstArgument() {
-    evaluate("ends_with(@, 'foo')", adapter().parseString("{}"));
+    evaluate("ends_with(@, 'foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAStringAsSecondArgument() {
-    evaluate("ends_with('foo', @)", adapter().parseString("{}"));
+    evaluate("ends_with('foo', @)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments1() {
-    evaluate("ends_with('foo')", adapter().parseString("{}"));
+    evaluate("ends_with('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments2() {
-    evaluate("ends_with('foo', 'bar', @)", adapter().parseString("{}"));
+    evaluate("ends_with('foo', 'bar', @)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAValue1() {
-    evaluate("ends_with(&foo, 'bar')", adapter().parseString("{}"));
+    evaluate("ends_with(&foo, 'bar')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAValue2() {
-    evaluate("ends_with('foo', &bar)", adapter().parseString("{}"));
+    evaluate("ends_with('foo', &bar)", runtime().parseString("{}"));
   }
 
   @Test
   public void floorReturnsThePreviousWholeNumber() {
-    T result1 = evaluate("floor(`0.9`)", adapter().parseString("{}"));
-    T result2 = evaluate("floor(`33.3`)", adapter().parseString("{}"));
+    T result1 = evaluate("floor(`0.9`)", runtime().parseString("{}"));
+    T result2 = evaluate("floor(`33.3`)", runtime().parseString("{}"));
     assertThat(result1, is(jsonNumber(0)));
     assertThat(result2, is(jsonNumber(33)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void floorRequiresANumberArgument() {
-    evaluate("floor('foo')", adapter().parseString("{}"));
+    evaluate("floor('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void floorRequiresExactlyOneArgument() {
-    evaluate("floor(`1`, `2`)", adapter().parseString("{}"));
+    evaluate("floor(`1`, `2`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void floorRequiresAValue() {
-    evaluate("floor(&foo)", adapter().parseString("{}"));
+    evaluate("floor(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void joinSmashesAnArrayOfStringsTogether() {
-    T result = evaluate("join('|', @)", adapter().parseString("[\"foo\", \"bar\", \"baz\"]"));
+    T result = evaluate("join('|', @)", runtime().parseString("[\"foo\", \"bar\", \"baz\"]"));
     assertThat(result, is(jsonString("foo|bar|baz")));
   }
 
   @Test
   public void joinHandlesDuplicates() {
-    T string = adapter().createString("foo");
-    T value = adapter().createArray(Arrays.asList(string, string, string));
+    T string = runtime().createString("foo");
+    T value = runtime().createArray(Arrays.asList(string, string, string));
     T result = evaluate("join('|', @)", value);
     assertThat(result, is(jsonString("foo|foo|foo")));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAStringAsFirstArgument() {
-    evaluate("join(`3`, @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
+    evaluate("join(`3`, @)", runtime().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAStringArrayAsSecondArgument() {
-    evaluate("join('|', @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
+    evaluate("join('|', @)", runtime().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
   }
 
   @Test(expected = ArityException.class)
   public void joinRequiresTwoArguments1() {
-    evaluate("join('|')", adapter().parseString("[]"));
+    evaluate("join('|')", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void joinRequiresTwoArguments2() {
-    evaluate("join('|', @, @)", adapter().parseString("[]"));
+    evaluate("join('|', @, @)", runtime().parseString("[]"));
   }
 
   @Test
   public void joinWithAnEmptyArrayReturnsAnEmptyString() {
-    T result = evaluate("join('|', @)", adapter().parseString("[]"));
+    T result = evaluate("join('|', @)", runtime().parseString("[]"));
     assertThat(result, is(jsonString("")));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAValue1() {
-    evaluate("join(&foo, @)", adapter().parseString("{}"));
+    evaluate("join(&foo, @)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAValue2() {
-    evaluate("join('foo', &bar)", adapter().parseString("{}"));
+    evaluate("join('foo', &bar)", runtime().parseString("{}"));
   }
 
   @Test
   public void keysReturnsTheNamesOfAnObjectsProperties() {
-    T result = evaluate("keys(@)", adapter().parseString("{\"foo\":3,\"bar\":4}"));
+    T result = evaluate("keys(@)", runtime().parseString("{\"foo\":3,\"bar\":4}"));
     assertThat(result, is(jsonArrayOfStrings("foo", "bar")));
   }
 
   @Test
   public void keysReturnsAnEmptyArrayWhenGivenAnEmptyObject() {
-    T result = evaluate("keys(@)", adapter().parseString("{}"));
-    assertThat(adapter().toList(result), is(empty()));
+    T result = evaluate("keys(@)", runtime().parseString("{}"));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void keysRequiresAnObjectAsArgument() {
-    evaluate("keys(@)", adapter().parseString("[3]"));
+    evaluate("keys(@)", runtime().parseString("[3]"));
   }
 
   @Test(expected = ArityException.class)
   public void keysRequiresASingleArgument() {
-    evaluate("keys(@, @)", adapter().parseString("{}"));
+    evaluate("keys(@, @)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void keysRequiresAValue() {
-    evaluate("keys(&foo)", adapter().parseString("{}"));
+    evaluate("keys(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void lengthReturnsTheLengthOfAString() {
-    T result = evaluate("length(foo)", adapter().parseString("{\"foo\":\"bar\"}"));
+    T result = evaluate("length(foo)", runtime().parseString("{\"foo\":\"bar\"}"));
     assertThat(result, is(jsonNumber(3)));
   }
 
   @Test
   public void lengthReturnsTheSizeOfAnArray() {
-    T result = evaluate("length(foo)", adapter().parseString("{\"foo\":[0, 1, 2, 3]}"));
+    T result = evaluate("length(foo)", runtime().parseString("{\"foo\":[0, 1, 2, 3]}"));
     assertThat(result, is(jsonNumber(4)));
   }
 
   @Test
   public void lengthReturnsTheSizeOfAnObject() {
-    T result = evaluate("length(@)", adapter().parseString("{\"foo\":[0, 1, 2, 3]}"));
+    T result = evaluate("length(@)", runtime().parseString("{\"foo\":[0, 1, 2, 3]}"));
     assertThat(result, is(jsonNumber(1)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void lengthRequiresAStringArrayOrObjectAsArgument() {
-    evaluate("length(@)", adapter().parseString("3"));
+    evaluate("length(@)", runtime().parseString("3"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void lengthRequiresAValue() {
-    evaluate("length(&foo)", adapter().parseString("{}"));
+    evaluate("length(&foo)", runtime().parseString("{}"));
   }
 
   @Test
@@ -1116,374 +1116,374 @@ public abstract class AdapterTest<T> {
 
   @Test
   public void mapReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
-    T result = evaluate("map(&foo, @)", adapter().parseString("[]"));
-    assertThat(adapter().toList(result), is(empty()));
+    T result = evaluate("map(&foo, @)", runtime().parseString("[]"));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mapRequiresAnExpressionAsFirstArgument() {
-    evaluate("map(@, @)", adapter().parseString("[]"));
+    evaluate("map(@, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mapRequiresAnArrayAsSecondArgument1() {
-    evaluate("map(&foo, @)", adapter().parseString("{}"));
+    evaluate("map(&foo, @)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mapRequiresAnArrayAsSecondArgument2() {
-    evaluate("map(@, &foo)", adapter().parseString("[]"));
+    evaluate("map(@, &foo)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void mapRequiresTwoArguments1() {
-    evaluate("map(&foo.bar)", adapter().parseString("[]"));
+    evaluate("map(&foo.bar)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void mapRequiresTwoArguments2() {
-    evaluate("map(&foo.bar, @, @)", adapter().parseString("[]"));
+    evaluate("map(&foo.bar, @, @)", runtime().parseString("[]"));
   }
 
   @Test
   public void maxReturnsTheGreatestOfAnArrayOfNumbers() {
-    T result = evaluate("max(`[0, 1, 4, 3.5, 2]`)", adapter().parseString("{}"));
+    T result = evaluate("max(`[0, 1, 4, 3.5, 2]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNumber(4)));
   }
 
   @Test
   public void maxReturnsTheGreatestOfAnArrayOfStrings() {
-    T result = evaluate("max(`[\"a\", \"d\", \"b\"]`)", adapter().parseString("{}"));
+    T result = evaluate("max(`[\"a\", \"d\", \"b\"]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonString("d")));
   }
 
   @Test
   public void maxReturnsNullWhenGivenAnEmptyArray() {
-    T result = evaluate("max(`[]`)", adapter().parseString("{}"));
+    T result = evaluate("max(`[]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxRequiresAnArrayOfNumbersOrStrings() {
-    evaluate("max('foo')", adapter().parseString("{}"));
+    evaluate("max('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxRequiresTheElementsToBeOfTheSameType() {
-    evaluate("max(`[\"foo\", 1]`)", adapter().parseString("{}"));
+    evaluate("max(`[\"foo\", 1]`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void maxRequiresExactlyOneArgument() {
-    evaluate("max(`[]`, `[]`)", adapter().parseString("{}"));
+    evaluate("max(`[]`, `[]`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxRequiresAValue() {
-    evaluate("max(&foo)", adapter().parseString("{}"));
+    evaluate("max(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void maxByReturnsTheElementWithTheGreatestValueForAnExpressionThatReturnsStrings() {
     T result = evaluate("max_by(phoneNumbers, &type)", contact);
-    assertThat(result, is(adapter().parseString("{\"type\": \"office\", \"number\": \"646 555-4567\"}")));
+    assertThat(result, is(runtime().parseString("{\"type\": \"office\", \"number\": \"646 555-4567\"}")));
   }
 
   @Test
   public void maxByReturnsTheElementWithTheGreatestValueForAnExpressionThatReturnsNumbers() {
-    T result = evaluate("max_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": 6}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("{\"foo\": 6}")));
+    T result = evaluate("max_by(@, &foo)", runtime().parseString("[{\"foo\": 3}, {\"foo\": 6}, {\"foo\": 1}]"));
+    assertThat(result, is(runtime().parseString("{\"foo\": 6}")));
   }
 
   @Test
   public void maxByReturnsWithAnEmptyArrayReturnsNull() {
-    T result = evaluate("max_by(@, &foo)", adapter().parseString("[]"));
+    T result = evaluate("max_by(@, &foo)", runtime().parseString("[]"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByDoesNotAcceptMixedResults() {
-    evaluate("max_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    evaluate("max_by(@, &foo)", runtime().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByDoesNotAcceptNonStringsOrNumbers() {
-    evaluate("max_by(@, &foo)", adapter().parseString("[{\"foo\": []}]"));
+    evaluate("max_by(@, &foo)", runtime().parseString("[{\"foo\": []}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByRequiresAnArrayAsFirstArgument1() {
-    evaluate("max_by(@, &foo)", adapter().parseString("{}"));
+    evaluate("max_by(@, &foo)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByRequiresAnArrayAsFirstArgument2() {
-    evaluate("max_by(&foo, @)", adapter().parseString("[]"));
+    evaluate("max_by(&foo, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByRequiresAnExpressionAsSecondArgument() {
-    evaluate("max_by(@, @)", adapter().parseString("[]"));
+    evaluate("max_by(@, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void maxByRequiresTwoArguments1() {
-    evaluate("max_by(@)", adapter().parseString("[]"));
+    evaluate("max_by(@)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void maxByRequiresTwoArguments2() {
-    evaluate("max_by(@, &foo, @)", adapter().parseString("[]"));
+    evaluate("max_by(@, &foo, @)", runtime().parseString("[]"));
   }
 
   @Test
   public void mergeMergesObjects() {
-    T result = evaluate("merge(foo, bar)", adapter().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
-    assertThat(result, is(adapter().parseString("{\"a\": 1, \"b\": 2}")));
+    T result = evaluate("merge(foo, bar)", runtime().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
+    assertThat(result, is(runtime().parseString("{\"a\": 1, \"b\": 2}")));
   }
 
   @Test
   public void mergeReturnsTheArgumentWhenOnlyGivenOne() {
-    T result = evaluate("merge(foo)", adapter().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
-    assertThat(result, is(adapter().parseString("{\"a\": 1, \"b\": 1}}")));
+    T result = evaluate("merge(foo)", runtime().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
+    assertThat(result, is(runtime().parseString("{\"a\": 1, \"b\": 1}}")));
   }
 
   @Test
   public void mergeDoesNotMutate() {
-    T result = evaluate("merge(foo, bar) && foo", adapter().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
-    assertThat(result, is(adapter().parseString("{\"a\": 1, \"b\": 1}")));
+    T result = evaluate("merge(foo, bar) && foo", runtime().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
+    assertThat(result, is(runtime().parseString("{\"a\": 1, \"b\": 1}")));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mergeRequiresObjectArguments1() {
-    evaluate("merge('foo', 'bar')", adapter().parseString("{}"));
+    evaluate("merge('foo', 'bar')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mergeRequiresObjectArguments2() {
-    evaluate("merge(`{}`, @)", adapter().parseString("[]"));
+    evaluate("merge(`{}`, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void mergeRequiresAtLeastOneArgument() {
-    evaluate("merge()", adapter().parseString("{}"));
+    evaluate("merge()", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mergeRequiresAValue() {
-    evaluate("merge(&foo)", adapter().parseString("{}"));
+    evaluate("merge(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void minReturnsTheGreatestOfAnArrayOfNumbers() {
-    T result = evaluate("min(`[0, 1, -4, 3.5, 2]`)", adapter().parseString("{}"));
+    T result = evaluate("min(`[0, 1, -4, 3.5, 2]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNumber(-4)));
   }
 
   @Test
   public void minReturnsTheGreatestOfAnArrayOfStrings() {
-    T result = evaluate("min(`[\"foo\", \"bar\"]`)", adapter().parseString("{}"));
+    T result = evaluate("min(`[\"foo\", \"bar\"]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonString("bar")));
   }
 
   @Test
   public void minReturnsNullWhenGivenAnEmptyArray() {
-    T result = evaluate("min(`[]`)", adapter().parseString("{}"));
+    T result = evaluate("min(`[]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minRequiresAnArrayOfNumbersOrStrings() {
-    evaluate("min('foo')", adapter().parseString("{}"));
+    evaluate("min('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minRequiresTheElementsToBeOfTheSameType() {
-    evaluate("min(`[\"foo\", 1]`)", adapter().parseString("{}"));
+    evaluate("min(`[\"foo\", 1]`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void minRequiresExactlyOneArgument() {
-    evaluate("min(`[]`, `[]`)", adapter().parseString("{}"));
+    evaluate("min(`[]`, `[]`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minRequiresAValue() {
-    evaluate("min(&foo)", adapter().parseString("{}"));
+    evaluate("min(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void minByReturnsTheElementWithTheLeastValueForAnExpressionThatReturnsStrings() {
     T result = evaluate("min_by(phoneNumbers, &type)", contact);
-    assertThat(result, is(adapter().parseString("{\"type\": \"home\",\"number\": \"212 555-1234\"}")));
+    assertThat(result, is(runtime().parseString("{\"type\": \"home\",\"number\": \"212 555-1234\"}")));
   }
 
   @Test
   public void minByReturnsTheElementWithTheLeastValueForAnExpressionThatReturnsNumbers() {
-    T result = evaluate("min_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("{\"foo\": -6}")));
+    T result = evaluate("min_by(@, &foo)", runtime().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
+    assertThat(result, is(runtime().parseString("{\"foo\": -6}")));
   }
 
   @Test
   public void minByReturnsWithAnEmptyArrayReturnsNull() {
-    T result = evaluate("min_by(@, &foo)", adapter().parseString("[]"));
+    T result = evaluate("min_by(@, &foo)", runtime().parseString("[]"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByDoesNotAcceptMixedResults() {
-    evaluate("min_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    evaluate("min_by(@, &foo)", runtime().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByDoesNotAcceptNonStringsOrNumbers() {
-    evaluate("min_by(@, &foo)", adapter().parseString("[{\"foo\": []}]"));
+    evaluate("min_by(@, &foo)", runtime().parseString("[{\"foo\": []}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByRequiresAnArrayAsFirstArgument1() {
-    evaluate("min_by(@, &foo)", adapter().parseString("{}"));
+    evaluate("min_by(@, &foo)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByRequiresAnArrayAsFirstArgument2() {
-    evaluate("min_by(&foo, @)", adapter().parseString("[]"));
+    evaluate("min_by(&foo, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByRequiresAnExpressionAsSecondArgument() {
-    evaluate("min_by(@, @)", adapter().parseString("[]"));
+    evaluate("min_by(@, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void minByRequiresTwoArguments1() {
-    evaluate("min_by(@)", adapter().parseString("[]"));
+    evaluate("min_by(@)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void minByRequiresTwoArguments2() {
-    evaluate("min_by(@, &foo, @)", adapter().parseString("[]"));
+    evaluate("min_by(@, &foo, @)", runtime().parseString("[]"));
   }
 
   @Test
   public void notNullReturnsTheFirstNonNullArgument() {
-    T result = evaluate("not_null(`null`, `null`, `3`, `null`)", adapter().parseString("{}"));
+    T result = evaluate("not_null(`null`, `null`, `3`, `null`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNumber(3)));
   }
 
   @Test
   public void notNullReturnsNullWhenGivenOnlyNull() {
-    T result = evaluate("not_null(`null`, `null`)", adapter().parseString("{}"));
+    T result = evaluate("not_null(`null`, `null`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArityException.class)
   public void notNullRequiresAtLeastOneArgument() {
-    evaluate("not_null()", adapter().parseString("{}"));
+    evaluate("not_null()", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void notNullRequiresAValue() {
-    evaluate("not_null(`null`, &foo)", adapter().parseString("{}"));
+    evaluate("not_null(`null`, &foo)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   @Ignore("Not sure if this should be an error or not")
   public void notNullRequiresAValueForArgumentsThatAreNotInspected() {
-    evaluate("not_null('foo', &foo)", adapter().parseString("{}"));
+    evaluate("not_null('foo', &foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void reverseReversesAnArray() {
-    T result = evaluate("reverse(@)", adapter().parseString("[\"foo\", 3, 2, 1]"));
-    assertThat(result, is(adapter().parseString("[1, 2, 3, \"foo\"]")));
+    T result = evaluate("reverse(@)", runtime().parseString("[\"foo\", 3, 2, 1]"));
+    assertThat(result, is(runtime().parseString("[1, 2, 3, \"foo\"]")));
   }
 
   @Test
   public void reverseReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
-    T result = evaluate("reverse(@)", adapter().parseString("[]"));
-    assertThat(result, is(adapter().parseString("[]")));
+    T result = evaluate("reverse(@)", runtime().parseString("[]"));
+    assertThat(result, is(runtime().parseString("[]")));
   }
 
   @Test
   public void reverseReversesAString() {
-    T result = evaluate("reverse('hello world')", adapter().parseString("{}"));
+    T result = evaluate("reverse('hello world')", runtime().parseString("{}"));
     assertThat(result, is(jsonString("dlrow olleh")));
   }
 
   @Test
   public void reverseReturnsAnEmptyStringWhenGivenAnEmptyString() {
-    T result = evaluate("reverse('')", adapter().parseString("{}"));
+    T result = evaluate("reverse('')", runtime().parseString("{}"));
     assertThat(result, is(jsonString("")));
   }
 
   @Test(expected = ArityException.class)
   public void reverseRequiresOneArgument1() {
-    evaluate("reverse()", adapter().parseString("[]"));
+    evaluate("reverse()", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void reverseRequiresOneArgument2() {
-    evaluate("reverse(@, @)", adapter().parseString("[]"));
+    evaluate("reverse(@, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void reverseRequiresAnArrayAsArgument() {
-    evaluate("reverse(@)", adapter().parseString("{}"));
+    evaluate("reverse(@)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void reverseRequiresAValue() {
-    evaluate("reverse(&foo)", adapter().parseString("{}"));
+    evaluate("reverse(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void sortsSortsAnArrayOfNumbers() {
-    T result = evaluate("sort(@)", adapter().parseString("[6, 7, 1]"));
-    assertThat(result, is(adapter().parseString("[1, 6, 7]")));
+    T result = evaluate("sort(@)", runtime().parseString("[6, 7, 1]"));
+    assertThat(result, is(runtime().parseString("[1, 6, 7]")));
   }
 
   @Test
   public void sortsHandlesDuplicates() {
-    T result = evaluate("sort(@)", adapter().parseString("[6, 6, 7, 1, 1]"));
-    assertThat(result, is(adapter().parseString("[1, 1, 6, 6, 7]")));
+    T result = evaluate("sort(@)", runtime().parseString("[6, 6, 7, 1, 1]"));
+    assertThat(result, is(runtime().parseString("[1, 1, 6, 6, 7]")));
   }
 
   @Test
   public void sortsSortsAnArrayOfStrings() {
-    T result = evaluate("sort(@)", adapter().parseString("[\"b\", \"a\", \"x\"]"));
-    assertThat(result, is(adapter().parseString("[\"a\", \"b\", \"x\"]")));
+    T result = evaluate("sort(@)", runtime().parseString("[\"b\", \"a\", \"x\"]"));
+    assertThat(result, is(runtime().parseString("[\"a\", \"b\", \"x\"]")));
   }
 
   @Test
   public void sortReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
-    T result = evaluate("sort(@)", adapter().parseString("[]"));
-    assertThat(result, is(adapter().parseString("[]")));
+    T result = evaluate("sort(@)", runtime().parseString("[]"));
+    assertThat(result, is(runtime().parseString("[]")));
   }
 
   @Test(expected = ArityException.class)
   public void sortRequiresOneArgument1() {
-    evaluate("sort()", adapter().parseString("[]"));
+    evaluate("sort()", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void sortRequiresOneArgument2() {
-    evaluate("sort(@, @)", adapter().parseString("[]"));
+    evaluate("sort(@, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortRequiresAnArrayAsArgument() {
-    evaluate("sort(@)", adapter().parseString("{}"));
+    evaluate("sort(@)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortDoesNotAcceptMixedInputs() {
-    evaluate("sort(@)", adapter().parseString("[1, \"foo\"]"));
+    evaluate("sort(@)", runtime().parseString("[1, \"foo\"]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortRequiresAValue() {
-    evaluate("sort(&foo)", adapter().parseString("{}"));
+    evaluate("sort(&foo)", runtime().parseString("{}"));
   }
 
   @Test
@@ -1494,304 +1494,304 @@ public abstract class AdapterTest<T> {
 
   @Test
   public void sortBySortsTheInputBasedOnNumbersReturnedByAnExpression() {
-    T result = evaluate("sort_by(@, &foo)[*].foo", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("[-6, 1, 3]")));
+    T result = evaluate("sort_by(@, &foo)[*].foo", runtime().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
+    assertThat(result, is(runtime().parseString("[-6, 1, 3]")));
   }
 
   @Test
   public void sortByHandlesDuplicates() {
-    T result = evaluate("sort_by(@, &foo)[*].foo", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": -6}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("[-6, -6, 1, 3]")));
+    T result = evaluate("sort_by(@, &foo)[*].foo", runtime().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": -6}, {\"foo\": 1}]"));
+    assertThat(result, is(runtime().parseString("[-6, -6, 1, 3]")));
   }
 
   @Test
   public void sortBySortsIsStable() {
-    T result = evaluate("sort_by(@, &foo)[*].x", adapter().parseString("[{\"foo\": 3, \"x\": 3}, {\"foo\": 3, \"x\": 1}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("[3, 1]")));
+    T result = evaluate("sort_by(@, &foo)[*].x", runtime().parseString("[{\"foo\": 3, \"x\": 3}, {\"foo\": 3, \"x\": 1}, {\"foo\": 1}]"));
+    assertThat(result, is(runtime().parseString("[3, 1]")));
   }
 
   @Test
   public void sortByReturnsWithAnEmptyArrayReturnsNull() {
-    T result = evaluate("sort_by(@, &foo)", adapter().parseString("[]"));
-    assertThat(result, is(adapter().parseString("[]")));
+    T result = evaluate("sort_by(@, &foo)", runtime().parseString("[]"));
+    assertThat(result, is(runtime().parseString("[]")));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByDoesNotAcceptMixedResults() {
-    evaluate("sort_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    evaluate("sort_by(@, &foo)", runtime().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByDoesNotAcceptNonStringsOrNumbers() {
-    evaluate("sort_by(@, &foo)", adapter().parseString("[{\"foo\": []}]"));
+    evaluate("sort_by(@, &foo)", runtime().parseString("[{\"foo\": []}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByRequiresAnArrayAsFirstArgument1() {
-    evaluate("sort_by(@, &foo)", adapter().parseString("{}"));
+    evaluate("sort_by(@, &foo)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByRequiresAnArrayAsFirstArgument2() {
-    evaluate("sort_by(&foo, @)", adapter().parseString("[]"));
+    evaluate("sort_by(&foo, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByRequiresAnExpressionAsSecondArgument() {
-    evaluate("sort_by(@, @)", adapter().parseString("[]"));
+    evaluate("sort_by(@, @)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void sortByRequiresTwoArguments1() {
-    evaluate("sort_by(@)", adapter().parseString("[]"));
+    evaluate("sort_by(@)", runtime().parseString("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void sortByRequiresTwoArguments2() {
-    evaluate("sort_by(@, &foo, @)", adapter().parseString("[]"));
+    evaluate("sort_by(@, &foo, @)", runtime().parseString("[]"));
   }
 
   @Test
   public void startsWithReturnsTrueWhenTheFirstArgumentEndsWithTheSecond() {
-    T result = evaluate("starts_with(@, 'wor')", adapter().parseString("\"world\""));
+    T result = evaluate("starts_with(@, 'wor')", runtime().parseString("\"world\""));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void startsWithReturnsFalseWhenTheFirstArgumentDoesNotEndWithTheSecond() {
-    T result = evaluate("starts_with(@, 'wor')", adapter().parseString("\"hello\""));
+    T result = evaluate("starts_with(@, 'wor')", runtime().parseString("\"hello\""));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test(expected = ArityException.class)
   public void startsWithRequiresTwoArguments() {
-    evaluate("starts_with('')", adapter().parseString("{}"));
+    evaluate("starts_with('')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void startsWithRequiresAStringAsFirstArgument() {
-    evaluate("starts_with(@, 'foo')", adapter().parseString("{}"));
+    evaluate("starts_with(@, 'foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void startsWithRequiresAStringAsSecondArgument() {
-    evaluate("starts_with('foo', @)", adapter().parseString("{}"));
+    evaluate("starts_with('foo', @)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void startsWithRequiresTwoArguments1() {
-    evaluate("starts_with('foo')", adapter().parseString("{}"));
+    evaluate("starts_with('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void startsWithRequiresTwoArguments2() {
-    evaluate("starts_with('foo', 'bar', @)", adapter().parseString("{}"));
+    evaluate("starts_with('foo', 'bar', @)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void startsWithRequiresAValue1() {
-    evaluate("starts_with(&foo, 'bar')", adapter().parseString("{}"));
+    evaluate("starts_with(&foo, 'bar')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void startsWithRequiresAValue2() {
-    evaluate("starts_with('foo', &bar)", adapter().parseString("{}"));
+    evaluate("starts_with('foo', &bar)", runtime().parseString("{}"));
   }
 
   @Test
   public void sumReturnsTheAverageOfAnArrayOfNumbers() {
-    T result = evaluate("sum(`[0, 1, 2, 3.5, 4]`)", adapter().parseString("{}"));
+    T result = evaluate("sum(`[0, 1, 2, 3.5, 4]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNumber(10.5)));
   }
 
   @Test
   public void sumReturnsZeroWhenGivenAnEmptyArray() {
-    T result = evaluate("sum(`[]`)", adapter().parseString("{}"));
+    T result = evaluate("sum(`[]`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNumber(0)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sumRequiresAnArrayOfNumbers() {
-    evaluate("sum('foo')", adapter().parseString("{}"));
+    evaluate("sum('foo')", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void sumRequiresExactlyOneArgument() {
-    evaluate("sum(`[]`, `[]`)", adapter().parseString("{}"));
+    evaluate("sum(`[]`, `[]`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sumRequiresAValue() {
-    evaluate("sum(&foo)", adapter().parseString("{}"));
+    evaluate("sum(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void toArrayReturnsASingletonArrayWithTheArgument() {
-    T result = evaluate("to_array(`34`)", adapter().parseString("{}"));
-    assertThat(result, is(adapter().parseString("[34]")));
+    T result = evaluate("to_array(`34`)", runtime().parseString("{}"));
+    assertThat(result, is(runtime().parseString("[34]")));
   }
 
   @Test
   public void toArrayWithAnArrayReturnsTheArgument() {
-    T result = evaluate("to_array(@)", adapter().parseString("[0, 1, 2, 3.5, 4]"));
-    assertThat(result, is(adapter().parseString("[0, 1, 2, 3.5, 4]")));
+    T result = evaluate("to_array(@)", runtime().parseString("[0, 1, 2, 3.5, 4]"));
+    assertThat(result, is(runtime().parseString("[0, 1, 2, 3.5, 4]")));
   }
 
   @Test(expected = ArityException.class)
   public void toArrayRequiresExactlyOneArgument1() {
-    evaluate("to_array()", adapter().parseString("{}"));
+    evaluate("to_array()", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void toArrayRequiresExactlyOneArgument2() {
-    evaluate("to_array(`1`, `2`)", adapter().parseString("{}"));
+    evaluate("to_array(`1`, `2`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void toArrayRequiresAValue() {
-    evaluate("to_array(&foo)", adapter().parseString("{}"));
+    evaluate("to_array(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void toStringReturnsTheJsonEncodingOfTheArgument() {
-    T input = adapter().parseString("{\"foo\": [1, 2, [\"bar\"]]}");
+    T input = runtime().parseString("{\"foo\": [1, 2, [\"bar\"]]}");
     T result = evaluate("to_string(@)", input);
-    assertThat(adapter().toString(result), both(containsString("\"foo\"")).and(is(adapter().toString(input))));
+    assertThat(runtime().toString(result), both(containsString("\"foo\"")).and(is(runtime().toString(input))));
   }
 
   @Test
   public void toStringWithAStringReturnsTheArgument() {
-    T result = evaluate("to_string('hello')", adapter().parseString("{}"));
+    T result = evaluate("to_string('hello')", runtime().parseString("{}"));
     assertThat(result, is(jsonString("hello")));
   }
 
   @Test(expected = ArityException.class)
   public void toStringRequiresExactlyOneArgument1() {
-    evaluate("to_string()", adapter().parseString("{}"));
+    evaluate("to_string()", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void toStringRequiresExactlyOneArgument2() {
-    evaluate("to_string(`1`, `2`)", adapter().parseString("{}"));
+    evaluate("to_string(`1`, `2`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void toStringRequiresAValue() {
-    evaluate("to_string(&foo)", adapter().parseString("{}"));
+    evaluate("to_string(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void toNumberWithANumberReturnsTheArgument() {
-    T result = evaluate("to_number(`3`)", adapter().parseString("{}"));
+    T result = evaluate("to_number(`3`)", runtime().parseString("{}"));
     assertThat(result, is(jsonNumber(3)));
   }
 
   @Test
   public void toNumberParsesAnIntegerStringToANumber() {
-    T result = evaluate("to_number('33')", adapter().parseString("{}"));
+    T result = evaluate("to_number('33')", runtime().parseString("{}"));
     assertThat(result, is(jsonNumber(33)));
   }
 
   @Test
   public void toNumberParsesAnFloatStringToANumber() {
-    T result = evaluate("to_number('3.3')", adapter().parseString("{}"));
+    T result = evaluate("to_number('3.3')", runtime().parseString("{}"));
     assertThat(result, is(jsonNumber(3.3)));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenNonNumberString() {
-    T result = evaluate("to_number('n=3.3')", adapter().parseString("[]"));
+    T result = evaluate("to_number('n=3.3')", runtime().parseString("[]"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenAnArray() {
-    T result = evaluate("to_number(@)", adapter().parseString("[]"));
+    T result = evaluate("to_number(@)", runtime().parseString("[]"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenAnObject() {
-    T result = evaluate("to_number(@)", adapter().parseString("{}"));
+    T result = evaluate("to_number(@)", runtime().parseString("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenABoolean() {
-    T result = evaluate("to_number(@)", adapter().parseString("true"));
+    T result = evaluate("to_number(@)", runtime().parseString("true"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenNull() {
-    T result = evaluate("to_number(@)", adapter().parseString("null"));
+    T result = evaluate("to_number(@)", runtime().parseString("null"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArityException.class)
   public void toNumberRequiresExactlyOneArgument1() {
-    evaluate("to_number()", adapter().parseString("{}"));
+    evaluate("to_number()", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void toNumberRequiresExactlyOneArgument2() {
-    evaluate("to_number(`1`, `2`)", adapter().parseString("{}"));
+    evaluate("to_number(`1`, `2`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void toNumberRequiresAValue() {
-    evaluate("to_number(&foo)", adapter().parseString("{}"));
+    evaluate("to_number(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void typeReturnsTheTypeOfTheArgument() {
-    assertThat(evaluate("type(@)", adapter().parseString("null")), is(jsonString("null")));
-    assertThat(evaluate("type(@)", adapter().parseString("false")), is(jsonString("boolean")));
-    assertThat(evaluate("type(@)", adapter().parseString("{\"foo\":3}")), is(jsonString("object")));
-    assertThat(evaluate("type(@)", adapter().parseString("[3, 4]")), is(jsonString("array")));
-    assertThat(evaluate("type(@)", adapter().parseString("\"foo\"")), is(jsonString("string")));
-    assertThat(evaluate("type(@)", adapter().parseString("1")), is(jsonString("number")));
+    assertThat(evaluate("type(@)", runtime().parseString("null")), is(jsonString("null")));
+    assertThat(evaluate("type(@)", runtime().parseString("false")), is(jsonString("boolean")));
+    assertThat(evaluate("type(@)", runtime().parseString("{\"foo\":3}")), is(jsonString("object")));
+    assertThat(evaluate("type(@)", runtime().parseString("[3, 4]")), is(jsonString("array")));
+    assertThat(evaluate("type(@)", runtime().parseString("\"foo\"")), is(jsonString("string")));
+    assertThat(evaluate("type(@)", runtime().parseString("1")), is(jsonString("number")));
   }
 
   @Test(expected = ArityException.class)
   public void typeRequiresExactlyOneArgument1() {
-    evaluate("type()", adapter().parseString("{}"));
+    evaluate("type()", runtime().parseString("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void typeRequiresExactlyOneArgument2() {
-    evaluate("type(`1`, `2`)", adapter().parseString("{}"));
+    evaluate("type(`1`, `2`)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void typeRequiresAValue() {
-    evaluate("type(&foo)", adapter().parseString("{}"));
+    evaluate("type(&foo)", runtime().parseString("{}"));
   }
 
   @Test
   public void valuesReturnsTheValuesOfAnObjectsProperties() {
-    T result = evaluate("values(@)", adapter().parseString("{\"foo\":\"one\",\"bar\":\"two\"}"));
+    T result = evaluate("values(@)", runtime().parseString("{\"foo\":\"one\",\"bar\":\"two\"}"));
     assertThat(result, is(jsonArrayOfStrings("one", "two")));
   }
 
   @Test
   public void valuesReturnsAnEmptyArrayWhenGivenAnEmptyObject() {
-    T result = evaluate("values(@)", adapter().parseString("{}"));
-    assertThat(adapter().toList(result), is(empty()));
+    T result = evaluate("values(@)", runtime().parseString("{}"));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void valuesRequiresAnObjectAsArgument() {
-    evaluate("values(@)", adapter().parseString("[3]"));
+    evaluate("values(@)", runtime().parseString("[3]"));
   }
 
   @Test(expected = ArityException.class)
   public void valuesRequiresASingleArgument() {
-    evaluate("values(@, @)", adapter().parseString("{}"));
+    evaluate("values(@, @)", runtime().parseString("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void valuesRequiresAValue() {
-    evaluate("values(&foo)", adapter().parseString("{}"));
+    evaluate("values(&foo)", runtime().parseString("{}"));
   }
 }

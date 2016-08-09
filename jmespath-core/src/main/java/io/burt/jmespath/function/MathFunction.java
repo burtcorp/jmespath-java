@@ -2,7 +2,7 @@ package io.burt.jmespath.function;
 
 import java.util.List;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 
 public abstract class MathFunction extends JmesPathFunction {
@@ -11,10 +11,10 @@ public abstract class MathFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
     T value = arguments.get(0).value();
-    double n = adapter.toNumber(value).doubleValue();
-    return adapter.createNumber(performMathOperation(n));
+    double n = runtime.toNumber(value).doubleValue();
+    return runtime.createNumber(performMathOperation(n));
   }
 
   protected abstract double performMathOperation(double n);

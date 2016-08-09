@@ -6,19 +6,19 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.Collections;
 
-import io.burt.jmespath.BaseAdapter;
+import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.function.FunctionRegistry;
 
 import static io.burt.jmespath.JmesPathType.*;
 
 @SuppressWarnings("unchecked")
-public class JcfAdapter extends BaseAdapter<Object> {
-  public JcfAdapter() {
+public class JcfRuntime extends BaseRuntime<Object> {
+  public JcfRuntime() {
     super();
   }
 
-  public JcfAdapter(FunctionRegistry functionRegistry) {
+  public JcfRuntime(FunctionRegistry functionRegistry) {
     super(functionRegistry);
   }
 

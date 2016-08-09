@@ -3,7 +3,7 @@ package io.burt.jmespath.node;
 import java.util.List;
 import java.util.LinkedList;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 
 public class SelectionNode extends JmesPathNode {
@@ -15,18 +15,18 @@ public class SelectionNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> adapter, T projectionElement) {
-    if (adapter.typeOf(projectionElement) == JmesPathType.ARRAY) {
+  public <T> T evaluateOne(JmesPathRuntime<T> runtime, T projectionElement) {
+    if (runtime.typeOf(projectionElement) == JmesPathType.ARRAY) {
       List<T> selectedElements = new LinkedList<>();
-      for (T element : adapter.toList(projectionElement)) {
-        T testResult = test().evaluate(adapter, element);
-        if (adapter.isTruthy(testResult)) {
+      for (T element : runtime.toList(projectionElement)) {
+        T testResult = test().evaluate(runtime, element);
+        if (runtime.isTruthy(testResult)) {
           selectedElements.add(element);
         }
       }
-      return adapter.createArray(selectedElements);
+      return runtime.createArray(selectedElements);
     } else {
-      return adapter.createNull();
+      return runtime.createNull();
     }
   }
 

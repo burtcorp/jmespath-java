@@ -3,7 +3,7 @@ package io.burt.jmespath.function;
 import java.util.List;
 import java.util.Arrays;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 
 public class ToArrayFunction extends JmesPathFunction {
@@ -12,12 +12,12 @@ public class ToArrayFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
     T subject = arguments.get(0).value();
-    if (adapter.typeOf(subject) == JmesPathType.ARRAY) {
+    if (runtime.typeOf(subject) == JmesPathType.ARRAY) {
       return subject;
     } else {
-      return adapter.createArray(Arrays.asList(subject));
+      return runtime.createArray(Arrays.asList(subject));
     }
   }
 }

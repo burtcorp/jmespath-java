@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.burt.jmespath.parser.ParseException;
-import io.burt.jmespath.jackson.JacksonAdapter;
+import io.burt.jmespath.jackson.JacksonRuntime;
 
 public class Compliance {
   public static class TestGroup implements Iterable<TestCase> {
@@ -75,7 +75,7 @@ public class Compliance {
   }
 
   private static void runTests(List<TestGroup> testGroups) {
-    Adapter<JsonNode> adapter = new JacksonAdapter();
+    JmesPathRuntime<JsonNode> runtime = new JacksonRuntime();
     for (TestGroup testGroup : testGroups) {
       for (TestCase testCase : testGroup) {
         String expectedError = testCase.error();
@@ -85,7 +85,7 @@ public class Compliance {
             if (expectedError != null && expectedError.equals("syntax")) {
               System.out.println(String.format("The expression \"%s\" did not fail with a syntax error! (comment: \"%s\")", testCase.expression(), testCase.comment()));
             } else {
-              JsonNode actualResult = query.evaluate(adapter, testGroup.input());
+              JsonNode actualResult = query.evaluate(runtime, testGroup.input());
               if (!actualResult.equals(testCase.result())) {
                 System.out.println(String.format("The expression \"%s\" did not produce the expected result (actual: %s, expected: %s)", testCase.expression(), actualResult, testCase.result()));
               }

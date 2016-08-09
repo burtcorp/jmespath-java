@@ -7,26 +7,27 @@ import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.ExpressionOrValue;
 
 /**
- * This class can be extended instead of implementing {@link Adapter} directly,
- * in order to not have to implement a few of the methods that have non-specific
- * implementations, like {@link Adapter#callFunction}, {@link Adapter#typeOf}
- * or the {@link Comparable} interface. Subclasses are encouraged to override
- * these methods if they have more efficient means to perform the same job.
+ * This class can be extended instead of implementing {@link JmesPathRuntime}
+ * directly, in order to not have to implement a few of the methods that have
+ * non-specific implementations, like {@link JmesPathRuntime#callFunction},
+ * {@link JmesPathRuntime#typeOf} or the {@link Comparable} interface. Subclasses are
+ * encouraged to override these methods if they have more efficient means to
+ * perform the same job.
  */
-public abstract class BaseAdapter<T> implements Adapter<T> {
+public abstract class BaseRuntime<T> implements JmesPathRuntime<T> {
   private final FunctionRegistry functionRegistry;
 
   /**
-   * Create a new adapter with a default function registry.
+   * Create a new runtime with a default function registry.
    */
-  public BaseAdapter() {
+  public BaseRuntime() {
     this(null);
   }
 
   /**
-   * Create a new adapter with a custom function registry.
+   * Create a new runtime with a custom function registry.
    */
-  public BaseAdapter(FunctionRegistry functionRegistry) {
+  public BaseRuntime(FunctionRegistry functionRegistry) {
     if (functionRegistry == null) {
       this.functionRegistry = FunctionRegistry.defaultRegistry();
     } else {
@@ -35,11 +36,12 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
   }
 
   /**
-   * Basic implementation of {@link Adapter#compare}.
+   * Basic implementation of {@link JmesPathRuntime#compare}.
    *
    * Subclasses should override this method if they have a more efficient way to
    * compare booleans, numbers and strings than to convert them to Java types
-   * using {@link Adapter#isTruthy}, {@link Adapter#toNumber}, {@link Adapter#toString}, etc.
+   * using {@link JmesPathRuntime#isTruthy}, {@link JmesPathRuntime#toNumber},
+   * {@link JmesPathRuntime#toString}, etc.
    *
    * This only implements {@link Comparator#compare} fully for <code>null</code>,
    * <code>boolean</code>, <code>number</code> and <code>string</code>, for
@@ -83,9 +85,9 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
   /**
    * Calls a function with the specified arguments and returns the result.
    *
-   * Very few adapters will have any reason to override this method, it only
+   * Very few runtimes will have any reason to override this method, it only
    * proxies the call to {@link FunctionRegistry#callFunction} passing itself
-   * along as the adapter.
+   * along as the runtime.
    */
   @Override
   public T callFunction(String name, List<ExpressionOrValue<T>> arguments) {

@@ -8,11 +8,11 @@ import java.util.Collection;
 import io.burt.jmespath.function.ExpressionOrValue;
 
 /**
- * An adapter helps the JMESPath parser and interpreter work with a JSON-like
+ * An runtime helps the JMESPath parser and interpreter work with a JSON-like
  * structure without having to know how it works. Implement this interface
  * to make it possible to query any JSON-like structure with JMESPath.
  */
-public interface Adapter<T> extends Comparator<T> {
+public interface JmesPathRuntime<T> extends Comparator<T> {
   /**
    * Parse a JSON string to a value.
    *

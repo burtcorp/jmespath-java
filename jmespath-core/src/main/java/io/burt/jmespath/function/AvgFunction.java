@@ -2,7 +2,7 @@ package io.burt.jmespath.function;
 
 import java.util.List;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 
 public class AvgFunction extends ArrayMathFunction {
@@ -11,17 +11,17 @@ public class AvgFunction extends ArrayMathFunction {
   }
 
   @Override
-  protected <T> T performMathOperation(Adapter<T> adapter, List<T> values) {
+  protected <T> T performMathOperation(JmesPathRuntime<T> runtime, List<T> values) {
     if (values.isEmpty()) {
-      return adapter.createNull();
+      return runtime.createNull();
     } else {
       double sum = 0;
       int count = 0;
       for (T n : values) {
-        sum += adapter.toNumber(n).doubleValue();
+        sum += runtime.toNumber(n).doubleValue();
         count += 1;
       }
-      return adapter.createNumber(sum/count);
+      return runtime.createNumber(sum/count);
     }
   }
 }

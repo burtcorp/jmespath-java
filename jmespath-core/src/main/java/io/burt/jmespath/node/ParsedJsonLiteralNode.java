@@ -1,6 +1,6 @@
 package io.burt.jmespath.node;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 
 public class ParsedJsonLiteralNode extends JsonLiteralNode {
   private final Object tree;
@@ -12,7 +12,7 @@ public class ParsedJsonLiteralNode extends JsonLiteralNode {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T evaluate(Adapter<T> adapter, T input) {
+  public <T> T evaluate(JmesPathRuntime<T> runtime, T input) {
     return (T) tree();
   }
 

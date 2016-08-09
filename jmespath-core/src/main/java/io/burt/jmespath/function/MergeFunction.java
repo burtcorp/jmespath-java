@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 
 public class MergeFunction extends JmesPathFunction {
@@ -13,14 +13,14 @@ public class MergeFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
     Map<T, T> accumulator = new LinkedHashMap<>();
     for (ExpressionOrValue<T> argument : arguments) {
       T value = argument.value();
-      for (T property : adapter.getPropertyNames(value)) {
-        accumulator.put(property, adapter.getProperty(value, property));
+      for (T property : runtime.getPropertyNames(value)) {
+        accumulator.put(property, runtime.getProperty(value, property));
       }
     }
-    return adapter.createObject(accumulator);
+    return runtime.createObject(accumulator);
   }
 }

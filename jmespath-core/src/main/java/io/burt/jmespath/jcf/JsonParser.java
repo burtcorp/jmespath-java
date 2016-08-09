@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.parser.ParseErrorAccumulator;
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.parser.JmesPathBaseVisitor;
@@ -20,14 +20,14 @@ import io.burt.jmespath.parser.JmesPathLexer;
 
 public class JsonParser extends JmesPathBaseVisitor<Object> {
   private final ParseTree tree;
-  private final Adapter<Object> adapter;
+  private final JmesPathRuntime<Object> runtime;
 
-  public static Object fromString(String json, Adapter<Object> adapter) {
+  public static Object fromString(String json, JmesPathRuntime<Object> runtime) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(json), errors), errors);
     ParseTree tree = parser.jsonValue();
     if (errors.isEmpty()) {
-      return new JsonParser(tree, adapter).object();
+      return new JsonParser(tree, runtime).object();
     } else {
       throw new ParseException(json, errors);
     }
@@ -53,9 +53,9 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
     return parser;
   }
 
-  private JsonParser(ParseTree tree, Adapter<Object> adapter) {
+  private JsonParser(ParseTree tree, JmesPathRuntime<Object> runtime) {
     this.tree = tree;
-    this.adapter = adapter;
+    this.runtime = runtime;
   }
 
   public Object object() {
@@ -74,7 +74,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
       Object value = visit(pair.jsonValue());
       object.put(key, value);
     }
-    return adapter.createObject(object);
+    return runtime.createObject(object);
   }
 
   @Override
@@ -83,17 +83,17 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
     for (final JmesPathParser.JsonValueContext entry : ctx.jsonValue()) {
       array.add(visit(entry));
     }
-    return adapter.createArray(array);
+    return runtime.createArray(array);
   }
 
   @Override
   public Object visitJsonStringValue(JmesPathParser.JsonStringValueContext ctx) {
-    return adapter.createString(unquote(ctx.getText()));
+    return runtime.createString(unquote(ctx.getText()));
   }
 
   @Override
   public Object visitJsonNumberValue(JmesPathParser.JsonNumberValueContext ctx) {
-    return adapter.createNumber(Double.parseDouble(ctx.getText()));
+    return runtime.createNumber(Double.parseDouble(ctx.getText()));
   }
 
   @Override
@@ -109,11 +109,11 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
   @Override
   public Object visitJsonConstantValue(JmesPathParser.JsonConstantValueContext ctx) {
     if (ctx.t != null) {
-      return adapter.createBoolean(true);
+      return runtime.createBoolean(true);
     } else if (ctx.f != null) {
-      return adapter.createBoolean(false);
+      return runtime.createBoolean(false);
     } else {
-      return adapter.createNull();
+      return runtime.createNull();
     }
   }
 }

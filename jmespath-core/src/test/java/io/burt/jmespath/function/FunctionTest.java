@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.ExpressionReferenceNode;
 import io.burt.jmespath.node.PropertyNode;
 import io.burt.jmespath.node.CurrentNode;
-import io.burt.jmespath.jcf.JcfAdapter;
+import io.burt.jmespath.jcf.JcfRuntime;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
 
 public class FunctionTest {
-  private final Adapter<Object> adapter = new JcfAdapter();
+  private final JmesPathRuntime<Object> runtime = new JcfRuntime();
 
   private final ExpressionOrValue<Object> expressionReference = new ExpressionOrValue<Object>(new ExpressionReferenceNode(new PropertyNode("foo", new CurrentNode())));
 
@@ -37,8 +37,8 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-      return adapter.createNull();
+    protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+      return runtime.createNull();
     }
   }
 
@@ -48,7 +48,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) { return null; }
+    protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) { return null; }
   }
 
   private static class NameFromClassNameFunction extends JmesPathFunction {
@@ -57,8 +57,8 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-      return adapter.createNull();
+    protected <T> T callFunction(JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+      return runtime.createNull();
     }
   }
 
@@ -88,16 +88,16 @@ public class FunctionTest {
 
   @Test
   public void heterogenousListOfRequiresEachArgumentToMatch() {
-    heterogenousListOfFunction.call(adapter, createValueArguments(
-      adapter.createNumber(1),
-      adapter.createString("hello"),
-      adapter.createBoolean(true)
+    heterogenousListOfFunction.call(runtime, createValueArguments(
+      runtime.createNumber(1),
+      runtime.createString("hello"),
+      runtime.createBoolean(true)
     ));
     try {
-      heterogenousListOfFunction.call(adapter, createValueArguments(
-        adapter.createNumber(1),
-        adapter.createNumber(2),
-        adapter.createNumber(3)
+      heterogenousListOfFunction.call(runtime, createValueArguments(
+        runtime.createNumber(1),
+        runtime.createNumber(2),
+        runtime.createNumber(3)
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
@@ -108,9 +108,9 @@ public class FunctionTest {
   @Test
   public void heterogenousListOfWithTooFewArguments() {
     try {
-      heterogenousListOfFunction.call(adapter, createValueArguments(
-        adapter.createNumber(1),
-        adapter.createString("hello")
+      heterogenousListOfFunction.call(runtime, createValueArguments(
+        runtime.createNumber(1),
+        runtime.createString("hello")
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
@@ -121,11 +121,11 @@ public class FunctionTest {
   @Test
   public void heterogenousListOfWithTooManyArguments() {
     try {
-      heterogenousListOfFunction.call(adapter, createValueArguments(
-        adapter.createNumber(1),
-        adapter.createString("hello"),
-        adapter.createBoolean(false),
-        adapter.createNumber(4)
+      heterogenousListOfFunction.call(runtime, createValueArguments(
+        runtime.createNumber(1),
+        runtime.createString("hello"),
+        runtime.createBoolean(false),
+        runtime.createNumber(4)
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
@@ -140,12 +140,12 @@ public class FunctionTest {
 
   @Test
   public void typeOfRequiresTheArgumentToHaveTheRightType() {
-    typeOfFunction.call(adapter, createValueArguments(
-      adapter.createNumber(3)
+    typeOfFunction.call(runtime, createValueArguments(
+      runtime.createNumber(3)
     ));
     try {
-      typeOfFunction.call(adapter, createValueArguments(
-        adapter.createString("hello")
+      typeOfFunction.call(runtime, createValueArguments(
+        runtime.createString("hello")
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
@@ -156,7 +156,7 @@ public class FunctionTest {
   @Test
   public void typeOfDoesNotAcceptExpressions() {
     try {
-      typeOfFunction.call(adapter, Arrays.asList(expressionReference));
+      typeOfFunction.call(runtime, Arrays.asList(expressionReference));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
       assertThat(ate.getMessage(), containsString("Wrong type of argument calling type_of: expected number but was expression"));
@@ -166,15 +166,15 @@ public class FunctionTest {
   @Test
   public void typeOfRequiresExactlyOneArgument() {
     try {
-      typeOfFunction.call(adapter, createValueArguments());
+      typeOfFunction.call(runtime, createValueArguments());
       fail("No exception was thrown");
     } catch (ArityException ae) {
       assertThat(ae.getMessage(), containsString("Wrong number of arguments calling type_of: expected 1 but was 0"));
     }
     try {
-      typeOfFunction.call(adapter, createValueArguments(
-        adapter.createNumber(3),
-        adapter.createNumber(3)
+      typeOfFunction.call(runtime, createValueArguments(
+        runtime.createNumber(3),
+        runtime.createNumber(3)
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
@@ -188,11 +188,11 @@ public class FunctionTest {
       "wants_string_boolean_or_number",
       ArgumentConstraints.typeOf(JmesPathType.STRING, JmesPathType.BOOLEAN, JmesPathType.NUMBER)
     ) {};
-    wantsStringBooleanOrNumberFunction.call(adapter, createValueArguments(adapter.createString("hello")));
-    wantsStringBooleanOrNumberFunction.call(adapter, createValueArguments(adapter.createBoolean(true)));
-    wantsStringBooleanOrNumberFunction.call(adapter, createValueArguments(adapter.createNumber(3)));
+    wantsStringBooleanOrNumberFunction.call(runtime, createValueArguments(runtime.createString("hello")));
+    wantsStringBooleanOrNumberFunction.call(runtime, createValueArguments(runtime.createBoolean(true)));
+    wantsStringBooleanOrNumberFunction.call(runtime, createValueArguments(runtime.createNumber(3)));
     try {
-      wantsStringBooleanOrNumberFunction.call(adapter, createValueArguments(adapter.createNull()));
+      wantsStringBooleanOrNumberFunction.call(runtime, createValueArguments(runtime.createNull()));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
       assertThat(ate.getMessage(), containsString("Wrong type of argument calling wants_string_boolean_or_number: expected string, boolean or number but was null"));
@@ -208,15 +208,15 @@ public class FunctionTest {
 
   @Test
   public void arrayOfRequiresAnArray() {
-    arrayOfFunction.call(adapter, createValueArguments(
-      adapter.createArray(Arrays.asList(
-      adapter.createString("hello"),
-      adapter.createString("world")
+    arrayOfFunction.call(runtime, createValueArguments(
+      runtime.createArray(Arrays.asList(
+      runtime.createString("hello"),
+      runtime.createString("world")
       ))
     ));
     try {
-      arrayOfFunction.call(adapter, createValueArguments(
-        adapter.createNumber(3)
+      arrayOfFunction.call(runtime, createValueArguments(
+        runtime.createNumber(3)
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
@@ -226,16 +226,16 @@ public class FunctionTest {
 
   @Test
   public void arrayOfRequiresTheArraysElementsToMatchTheSubConstraint() {
-    arrayOfFunction.call(adapter, createValueArguments(
-      adapter.createArray(Arrays.asList(
-        adapter.createString("hello"),
-        adapter.createString("world")
+    arrayOfFunction.call(runtime, createValueArguments(
+      runtime.createArray(Arrays.asList(
+        runtime.createString("hello"),
+        runtime.createString("world")
       ))
     ));
     try {
-      arrayOfFunction.call(adapter, createValueArguments(
-        adapter.createArray(Arrays.asList(
-          adapter.createNumber(3)
+      arrayOfFunction.call(runtime, createValueArguments(
+        runtime.createArray(Arrays.asList(
+          runtime.createNumber(3)
         ))
       ));
       fail("No exception was thrown");
@@ -243,11 +243,11 @@ public class FunctionTest {
       assertThat(ate.getMessage(), is("Wrong type of argument calling array_of: expected array of string but was array containing number"));
     }
     try {
-      arrayOfFunction.call(adapter, createValueArguments(
-        adapter.createArray(Arrays.asList(
-          adapter.createString("foo"),
-          adapter.createBoolean(true),
-          adapter.createNumber(3)
+      arrayOfFunction.call(runtime, createValueArguments(
+        runtime.createArray(Arrays.asList(
+          runtime.createString("foo"),
+          runtime.createBoolean(true),
+          runtime.createNumber(3)
         ))
       ));
       fail("No exception was thrown");
@@ -259,7 +259,7 @@ public class FunctionTest {
   @Test
   public void arrayOfDoesNotAcceptExpressions() {
     try {
-      arrayOfFunction.call(adapter, Arrays.asList(expressionReference));
+      arrayOfFunction.call(runtime, Arrays.asList(expressionReference));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
       assertThat(ate.getMessage(), is("Wrong type of argument calling array_of: expected array of string but was expression"));
@@ -274,7 +274,7 @@ public class FunctionTest {
         ArgumentConstraints.typeOf(JmesPathType.STRING, JmesPathType.NUMBER)
       )
     ) {};
-    wantsStringOrNumberArrayFunction.call(adapter, createValueArguments(adapter.createArray(Arrays.asList())));
+    wantsStringOrNumberArrayFunction.call(runtime, createValueArguments(runtime.createArray(Arrays.asList())));
   }
 
   @Test
@@ -286,10 +286,10 @@ public class FunctionTest {
       )
     ) {};
     try {
-      wantsStringOrNumberArrayFunction.call(adapter, createValueArguments(
-        adapter.createArray(Arrays.asList(
-          adapter.createNumber(3),
-          adapter.createString("hello")
+      wantsStringOrNumberArrayFunction.call(runtime, createValueArguments(
+        runtime.createArray(Arrays.asList(
+          runtime.createNumber(3),
+          runtime.createString("hello")
         ))
       ));
       fail("No exception was thrown");
@@ -297,12 +297,12 @@ public class FunctionTest {
       assertThat(ate.getMessage(), containsString("Wrong type of argument calling wants_string_or_number_array: expected array of string or number but was array containing number and string"));
     }
     try {
-      wantsStringOrNumberArrayFunction.call(adapter, createValueArguments(
-        adapter.createArray(Arrays.asList(
-          adapter.createNumber(3),
-          adapter.createString("hello"),
-          adapter.createString("world"),
-          adapter.createNull()
+      wantsStringOrNumberArrayFunction.call(runtime, createValueArguments(
+        runtime.createArray(Arrays.asList(
+          runtime.createNumber(3),
+          runtime.createString("hello"),
+          runtime.createString("world"),
+          runtime.createNull()
         ))
       ));
       fail("No exception was thrown");
@@ -314,15 +314,15 @@ public class FunctionTest {
   @Test
   public void arrayOfRequiresExactlyOneArgument() {
     try {
-      arrayOfFunction.call(adapter, createValueArguments());
+      arrayOfFunction.call(runtime, createValueArguments());
       fail("No exception was thrown");
     } catch (ArityException ae) {
       assertThat(ae.getMessage(), containsString("Wrong number of arguments calling array_of: expected 1 but was 0"));
     }
     try {
-      arrayOfFunction.call(adapter, createValueArguments(
-        adapter.createArray(Arrays.asList(adapter.createString("hello"))),
-        adapter.createNumber(3)
+      arrayOfFunction.call(runtime, createValueArguments(
+        runtime.createArray(Arrays.asList(runtime.createString("hello"))),
+        runtime.createNumber(3)
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
@@ -336,11 +336,11 @@ public class FunctionTest {
       "accepts_any_value",
       ArgumentConstraints.anyValue()
     ) {};
-    acceptsAnyValue.call(adapter, createValueArguments(adapter.createNumber(3)));
-    acceptsAnyValue.call(adapter, createValueArguments(adapter.createBoolean(false)));
-    acceptsAnyValue.call(adapter, createValueArguments(adapter.createString("hello")));
-    acceptsAnyValue.call(adapter, createValueArguments(adapter.createNull()));
-    acceptsAnyValue.call(adapter, createValueArguments(adapter.createArray(Arrays.asList(adapter.createNull(), adapter.createBoolean(true)))));
+    acceptsAnyValue.call(runtime, createValueArguments(runtime.createNumber(3)));
+    acceptsAnyValue.call(runtime, createValueArguments(runtime.createBoolean(false)));
+    acceptsAnyValue.call(runtime, createValueArguments(runtime.createString("hello")));
+    acceptsAnyValue.call(runtime, createValueArguments(runtime.createNull()));
+    acceptsAnyValue.call(runtime, createValueArguments(runtime.createArray(Arrays.asList(runtime.createNull(), runtime.createBoolean(true)))));
   }
 
   @Test
@@ -350,7 +350,7 @@ public class FunctionTest {
       ArgumentConstraints.anyValue()
     ) {};
     try {
-      doesNotAcceptExpression.call(adapter, Arrays.asList(expressionReference));
+      doesNotAcceptExpression.call(runtime, Arrays.asList(expressionReference));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
       assertThat(ate.getMessage(), containsString("Wrong type of argument calling does_not_accept_expression: expected any value but was expression"));
@@ -363,11 +363,11 @@ public class FunctionTest {
       "hello",
       ArgumentConstraints.listOf(3, 10, ArgumentConstraints.anyValue())
     ) {};
-    acceptsBetweenThreeAndTenValues.call(adapter, createValueArguments(
-      adapter.createNull(),
-      adapter.createNumber(3),
-      adapter.createString("hello"),
-      adapter.createBoolean(false)
+    acceptsBetweenThreeAndTenValues.call(runtime, createValueArguments(
+      runtime.createNull(),
+      runtime.createNumber(3),
+      runtime.createString("hello"),
+      runtime.createBoolean(false)
     ));
   }
 
@@ -377,18 +377,18 @@ public class FunctionTest {
       "accepts_numbers",
       ArgumentConstraints.listOf(3, 10, ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     ) {};
-    acceptsNumbers.call(adapter, createValueArguments(
-      adapter.createNumber(3),
-      adapter.createNumber(3),
-      adapter.createNumber(3),
-      adapter.createNumber(3)
+    acceptsNumbers.call(runtime, createValueArguments(
+      runtime.createNumber(3),
+      runtime.createNumber(3),
+      runtime.createNumber(3),
+      runtime.createNumber(3)
     ));
     try {
-      acceptsNumbers.call(adapter, createValueArguments(
-        adapter.createNumber(3),
-        adapter.createNumber(3),
-        adapter.createString("foobar"),
-        adapter.createNumber(3)
+      acceptsNumbers.call(runtime, createValueArguments(
+        runtime.createNumber(3),
+        runtime.createNumber(3),
+        runtime.createString("foobar"),
+        runtime.createNumber(3)
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
@@ -404,10 +404,10 @@ public class FunctionTest {
     ) {};
     try {
       List<ExpressionOrValue<Object>> arguments = createValueArguments(
-        adapter.createNumber(3)
+        runtime.createNumber(3)
       );
       arguments.add(expressionReference);
-      doesNotAcceptExpression.call(adapter, arguments);
+      doesNotAcceptExpression.call(runtime, arguments);
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
       assertThat(ate.getMessage(), containsString("Wrong type of argument calling hello: expected any value but was expression"));
@@ -421,7 +421,7 @@ public class FunctionTest {
       ArgumentConstraints.listOf(3, 10, ArgumentConstraints.anyValue())
     ) {};
     try {
-      acceptsBetweenThreeAndTenValues.call(adapter, createValueArguments(adapter.createNull()));
+      acceptsBetweenThreeAndTenValues.call(runtime, createValueArguments(runtime.createNull()));
       fail("No exception was thrown");
     } catch (ArityException ae) {
       assertThat(ae.getMessage(), containsString("Wrong number of arguments calling hello: expected at least 3 but was 1"));
@@ -435,7 +435,7 @@ public class FunctionTest {
       ArgumentConstraints.listOf(1, 3, ArgumentConstraints.anyValue())
     ) {};
     try {
-      acceptsBetweenThreeAndTenValues.call(adapter, createValueArguments(adapter.createNull(), adapter.createNull(), adapter.createNull(), adapter.createNull()));
+      acceptsBetweenThreeAndTenValues.call(runtime, createValueArguments(runtime.createNull(), runtime.createNull(), runtime.createNull(), runtime.createNull()));
       fail("No exception was thrown");
     } catch (ArityException ae) {
       assertThat(ae.getMessage(), containsString("Wrong number of arguments calling hello: expected at most 3 but was 4"));
@@ -448,9 +448,9 @@ public class FunctionTest {
       "gief_expression",
       ArgumentConstraints.listOf(ArgumentConstraints.expression(), ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     ) {};
-    acceptsExpression.call(adapter, Arrays.asList(
+    acceptsExpression.call(runtime, Arrays.asList(
       expressionReference,
-      new ExpressionOrValue<Object>(adapter.createNumber(3))
+      new ExpressionOrValue<Object>(runtime.createNumber(3))
     ));
   }
 
@@ -461,9 +461,9 @@ public class FunctionTest {
       ArgumentConstraints.listOf(ArgumentConstraints.expression(), ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     ) {};
     try {
-      acceptsExpression.call(adapter, createValueArguments(
-        adapter.createNumber(3),
-        adapter.createNumber(4)
+      acceptsExpression.call(runtime, createValueArguments(
+        runtime.createNumber(3),
+        runtime.createNumber(4)
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {

@@ -4,8 +4,8 @@ import org.junit.Test;
 import org.junit.Ignore;
 
 import io.burt.jmespath.Query;
-import io.burt.jmespath.Adapter;
-import io.burt.jmespath.jcf.JcfAdapter;
+import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.jcf.JcfRuntime;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
 import io.burt.jmespath.node.CreateArrayNode;
@@ -33,14 +33,14 @@ import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
 
 public class ParserTest {
-  private Adapter<Object> adapter = new JcfAdapter();
+  private JmesPathRuntime<Object> runtime = new JcfRuntime();
 
   private Query parse(String str) {
-    return Query.fromString(adapter, str);
+    return Query.fromString(runtime, str);
   }
 
   private JsonLiteralNode createJsonLiteralNode(String json) {
-    return new ParsedJsonLiteralNode(json, adapter.parseString(json));
+    return new ParsedJsonLiteralNode(json, runtime.parseString(json));
   }
 
   @Test

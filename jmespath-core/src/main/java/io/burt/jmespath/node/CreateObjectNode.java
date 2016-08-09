@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 
 public class CreateObjectNode extends JmesPathNode {
@@ -54,15 +54,15 @@ public class CreateObjectNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    if (adapter.typeOf(currentValue) == JmesPathType.NULL) {
+  public <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
+    if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {
       Map<T, T> object = new LinkedHashMap<>();
       for (Entry entry : entries()) {
-        object.put(adapter.createString(entry.key()), entry.value().evaluate(adapter, currentValue));
+        object.put(runtime.createString(entry.key()), entry.value().evaluate(runtime, currentValue));
       }
-      return adapter.createObject(object);
+      return runtime.createObject(object);
     }
   }
 

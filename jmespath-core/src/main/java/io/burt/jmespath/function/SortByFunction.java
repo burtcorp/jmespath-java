@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.JmesPathNode;
 
@@ -19,16 +19,16 @@ public class SortByFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(final Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    List<T> elementsList = adapter.toList(arguments.get(0).value());
+  protected <T> T callFunction(final JmesPathRuntime<T> runtime, List<ExpressionOrValue<T>> arguments) {
+    List<T> elementsList = runtime.toList(arguments.get(0).value());
     JmesPathNode expression = arguments.get(1).expression();
     Iterator<T> elements = elementsList.iterator();
     if (elements.hasNext()) {
       List<Pair<T>> pairs = new ArrayList<>(elementsList.size());
       T element = elements.next();
-      T transformedElement = expression.evaluate(adapter, element);
+      T transformedElement = expression.evaluate(runtime, element);
       boolean expectNumbers = true;
-      JmesPathType elementType = adapter.typeOf(transformedElement);
+      JmesPathType elementType = runtime.typeOf(transformedElement);
       if (elementType == JmesPathType.STRING) {
         expectNumbers = false;
       } else if (elementType != JmesPathType.NUMBER) {
@@ -37,8 +37,8 @@ public class SortByFunction extends JmesPathFunction {
       pairs.add(new Pair<T>(transformedElement, element));
       while (elements.hasNext()) {
         element = elements.next();
-        transformedElement = expression.evaluate(adapter, element);
-        elementType = adapter.typeOf(transformedElement);
+        transformedElement = expression.evaluate(runtime, element);
+        elementType = runtime.typeOf(transformedElement);
         if (expectNumbers && elementType != JmesPathType.NUMBER) {
           throw new ArgumentTypeException(name(), "number", elementType.toString());
         } else if (!expectNumbers && elementType != JmesPathType.STRING) {
@@ -49,16 +49,16 @@ public class SortByFunction extends JmesPathFunction {
       Collections.sort(pairs, new Comparator<Pair<T>>() {
         @Override
         public int compare(Pair<T> a, Pair<T> b) {
-          return adapter.compare(a.transformedElement, b.transformedElement);
+          return runtime.compare(a.transformedElement, b.transformedElement);
         }
       });
       List<T> sorted = new ArrayList<>(pairs.size());
       for (Pair<T> pair : pairs) {
         sorted.add(pair.element);
       }
-      return adapter.createArray(sorted);
+      return runtime.createArray(sorted);
     } else {
-      return adapter.createArray(new ArrayList<T>());
+      return runtime.createArray(new ArrayList<T>());
     }
   }
 

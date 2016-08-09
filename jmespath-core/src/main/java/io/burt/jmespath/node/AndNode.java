@@ -1,6 +1,6 @@
 package io.burt.jmespath.node;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 
 public class AndNode extends OperatorNode {
   public AndNode(JmesPathNode left, JmesPathNode right) {
@@ -8,10 +8,10 @@ public class AndNode extends OperatorNode {
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    T leftResult = operands()[0].evaluate(adapter, currentValue);
-    if (adapter.isTruthy(leftResult)) {
-      return operands()[1].evaluate(adapter, currentValue);
+  protected <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
+    T leftResult = operands()[0].evaluate(runtime, currentValue);
+    if (runtime.isTruthy(leftResult)) {
+      return operands()[1].evaluate(runtime, currentValue);
     } else {
       return leftResult;
     }

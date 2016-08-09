@@ -1,6 +1,6 @@
 package io.burt.jmespath.node;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 
 public class ComparisonNode extends OperatorNode {
@@ -12,44 +12,44 @@ public class ComparisonNode extends OperatorNode {
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    T leftResult = operands()[0].evaluate(adapter, currentValue);
-    T rightResult = operands()[1].evaluate(adapter, currentValue);
-    JmesPathType leftType = adapter.typeOf(leftResult);
-    JmesPathType rightType = adapter.typeOf(rightResult);
+  protected <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
+    T leftResult = operands()[0].evaluate(runtime, currentValue);
+    T rightResult = operands()[1].evaluate(runtime, currentValue);
+    JmesPathType leftType = runtime.typeOf(leftResult);
+    JmesPathType rightType = runtime.typeOf(rightResult);
     if (leftType == JmesPathType.NUMBER && rightType == JmesPathType.NUMBER) {
-      return compareNumbers(adapter, leftResult, rightResult);
+      return compareNumbers(runtime, leftResult, rightResult);
     } else {
-      return compareObjects(adapter, leftResult, rightResult);
+      return compareObjects(runtime, leftResult, rightResult);
     }
   }
 
-  private <T> T compareObjects(Adapter<T> adapter, T leftResult, T rightResult) {
-    int result = adapter.compare(leftResult, rightResult);
+  private <T> T compareObjects(JmesPathRuntime<T> runtime, T leftResult, T rightResult) {
+    int result = runtime.compare(leftResult, rightResult);
     if (operator.equals("==")) {
-      return adapter.createBoolean(result == 0);
+      return runtime.createBoolean(result == 0);
     } else if (operator.equals("!=")) {
-      return adapter.createBoolean(result != 0);
+      return runtime.createBoolean(result != 0);
     }
-    return adapter.createNull();
+    return runtime.createNull();
   }
 
-  private <T> T compareNumbers(Adapter<T> adapter, T leftResult, T rightResult) {
-    int result = adapter.compare(leftResult, rightResult);
+  private <T> T compareNumbers(JmesPathRuntime<T> runtime, T leftResult, T rightResult) {
+    int result = runtime.compare(leftResult, rightResult);
     if (operator.equals("==")) {
-      return adapter.createBoolean(result == 0);
+      return runtime.createBoolean(result == 0);
     } else if (operator.equals("!=")) {
-      return adapter.createBoolean(result != 0);
+      return runtime.createBoolean(result != 0);
     } else if (operator.equals(">")) {
-      return adapter.createBoolean(result > 0);
+      return runtime.createBoolean(result > 0);
     } else if (operator.equals(">=")) {
-      return adapter.createBoolean(result >= 0);
+      return runtime.createBoolean(result >= 0);
     } else if (operator.equals("<")) {
-      return adapter.createBoolean(result < 0);
+      return runtime.createBoolean(result < 0);
     } else if (operator.equals("<=")) {
-      return adapter.createBoolean(result <= 0);
+      return runtime.createBoolean(result <= 0);
     }
-    return adapter.createNull();
+    return runtime.createNull();
   }
 
   protected String operator() {

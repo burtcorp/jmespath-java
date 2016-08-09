@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Query;
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
 import io.burt.jmespath.node.CreateArrayNode;
@@ -36,18 +36,18 @@ import io.burt.jmespath.node.StringNode;
 public class JmesPathQueryParser<T> extends JmesPathBaseVisitor<JmesPathNode> {
   private final ParseTree tree;
   private final Deque<JmesPathNode> currentSource;
-  private final Adapter<T> adapter;
+  private final JmesPathRuntime<T> runtime;
 
   public static Query fromString(String query) {
     return fromString(query, null);
   }
 
-  public static <T> Query fromString(String query, Adapter<T> adapter) {
+  public static <T> Query fromString(String query, JmesPathRuntime<T> runtime) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(query), errors), errors);
     ParseTree tree = parser.query();
     if (errors.isEmpty()) {
-      JmesPathQueryParser<T> visitor = new JmesPathQueryParser<T>(tree, adapter);
+      JmesPathQueryParser<T> visitor = new JmesPathQueryParser<T>(tree, runtime);
       return visitor.query();
     } else {
       throw new ParseException(query, errors);
@@ -74,10 +74,10 @@ public class JmesPathQueryParser<T> extends JmesPathBaseVisitor<JmesPathNode> {
     return parser;
   }
 
-  private JmesPathQueryParser(ParseTree tree, Adapter<T> adapter) {
+  private JmesPathQueryParser(ParseTree tree, JmesPathRuntime<T> runtime) {
     this.tree = tree;
     this.currentSource = new LinkedList<>();
-    this.adapter = adapter;
+    this.runtime = runtime;
   }
 
   public Query query() {
@@ -283,8 +283,8 @@ public class JmesPathQueryParser<T> extends JmesPathBaseVisitor<JmesPathNode> {
   @Override
   public JmesPathNode visitLiteral(JmesPathParser.LiteralContext ctx) {
     String string = ctx.jsonValue().getText();
-    if (adapter != null) {
-      return new ParsedJsonLiteralNode(string, adapter.parseString(string));
+    if (runtime != null) {
+      return new ParsedJsonLiteralNode(string, runtime.parseString(string));
     } else {
       return new JsonLiteralNode(string);
     }

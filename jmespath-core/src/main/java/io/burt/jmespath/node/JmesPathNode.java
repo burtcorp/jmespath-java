@@ -3,7 +3,7 @@ package io.burt.jmespath.node;
 import java.util.List;
 import java.util.LinkedList;
 
-import io.burt.jmespath.Adapter;
+import io.burt.jmespath.JmesPathRuntime;
 import io.burt.jmespath.JmesPathType;
 
 public abstract class JmesPathNode {
@@ -21,30 +21,30 @@ public abstract class JmesPathNode {
     return source().isProjection();
   }
 
-  public <T> T evaluate(Adapter<T> adapter, T input) {
-    return evaluateWithCurrentValue(adapter, source().evaluate(adapter, input));
+  public <T> T evaluate(JmesPathRuntime<T> runtime, T input) {
+    return evaluateWithCurrentValue(runtime, source().evaluate(runtime, input));
   }
 
-  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
+  protected <T> T evaluateWithCurrentValue(JmesPathRuntime<T> runtime, T currentValue) {
     if (isProjection()) {
-      if (adapter.typeOf(currentValue) == JmesPathType.NULL) {
+      if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
         return currentValue;
       } else {
         List<T> outputs = new LinkedList<>();
-        for (T projectionElement : adapter.toList(currentValue)) {
-          T value = evaluateOne(adapter, projectionElement);
-          if (adapter.typeOf(value) != JmesPathType.NULL) {
+        for (T projectionElement : runtime.toList(currentValue)) {
+          T value = evaluateOne(runtime, projectionElement);
+          if (runtime.typeOf(value) != JmesPathType.NULL) {
             outputs.add(value);
           }
         }
-        return adapter.createArray(outputs);
+        return runtime.createArray(outputs);
       }
     } else {
-      return evaluateOne(adapter, currentValue);
+      return evaluateOne(runtime, currentValue);
     }
   }
 
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
+  protected <T> T evaluateOne(JmesPathRuntime<T> runtime, T currentValue) {
     return currentValue;
   }
 
