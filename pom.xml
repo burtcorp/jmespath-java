@@ -79,6 +79,7 @@
         <configuration>
           <compilerArgs>
             <arg>-Xlint:deprecation</arg>
+            <arg>-Xlint:unchecked</arg>
           </compilerArgs>
           <source>7</source>
           <target>7</target>
