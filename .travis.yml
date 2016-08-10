@@ -4,3 +4,5 @@ jdk:
 cache:
   directories:
     - $HOME/.m2
+before_install:
+  - git submodule update --init --recursive
