@@ -66,11 +66,71 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
     return quotedString.substring(1, quotedString.length() - 1);
   }
 
+  private String unescape(String str) {
+    int slashIndex = str.indexOf("\\");
+    if (slashIndex > -1) {
+      int offset = 0;
+      StringBuilder builder = new StringBuilder(str);
+      while (slashIndex > -1) {
+        int length = -1;
+        String replacement = null;
+        char escapeChar = builder.charAt(slashIndex + 1);
+        switch (escapeChar) {
+          case '"':
+            length = 2;
+            replacement = "\"";
+            break;
+          case '/':
+            length = 2;
+            replacement = "/";
+            break;
+          case '\\':
+            length = 2;
+            replacement = "\\";
+            break;
+          case 'b':
+            length = 2;
+            replacement = "\b";
+            break;
+          case 'f':
+            length = 2;
+            replacement = "\f";
+            break;
+          case 'n':
+            length = 2;
+            replacement = "\n";
+            break;
+          case 'r':
+            length = 2;
+            replacement = "\r";
+            break;
+          case 't':
+            length = 2;
+            replacement = "\t";
+            break;
+          case 'u':
+            String hexCode = builder.substring(slashIndex + 2, slashIndex + 6);
+            length = 6;
+            replacement = new String(Character.toChars(Integer.parseInt(hexCode, 16)));
+            break;
+          default:
+            throw new IllegalStateException(String.format("Bad escape encountered \"\\%s\" (in \"%s\")", escapeChar, tree.getText()));
+        }
+        builder.replace(slashIndex, slashIndex + length, replacement);
+        offset = slashIndex + 1;
+        slashIndex = builder.indexOf("\\", offset);
+      }
+      return builder.toString();
+    } else {
+      return str;
+    }
+  }
+
   @Override
   public Object visitJsonObject(JmesPathParser.JsonObjectContext ctx) {
     Map<Object, Object> object = new LinkedHashMap<>(ctx.jsonObjectPair().size());
     for (final JmesPathParser.JsonObjectPairContext pair : ctx.jsonObjectPair()) {
-      String key = unquote(pair.STRING().getText());
+      String key = unescape(unquote(pair.STRING().getText()));
       Object value = visit(pair.jsonValue());
       object.put(key, value);
     }
@@ -88,7 +148,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonStringValue(JmesPathParser.JsonStringValueContext ctx) {
-    return runtime.createString(unquote(ctx.getText()));
+    return runtime.createString(unescape(unquote(ctx.getText())));
   }
 
   @Override
