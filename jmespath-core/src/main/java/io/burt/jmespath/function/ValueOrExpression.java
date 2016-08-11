@@ -1,34 +1,47 @@
 package io.burt.jmespath.function;
 
-import io.burt.jmespath.node.Node;
+import io.burt.jmespath.Expression;
 
-public class ValueOrExpression<T> {
-  private final Node<T> expression;
-  private final T value;
+public abstract class ValueOrExpression<T> {
+  private static class V<U> extends ValueOrExpression<U> {
+    private final U value;
 
-  public ValueOrExpression(Node<T> expression) {
-    this.expression = expression;
-    this.value = null;
+    public V(U value) {
+      this.value = value;
+    }
+
+    public U value() { return value; }
+
+    public boolean isValue() { return true; }
   }
 
-  public ValueOrExpression(T value) {
-    this.expression = null;
-    this.value = value;
+  private static class E<U> extends ValueOrExpression<U> {
+    private final Expression<U> expression;
+
+    public E(Expression<U> expression) {
+      this.expression = expression;
+    }
+
+    public Expression<U> expression() { return expression; }
+
+    public boolean isExpression() { return true; }
   }
 
-  public Node<T> expression() {
-    return expression;
+  public static <U> ValueOrExpression<U> of(U value) {
+    return new V<U>(value);
   }
 
-  public T value() {
-    return value;
+  public static <U> ValueOrExpression<U> of(Expression<U> expression) {
+    return new E<U>(expression);
   }
 
-  public boolean isExpression() {
-    return expression != null;
-  }
+  private ValueOrExpression() { }
 
-  public boolean isValue() {
-    return expression == null;
-  }
+  public Expression<T> expression() { return null; };
+
+  public T value() { return null; }
+
+  public boolean isExpression() { return false; }
+
+  public boolean isValue() { return false; }
 }

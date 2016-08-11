@@ -24,9 +24,9 @@ public class FunctionCallNode<T> extends Node<T> {
     List<ValueOrExpression<T>> arguments = new ArrayList<>(args.size());
     for (Node<T> arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {
-        arguments.add(new ValueOrExpression<T>(arg));
+        arguments.add(ValueOrExpression.of(arg));
       } else {
-        arguments.add(new ValueOrExpression<T>(arg.search(currentValue)));
+        arguments.add(ValueOrExpression.of(arg.search(currentValue)));
       }
     }
     return implementation.call(runtime, arguments);

@@ -372,7 +372,7 @@ public final class ArgumentConstraints {
         List<ValueOrExpression<T>> wrappedElements = new ArrayList<>(elements.size());
         Set<JmesPathType> types = new LinkedHashSet<>();
         for (T element : elements) {
-          wrappedElements.add(new ValueOrExpression<T>(element));
+          wrappedElements.add(ValueOrExpression.of(element));
           types.add(runtime.typeOf(element));
         }
         if (types.size() > 1) {

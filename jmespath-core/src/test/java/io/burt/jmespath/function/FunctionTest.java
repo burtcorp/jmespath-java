@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.containsString;
 public class FunctionTest {
   private final Adapter<Object> runtime = new JcfRuntime();
 
-  private final ValueOrExpression<Object> expressionReference = new ValueOrExpression<Object>(
+  private final ValueOrExpression<Object> expressionReference = ValueOrExpression.of(
     new ExpressionReferenceNode<Object>(runtime,
       new PropertyNode<Object>(runtime, "foo", new CurrentNode<Object>(runtime))
     )
@@ -30,7 +30,7 @@ public class FunctionTest {
   private List<ValueOrExpression<Object>> createValueArguments(Object... values) {
     List<ValueOrExpression<Object>> arguments = new ArrayList<>();
     for (Object value : values) {
-      arguments.add(new ValueOrExpression<Object>(value));
+      arguments.add(ValueOrExpression.of(value));
     }
     return arguments;
   }
@@ -454,7 +454,7 @@ public class FunctionTest {
     ) {};
     acceptsExpression.call(runtime, Arrays.asList(
       expressionReference,
-      new ValueOrExpression<Object>(runtime.createNumber(3))
+      ValueOrExpression.of(runtime.createNumber(3))
     ));
   }
 

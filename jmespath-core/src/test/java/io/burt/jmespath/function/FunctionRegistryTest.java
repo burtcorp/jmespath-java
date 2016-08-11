@@ -31,7 +31,7 @@ public class FunctionRegistryTest {
   private List<ValueOrExpression<Object>> createValueArguments(Object... values) {
     List<ValueOrExpression<Object>> arguments = new ArrayList<>();
     for (Object value : values) {
-      arguments.add(new ValueOrExpression<Object>(value));
+      arguments.add(ValueOrExpression.of(value));
     }
     return arguments;
   }

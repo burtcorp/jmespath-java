@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.node.Node;
 
 public class SortByFunction extends BaseFunction {
   public SortByFunction() {
@@ -21,7 +21,7 @@ public class SortByFunction extends BaseFunction {
   @Override
   protected <T> T callFunction(final Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     List<T> elementsList = runtime.toList(arguments.get(0).value());
-    Node<T> expression = arguments.get(1).expression();
+    Expression<T> expression = arguments.get(1).expression();
     Iterator<T> elements = elementsList.iterator();
     if (elements.hasNext()) {
       List<Pair<T>> pairs = new ArrayList<>(elementsList.size());
