@@ -81,7 +81,7 @@ public class Compliance {
         String expectedError = testCase.error();
         try {
           if (expectedError == null || expectedError.equals("syntax")) {
-            JmesPathExpression<JsonNode> expression = runtime.compile(testCase.expression());
+            Expression<JsonNode> expression = runtime.compile(testCase.expression());
             if (expectedError != null && expectedError.equals("syntax")) {
               System.out.println(String.format("The expression \"%s\" did not fail with a syntax error! (comment: \"%s\")", testCase.expression(), testCase.comment()));
             } else {

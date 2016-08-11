@@ -5,9 +5,9 @@ import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.JmesPathExpression;
+import io.burt.jmespath.Expression;
 
-public abstract class JmesPathNode<T> implements JmesPathExpression<T> {
+public abstract class JmesPathNode<T> implements Expression<T> {
   protected final Adapter<T> runtime;
   private final JmesPathNode<T> source;
 

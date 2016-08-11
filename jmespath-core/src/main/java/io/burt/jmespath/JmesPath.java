@@ -13,5 +13,5 @@ public interface JmesPath<T> {
    *
    * @throw ParseException when the string is not a valid JMESPath expression
    */
-  public JmesPathExpression<T> compile(String expression);
+  public Expression<T> compile(String expression);
 }

@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import io.burt.jmespath.JmesPathExpression;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
@@ -35,17 +35,17 @@ import io.burt.jmespath.node.SelectionNode;
 import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
-public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode<T>> {
+public class ExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode<T>> {
   private final ParseTree tree;
   private final Deque<JmesPathNode<T>> currentSource;
   private final Adapter<T> runtime;
 
-  public static <U> JmesPathExpression<U> fromString(Adapter<U> runtime, String expression) {
+  public static <U> Expression<U> fromString(Adapter<U> runtime, String expression) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
     JmesPathParser parser = createParser(createLexer(createInput(expression), errors), errors);
     ParseTree tree = parser.jmesPathExpression();
     if (errors.isEmpty()) {
-      JmesPathExpressionParser<U> visitor = new JmesPathExpressionParser<U>(runtime, tree);
+      ExpressionParser<U> visitor = new ExpressionParser<U>(runtime, tree);
       return visitor.expression();
     } else {
       throw new ParseException(expression, errors);
@@ -72,13 +72,13 @@ public class JmesPathExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNod
     return parser;
   }
 
-  private JmesPathExpressionParser(Adapter<T> runtime, ParseTree tree) {
+  private ExpressionParser(Adapter<T> runtime, ParseTree tree) {
     this.runtime = runtime;
     this.tree = tree;
     this.currentSource = new LinkedList<>();
   }
 
-  public JmesPathExpression<T> expression() {
+  public Expression<T> expression() {
     return visit(tree);
   }
 

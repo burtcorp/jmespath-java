@@ -14,8 +14,6 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-import io.burt.jmespath.JmesPathExpression;
-import io.burt.jmespath.parser.JmesPathExpressionParser;
 import io.burt.jmespath.function.FunctionCallException;
 import io.burt.jmespath.function.ArityException;
 import io.burt.jmespath.function.ArgumentTypeException;

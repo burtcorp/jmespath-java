@@ -7,14 +7,14 @@ An implementation of [JMESPath](http://jmespath.org/) for Java. It supports sear
 ```java
 import com.fasterxml.jackson.databind.JsonNode;
 
-import io.burt.jmespath.JmesPathExpression;
 import io.burt.jmespath.JmesPath;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.jackson.JacksonRuntime;
 
 // …
 
-JmesPathExpression expression = jmespath.compile("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
 JmesPath<JsonNode> jmespath = new JacksonRuntime();
+Expression<JsonNode> expression = jmespath.compile("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
 JsonNode input = …;
 JsonNode result = expression.search(input);
 ```
