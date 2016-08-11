@@ -11,7 +11,7 @@ public abstract class MathFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     T value = arguments.get(0).value();
     double n = runtime.toNumber(value).doubleValue();
     return runtime.createNumber(performMathOperation(n));

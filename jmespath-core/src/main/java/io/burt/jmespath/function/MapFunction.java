@@ -16,7 +16,7 @@ public class MapFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     Node<T> expression = arguments.get(0).expression();
     T array = arguments.get(1).value();
     List<T> elements = runtime.toList(array);

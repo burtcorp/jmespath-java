@@ -14,7 +14,7 @@ public class StartsWithFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     T subject = arguments.get(0).value();
     T prefix = arguments.get(1).value();
     return runtime.createBoolean(runtime.toString(subject).startsWith(runtime.toString(prefix)));

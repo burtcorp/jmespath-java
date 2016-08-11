@@ -132,7 +132,7 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> void check(Adapter<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<ValueOrExpression<T>> arguments) {
       int i = 0;
       for (; i < minArity; i++) {
         if (!arguments.hasNext()) {
@@ -184,7 +184,7 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> void check(Adapter<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<ValueOrExpression<T>> arguments) {
       for (int i = 0; i < subConstraints.length; i++) {
         if (arguments.hasNext()) {
           subConstraints[i].check(runtime, arguments);
@@ -212,7 +212,7 @@ public final class ArgumentConstraints {
 
   private static abstract class TypeCheck implements ArgumentConstraint {
     @Override
-    public <T> void check(Adapter<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<ValueOrExpression<T>> arguments) {
       if (arguments.hasNext()) {
         checkType(runtime, arguments.next());
       } else {
@@ -220,7 +220,7 @@ public final class ArgumentConstraints {
       }
     }
 
-    protected abstract <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument);
+    protected abstract <T> void checkType(Adapter<T> runtime, ValueOrExpression<T> argument);
 
     @Override
     public int minArity() {
@@ -235,7 +235,7 @@ public final class ArgumentConstraints {
 
   private static class AnyValue extends TypeCheck {
     @Override
-    protected <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, ValueOrExpression<T> argument) {
       if (argument.isExpression()) {
         throw new InternalArgumentTypeException("any value", "expression");
       }
@@ -255,7 +255,7 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, ValueOrExpression<T> argument) {
       if (argument.isExpression()) {
         throw new InternalArgumentTypeException(expectedType.toString(), "expression");
       } else {
@@ -295,7 +295,7 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, ValueOrExpression<T> argument) {
       if (argument.isExpression()) {
         throw new InternalArgumentTypeException(expectedTypeString, "expression");
       } else {
@@ -317,7 +317,7 @@ public final class ArgumentConstraints {
 
   private static class Expression extends TypeCheck {
     @Override
-    protected <T> void checkType(Adapter<T> runtime, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, ValueOrExpression<T> argument) {
       if (!argument.isExpression()) {
         throw new InternalArgumentTypeException("expression", runtime.typeOf(argument.value()).toString());
       }
@@ -347,9 +347,9 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> void check(Adapter<T> runtime, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<ValueOrExpression<T>> arguments) {
       if (arguments.hasNext()) {
-        ExpressionOrValue<T> argument = arguments.next();
+        ValueOrExpression<T> argument = arguments.next();
         if (argument.isExpression()) {
           throw new InternalArgumentTypeException(expectedType(), "expression");
         } else {
@@ -369,16 +369,16 @@ public final class ArgumentConstraints {
     private <T> void checkElements(Adapter<T> runtime, T value) {
       List<T> elements = runtime.toList(value);
       if (!elements.isEmpty()) {
-        List<ExpressionOrValue<T>> wrappedElements = new ArrayList<>(elements.size());
+        List<ValueOrExpression<T>> wrappedElements = new ArrayList<>(elements.size());
         Set<JmesPathType> types = new LinkedHashSet<>();
         for (T element : elements) {
-          wrappedElements.add(new ExpressionOrValue<T>(element));
+          wrappedElements.add(new ValueOrExpression<T>(element));
           types.add(runtime.typeOf(element));
         }
         if (types.size() > 1) {
           handleMixedError(types);
         }
-        Iterator<ExpressionOrValue<T>> wrappedElementsIterator = wrappedElements.iterator();
+        Iterator<ValueOrExpression<T>> wrappedElementsIterator = wrappedElements.iterator();
         while (wrappedElementsIterator.hasNext()) {
           try {
             subConstraint.check(runtime, wrappedElementsIterator);

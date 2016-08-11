@@ -13,9 +13,9 @@ public class MergeFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     Map<T, T> accumulator = new LinkedHashMap<>();
-    for (ExpressionOrValue<T> argument : arguments) {
+    for (ValueOrExpression<T> argument : arguments) {
       T value = argument.value();
       for (T property : runtime.getPropertyNames(value)) {
         accumulator.put(property, runtime.getProperty(value, property));

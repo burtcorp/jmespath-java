@@ -21,16 +21,16 @@ import static org.hamcrest.Matchers.containsString;
 public class FunctionTest {
   private final Adapter<Object> runtime = new JcfRuntime();
 
-  private final ExpressionOrValue<Object> expressionReference = new ExpressionOrValue<Object>(
+  private final ValueOrExpression<Object> expressionReference = new ValueOrExpression<Object>(
     new ExpressionReferenceNode<Object>(runtime,
       new PropertyNode<Object>(runtime, "foo", new CurrentNode<Object>(runtime))
     )
   );
 
-  private List<ExpressionOrValue<Object>> createValueArguments(Object... values) {
-    List<ExpressionOrValue<Object>> arguments = new ArrayList<>();
+  private List<ValueOrExpression<Object>> createValueArguments(Object... values) {
+    List<ValueOrExpression<Object>> arguments = new ArrayList<>();
     for (Object value : values) {
-      arguments.add(new ExpressionOrValue<Object>(value));
+      arguments.add(new ValueOrExpression<Object>(value));
     }
     return arguments;
   }
@@ -41,7 +41,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+    protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
       return runtime.createNull();
     }
   }
@@ -52,7 +52,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) { return null; }
+    protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) { return null; }
   }
 
   private static class NameFromClassNameFunction extends BaseFunction {
@@ -61,7 +61,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+    protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
       return runtime.createNull();
     }
   }
@@ -407,7 +407,7 @@ public class FunctionTest {
       ArgumentConstraints.listOf(1, 3, ArgumentConstraints.anyValue())
     ) {};
     try {
-      List<ExpressionOrValue<Object>> arguments = createValueArguments(
+      List<ValueOrExpression<Object>> arguments = createValueArguments(
         runtime.createNumber(3)
       );
       arguments.add(expressionReference);
@@ -454,7 +454,7 @@ public class FunctionTest {
     ) {};
     acceptsExpression.call(runtime, Arrays.asList(
       expressionReference,
-      new ExpressionOrValue<Object>(runtime.createNumber(3))
+      new ValueOrExpression<Object>(runtime.createNumber(3))
     ));
   }
 

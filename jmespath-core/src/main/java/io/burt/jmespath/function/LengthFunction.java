@@ -11,7 +11,7 @@ public class LengthFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     T subject = arguments.get(0).value();
     if (runtime.typeOf(subject) == JmesPathType.STRING) {
       return runtime.createNumber((long) runtime.toString(subject).length());

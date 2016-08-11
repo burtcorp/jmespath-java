@@ -18,7 +18,7 @@ public abstract class CompareByFunction extends BaseFunction {
   protected abstract boolean sortsBefore(int compareResult);
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     Iterator<T> elements = runtime.toList(arguments.get(0).value()).iterator();
     Node<T> expression = arguments.get(1).expression();
     if (elements.hasNext()) {

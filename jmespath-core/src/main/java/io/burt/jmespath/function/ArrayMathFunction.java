@@ -10,7 +10,7 @@ public abstract class ArrayMathFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     return performMathOperation(runtime, runtime.toList(arguments.get(0).value()));
   }
 

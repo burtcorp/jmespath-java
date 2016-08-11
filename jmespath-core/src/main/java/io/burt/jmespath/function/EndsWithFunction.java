@@ -14,7 +14,7 @@ public class EndsWithFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     T subject = arguments.get(0).value();
     T suffix = arguments.get(1).value();
     return runtime.createBoolean(runtime.toString(subject).endsWith(runtime.toString(suffix)));

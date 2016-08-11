@@ -109,7 +109,7 @@ public abstract class BaseFunction implements Function {
    * by the function's argument constraints before the function runs.
    */
   @Override
-  public <T> T call(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  public <T> T call(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     checkArguments(runtime, arguments);
     return callFunction(runtime, arguments);
   }
@@ -120,9 +120,9 @@ public abstract class BaseFunction implements Function {
    * @throws ArgumentTypeException when an arguments type does not match the constraints
    * @throws ArityException when there are too few or too many arguments
    */
-  protected <T> void checkArguments(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
+  protected <T> void checkArguments(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
     try {
-      Iterator<ExpressionOrValue<T>> argumentIterator = arguments.iterator();
+      Iterator<ValueOrExpression<T>> argumentIterator = arguments.iterator();
       argumentConstraints.check(runtime, argumentIterator);
       if (argumentIterator.hasNext()) {
         throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), arguments.size());
@@ -144,5 +144,5 @@ public abstract class BaseFunction implements Function {
    * that accept expressions are responsible for checking the types of the values
    * produced by those expressions.
    */
-  protected abstract <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments);
+  protected abstract <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments);
 }

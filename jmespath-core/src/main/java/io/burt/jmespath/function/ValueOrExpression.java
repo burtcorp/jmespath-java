@@ -2,16 +2,16 @@ package io.burt.jmespath.function;
 
 import io.burt.jmespath.node.Node;
 
-public class ExpressionOrValue<T> {
+public class ValueOrExpression<T> {
   private final Node<T> expression;
   private final T value;
 
-  public ExpressionOrValue(Node<T> expression) {
+  public ValueOrExpression(Node<T> expression) {
     this.expression = expression;
     this.value = null;
   }
 
-  public ExpressionOrValue(T value) {
+  public ValueOrExpression(T value) {
     this.expression = null;
     this.value = value;
   }
