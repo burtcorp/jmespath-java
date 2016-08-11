@@ -1,3 +1,3 @@
 [submodule "jmespath-core/src/test/resources/jmespath.test"]
 	path = jmespath-core/src/test/resources/jmespath.test
-	url = git@github.com:jmespath/jmespath.test.git
+	url = https://github.com/jmespath/jmespath.test.git
