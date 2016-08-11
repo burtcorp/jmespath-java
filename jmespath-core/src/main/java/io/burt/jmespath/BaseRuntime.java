@@ -41,12 +41,12 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   }
 
   /**
-   * Basic implementation of {@link JmesPathRuntime#compare}.
+   * Basic implementation of {@link Adapter#compare}.
    *
    * Subclasses should override this method if they have a more efficient way to
    * compare booleans, numbers and strings than to convert them to Java types
-   * using {@link JmesPathRuntime#isTruthy}, {@link JmesPathRuntime#toNumber},
-   * {@link JmesPathRuntime#toString}, etc.
+   * using {@link Adapter#isTruthy}, {@link Adapter#toNumber},
+   * {@link Adapter#toString}, etc.
    *
    * This only implements {@link Comparator#compare} fully for <code>null</code>,
    * <code>number</code> and <code>string</code>, for <code>boolean</code>

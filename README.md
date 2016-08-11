@@ -8,13 +8,13 @@ An implementation of [JMESPath](http://jmespath.org/) for Java. It supports sear
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.burt.jmespath.JmesPathExpression;
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.JmesPath;
 import io.burt.jmespath.jackson.JacksonRuntime;
 
 // …
 
-JmesPathRuntime<JsonNode> jmespath = new JacksonRuntime();
 JmesPathExpression expression = jmespath.compile("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
+JmesPath<JsonNode> jmespath = new JacksonRuntime();
 JsonNode input = …;
 JsonNode result = expression.search(input);
 ```
@@ -66,7 +66,7 @@ public class SinFunction extends JmesPathFunction {
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import io.burt.jmespath.JmesPathRuntime;
+import io.burt.jmespath.JmesPath;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.jackson.JacksonRuntime;
 
@@ -75,7 +75,7 @@ FunctionRegistry defaultFunctions = FunctionRegistry.defaultRegistry();
 // And we can create a new registry with additional functions by extending it
 FunctionRegistry customFunctions = defaultFunctions.extend(new SinFunction());
 // We need to tell the runtime to use our custom registry
-JmesPathRuntime<JsonNode> runtime = new JacksonRuntime(functionRegistry);
+JmesPath<JsonNode> runtime = new JacksonRuntime(functionRegistry);
 // Now the function is available in expressions
 JsonNode result = runtime.compile("sin(measurements.angle)").search(input);
 ```

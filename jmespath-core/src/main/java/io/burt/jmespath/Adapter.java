@@ -12,7 +12,7 @@ import io.burt.jmespath.function.ExpressionOrValue;
  * structure without having to know how it works. Implement this interface
  * to make it possible to query any JSON-like structure with JMESPath.
  */
-public interface Adapter<T> extends JmesPathRuntime<T>, Comparator<T> {
+public interface Adapter<T> extends JmesPath<T>, Comparator<T> {
   /**
    * Parse a JSON string to a value.
    *

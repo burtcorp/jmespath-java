@@ -75,7 +75,7 @@ public class Compliance {
   }
 
   private static void runTests(List<TestGroup> testGroups) {
-    JmesPathRuntime<JsonNode> runtime = new JacksonRuntime();
+    JmesPath<JsonNode> runtime = new JacksonRuntime();
     for (TestGroup testGroup : testGroups) {
       for (TestCase testCase : testGroup) {
         String expectedError = testCase.error();
