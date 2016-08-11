@@ -3,20 +3,19 @@ package io.burt.jmespath.node;
 import io.burt.jmespath.Adapter;
 
 public class ParsedJsonLiteralNode<T> extends JsonLiteralNode<T> {
-  private final Object tree;
+  private final T tree;
 
-  public ParsedJsonLiteralNode(Adapter<T> runtime, String raw, Object tree) {
+  public ParsedJsonLiteralNode(Adapter<T> runtime, String raw, T tree) {
     super(runtime, raw);
     this.tree = tree;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public T search(T input) {
-    return (T) tree();
+    return tree();
   }
 
-  protected Object tree() {
+  protected T tree() {
     return tree;
   }
 
