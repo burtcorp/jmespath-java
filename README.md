@@ -78,7 +78,7 @@ FunctionRegistry customFunctions = defaultFunctions.extend(new SinFunction());
 // We need to tell the runtime to use our custom registry
 JmesPathRuntime<JsonNode> runtime = new JacksonRuntime(functionRegistry);
 // Now the function is available in expressions
-JsonNode result = runtime.search("sin(measurements.angle)", input);
+JsonNode result = runtime.compile("sin(measurements.angle)").search(input);
 ```
 
 You can provide a name for your function, but the default is that the name will be the snake cased version of the class name, minus the "Function" suffix. `SinFunction` becomes `sin`, `MyAwesomeFunction` becomes `my_awesome`, etc.
