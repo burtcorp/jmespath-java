@@ -41,9 +41,8 @@ public class SelectionNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    SelectionNode<T> other = (SelectionNode<T>) o;
+    SelectionNode other = (SelectionNode) o;
     return test().equals(other.test());
   }
 

@@ -38,9 +38,8 @@ public class IndexNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    IndexNode<T> other = (IndexNode<T>) o;
+    IndexNode other = (IndexNode) o;
     return index() == other.index();
   }
 

@@ -191,7 +191,6 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public Node<T> visitMultiSelectList(JmesPathParser.MultiSelectListContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
     int n = ctx.expression().size();
@@ -204,7 +203,6 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public Node<T> visitMultiSelectHash(JmesPathParser.MultiSelectHashContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
     int n = ctx.keyvalExpr().size();
@@ -262,9 +260,8 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public Node<T> visitFunctionExpression(JmesPathParser.FunctionExpressionContext ctx) {
-    currentSource.push(new CurrentNode(runtime));
+    currentSource.push(new CurrentNode<T>(runtime));
     String name = ctx.NAME().getText();
     int n = ctx.functionArg().size();
     List<Expression<T>> args = new ArrayList<>(n);

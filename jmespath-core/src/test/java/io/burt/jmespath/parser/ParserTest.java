@@ -48,7 +48,8 @@ public class ParserTest {
     return new ParsedJsonLiteralNode<Object>(runtime, json, runtime.parseString(json));
   }
 
-  private List<Expression<Object>> asExpressionList(Expression<Object>... expressions) {
+  @SafeVarargs
+  private final List<Expression<Object>> asExpressionList(Expression<Object>... expressions) {
     return Arrays.asList(expressions);
   }
 

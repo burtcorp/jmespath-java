@@ -31,7 +31,6 @@ public class CreateObjectNode<T> extends Node<T> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -39,7 +38,7 @@ public class CreateObjectNode<T> extends Node<T> {
       if (!(o instanceof Entry)) {
         return false;
       }
-      Entry<U> other = (Entry<U>) o;
+      Entry other = (Entry) o;
       return key().equals(other.key()) && value().equals(other.value());
     }
 
@@ -90,9 +89,8 @@ public class CreateObjectNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    CreateObjectNode<T> other = (CreateObjectNode<T>) o;
+    CreateObjectNode other = (CreateObjectNode) o;
     return entries().equals(other.entries());
   }
 

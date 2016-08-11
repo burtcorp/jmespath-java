@@ -50,9 +50,8 @@ public class CreateArrayNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    CreateArrayNode<T> other = (CreateArrayNode<T>) o;
+    CreateArrayNode other = (CreateArrayNode) o;
     return entries().equals(other.entries());
   }
 

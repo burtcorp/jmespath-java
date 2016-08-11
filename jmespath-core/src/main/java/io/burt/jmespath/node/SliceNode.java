@@ -54,9 +54,8 @@ public class SliceNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    SliceNode<T> other = (SliceNode<T>) o;
+    SliceNode other = (SliceNode) o;
     return start() == other.start() && stop() == other.stop() && step() == other.step();
   }
 

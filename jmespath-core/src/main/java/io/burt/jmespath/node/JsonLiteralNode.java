@@ -25,9 +25,8 @@ public class JsonLiteralNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    JsonLiteralNode<T> other = (JsonLiteralNode<T>) o;
+    JsonLiteralNode other = (JsonLiteralNode) o;
     return raw().equals(other.raw());
   }
 

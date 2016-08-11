@@ -79,7 +79,6 @@ public abstract class Node<T> implements Expression<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -87,7 +86,7 @@ public abstract class Node<T> implements Expression<T> {
     if (!getClass().isInstance(o)) {
       return false;
     }
-    Node<T> other = (Node<T>) o;
+    Node other = (Node) o;
     return internalEquals(o) && (source() == other.source() || (source() != null && other.source() != null && source().equals(other.source())));
   }
 

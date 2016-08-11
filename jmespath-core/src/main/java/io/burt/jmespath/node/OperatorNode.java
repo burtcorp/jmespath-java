@@ -39,9 +39,8 @@ public class OperatorNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    OperatorNode<T> other = (OperatorNode<T>) o;
+    OperatorNode other = (OperatorNode) o;
     return operands().equals(other.operands());
   }
 

@@ -26,9 +26,8 @@ public class ExpressionReferenceNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    ExpressionReferenceNode<T> other = (ExpressionReferenceNode<T>) o;
+    ExpressionReferenceNode other = (ExpressionReferenceNode) o;
     return expression().equals(other.expression());
   }
 

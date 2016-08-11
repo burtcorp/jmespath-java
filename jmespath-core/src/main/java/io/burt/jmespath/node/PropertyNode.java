@@ -25,9 +25,8 @@ public class PropertyNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    PropertyNode<T> other = (PropertyNode<T>) o;
+    PropertyNode other = (PropertyNode) o;
     return propertyName().equals(other.propertyName());
   }
 

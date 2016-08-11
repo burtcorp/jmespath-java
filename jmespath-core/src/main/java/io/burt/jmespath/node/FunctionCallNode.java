@@ -57,9 +57,8 @@ public class FunctionCallNode<T> extends Node<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
-    FunctionCallNode<T> other = (FunctionCallNode<T>) o;
+    FunctionCallNode other = (FunctionCallNode) o;
     return implementation.name().equals(other.implementation().name()) && args().equals(other.args());
   }
 

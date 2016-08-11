@@ -25,10 +25,9 @@ public class ParsedJsonLiteralNode<T> extends JsonLiteralNode<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
     if (o instanceof ParsedJsonLiteralNode) {
-      ParsedJsonLiteralNode<T> other = (ParsedJsonLiteralNode<T>) o;
+      ParsedJsonLiteralNode other = (ParsedJsonLiteralNode) o;
       return tree().equals(other.tree());
     } else {
       return super.internalEquals(o);
