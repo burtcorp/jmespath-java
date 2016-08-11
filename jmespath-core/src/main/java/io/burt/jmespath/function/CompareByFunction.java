@@ -7,7 +7,7 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.Node;
 
-public abstract class CompareByFunction extends JmesPathFunction {
+public abstract class CompareByFunction extends Function {
   public CompareByFunction() {
     super(
       ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.OBJECT)),

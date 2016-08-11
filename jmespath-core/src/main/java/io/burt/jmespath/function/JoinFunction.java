@@ -6,7 +6,7 @@ import java.util.Iterator;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class JoinFunction extends JmesPathFunction {
+public class JoinFunction extends Function {
   public JoinFunction() {
     super(
       ArgumentConstraints.typeOf(JmesPathType.STRING),

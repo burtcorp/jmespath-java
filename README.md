@@ -21,7 +21,7 @@ JsonNode result = expression.search(input);
 
 ### Adding custom functions
 
-In addition to the built in functions like `sort`, `to_string`, and `sum` you can add your own. All you need to do is to create a class that extends `io.burt.jmespath.function.JmesPathFunction` and then register it with your runtime.
+In addition to the built in functions like `sort`, `to_string`, and `sum` you can add your own. All you need to do is to create a class that extends `io.burt.jmespath.function.BaseFunction` (actually implement `Function` in the same package, but then you'd need to do much more work yourself) and then register it with your runtime.
 
 Here's how you add a `sin` function:
 
@@ -30,12 +30,12 @@ import java.util.List;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
+import io.burt.jmespath.function.BaseFunction;
 import io.burt.jmespath.function.ArgumentConstraints;
 import io.burt.jmespath.function.ExpressionOrValue;
-import io.burt.jmespath.function.JmesPathFunction;
 
-// Functions must extend JmesPathFunction
-public class SinFunction extends JmesPathFunction {
+// Functions must implement Function, for example by extending BaseFunction
+public class SinFunction extends BaseFunction {
   public SinFunction() {
     // This is how you tell the type checker what arguments your function accepts
     super(ArgumentConstraints.typeOf(JmesPathType.NUMBER);

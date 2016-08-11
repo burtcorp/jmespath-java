@@ -5,7 +5,7 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class NotNullFunction extends JmesPathFunction {
+public class NotNullFunction extends Function {
   public NotNullFunction() {
     super(ArgumentConstraints.listOf(1, Integer.MAX_VALUE, ArgumentConstraints.anyValue()));
   }

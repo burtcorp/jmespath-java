@@ -5,7 +5,7 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ContainsFunction extends JmesPathFunction {
+public class ContainsFunction extends Function {
   public ContainsFunction() {
     super(
       ArgumentConstraints.typeOf(JmesPathType.ARRAY, JmesPathType.STRING),

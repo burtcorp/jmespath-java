@@ -35,7 +35,7 @@ public class FunctionTest {
     return arguments;
   }
 
-  private static class TestFunction extends JmesPathFunction {
+  private static class TestFunction extends Function {
     public TestFunction(String name, ArgumentConstraint argumentConstraints) {
       super(name, argumentConstraints);
     }
@@ -46,7 +46,7 @@ public class FunctionTest {
     }
   }
 
-  private static class BadName extends JmesPathFunction {
+  private static class BadName extends Function {
     public BadName() {
       super(ArgumentConstraints.anyValue());
     }
@@ -55,7 +55,7 @@ public class FunctionTest {
     protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) { return null; }
   }
 
-  private static class NameFromClassNameFunction extends JmesPathFunction {
+  private static class NameFromClassNameFunction extends Function {
     public NameFromClassNameFunction() {
       super(ArgumentConstraints.anyValue());
     }
@@ -81,7 +81,7 @@ public class FunctionTest {
     assertThat(new NameFromClassNameFunction().name(), is("name_from_class_name"));
   }
 
-  private JmesPathFunction heterogenousListOfFunction = new TestFunction(
+  private Function heterogenousListOfFunction = new TestFunction(
     "heterogenous_list",
     ArgumentConstraints.listOf(
       ArgumentConstraints.typeOf(JmesPathType.NUMBER),
@@ -137,7 +137,7 @@ public class FunctionTest {
     }
   }
 
-  private JmesPathFunction typeOfFunction = new TestFunction(
+  private Function typeOfFunction = new TestFunction(
     "type_of",
     ArgumentConstraints.typeOf(JmesPathType.NUMBER)
   ) {};
@@ -188,7 +188,7 @@ public class FunctionTest {
 
   @Test
   public void typeOfWithMultipleTypesAcceptsEitherType() {
-    JmesPathFunction wantsStringBooleanOrNumberFunction = new TestFunction(
+    Function wantsStringBooleanOrNumberFunction = new TestFunction(
       "wants_string_boolean_or_number",
       ArgumentConstraints.typeOf(JmesPathType.STRING, JmesPathType.BOOLEAN, JmesPathType.NUMBER)
     ) {};
@@ -203,7 +203,7 @@ public class FunctionTest {
     }
   }
 
-  private JmesPathFunction arrayOfFunction = new TestFunction(
+  private Function arrayOfFunction = new TestFunction(
     "array_of",
     ArgumentConstraints.arrayOf(
       ArgumentConstraints.typeOf(JmesPathType.STRING)
@@ -272,7 +272,7 @@ public class FunctionTest {
 
   @Test
   public void arrayOfAcceptsEmptyArray() {
-    JmesPathFunction wantsStringOrNumberArrayFunction = new TestFunction(
+    Function wantsStringOrNumberArrayFunction = new TestFunction(
       "wants_string_or_number_array",
       ArgumentConstraints.arrayOf(
         ArgumentConstraints.typeOf(JmesPathType.STRING, JmesPathType.NUMBER)
@@ -283,7 +283,7 @@ public class FunctionTest {
 
   @Test
   public void arrayOfRequiresAllElementsToBeOfTheSameType() {
-    JmesPathFunction wantsStringOrNumberArrayFunction = new TestFunction(
+    Function wantsStringOrNumberArrayFunction = new TestFunction(
       "wants_string_or_number_array",
       ArgumentConstraints.arrayOf(
         ArgumentConstraints.typeOf(JmesPathType.STRING, JmesPathType.NUMBER)
@@ -336,7 +336,7 @@ public class FunctionTest {
 
   @Test
   public void anyValueAcceptsAnyValue() {
-    JmesPathFunction acceptsAnyValue = new TestFunction(
+    Function acceptsAnyValue = new TestFunction(
       "accepts_any_value",
       ArgumentConstraints.anyValue()
     ) {};
@@ -349,7 +349,7 @@ public class FunctionTest {
 
   @Test
   public void anyValueDoesNotAcceptExpressions() {
-    JmesPathFunction doesNotAcceptExpression = new TestFunction(
+    Function doesNotAcceptExpression = new TestFunction(
       "does_not_accept_expression",
       ArgumentConstraints.anyValue()
     ) {};
@@ -363,7 +363,7 @@ public class FunctionTest {
 
   @Test
   public void listOfAcceptsASpecifiedNumberOfValues() {
-    JmesPathFunction acceptsBetweenThreeAndTenValues = new TestFunction(
+    Function acceptsBetweenThreeAndTenValues = new TestFunction(
       "hello",
       ArgumentConstraints.listOf(3, 10, ArgumentConstraints.anyValue())
     ) {};
@@ -377,7 +377,7 @@ public class FunctionTest {
 
   @Test
   public void listOfUsesASubConstraintToCheckEachArgument() {
-    JmesPathFunction acceptsNumbers = new TestFunction(
+    Function acceptsNumbers = new TestFunction(
       "accepts_numbers",
       ArgumentConstraints.listOf(3, 10, ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     ) {};
@@ -402,7 +402,7 @@ public class FunctionTest {
 
   @Test
   public void listOfDoesNotAcceptExpressions() {
-    JmesPathFunction doesNotAcceptExpression = new TestFunction(
+    Function doesNotAcceptExpression = new TestFunction(
       "hello",
       ArgumentConstraints.listOf(1, 3, ArgumentConstraints.anyValue())
     ) {};
@@ -420,7 +420,7 @@ public class FunctionTest {
 
   @Test
   public void listOfNeedsTheMinimumAmountOfValues() {
-    JmesPathFunction acceptsBetweenThreeAndTenValues = new TestFunction(
+    Function acceptsBetweenThreeAndTenValues = new TestFunction(
       "hello",
       ArgumentConstraints.listOf(3, 10, ArgumentConstraints.anyValue())
     ) {};
@@ -434,7 +434,7 @@ public class FunctionTest {
 
   @Test
   public void listOfAcceptsOnlyTheMaximumAmountOfValues() {
-    JmesPathFunction acceptsBetweenThreeAndTenValues = new TestFunction(
+    Function acceptsBetweenThreeAndTenValues = new TestFunction(
       "hello",
       ArgumentConstraints.listOf(1, 3, ArgumentConstraints.anyValue())
     ) {};
@@ -448,7 +448,7 @@ public class FunctionTest {
 
   @Test
   public void expressionAcceptsAnExpressionReference() {
-    JmesPathFunction acceptsExpression = new TestFunction(
+    Function acceptsExpression = new TestFunction(
       "gief_expression",
       ArgumentConstraints.listOf(ArgumentConstraints.expression(), ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     ) {};
@@ -460,7 +460,7 @@ public class FunctionTest {
 
   @Test
   public void expressionDoesNotAcceptAValue() {
-    JmesPathFunction acceptsExpression = new TestFunction(
+    Function acceptsExpression = new TestFunction(
       "gief_expression",
       ArgumentConstraints.listOf(ArgumentConstraints.expression(), ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     ) {};

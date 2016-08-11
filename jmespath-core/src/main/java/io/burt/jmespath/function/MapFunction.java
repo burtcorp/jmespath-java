@@ -7,7 +7,7 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.Node;
 
-public class MapFunction extends JmesPathFunction {
+public class MapFunction extends Function {
   public MapFunction() {
     super(
       ArgumentConstraints.expression(),

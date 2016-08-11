@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ReverseFunction extends JmesPathFunction {
+public class ReverseFunction extends Function {
   public ReverseFunction() {
     super(ArgumentConstraints.typeOf(JmesPathType.ARRAY, JmesPathType.STRING));
   }

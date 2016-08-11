@@ -32,7 +32,7 @@ public class FunctionRegistryTest {
     return arguments;
   }
 
-  private static class TestFunction extends JmesPathFunction {
+  private static class TestFunction extends Function {
     public TestFunction(String name, ArgumentConstraint argumentConstraints) {
       super(name, argumentConstraints);
     }

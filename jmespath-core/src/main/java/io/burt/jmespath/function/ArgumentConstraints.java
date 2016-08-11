@@ -37,7 +37,7 @@ public final class ArgumentConstraints {
    * the number of arguments does not exactly match the number of constraints.
    * <p>
    * May only be used as a top level constraint – and is already built in to
-   * {@link JmesPathFunction}, so direct usage of this method should not be needed.
+   * {@link Function}, so direct usage of this method should not be needed.
    */
   public static ArgumentConstraint listOf(ArgumentConstraint... constraints) {
     return new HeterogenousListOf(constraints);

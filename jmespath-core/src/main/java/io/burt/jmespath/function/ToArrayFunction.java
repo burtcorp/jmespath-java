@@ -6,7 +6,7 @@ import java.util.Arrays;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ToArrayFunction extends JmesPathFunction {
+public class ToArrayFunction extends Function {
   public ToArrayFunction() {
     super(ArgumentConstraints.anyValue());
   }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class SortFunction extends JmesPathFunction {
+public class SortFunction extends Function {
   public SortFunction() {
     super(
       ArgumentConstraints.arrayOf(

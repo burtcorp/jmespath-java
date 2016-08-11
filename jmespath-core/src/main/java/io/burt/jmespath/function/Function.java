@@ -24,7 +24,7 @@ import io.burt.jmespath.Adapter;
  * This is done by using the {@link ArgumentConstraints} DSL and passing the
  * result in a <code>super</code> call in the constructor.
  */
-public abstract class JmesPathFunction {
+public abstract class Function {
   private final ArgumentConstraint argumentConstraints;
   private final String name;
 
@@ -36,7 +36,7 @@ public abstract class JmesPathFunction {
    *
    * @throws FunctionConfigurationException when the function name cannot be produced from the class name
    */
-  public JmesPathFunction(ArgumentConstraint argumentConstraints) {
+  public Function(ArgumentConstraint argumentConstraints) {
     this(null, argumentConstraints);
   }
 
@@ -46,7 +46,7 @@ public abstract class JmesPathFunction {
    *
    * @throws FunctionConfigurationException when the function name cannot be produced from the class name
    */
-  public JmesPathFunction(ArgumentConstraint... argumentConstraints) {
+  public Function(ArgumentConstraint... argumentConstraints) {
     this(null, ArgumentConstraints.listOf(argumentConstraints));
   }
 
@@ -54,7 +54,7 @@ public abstract class JmesPathFunction {
    * Constructor used by subclasses that provide a custom name (not based on
    * the class name) and that accept a fixed number of arguments.
    */
-  public JmesPathFunction(String name, ArgumentConstraint... argumentConstraints) {
+  public Function(String name, ArgumentConstraint... argumentConstraints) {
     this(name, ArgumentConstraints.listOf(argumentConstraints));
   }
 
@@ -62,7 +62,7 @@ public abstract class JmesPathFunction {
    * Constructor used by subclasses that provide a custom name (not based on
    * the class name) and that accept a single, or a variable number of arguments.
    */
-  public JmesPathFunction(String name, ArgumentConstraint argumentConstraints) {
+  public Function(String name, ArgumentConstraint argumentConstraints) {
     this.name = name == null ? classNameToFunctionName() : name;
     this.argumentConstraints = argumentConstraints;
   }
@@ -75,7 +75,7 @@ public abstract class JmesPathFunction {
       n = n.substring(n.lastIndexOf(".") + 1);
     }
     if (!n.endsWith("Function")) {
-      throw new FunctionConfigurationException(String.format("The function defined by %s must either pass a name to the JmesPathFunction constructor or the class name must end with \"Function\"", getClass().getName()));
+      throw new FunctionConfigurationException(String.format("The function defined by %s must either pass a name to the Function constructor or the class name must end with \"Function\"", getClass().getName()));
     }
     Matcher m = CAMEL_CASE_COMPONENT_RE.matcher(n);
     int offset = 0;
