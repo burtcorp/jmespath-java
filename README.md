@@ -5,7 +5,6 @@ An implementation of [JMESPath](http://jmespath.org/) for Java. It supports sear
 ## Basic usage
 
 ```java
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.burt.jmespath.JmesPathExpression;
@@ -14,9 +13,9 @@ import io.burt.jmespath.jackson.JacksonRuntime;
 
 // …
 
-JsonNode input = new ObjectMapper().readTree(System.in);
 JmesPathRuntime<JsonNode> jmespath = new JacksonRuntime();
 JmesPathExpression expression = jmespath.compile("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
+JsonNode input = …;
 JsonNode result = expression.search(input);
 ```
 
