@@ -70,6 +70,9 @@
           <disableXmlReport>true</disableXmlReport>
           <useFile>false</useFile>
           <trimStackTrace>false</trimStackTrace>
+          <excludes>
+            <exclude>**/*Compliance*.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
