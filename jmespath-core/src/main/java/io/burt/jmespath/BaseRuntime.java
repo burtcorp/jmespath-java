@@ -146,7 +146,46 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   }
 
   protected String unparseString(T object) {
-    return String.format("\"%s\"", object);
+    return String.format("\"%s\"", escapeString(toString(object)));
+  }
+
+  private String escapeString(String str) {
+    StringBuilder buffer = new StringBuilder(str);
+    for (int i = 0; i < buffer.length(); ) {
+      switch (buffer.charAt(i)) {
+        case '\b':
+          buffer.replace(i, i + 1, "\\b");
+          i += 2;
+          break;
+        case '\t':
+          buffer.replace(i, i + 1, "\\t");
+          i += 2;
+          break;
+        case '\n':
+          buffer.replace(i, i + 1, "\\n");
+          i += 2;
+          break;
+        case '\f':
+          buffer.replace(i, i + 1, "\\f");
+          i += 2;
+          break;
+        case '\r':
+          buffer.replace(i, i + 1, "\\r");
+          i += 2;
+          break;
+        case '"':
+          buffer.replace(i, i + 1, "\\\"");
+          i += 2;
+          break;
+        case '\\':
+          buffer.replace(i, i + 1, "\\\\");
+          i += 4;
+          break;
+        default:
+          i += 1;
+      }
+    }
+    return buffer.toString();
   }
 
   protected String unparseObject(T object) {
@@ -154,7 +193,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     Iterator<T> keys = getPropertyNames(object).iterator();
     while (keys.hasNext()) {
       T key = keys.next();
-      str.append("\"").append(toString(key)).append("\"");
+      str.append("\"").append(escapeString(toString(key))).append("\"");
       str.append(":").append(unparse(getProperty(object, key)));
       if (keys.hasNext()) {
         str.append(",");
