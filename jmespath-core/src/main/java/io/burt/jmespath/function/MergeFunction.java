@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class MergeFunction extends Function {
+public class MergeFunction extends BaseFunction {
   public MergeFunction() {
     super(ArgumentConstraints.listOf(1, Integer.MAX_VALUE, ArgumentConstraints.typeOf(JmesPathType.OBJECT)));
   }

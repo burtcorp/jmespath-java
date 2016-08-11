@@ -35,7 +35,7 @@ public class FunctionTest {
     return arguments;
   }
 
-  private static class TestFunction extends Function {
+  private static class TestFunction extends BaseFunction {
     public TestFunction(String name, ArgumentConstraint argumentConstraints) {
       super(name, argumentConstraints);
     }
@@ -46,7 +46,7 @@ public class FunctionTest {
     }
   }
 
-  private static class BadName extends Function {
+  private static class BadName extends BaseFunction {
     public BadName() {
       super(ArgumentConstraints.anyValue());
     }
@@ -55,7 +55,7 @@ public class FunctionTest {
     protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) { return null; }
   }
 
-  private static class NameFromClassNameFunction extends Function {
+  private static class NameFromClassNameFunction extends BaseFunction {
     public NameFromClassNameFunction() {
       super(ArgumentConstraints.anyValue());
     }

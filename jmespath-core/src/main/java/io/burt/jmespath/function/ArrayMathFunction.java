@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.burt.jmespath.Adapter;
 
-public abstract class ArrayMathFunction extends Function {
+public abstract class ArrayMathFunction extends BaseFunction {
   public ArrayMathFunction(ArgumentConstraint innerConstraint) {
     super(ArgumentConstraints.arrayOf(innerConstraint));
   }

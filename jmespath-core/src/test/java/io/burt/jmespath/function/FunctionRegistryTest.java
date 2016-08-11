@@ -32,7 +32,7 @@ public class FunctionRegistryTest {
     return arguments;
   }
 
-  private static class TestFunction extends Function {
+  private static class TestFunction extends BaseFunction {
     public TestFunction(String name, ArgumentConstraint argumentConstraints) {
       super(name, argumentConstraints);
     }

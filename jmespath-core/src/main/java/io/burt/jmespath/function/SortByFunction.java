@@ -10,7 +10,7 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.Node;
 
-public class SortByFunction extends Function {
+public class SortByFunction extends BaseFunction {
   public SortByFunction() {
     super(
       ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.OBJECT)),

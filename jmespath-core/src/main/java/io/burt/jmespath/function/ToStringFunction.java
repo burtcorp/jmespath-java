@@ -5,7 +5,7 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ToStringFunction extends Function {
+public class ToStringFunction extends BaseFunction {
   public ToStringFunction() {
     super(ArgumentConstraints.anyValue());
   }

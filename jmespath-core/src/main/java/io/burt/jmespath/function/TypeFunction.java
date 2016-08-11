@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.burt.jmespath.Adapter;
 
-public class TypeFunction extends Function {
+public class TypeFunction extends BaseFunction {
   public TypeFunction() {
     super(ArgumentConstraints.anyValue());
   }

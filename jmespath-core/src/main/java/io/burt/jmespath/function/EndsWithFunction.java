@@ -5,7 +5,7 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class EndsWithFunction extends Function {
+public class EndsWithFunction extends BaseFunction {
   public EndsWithFunction() {
     super(
       ArgumentConstraints.typeOf(JmesPathType.STRING),

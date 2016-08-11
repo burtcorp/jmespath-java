@@ -5,7 +5,7 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class LengthFunction extends Function {
+public class LengthFunction extends BaseFunction {
   public LengthFunction() {
     super(ArgumentConstraints.typeOf(JmesPathType.STRING, JmesPathType.ARRAY, JmesPathType.OBJECT));
   }
