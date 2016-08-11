@@ -6,29 +6,29 @@ import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 
-public class OperatorNode<T> extends JmesPathNode<T> {
-  private final List<JmesPathNode<T>> operands;
+public class OperatorNode<T> extends Node<T> {
+  private final List<Node<T>> operands;
 
   @SafeVarargs
-  public OperatorNode(Adapter<T> runtime, JmesPathNode<T>... operands) {
+  public OperatorNode(Adapter<T> runtime, Node<T>... operands) {
     super(runtime);
     this.operands = Arrays.asList(operands);
   }
 
-  protected List<JmesPathNode<T>> operands() {
+  protected List<Node<T>> operands() {
     return operands;
   }
 
-  protected JmesPathNode<T> operand(int index) {
+  protected Node<T> operand(int index) {
     return operands.get(index);
   }
 
   @Override
   protected String internalToString() {
     StringBuilder operandsString = new StringBuilder();
-    Iterator<JmesPathNode<T>> operandIterator = operands.iterator();
+    Iterator<Node<T>> operandIterator = operands.iterator();
     while (operandIterator.hasNext()) {
-      JmesPathNode<T> operand = operandIterator.next();
+      Node<T> operand = operandIterator.next();
       operandsString.append(operand);
       if (operandIterator.hasNext()) {
         operandsString.append(", ");
@@ -47,7 +47,7 @@ public class OperatorNode<T> extends JmesPathNode<T> {
   @Override
   protected int internalHashCode() {
     int h = 1;
-    for (JmesPathNode<T> node : operands) {
+    for (Node<T> node : operands) {
       h = h * 31 + node.hashCode();
     }
     return h;

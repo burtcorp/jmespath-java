@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class FlattenArrayNode<T> extends JmesPathNode<T> {
-  public FlattenArrayNode(Adapter<T> runtime, JmesPathNode<T> source) {
+public class FlattenArrayNode<T> extends Node<T> {
+  public FlattenArrayNode(Adapter<T> runtime, Node<T> source) {
     super(runtime, source);
   }
 

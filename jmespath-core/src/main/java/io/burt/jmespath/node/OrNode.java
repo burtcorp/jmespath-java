@@ -3,7 +3,7 @@ package io.burt.jmespath.node;
 import io.burt.jmespath.Adapter;
 
 public class OrNode<T> extends OperatorNode<T> {
-  public OrNode(Adapter<T> runtime, JmesPathNode<T> left, JmesPathNode<T> right) {
+  public OrNode(Adapter<T> runtime, Node<T> left, Node<T> right) {
     super(runtime, left, right);
   }
 

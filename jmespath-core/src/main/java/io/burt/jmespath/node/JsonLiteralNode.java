@@ -2,7 +2,7 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class JsonLiteralNode<T> extends JmesPathNode<T> {
+public class JsonLiteralNode<T> extends Node<T> {
   private final String raw;
 
   public JsonLiteralNode(Adapter<T> runtime, String raw) {

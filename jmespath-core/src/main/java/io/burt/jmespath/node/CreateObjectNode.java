@@ -9,14 +9,14 @@ import java.util.Iterator;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class CreateObjectNode<T> extends JmesPathNode<T> {
+public class CreateObjectNode<T> extends Node<T> {
   private final List<Entry<T>> entries;
 
   public static class Entry<U> {
     private final String key;
-    private final JmesPathNode<U> value;
+    private final Node<U> value;
 
-    public Entry(String key, JmesPathNode<U> value) {
+    public Entry(String key, Node<U> value) {
       this.key = key;
       this.value = value;
     }
@@ -25,7 +25,7 @@ public class CreateObjectNode<T> extends JmesPathNode<T> {
       return key;
     }
 
-    protected JmesPathNode<U> value() {
+    protected Node<U> value() {
       return value;
     }
 
@@ -51,7 +51,7 @@ public class CreateObjectNode<T> extends JmesPathNode<T> {
     }
   }
 
-  public CreateObjectNode(Adapter<T> runtime, List<Entry<T>> entries, JmesPathNode<T> source) {
+  public CreateObjectNode(Adapter<T> runtime, List<Entry<T>> entries, Node<T> source) {
     super(runtime, source);
     this.entries = entries;
   }

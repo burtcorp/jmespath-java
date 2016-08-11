@@ -3,7 +3,7 @@ package io.burt.jmespath.node;
 import io.burt.jmespath.Adapter;
 
 public class AndNode<T> extends OperatorNode<T> {
-  public AndNode(Adapter<T> adapter, JmesPathNode<T> left, JmesPathNode<T> right) {
+  public AndNode(Adapter<T> adapter, Node<T> left, Node<T> right) {
     super(adapter, left, right);
   }
 

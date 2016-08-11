@@ -2,10 +2,10 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class PropertyNode<T> extends JmesPathNode<T> {
+public class PropertyNode<T> extends Node<T> {
   private final String propertyName;
 
-  public PropertyNode(Adapter<T> runtime, String propertyName, JmesPathNode<T> source) {
+  public PropertyNode(Adapter<T> runtime, String propertyName, Node<T> source) {
     super(runtime, source);
     this.propertyName = propertyName;
   }

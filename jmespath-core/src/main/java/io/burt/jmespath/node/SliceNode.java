@@ -5,12 +5,12 @@ import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
 
-public class SliceNode<T> extends JmesPathNode<T> {
+public class SliceNode<T> extends Node<T> {
   private final int start;
   private final int stop;
   private final int step;
 
-  public SliceNode(Adapter<T> runtime, int start, int stop, int step, JmesPathNode<T> source) {
+  public SliceNode(Adapter<T> runtime, int start, int stop, int step, Node<T> source) {
     super(runtime, source);
     this.start = start;
     this.stop = stop;

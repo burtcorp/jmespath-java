@@ -5,10 +5,10 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class IndexNode<T> extends JmesPathNode<T> {
+public class IndexNode<T> extends Node<T> {
   private final int index;
 
-  public IndexNode(Adapter<T> runtime, int index, JmesPathNode<T> source) {
+  public IndexNode(Adapter<T> runtime, int index, Node<T> source) {
     super(runtime, source);
     this.index = index;
   }

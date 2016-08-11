@@ -8,15 +8,15 @@ import java.util.Iterator;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class CreateArrayNode<T> extends JmesPathNode<T> {
-  private final List<JmesPathNode<T>> entries;
+public class CreateArrayNode<T> extends Node<T> {
+  private final List<Node<T>> entries;
 
-  public CreateArrayNode(Adapter<T> runtime, List<JmesPathNode<T>> entries, JmesPathNode<T> source) {
+  public CreateArrayNode(Adapter<T> runtime, List<Node<T>> entries, Node<T> source) {
     super(runtime, source);
     this.entries = entries;
   }
 
-  protected List<JmesPathNode<T>> entries() {
+  protected List<Node<T>> entries() {
     return entries;
   }
 
@@ -26,7 +26,7 @@ public class CreateArrayNode<T> extends JmesPathNode<T> {
       return currentValue;
     } else {
       List<T> array = new ArrayList<>();
-      for (JmesPathNode<T> entry : entries) {
+      for (Node<T> entry : entries) {
         array.add(entry.search(currentValue));
       }
       return runtime.createArray(array);
@@ -36,9 +36,9 @@ public class CreateArrayNode<T> extends JmesPathNode<T> {
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder("[");
-    Iterator<JmesPathNode<T>> entryIterator = entries.iterator();
+    Iterator<Node<T>> entryIterator = entries.iterator();
     while (entryIterator.hasNext()) {
-      JmesPathNode<T> entry = entryIterator.next();
+      Node<T> entry = entryIterator.next();
       str.append(entry);
       if (entryIterator.hasNext()) {
         str.append(", ");
@@ -58,7 +58,7 @@ public class CreateArrayNode<T> extends JmesPathNode<T> {
   @Override
   protected int internalHashCode() {
     int h = 1;
-    for (JmesPathNode<T> node : entries) {
+    for (Node<T> node : entries) {
       h = h * 31 + node.hashCode();
     }
     return h;

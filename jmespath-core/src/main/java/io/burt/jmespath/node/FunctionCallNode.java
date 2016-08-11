@@ -8,11 +8,11 @@ import java.util.Iterator;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.function.ExpressionOrValue;
 
-public class FunctionCallNode<T> extends JmesPathNode<T> {
+public class FunctionCallNode<T> extends Node<T> {
   private final String name;
-  private final List<? extends JmesPathNode<T>> args;
+  private final List<? extends Node<T>> args;
 
-  public FunctionCallNode(Adapter<T> runtime, String name, List<? extends JmesPathNode<T>> args, JmesPathNode<T> source) {
+  public FunctionCallNode(Adapter<T> runtime, String name, List<? extends Node<T>> args, Node<T> source) {
     super(runtime, source);
     this.name = name;
     this.args = args;
@@ -21,7 +21,7 @@ public class FunctionCallNode<T> extends JmesPathNode<T> {
   @Override
   protected T searchOne(T currentValue) {
     List<ExpressionOrValue<T>> arguments = new ArrayList<>(args.size());
-    for (JmesPathNode<T> arg : args()) {
+    for (Node<T> arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {
         arguments.add(new ExpressionOrValue<T>(arg));
       } else {
@@ -35,16 +35,16 @@ public class FunctionCallNode<T> extends JmesPathNode<T> {
     return name;
   }
 
-  protected List<? extends JmesPathNode<T>> args() {
+  protected List<? extends Node<T>> args() {
     return args;
   }
 
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder(name).append(", [");
-    Iterator<? extends JmesPathNode<T>> argIterator = args.iterator();
+    Iterator<? extends Node<T>> argIterator = args.iterator();
     while (argIterator.hasNext()) {
-      JmesPathNode<T> arg = argIterator.next();
+      Node<T> arg = argIterator.next();
       str.append(arg);
       if (argIterator.hasNext()) {
         str.append(", ");
@@ -65,7 +65,7 @@ public class FunctionCallNode<T> extends JmesPathNode<T> {
   protected int internalHashCode() {
     int h = 1;
     h = h * 31 + name.hashCode();
-    for (JmesPathNode<T> node : args) {
+    for (Node<T> node : args) {
       h = h * 31 + node.hashCode();
     }
     return h;

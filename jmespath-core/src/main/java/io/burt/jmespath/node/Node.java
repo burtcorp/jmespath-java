@@ -7,15 +7,15 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.Expression;
 
-public abstract class JmesPathNode<T> implements Expression<T> {
+public abstract class Node<T> implements Expression<T> {
   protected final Adapter<T> runtime;
-  private final JmesPathNode<T> source;
+  private final Node<T> source;
 
-  public JmesPathNode(Adapter<T> runtime) {
+  public Node(Adapter<T> runtime) {
     this(runtime, new CurrentNode<T>(runtime));
   }
 
-  public JmesPathNode(Adapter<T> runtime, JmesPathNode<T> source) {
+  public Node(Adapter<T> runtime, Node<T> source) {
     this.runtime = runtime;
     this.source = source;
   }
@@ -51,7 +51,7 @@ public abstract class JmesPathNode<T> implements Expression<T> {
     return currentValue;
   }
 
-  protected JmesPathNode<T> source() {
+  protected Node<T> source() {
     return source;
   }
 
@@ -87,7 +87,7 @@ public abstract class JmesPathNode<T> implements Expression<T> {
     if (!getClass().isInstance(o)) {
       return false;
     }
-    JmesPathNode<T> other = (JmesPathNode<T>) o;
+    Node<T> other = (Node<T>) o;
     return internalEquals(o) && (source() == other.source() || (source() != null && other.source() != null && source().equals(other.source())));
   }
 

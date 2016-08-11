@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.node.JmesPathNode;
+import io.burt.jmespath.node.Node;
 
 public class MapFunction extends JmesPathFunction {
   public MapFunction() {
@@ -17,7 +17,7 @@ public class MapFunction extends JmesPathFunction {
 
   @Override
   protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
-    JmesPathNode<T> expression = arguments.get(0).expression();
+    Node<T> expression = arguments.get(0).expression();
     T array = arguments.get(1).value();
     List<T> elements = runtime.toList(array);
     List<T> result = new ArrayList<>(elements.size());

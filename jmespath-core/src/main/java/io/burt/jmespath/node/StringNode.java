@@ -2,7 +2,7 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class StringNode<T> extends JmesPathNode<T> {
+public class StringNode<T> extends Node<T> {
   private final String string;
 
   public StringNode(Adapter<T> runtime, String string) {

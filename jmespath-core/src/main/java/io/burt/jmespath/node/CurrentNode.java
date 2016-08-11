@@ -2,12 +2,12 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class CurrentNode<T> extends JmesPathNode<T> {
+public class CurrentNode<T> extends Node<T> {
   public CurrentNode(Adapter<T> runtime) {
     super(runtime, null);
   }
 
-  public CurrentNode(Adapter<T> runtime, JmesPathNode<T> source) {
+  public CurrentNode(Adapter<T> runtime, Node<T> source) {
     super(runtime, source);
   }
 

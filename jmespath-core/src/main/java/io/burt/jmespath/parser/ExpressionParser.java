@@ -24,7 +24,7 @@ import io.burt.jmespath.node.FlattenObjectNode;
 import io.burt.jmespath.node.ForkNode;
 import io.burt.jmespath.node.FunctionCallNode;
 import io.burt.jmespath.node.IndexNode;
-import io.burt.jmespath.node.JmesPathNode;
+import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.JoinNode;
 import io.burt.jmespath.node.JsonLiteralNode;
 import io.burt.jmespath.node.ParsedJsonLiteralNode;
@@ -35,9 +35,9 @@ import io.burt.jmespath.node.SelectionNode;
 import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
-public class ExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode<T>> {
+public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private final ParseTree tree;
-  private final Deque<JmesPathNode<T>> currentSource;
+  private final Deque<Node<T>> currentSource;
   private final Adapter<T> runtime;
 
   public static <U> Expression<U> fromString(Adapter<U> runtime, String expression) {
@@ -91,103 +91,103 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode<T>> {
   }
 
   @Override
-  public JmesPathNode<T> visitJmesPathExpression(JmesPathParser.JmesPathExpressionContext ctx) {
+  public Node<T> visitJmesPathExpression(JmesPathParser.JmesPathExpressionContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
-    JmesPathNode<T> result = visit(ctx.expression());
+    Node<T> result = visit(ctx.expression());
     currentSource.pop();
     return result;
   }
 
   @Override
-  public JmesPathNode<T> visitPipeExpression(JmesPathParser.PipeExpressionContext ctx) {
+  public Node<T> visitPipeExpression(JmesPathParser.PipeExpressionContext ctx) {
     currentSource.push(new JoinNode<T>(runtime, visit(ctx.expression(0))));
-    JmesPathNode<T> result = visit(ctx.expression(1));
+    Node<T> result = visit(ctx.expression(1));
     currentSource.pop();
     return result;
   }
 
   @Override
-  public JmesPathNode<T> visitIdentifierExpression(JmesPathParser.IdentifierExpressionContext ctx) {
+  public Node<T> visitIdentifierExpression(JmesPathParser.IdentifierExpressionContext ctx) {
     return visit(ctx.identifier());
   }
 
   @Override
-  public JmesPathNode<T> visitNotExpression(JmesPathParser.NotExpressionContext ctx) {
+  public Node<T> visitNotExpression(JmesPathParser.NotExpressionContext ctx) {
     return new NegateNode<T>(runtime, visit(ctx.expression()));
   }
 
   @Override
-  public JmesPathNode<T> visitRawStringExpression(JmesPathParser.RawStringExpressionContext ctx) {
+  public Node<T> visitRawStringExpression(JmesPathParser.RawStringExpressionContext ctx) {
     String quotedString = ctx.RAW_STRING().getText();
     String unquotedString = quotedString.substring(1, quotedString.length() - 1);
     return new StringNode<T>(runtime, unquotedString);
   }
 
   @Override
-  public JmesPathNode<T> visitComparisonExpression(JmesPathParser.ComparisonExpressionContext ctx) {
+  public Node<T> visitComparisonExpression(JmesPathParser.ComparisonExpressionContext ctx) {
     String operator = ctx.COMPARATOR().getText();
-    JmesPathNode<T> left = visit(ctx.expression(0));
-    JmesPathNode<T> right = visit(ctx.expression(1));
+    Node<T> left = visit(ctx.expression(0));
+    Node<T> right = visit(ctx.expression(1));
     return new ComparisonNode<T>(runtime, operator, left, right);
   }
 
   @Override
-  public JmesPathNode<T> visitParenExpression(JmesPathParser.ParenExpressionContext ctx) {
+  public Node<T> visitParenExpression(JmesPathParser.ParenExpressionContext ctx) {
     return visit(ctx.expression());
   }
 
   @Override
-  public JmesPathNode<T> visitBracketExpression(JmesPathParser.BracketExpressionContext ctx) {
+  public Node<T> visitBracketExpression(JmesPathParser.BracketExpressionContext ctx) {
     return visit(ctx.bracketSpecifier());
   }
 
   @Override
-  public JmesPathNode<T> visitOrExpression(JmesPathParser.OrExpressionContext ctx) {
-    JmesPathNode<T> left = visit(ctx.expression(0));
-    JmesPathNode<T> right = visit(ctx.expression(1));
+  public Node<T> visitOrExpression(JmesPathParser.OrExpressionContext ctx) {
+    Node<T> left = visit(ctx.expression(0));
+    Node<T> right = visit(ctx.expression(1));
     return new OrNode<T>(runtime, left, right);
 
   }
 
   @Override
-  public JmesPathNode<T> visitChainExpression(JmesPathParser.ChainExpressionContext ctx) {
+  public Node<T> visitChainExpression(JmesPathParser.ChainExpressionContext ctx) {
     currentSource.push(visit(ctx.expression()));
-    JmesPathNode<T> result = visit(ctx.chainedExpression());
+    Node<T> result = visit(ctx.chainedExpression());
     currentSource.pop();
     return result;
   }
 
   @Override
-  public JmesPathNode<T> visitAndExpression(JmesPathParser.AndExpressionContext ctx) {
-    JmesPathNode<T> left = visit(ctx.expression(0));
-    JmesPathNode<T> right = visit(ctx.expression(1));
+  public Node<T> visitAndExpression(JmesPathParser.AndExpressionContext ctx) {
+    Node<T> left = visit(ctx.expression(0));
+    Node<T> right = visit(ctx.expression(1));
     return new AndNode<T>(runtime, left, right);
   }
 
   @Override
-  public JmesPathNode<T> visitWildcardExpression(JmesPathParser.WildcardExpressionContext ctx) {
+  public Node<T> visitWildcardExpression(JmesPathParser.WildcardExpressionContext ctx) {
     return visit(ctx.wildcard());
   }
 
   @Override
-  public JmesPathNode<T> visitBracketedExpression(JmesPathParser.BracketedExpressionContext ctx) {
+  public Node<T> visitBracketedExpression(JmesPathParser.BracketedExpressionContext ctx) {
     currentSource.push(visit(ctx.expression()));
-    JmesPathNode<T> result = visit(ctx.bracketSpecifier());
+    Node<T> result = visit(ctx.bracketSpecifier());
     currentSource.pop();
     return result;
   }
 
   @Override
-  public JmesPathNode<T> visitWildcard(JmesPathParser.WildcardContext ctx) {
+  public Node<T> visitWildcard(JmesPathParser.WildcardContext ctx) {
     return new ForkNode<T>(runtime, new FlattenObjectNode<T>(runtime, currentSource.peek()));
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public JmesPathNode<T> visitMultiSelectList(JmesPathParser.MultiSelectListContext ctx) {
+  public Node<T> visitMultiSelectList(JmesPathParser.MultiSelectListContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
     int n = ctx.expression().size();
-    List<JmesPathNode<T>> entries = new ArrayList<>(n);
+    List<Node<T>> entries = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       entries.add(visit(ctx.expression(i)));
     }
@@ -197,14 +197,14 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode<T>> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public JmesPathNode<T> visitMultiSelectHash(JmesPathParser.MultiSelectHashContext ctx) {
+  public Node<T> visitMultiSelectHash(JmesPathParser.MultiSelectHashContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
     int n = ctx.keyvalExpr().size();
     List<CreateObjectNode.Entry<T>> entries = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       JmesPathParser.KeyvalExprContext kvCtx = ctx.keyvalExpr(i);
       String key = identifierToString(kvCtx.identifier());
-      JmesPathNode<T> value = visit(kvCtx.expression());
+      Node<T> value = visit(kvCtx.expression());
       entries.add(new CreateObjectNode.Entry<T>(key, value));
     }
     currentSource.pop();
@@ -212,18 +212,18 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode<T>> {
   }
 
   @Override
-  public JmesPathNode<T> visitBracketIndex(JmesPathParser.BracketIndexContext ctx) {
+  public Node<T> visitBracketIndex(JmesPathParser.BracketIndexContext ctx) {
     int index = Integer.parseInt(ctx.SIGNED_INT().getText());
     return new IndexNode<T>(runtime, index, currentSource.peek());
   }
 
   @Override
-  public JmesPathNode<T> visitBracketStar(JmesPathParser.BracketStarContext ctx) {
+  public Node<T> visitBracketStar(JmesPathParser.BracketStarContext ctx) {
     return new ForkNode<T>(runtime, currentSource.peek());
   }
 
   @Override
-  public JmesPathNode<T> visitBracketSlice(JmesPathParser.BracketSliceContext ctx) {
+  public Node<T> visitBracketSlice(JmesPathParser.BracketSliceContext ctx) {
     int start = 0;
     int stop = 0;
     int step = 1;
@@ -241,25 +241,25 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode<T>> {
   }
 
   @Override
-  public JmesPathNode<T> visitBracketFlatten(JmesPathParser.BracketFlattenContext ctx) {
+  public Node<T> visitBracketFlatten(JmesPathParser.BracketFlattenContext ctx) {
     return new ForkNode<T>(runtime, new FlattenArrayNode<T>(runtime, currentSource.peek()));
   }
 
   @Override
-  public JmesPathNode<T> visitSelect(JmesPathParser.SelectContext ctx) {
+  public Node<T> visitSelect(JmesPathParser.SelectContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
-    JmesPathNode<T> test = visit(ctx.expression());
+    Node<T> test = visit(ctx.expression());
     currentSource.pop();
     return new ForkNode<T>(runtime, new SelectionNode<T>(runtime, test, currentSource.peek()));
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public JmesPathNode<T> visitFunctionExpression(JmesPathParser.FunctionExpressionContext ctx) {
+  public Node<T> visitFunctionExpression(JmesPathParser.FunctionExpressionContext ctx) {
     currentSource.push(new CurrentNode(runtime));
     String name = ctx.NAME().getText();
     int n = ctx.functionArg().size();
-    List<JmesPathNode<T>> args = new ArrayList<>(n);
+    List<Node<T>> args = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       args.add(visit(ctx.functionArg(i)));
     }
@@ -268,7 +268,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode<T>> {
   }
 
   @Override
-  public JmesPathNode<T> visitCurrentNode(JmesPathParser.CurrentNodeContext ctx) {
+  public Node<T> visitCurrentNode(JmesPathParser.CurrentNodeContext ctx) {
     if (currentSource.peek() instanceof CurrentNode) {
       return currentSource.peek();
     } else {
@@ -277,18 +277,18 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<JmesPathNode<T>> {
   }
 
   @Override
-  public JmesPathNode<T> visitExpressionType(JmesPathParser.ExpressionTypeContext ctx) {
+  public Node<T> visitExpressionType(JmesPathParser.ExpressionTypeContext ctx) {
     return new ExpressionReferenceNode<T>(runtime, visit(ctx.expression()));
   }
 
   @Override
-  public JmesPathNode<T> visitLiteral(JmesPathParser.LiteralContext ctx) {
+  public Node<T> visitLiteral(JmesPathParser.LiteralContext ctx) {
     String string = ctx.jsonValue().getText();
     return new ParsedJsonLiteralNode<T>(runtime, string, runtime.parseString(string));
   }
 
   @Override
-  public JmesPathNode<T> visitIdentifier(JmesPathParser.IdentifierContext ctx) {
+  public Node<T> visitIdentifier(JmesPathParser.IdentifierContext ctx) {
     return new PropertyNode<T>(runtime, identifierToString(ctx), currentSource.peek());
   }
 }

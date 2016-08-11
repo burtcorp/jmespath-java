@@ -2,8 +2,8 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class NegateNode<T> extends JmesPathNode<T> {
-  public NegateNode(Adapter<T> runtime, JmesPathNode<T> source) {
+public class NegateNode<T> extends Node<T> {
+  public NegateNode(Adapter<T> runtime, Node<T> source) {
     super(runtime, source);
   }
 

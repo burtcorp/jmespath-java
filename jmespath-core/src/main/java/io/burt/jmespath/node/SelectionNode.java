@@ -6,10 +6,10 @@ import java.util.LinkedList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class SelectionNode<T> extends JmesPathNode<T> {
-  private final JmesPathNode<T> test;
+public class SelectionNode<T> extends Node<T> {
+  private final Node<T> test;
 
-  public SelectionNode(Adapter<T> runtime, JmesPathNode<T> test, JmesPathNode<T> source) {
+  public SelectionNode(Adapter<T> runtime, Node<T> test, Node<T> source) {
     super(runtime, source);
     this.test = test;
   }
@@ -30,7 +30,7 @@ public class SelectionNode<T> extends JmesPathNode<T> {
     }
   }
 
-  protected JmesPathNode<T> test() {
+  protected Node<T> test() {
     return test;
   }
 

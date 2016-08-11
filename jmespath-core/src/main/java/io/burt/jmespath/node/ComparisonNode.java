@@ -6,7 +6,7 @@ import io.burt.jmespath.JmesPathType;
 public class ComparisonNode<T> extends OperatorNode<T> {
   private final String operator;
 
-  public ComparisonNode(Adapter<T> runtime, String operator, JmesPathNode<T> left, JmesPathNode<T> right) {
+  public ComparisonNode(Adapter<T> runtime, String operator, Node<T> left, Node<T> right) {
     super(runtime, left, right);
     this.operator = operator;
   }

@@ -5,7 +5,7 @@ import java.util.List;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.node.JmesPathNode;
+import io.burt.jmespath.node.Node;
 
 public abstract class CompareByFunction extends JmesPathFunction {
   public CompareByFunction() {
@@ -20,7 +20,7 @@ public abstract class CompareByFunction extends JmesPathFunction {
   @Override
   protected <T> T callFunction(Adapter<T> runtime, List<ExpressionOrValue<T>> arguments) {
     Iterator<T> elements = runtime.toList(arguments.get(0).value()).iterator();
-    JmesPathNode<T> expression = arguments.get(1).expression();
+    Node<T> expression = arguments.get(1).expression();
     if (elements.hasNext()) {
       T result = elements.next();
       T resultValue = expression.search(result);

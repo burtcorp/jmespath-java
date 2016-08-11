@@ -20,7 +20,7 @@ import io.burt.jmespath.node.FlattenObjectNode;
 import io.burt.jmespath.node.ForkNode;
 import io.burt.jmespath.node.FunctionCallNode;
 import io.burt.jmespath.node.IndexNode;
-import io.burt.jmespath.node.JmesPathNode;
+import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.JoinNode;
 import io.burt.jmespath.node.JsonLiteralNode;
 import io.burt.jmespath.node.ParsedJsonLiteralNode;
@@ -349,7 +349,7 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void simpleFunctionCallExpression() {
     Expression<Object> expected = new FunctionCallNode<Object>(runtime, "foo",
-      new ArrayList<JmesPathNode<Object>>(),
+      new ArrayList<Node<Object>>(),
       currentNode
     );
     Expression<Object> actual = compile("foo()");
