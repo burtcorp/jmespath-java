@@ -4,15 +4,18 @@ import java.util.Deque;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.function.Function;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
 import io.burt.jmespath.node.CreateArrayNode;
@@ -39,17 +42,21 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private final ParseTree tree;
   private final Deque<Node<T>> currentSource;
   private final Adapter<T> runtime;
+  private final ParseErrorAccumulator errors;
 
-  public static <U> Expression<U> fromString(Adapter<U> runtime, String expression) {
+  public static <U> Expression<U> fromString(Adapter<U> runtime, String rawExpression) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
-    JmesPathParser parser = createParser(createLexer(createInput(expression), errors), errors);
+    JmesPathParser parser = createParser(createLexer(createInput(rawExpression), errors), errors);
     ParseTree tree = parser.jmesPathExpression();
+    Expression<U> expression = null;
     if (errors.isEmpty()) {
-      ExpressionParser<U> visitor = new ExpressionParser<U>(runtime, tree);
-      return visitor.expression();
-    } else {
-      throw new ParseException(expression, errors);
+      ExpressionParser<U> visitor = new ExpressionParser<U>(runtime, tree, errors);
+      expression = visitor.expression();
     }
+    if (!errors.isEmpty()) {
+      throw new ParseException(rawExpression, errors);
+    }
+    return expression;
   }
 
   private static ANTLRInputStream createInput(String expression) {
@@ -72,9 +79,10 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     return parser;
   }
 
-  private ExpressionParser(Adapter<T> runtime, ParseTree tree) {
+  private ExpressionParser(Adapter<T> runtime, ParseTree tree, ParseErrorAccumulator errors) {
     this.runtime = runtime;
     this.tree = tree;
+    this.errors = errors;
     this.currentSource = new LinkedList<>();
   }
 
@@ -264,7 +272,12 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
       args.add(visit(ctx.functionArg(i)));
     }
     currentSource.pop();
-    return new FunctionCallNode<T>(runtime, name, args, currentSource.peek());
+    Function implementation = runtime.getFunction(name);
+    if (implementation == null) {
+      Token token = ctx.NAME().getSymbol();
+      errors.parseError(String.format("unknown function \"%s\"", name), token.getLine(), token.getStartIndex());
+    }
+    return new FunctionCallNode<T>(runtime, implementation, args, currentSource.peek());
   }
 
   @Override

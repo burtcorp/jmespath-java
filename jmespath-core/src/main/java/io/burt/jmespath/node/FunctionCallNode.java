@@ -6,15 +6,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.function.Function;
 import io.burt.jmespath.function.ExpressionOrValue;
 
 public class FunctionCallNode<T> extends Node<T> {
-  private final String name;
+  private final Function implementation;
   private final List<? extends Node<T>> args;
 
-  public FunctionCallNode(Adapter<T> runtime, String name, List<? extends Node<T>> args, Node<T> source) {
+  public FunctionCallNode(Adapter<T> runtime, Function implementation, List<? extends Node<T>> args, Node<T> source) {
     super(runtime, source);
-    this.name = name;
+    this.implementation = implementation;
     this.args = args;
   }
 
@@ -28,11 +29,11 @@ public class FunctionCallNode<T> extends Node<T> {
         arguments.add(new ExpressionOrValue<T>(arg.search(currentValue)));
       }
     }
-    return runtime.callFunction(name(), arguments);
+    return implementation.call(runtime, arguments);
   }
 
-  protected String name() {
-    return name;
+  protected Function implementation() {
+    return implementation;
   }
 
   protected List<? extends Node<T>> args() {
@@ -41,7 +42,7 @@ public class FunctionCallNode<T> extends Node<T> {
 
   @Override
   protected String internalToString() {
-    StringBuilder str = new StringBuilder(name).append(", [");
+    StringBuilder str = new StringBuilder(implementation().name()).append(", [");
     Iterator<? extends Node<T>> argIterator = args.iterator();
     while (argIterator.hasNext()) {
       Node<T> arg = argIterator.next();
@@ -58,13 +59,13 @@ public class FunctionCallNode<T> extends Node<T> {
   @SuppressWarnings("unchecked")
   protected boolean internalEquals(Object o) {
     FunctionCallNode<T> other = (FunctionCallNode<T>) o;
-    return name().equals(other.name()) && args().equals(other.args());
+    return implementation.name().equals(other.implementation().name()) && args().equals(other.args());
   }
 
   @Override
   protected int internalHashCode() {
     int h = 1;
-    h = h * 31 + name.hashCode();
+    h = h * 31 + implementation().name().hashCode();
     for (Node<T> node : args) {
       h = h * 31 + node.hashCode();
     }

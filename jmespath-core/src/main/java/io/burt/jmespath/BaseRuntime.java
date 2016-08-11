@@ -5,12 +5,12 @@ import java.util.Iterator;
 
 import io.burt.jmespath.parser.ExpressionParser;
 import io.burt.jmespath.function.FunctionRegistry;
-import io.burt.jmespath.function.ExpressionOrValue;
+import io.burt.jmespath.function.Function;
 
 /**
  * This class can be extended instead of implementing {@link Adapter} directly,
  * in order to not have to implement a few of the methods that have non-specific
- * implementations, like {@link Adapter#callFunction}, {@link Adapter#typeOf} or
+ * implementations, like {@link Adapter#getFunction}, {@link Adapter#typeOf} or
  * the {@link Comparable} interface. Subclasses are encouraged to override these
  * methods if they have more efficient means to perform the same job.
  */
@@ -88,15 +88,14 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   }
 
   /**
-   * Calls a function with the specified arguments and returns the result.
-   *
+   * Returns the function by the specified name or null if no such function exists.
+   * <p>
    * Very few runtimes will have any reason to override this method, it only
-   * proxies the call to {@link FunctionRegistry#callFunction} passing itself
-   * along as the runtime.
+   * proxies the call to {@link FunctionRegistry#getFunction}.
    */
   @Override
-  public T callFunction(String name, List<ExpressionOrValue<T>> arguments) {
-    return functionRegistry.callFunction(this, name, arguments);
+  public Function getFunction(String name) {
+    return functionRegistry.getFunction(name);
   }
 
   /**

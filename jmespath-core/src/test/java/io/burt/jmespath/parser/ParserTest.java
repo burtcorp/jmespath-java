@@ -348,31 +348,34 @@ public class ParserTest {
   @Test
   @SuppressWarnings("unchecked")
   public void simpleFunctionCallExpression() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime, "foo",
-      new ArrayList<Node<Object>>(),
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("sort"),
+      Arrays.asList(currentNode),
       currentNode
     );
-    Expression<Object> actual = compile("foo()");
+    Expression<Object> actual = compile("sort(@)");
     assertThat(actual, is(expected));
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void functionCallWithArgumentExpression() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime, "foo",
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("sort"),
       Arrays.asList(
         new PropertyNode<Object>(runtime, "bar", currentNode)
       ),
       currentNode
     );
-    Expression<Object> actual = compile("foo(bar)");
+    Expression<Object> actual = compile("sort(bar)");
     assertThat(actual, is(expected));
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void functionCallWithMultipleArgumentsExpression() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime, "foo",
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("merge"),
       Arrays.asList(
         new PropertyNode<Object>(runtime, "bar", currentNode),
         new PropertyNode<Object>(runtime, "baz", currentNode),
@@ -380,14 +383,15 @@ public class ParserTest {
       ),
       currentNode
     );
-    Expression<Object> actual = compile("foo(bar, baz, @)");
+    Expression<Object> actual = compile("merge(bar, baz, @)");
     assertThat(actual, is(expected));
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void chainedFunctionCallExpression() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime, "to_string",
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("to_string"),
       Arrays.asList(currentNode),
       new PropertyNode<Object>(runtime, "foo", currentNode)
     );
@@ -399,7 +403,7 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void functionCallWithExpressionReference() {
     Expression<Object> expected = new FunctionCallNode<Object>(runtime,
-      "foo",
+      runtime.getFunction("sort"),
       Arrays.asList(
         new ExpressionReferenceNode<Object>(runtime,
           new PropertyNode<Object>(runtime, "bar",
@@ -409,8 +413,19 @@ public class ParserTest {
       ),
       currentNode
     );
-    Expression<Object> actual = compile("foo(&bar.bar)");
+    Expression<Object> actual = compile("sort(&bar.bar)");
     assertThat(actual, is(expected));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void functionCallWithUnknownFunction() {
+    try {
+      compile("to_unicorn(@)");
+      fail("Expected ParseException to be thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), is("Error while parsing \"to_unicorn(@)\": unknown function \"to_unicorn\" at position 0"));
+    }
   }
 
   @Test
@@ -545,7 +560,8 @@ public class ParserTest {
   @Test
   @SuppressWarnings("unchecked")
   public void chainPipeFunctionCallCombination() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime, "sort",
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("sort"),
       Arrays.asList(currentNode),
       new JoinNode<Object>(runtime,
         new ForkNode<Object>(runtime,
@@ -632,7 +648,8 @@ public class ParserTest {
     Expression<Object> expected = new CreateObjectNode<Object>(runtime,
       Arrays.asList(
         new CreateObjectNode.Entry<Object>("WashingtonCities",
-          new FunctionCallNode<Object>(runtime, "join",
+          new FunctionCallNode<Object>(runtime,
+            runtime.getFunction("join"),
             Arrays.asList(
               new StringNode<Object>(runtime, ", "),
               currentNode
@@ -642,7 +659,8 @@ public class ParserTest {
         )
       ),
       new JoinNode<Object>(runtime,
-        new FunctionCallNode<Object>(runtime, "sort",
+        new FunctionCallNode<Object>(runtime,
+          runtime.getFunction("sort"),
           Arrays.asList(currentNode),
           new JoinNode<Object>(runtime,
             new PropertyNode<Object>(runtime, "name",

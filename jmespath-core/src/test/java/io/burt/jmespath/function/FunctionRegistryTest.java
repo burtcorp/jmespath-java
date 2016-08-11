@@ -22,7 +22,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
 
 public class FunctionRegistryTest {
-  private final Adapter<Object> runtime = new JcfRuntime();
+  private Adapter<Object> runtime = new JcfRuntime();
+
+  private Object callFunction(String name, List<ExpressionOrValue<Object>> args) {
+    return runtime.getFunction(name).call(runtime, args);
+  }
 
   private List<ExpressionOrValue<Object>> createValueArguments(Object... values) {
     List<ExpressionOrValue<Object>> arguments = new ArrayList<>();
@@ -47,9 +51,9 @@ public class FunctionRegistryTest {
   public void theDefaultRegistryContainsTheDefaultFunctions() {
     FunctionRegistry registry = FunctionRegistry.defaultRegistry();
     Object result;
-    result = registry.callFunction(runtime, "to_string", createValueArguments(1));
+    result = callFunction("to_string", createValueArguments(1));
     assertThat(result, is((Object) "1"));
-    result = registry.callFunction(runtime, "to_number", createValueArguments("1"));
+    result = callFunction("to_number", createValueArguments("1"));
     assertThat(result, is((Object) 1.0));
   }
 
@@ -59,7 +63,7 @@ public class FunctionRegistryTest {
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING))
     );
     try {
-      registry.callFunction(runtime, "to_number", createValueArguments(1));
+      callFunction("to_number", createValueArguments(1));
     } catch (FunctionCallException fce) {
       assertThat(fce.getMessage(), containsString("Unknown function: \"to_number\""));
     }
@@ -67,34 +71,26 @@ public class FunctionRegistryTest {
 
   @Test
   public void aCustomRegistryContainsTheProvidedFunctions() {
-    FunctionRegistry registry = new FunctionRegistry(
+    FunctionRegistry customRegistry = new FunctionRegistry(
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING)),
       new TestFunction("bar", ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     );
+    runtime = new JcfRuntime(customRegistry);
     Object result;
-    result = registry.callFunction(runtime, "foo", createValueArguments("hello"));
+    result = callFunction("foo", createValueArguments("hello"));
     assertThat(result, is((Object) "hello"));
-    result = registry.callFunction(runtime, "bar", createValueArguments(42));
+    result = callFunction("bar", createValueArguments(42));
     assertThat(result, is((Object) 42));
   }
 
   @Test
   public void theLastFunctionIsUsedWhenThereAreDuplicatedNames() {
-    FunctionRegistry registry = new FunctionRegistry(
+    FunctionRegistry customRegistry = new FunctionRegistry(
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING)),
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     );
-    registry.callFunction(runtime, "foo", createValueArguments(3));
-  }
-
-  @Test
-  public void callingAMissingFunctionThrowsFunctionCallException() {
-    FunctionRegistry registry = FunctionRegistry.defaultRegistry();
-    try {
-      registry.callFunction(runtime, "foo", createValueArguments(1, 2, 3));
-    } catch (FunctionCallException fce) {
-      assertThat(fce.getMessage(), containsString("Unknown function: \"foo\""));
-    }
+    runtime = new JcfRuntime(customRegistry);
+    callFunction("foo", createValueArguments(3));
   }
 
   @Test
@@ -104,12 +100,13 @@ public class FunctionRegistryTest {
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING)),
       new TestFunction("bar", ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     );
+    runtime = new JcfRuntime(extendedRegistry);
     Object result;
-    result = extendedRegistry.callFunction(runtime, "to_number", createValueArguments("3"));
+    result = callFunction("to_number", createValueArguments("3"));
     assertThat(result, is((Object) 3.0));
-    result = extendedRegistry.callFunction(runtime, "foo", createValueArguments("hello"));
+    result = callFunction("foo", createValueArguments("hello"));
     assertThat(result, is((Object) "hello"));
-    result = extendedRegistry.callFunction(runtime, "bar", createValueArguments(42));
+    result = callFunction("bar", createValueArguments(42));
     assertThat(result, is((Object) 42));
   }
 
@@ -119,7 +116,8 @@ public class FunctionRegistryTest {
     FunctionRegistry extendedRegistry = defaultRegistry.extend(
       new TestFunction("to_number", ArgumentConstraints.typeOf(JmesPathType.STRING))
     );
-    Object result = extendedRegistry.callFunction(runtime, "to_number", createValueArguments("hello"));
+    runtime = new JcfRuntime(extendedRegistry);
+    Object result = callFunction("to_number", createValueArguments("hello"));
     assertThat(result, is((Object) "hello"));
   }
 }

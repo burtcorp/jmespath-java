@@ -66,19 +66,10 @@ public class FunctionRegistry {
   }
 
   /**
-   * Call a function by name, passing the specified list of arguments.
-   *
-   * @throws FunctionCallException when the function is not found
-   * @throws ArityException when there are too few or too many arguments
-   * @throws ArgumentTypeException when an argument does not match the function's argument type constraints
+   * Returns the function by the specified name or null if no such function exists.
    */
-  public <T> T callFunction(Adapter<T> runtime, String functionName, List<ExpressionOrValue<T>> arguments) {
-    Function function = functions.get(functionName);
-    if (function != null) {
-      return function.call(runtime, arguments);
-    } else {
-      throw new FunctionCallException(String.format("Unknown function: \"%s\"", functionName));
-    }
+  public Function getFunction(String functionName) {
+    return functions.get(functionName);
   }
 
   /**
