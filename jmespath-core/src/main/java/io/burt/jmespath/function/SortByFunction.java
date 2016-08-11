@@ -19,7 +19,7 @@ public class SortByFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(final Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
+  protected <T> T callFunction(final Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     List<T> elementsList = runtime.toList(arguments.get(0).value());
     Expression<T> expression = arguments.get(1).expression();
     Iterator<T> elements = elementsList.iterator();

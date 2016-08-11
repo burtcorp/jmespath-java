@@ -11,8 +11,8 @@ public class NotNullFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
-    for (ValueOrExpression<T> argument : arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
+    for (FunctionArgument<T> argument : arguments) {
       if (runtime.typeOf(argument.value()) != JmesPathType.NULL) {
         return argument.value();
       }

@@ -21,16 +21,16 @@ import static org.hamcrest.Matchers.containsString;
 public class FunctionTest {
   private final Adapter<Object> runtime = new JcfRuntime();
 
-  private final ValueOrExpression<Object> expressionReference = ValueOrExpression.of(
+  private final FunctionArgument<Object> expressionReference = FunctionArgument.of(
     new ExpressionReferenceNode<Object>(runtime,
       new PropertyNode<Object>(runtime, "foo", new CurrentNode<Object>(runtime))
     )
   );
 
-  private List<ValueOrExpression<Object>> createValueArguments(Object... values) {
-    List<ValueOrExpression<Object>> arguments = new ArrayList<>();
+  private List<FunctionArgument<Object>> createValueArguments(Object... values) {
+    List<FunctionArgument<Object>> arguments = new ArrayList<>();
     for (Object value : values) {
-      arguments.add(ValueOrExpression.of(value));
+      arguments.add(FunctionArgument.of(value));
     }
     return arguments;
   }
@@ -41,7 +41,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
+    protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
       return runtime.createNull();
     }
   }
@@ -52,7 +52,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) { return null; }
+    protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) { return null; }
   }
 
   private static class NameFromClassNameFunction extends BaseFunction {
@@ -61,7 +61,7 @@ public class FunctionTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
+    protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
       return runtime.createNull();
     }
   }
@@ -407,7 +407,7 @@ public class FunctionTest {
       ArgumentConstraints.listOf(1, 3, ArgumentConstraints.anyValue())
     ) {};
     try {
-      List<ValueOrExpression<Object>> arguments = createValueArguments(
+      List<FunctionArgument<Object>> arguments = createValueArguments(
         runtime.createNumber(3)
       );
       arguments.add(expressionReference);
@@ -454,7 +454,7 @@ public class FunctionTest {
     ) {};
     acceptsExpression.call(runtime, Arrays.asList(
       expressionReference,
-      ValueOrExpression.of(runtime.createNumber(3))
+      FunctionArgument.of(runtime.createNumber(3))
     ));
   }
 

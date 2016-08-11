@@ -10,7 +10,7 @@ public class TypeFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     return runtime.createString(runtime.typeOf(arguments.get(0).value()).toString());
   }
 }

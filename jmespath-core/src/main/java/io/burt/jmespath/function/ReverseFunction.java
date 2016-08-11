@@ -13,7 +13,7 @@ public class ReverseFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T subject = arguments.get(0).value();
     JmesPathType subjectType = runtime.typeOf(subject);
     if (subjectType == JmesPathType.ARRAY) {

@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.function.Function;
-import io.burt.jmespath.function.ValueOrExpression;
+import io.burt.jmespath.function.FunctionArgument;
 
 public class FunctionCallNode<T> extends Node<T> {
   private final Function implementation;
@@ -21,12 +21,12 @@ public class FunctionCallNode<T> extends Node<T> {
 
   @Override
   protected T searchOne(T currentValue) {
-    List<ValueOrExpression<T>> arguments = new ArrayList<>(args.size());
+    List<FunctionArgument<T>> arguments = new ArrayList<>(args.size());
     for (Node<T> arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {
-        arguments.add(ValueOrExpression.of(arg));
+        arguments.add(FunctionArgument.of(arg));
       } else {
-        arguments.add(ValueOrExpression.of(arg.search(currentValue)));
+        arguments.add(FunctionArgument.of(arg.search(currentValue)));
       }
     }
     return implementation.call(runtime, arguments);

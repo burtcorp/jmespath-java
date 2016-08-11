@@ -14,7 +14,7 @@ public class ContainsFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T haystack = arguments.get(0).value();
     T needle = arguments.get(1).value();
     JmesPathType haystackType = runtime.typeOf(haystack);

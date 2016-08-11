@@ -24,14 +24,14 @@ import static org.hamcrest.Matchers.containsString;
 public class FunctionRegistryTest {
   private Adapter<Object> runtime = new JcfRuntime();
 
-  private Object callFunction(String name, List<ValueOrExpression<Object>> args) {
+  private Object callFunction(String name, List<FunctionArgument<Object>> args) {
     return runtime.getFunction(name).call(runtime, args);
   }
 
-  private List<ValueOrExpression<Object>> createValueArguments(Object... values) {
-    List<ValueOrExpression<Object>> arguments = new ArrayList<>();
+  private List<FunctionArgument<Object>> createValueArguments(Object... values) {
+    List<FunctionArgument<Object>> arguments = new ArrayList<>();
     for (Object value : values) {
-      arguments.add(ValueOrExpression.of(value));
+      arguments.add(FunctionArgument.of(value));
     }
     return arguments;
   }
@@ -42,7 +42,7 @@ public class FunctionRegistryTest {
     }
 
     @Override
-    protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
+    protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
       return arguments.get(0).value();
     }
   }

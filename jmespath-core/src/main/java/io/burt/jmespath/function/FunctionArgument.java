@@ -2,8 +2,8 @@ package io.burt.jmespath.function;
 
 import io.burt.jmespath.Expression;
 
-public abstract class ValueOrExpression<T> {
-  private static class V<U> extends ValueOrExpression<U> {
+public abstract class FunctionArgument<T> {
+  private static class V<U> extends FunctionArgument<U> {
     private final U value;
 
     public V(U value) {
@@ -15,7 +15,7 @@ public abstract class ValueOrExpression<T> {
     public boolean isValue() { return true; }
   }
 
-  private static class E<U> extends ValueOrExpression<U> {
+  private static class E<U> extends FunctionArgument<U> {
     private final Expression<U> expression;
 
     public E(Expression<U> expression) {
@@ -27,15 +27,15 @@ public abstract class ValueOrExpression<T> {
     public boolean isExpression() { return true; }
   }
 
-  public static <U> ValueOrExpression<U> of(U value) {
+  public static <U> FunctionArgument<U> of(U value) {
     return new V<U>(value);
   }
 
-  public static <U> ValueOrExpression<U> of(Expression<U> expression) {
+  public static <U> FunctionArgument<U> of(Expression<U> expression) {
     return new E<U>(expression);
   }
 
-  private ValueOrExpression() { }
+  private FunctionArgument() { }
 
   public Expression<T> expression() { return null; };
 

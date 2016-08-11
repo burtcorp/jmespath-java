@@ -31,7 +31,7 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.function.BaseFunction;
-import io.burt.jmespath.function.ValueOrExpression;
+import io.burt.jmespath.function.FunctionArgument;
 import io.burt.jmespath.function.ArgumentConstraints;
 
 // Functions must implement Function, for example by extending BaseFunction
@@ -42,7 +42,7 @@ public class SinFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     // Arguments can be either values or expressions, but most functions only
     // accept expressions. You don't need to do any type checking here, the
     // the runtime has made sure that if this code runs the types are correct.

@@ -11,7 +11,7 @@ public class ToStringFunction extends BaseFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> runtime, List<ValueOrExpression<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T subject = arguments.get(0).value();
     if (runtime.typeOf(subject) == JmesPathType.STRING) {
       return subject;

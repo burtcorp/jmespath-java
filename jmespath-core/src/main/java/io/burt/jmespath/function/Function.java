@@ -22,5 +22,5 @@ public interface Function {
    * The arguments can be either values or expressions, and will be checked
    * by the before the function runs.
    */
-  public <T> T call(Adapter<T> runtime, List<ValueOrExpression<T>> arguments);
+  public <T> T call(Adapter<T> runtime, List<FunctionArgument<T>> arguments);
 }
