@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
 
 public class CreateObjectNode<T> extends Node<T> {
@@ -14,9 +15,9 @@ public class CreateObjectNode<T> extends Node<T> {
 
   public static class Entry<U> {
     private final String key;
-    private final Node<U> value;
+    private final Expression<U> value;
 
-    public Entry(String key, Node<U> value) {
+    public Entry(String key, Expression<U> value) {
       this.key = key;
       this.value = value;
     }
@@ -25,7 +26,7 @@ public class CreateObjectNode<T> extends Node<T> {
       return key;
     }
 
-    protected Node<U> value() {
+    protected Expression<U> value() {
       return value;
     }
 

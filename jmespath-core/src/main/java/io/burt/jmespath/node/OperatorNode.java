@@ -5,30 +5,31 @@ import java.util.List;
 import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 
 public class OperatorNode<T> extends Node<T> {
-  private final List<Node<T>> operands;
+  private final List<Expression<T>> operands;
 
   @SafeVarargs
-  public OperatorNode(Adapter<T> runtime, Node<T>... operands) {
+  public OperatorNode(Adapter<T> runtime, Expression<T>... operands) {
     super(runtime);
     this.operands = Arrays.asList(operands);
   }
 
-  protected List<Node<T>> operands() {
+  protected List<Expression<T>> operands() {
     return operands;
   }
 
-  protected Node<T> operand(int index) {
+  protected Expression<T> operand(int index) {
     return operands.get(index);
   }
 
   @Override
   protected String internalToString() {
     StringBuilder operandsString = new StringBuilder();
-    Iterator<Node<T>> operandIterator = operands.iterator();
+    Iterator<Expression<T>> operandIterator = operands.iterator();
     while (operandIterator.hasNext()) {
-      Node<T> operand = operandIterator.next();
+      Expression<T> operand = operandIterator.next();
       operandsString.append(operand);
       if (operandIterator.hasNext()) {
         operandsString.append(", ");
@@ -47,7 +48,7 @@ public class OperatorNode<T> extends Node<T> {
   @Override
   protected int internalHashCode() {
     int h = 1;
-    for (Node<T> node : operands) {
+    for (Expression<T> node : operands) {
       h = h * 31 + node.hashCode();
     }
     return h;

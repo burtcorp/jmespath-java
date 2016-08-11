@@ -2,6 +2,7 @@ package io.burt.jmespath.parser;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.Ignore;
@@ -45,6 +46,10 @@ public class ParserTest {
 
   private JsonLiteralNode<Object> createJsonLiteralNode(String json) {
     return new ParsedJsonLiteralNode<Object>(runtime, json, runtime.parseString(json));
+  }
+
+  private List<Expression<Object>> asExpressionList(Expression<Object>... expressions) {
+    return Arrays.asList(expressions);
   }
 
   @Test
@@ -686,7 +691,7 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void bareMultiSelectListExpression() {
     Expression<Object> expected = new CreateArrayNode<Object>(runtime,
-      Arrays.asList(
+      asExpressionList(
         new StringNode<Object>(runtime, "bar"),
         currentNode
       ),
@@ -700,7 +705,7 @@ public class ParserTest {
   @SuppressWarnings("unchecked")
   public void chainedMultiSelectListExpression() {
     Expression<Object> expected = new CreateArrayNode<Object>(runtime,
-      Arrays.asList(
+      asExpressionList(
         new StringNode<Object>(runtime, "bar"),
         currentNode
       ),

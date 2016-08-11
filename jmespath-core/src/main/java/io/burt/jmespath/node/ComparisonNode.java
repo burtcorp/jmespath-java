@@ -1,12 +1,13 @@
 package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
 
 public class ComparisonNode<T> extends OperatorNode<T> {
   private final String operator;
 
-  public ComparisonNode(Adapter<T> runtime, String operator, Node<T> left, Node<T> right) {
+  public ComparisonNode(Adapter<T> runtime, String operator, Expression<T> left, Expression<T> right) {
     super(runtime, left, right);
     this.operator = operator;
   }

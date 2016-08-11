@@ -1,11 +1,12 @@
 package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 
 public class ExpressionReferenceNode<T> extends Node<T> {
-  private final Node<T> expression;
+  private final Expression<T> expression;
 
-  public ExpressionReferenceNode(Adapter<T> runtime, Node<T> expression) {
+  public ExpressionReferenceNode(Adapter<T> runtime, Expression<T> expression) {
     super(runtime, new CurrentNode<T>(runtime));
     this.expression = expression;
   }
@@ -15,7 +16,7 @@ public class ExpressionReferenceNode<T> extends Node<T> {
     return expression().search(currentValue);
   }
 
-  protected Node<T> expression() {
+  protected Expression<T> expression() {
     return expression;
   }
 

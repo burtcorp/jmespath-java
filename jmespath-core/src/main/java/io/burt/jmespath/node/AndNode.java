@@ -1,9 +1,10 @@
 package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 
 public class AndNode<T> extends OperatorNode<T> {
-  public AndNode(Adapter<T> adapter, Node<T> left, Node<T> right) {
+  public AndNode(Adapter<T> adapter, Expression<T> left, Expression<T> right) {
     super(adapter, left, right);
   }
 

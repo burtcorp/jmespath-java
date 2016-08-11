@@ -6,17 +6,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
 
 public class CreateArrayNode<T> extends Node<T> {
-  private final List<Node<T>> entries;
+  private final List<Expression<T>> entries;
 
-  public CreateArrayNode(Adapter<T> runtime, List<Node<T>> entries, Node<T> source) {
+  public CreateArrayNode(Adapter<T> runtime, List<Expression<T>> entries, Node<T> source) {
     super(runtime, source);
     this.entries = entries;
   }
 
-  protected List<Node<T>> entries() {
+  protected List<Expression<T>> entries() {
     return entries;
   }
 
@@ -26,7 +27,7 @@ public class CreateArrayNode<T> extends Node<T> {
       return currentValue;
     } else {
       List<T> array = new ArrayList<>();
-      for (Node<T> entry : entries) {
+      for (Expression<T> entry : entries) {
         array.add(entry.search(currentValue));
       }
       return runtime.createArray(array);
@@ -36,9 +37,9 @@ public class CreateArrayNode<T> extends Node<T> {
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder("[");
-    Iterator<Node<T>> entryIterator = entries.iterator();
+    Iterator<Expression<T>> entryIterator = entries.iterator();
     while (entryIterator.hasNext()) {
-      Node<T> entry = entryIterator.next();
+      Expression<T> entry = entryIterator.next();
       str.append(entry);
       if (entryIterator.hasNext()) {
         str.append(", ");
@@ -58,7 +59,7 @@ public class CreateArrayNode<T> extends Node<T> {
   @Override
   protected int internalHashCode() {
     int h = 1;
-    for (Node<T> node : entries) {
+    for (Expression<T> node : entries) {
       h = h * 31 + node.hashCode();
     }
     return h;

@@ -1,9 +1,10 @@
 package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 
 public class OrNode<T> extends OperatorNode<T> {
-  public OrNode(Adapter<T> runtime, Node<T> left, Node<T> right) {
+  public OrNode(Adapter<T> runtime, Expression<T> left, Expression<T> right) {
     super(runtime, left, right);
   }
 

@@ -195,7 +195,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   public Node<T> visitMultiSelectList(JmesPathParser.MultiSelectListContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
     int n = ctx.expression().size();
-    List<Node<T>> entries = new ArrayList<>(n);
+    List<Expression<T>> entries = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       entries.add(visit(ctx.expression(i)));
     }
@@ -267,7 +267,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     currentSource.push(new CurrentNode(runtime));
     String name = ctx.NAME().getText();
     int n = ctx.functionArg().size();
-    List<Node<T>> args = new ArrayList<>(n);
+    List<Expression<T>> args = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       args.add(visit(ctx.functionArg(i)));
     }

@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
 
 public class SelectionNode<T> extends Node<T> {
-  private final Node<T> test;
+  private final Expression<T> test;
 
-  public SelectionNode(Adapter<T> runtime, Node<T> test, Node<T> source) {
+  public SelectionNode(Adapter<T> runtime, Expression<T> test, Node<T> source) {
     super(runtime, source);
     this.test = test;
   }
@@ -30,7 +31,7 @@ public class SelectionNode<T> extends Node<T> {
     }
   }
 
-  protected Node<T> test() {
+  protected Expression<T> test() {
     return test;
   }
 
