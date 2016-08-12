@@ -7,6 +7,9 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.Expression;
 
+/**
+ * Helper base class for higher order comparison functions like max_by and min_by.
+ */
 public abstract class CompareByFunction extends BaseFunction {
   public CompareByFunction() {
     super(
@@ -15,6 +18,10 @@ public abstract class CompareByFunction extends BaseFunction {
     );
   }
 
+  /**
+   * Subclasses override this method to decide whether the greatest or least
+   * element sorts first.
+   */
   protected abstract boolean sortsBefore(int compareResult);
 
   @Override

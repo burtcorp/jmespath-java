@@ -42,12 +42,12 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
 
   /**
    * Basic implementation of {@link Adapter#compare}.
-   *
+   * <p>
    * Subclasses should override this method if they have a more efficient way to
    * compare booleans, numbers and strings than to convert them to Java types
    * using {@link Adapter#isTruthy}, {@link Adapter#toNumber},
    * {@link Adapter#toString}, etc.
-   *
+   * <p>
    * This only implements {@link Comparator#compare} fully for <code>null</code>,
    * <code>number</code> and <code>string</code>, for <code>boolean</code>
    * <code>array</code> and <code>object</code> it only does equality –
@@ -55,7 +55,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
    * or arrays, and -1 otherwise. The reason is that JMESPath doesn't have any
    * mechanisms for comparing objects or arrays, and doesn't define how objects
    * and arrays should be compared.
-   *
+   * <p>
    * When the arguments are not of the same type -1 is returned.
    */
   @Override
