@@ -6,19 +6,18 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.Collections;
 
-import io.burt.jmespath.BaseAdapter;
+import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.function.FunctionRegistry;
 
 import static io.burt.jmespath.JmesPathType.*;
 
-@SuppressWarnings("unchecked")
-public class JcfAdapter extends BaseAdapter<Object> {
-  public JcfAdapter() {
+public class JcfRuntime extends BaseRuntime<Object> {
+  public JcfRuntime() {
     super();
   }
 
-  public JcfAdapter(FunctionRegistry functionRegistry) {
+  public JcfRuntime(FunctionRegistry functionRegistry) {
     super(functionRegistry);
   }
 
@@ -28,6 +27,7 @@ public class JcfAdapter extends BaseAdapter<Object> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public List<Object> toList(Object value) {
     switch (typeOf(value)) {
       case ARRAY:
@@ -82,6 +82,7 @@ public class JcfAdapter extends BaseAdapter<Object> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public boolean isTruthy(Object value) {
     switch (typeOf(value)) {
       case NULL:
@@ -102,6 +103,7 @@ public class JcfAdapter extends BaseAdapter<Object> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Object getProperty(Object value, String name) {
     if (typeOf(value) == OBJECT) {
       return ((Map<String, Object>) value).get(name);
@@ -116,6 +118,7 @@ public class JcfAdapter extends BaseAdapter<Object> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Collection<Object> getPropertyNames(Object value) {
     if (typeOf(value) == OBJECT) {
       return ((Map<Object, Object>) value).keySet();
@@ -157,5 +160,10 @@ public class JcfAdapter extends BaseAdapter<Object> {
   @Override
   public Object createNumber(long n) {
     return n;
+  }
+
+  @Override
+  protected String unparseNull(Object object) {
+    return "null";
   }
 }

@@ -6,18 +6,18 @@ import java.util.Arrays;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ToArrayFunction extends JmesPathFunction {
+public class ToArrayFunction extends BaseFunction {
   public ToArrayFunction() {
     super(ArgumentConstraints.anyValue());
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T subject = arguments.get(0).value();
-    if (adapter.typeOf(subject) == JmesPathType.ARRAY) {
+    if (runtime.typeOf(subject) == JmesPathType.ARRAY) {
       return subject;
     } else {
-      return adapter.createArray(Arrays.asList(subject));
+      return runtime.createArray(Arrays.asList(subject));
     }
   }
 }

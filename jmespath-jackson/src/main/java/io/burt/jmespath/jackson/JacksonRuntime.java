@@ -14,18 +14,18 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.burt.jmespath.BaseAdapter;
+import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.function.FunctionRegistry;
 
-public class JacksonAdapter extends BaseAdapter<JsonNode> {
+public class JacksonRuntime extends BaseRuntime<JsonNode> {
   private final ObjectMapper jsonParser;
 
-  public JacksonAdapter() {
+  public JacksonRuntime() {
     this(null);
   }
 
-  public JacksonAdapter(FunctionRegistry functionRegistry) {
+  public JacksonRuntime(FunctionRegistry functionRegistry) {
     super(functionRegistry);
     this.jsonParser = new ObjectMapper();
   }

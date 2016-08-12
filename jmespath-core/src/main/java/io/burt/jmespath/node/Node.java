@@ -5,15 +5,18 @@ import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
+import io.burt.jmespath.Expression;
 
-public abstract class JmesPathNode {
-  private final JmesPathNode source;
+public abstract class Node<T> implements Expression<T> {
+  protected final Adapter<T> runtime;
+  private final Node<T> source;
 
-  public JmesPathNode() {
-    this(new CurrentNode());
+  public Node(Adapter<T> runtime) {
+    this(runtime, new CurrentNode<T>(runtime));
   }
 
-  public JmesPathNode(JmesPathNode source) {
+  public Node(Adapter<T> runtime, Node<T> source) {
+    this.runtime = runtime;
     this.source = source;
   }
 
@@ -21,34 +24,34 @@ public abstract class JmesPathNode {
     return source().isProjection();
   }
 
-  public <T> T evaluate(Adapter<T> adapter, T input) {
-    return evaluateWithCurrentValue(adapter, source().evaluate(adapter, input));
+  public T search(T input) {
+    return searchWithCurrentValue(source().search(input));
   }
 
-  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
+  protected T searchWithCurrentValue(T currentValue) {
     if (isProjection()) {
-      if (adapter.typeOf(currentValue) == JmesPathType.NULL) {
+      if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
         return currentValue;
       } else {
         List<T> outputs = new LinkedList<>();
-        for (T projectionElement : adapter.toList(currentValue)) {
-          T value = evaluateOne(adapter, projectionElement);
-          if (adapter.typeOf(value) != JmesPathType.NULL) {
+        for (T projectionElement : runtime.toList(currentValue)) {
+          T value = searchOne(projectionElement);
+          if (runtime.typeOf(value) != JmesPathType.NULL) {
             outputs.add(value);
           }
         }
-        return adapter.createArray(outputs);
+        return runtime.createArray(outputs);
       }
     } else {
-      return evaluateOne(adapter, currentValue);
+      return searchOne(currentValue);
     }
   }
 
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
+  protected T searchOne(T currentValue) {
     return currentValue;
   }
 
-  protected JmesPathNode source() {
+  protected Node<T> source() {
     return source;
   }
 
@@ -80,10 +83,10 @@ public abstract class JmesPathNode {
     if (this == o) {
       return true;
     }
-    if (!o.getClass().isAssignableFrom(this.getClass())) {
+    if (!getClass().isInstance(o)) {
       return false;
     }
-    JmesPathNode other = (JmesPathNode) o;
+    Node other = (Node) o;
     return internalEquals(o) && (source() == other.source() || (source() != null && other.source() != null && source().equals(other.source())));
   }
 

@@ -2,17 +2,17 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class PropertyNode extends JmesPathNode {
+public class PropertyNode<T> extends Node<T> {
   private final String propertyName;
 
-  public PropertyNode(String propertyName, JmesPathNode source) {
-    super(source);
+  public PropertyNode(Adapter<T> runtime, String propertyName, Node<T> source) {
+    super(runtime, source);
     this.propertyName = propertyName;
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> adapter, T projectionElement) {
-    return adapter.getProperty(projectionElement, propertyName());
+  public T searchOne(T projectionElement) {
+    return runtime.getProperty(projectionElement, propertyName());
   }
 
   protected String propertyName() {

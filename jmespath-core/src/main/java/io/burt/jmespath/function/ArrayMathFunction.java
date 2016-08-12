@@ -4,15 +4,25 @@ import java.util.List;
 
 import io.burt.jmespath.Adapter;
 
-public abstract class ArrayMathFunction extends JmesPathFunction {
+/**
+ * Helper base class for functions that take an array and return a single value,
+ * like calculating the max, min or sum.
+ * <p>
+ * Subclasses can operate on any type of elements, and must provide that type
+ * as argument when calling <code>super</code>.
+ */
+public abstract class ArrayMathFunction extends BaseFunction {
   public ArrayMathFunction(ArgumentConstraint innerConstraint) {
     super(ArgumentConstraints.arrayOf(innerConstraint));
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    return performMathOperation(adapter, adapter.toList(arguments.get(0).value()));
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
+    return performMathOperation(runtime, runtime.toList(arguments.get(0).value()));
   }
 
-  protected abstract <T> T performMathOperation(Adapter<T> adapter, List<T> values);
+  /**
+   * Subclasses implement this method.
+   */
+  protected abstract <T> T performMathOperation(Adapter<T> runtime, List<T> values);
 }

@@ -5,14 +5,14 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Collection;
 
-import io.burt.jmespath.function.ExpressionOrValue;
+import io.burt.jmespath.function.Function;
 
 /**
  * An adapter helps the JMESPath parser and interpreter work with a JSON-like
  * structure without having to know how it works. Implement this interface
  * to make it possible to query any JSON-like structure with JMESPath.
  */
-public interface Adapter<T> extends Comparator<T> {
+public interface Adapter<T> extends JmesPath<T>, Comparator<T> {
   /**
    * Parse a JSON string to a value.
    *
@@ -130,10 +130,7 @@ public interface Adapter<T> extends Comparator<T> {
   T createNumber(long n);
 
   /**
-   * Calls a function with the specified arguments and returns the result.
-   *
-   * Arguments can be either JMESPath expressions or values. How the arguments
-   * are interpreted is up to the function.
+   * Returns the function by the specified name or null if no such function exists.
    */
-  T callFunction(String name, List<ExpressionOrValue<T>> arguments);
+  Function getFunction(String name);
 }

@@ -7,8 +7,8 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 
 /**
- * A collection of functions, used by the adapters to look up and call functions
- * by name.
+ * A collection of functions, used by the runtimes to look up functions by name
+ * during parsing and compilation.
  */
 public class FunctionRegistry {
   private final static FunctionRegistry defaultRegistry = new FunctionRegistry(
@@ -40,7 +40,7 @@ public class FunctionRegistry {
     new ValuesFunction()
   );
 
-  private final Map<String, JmesPathFunction> functions;
+  private final Map<String, Function> functions;
 
   /**
    * Returns a registry with all the the functions specified in the JMESPath
@@ -54,31 +54,22 @@ public class FunctionRegistry {
    * Creates a new function registry containing the specified functions.
    * When there are multiple functions with the same name the last one is used.
    */
-  public FunctionRegistry(JmesPathFunction... functions) {
+  public FunctionRegistry(Function... functions) {
     this(null, functions);
   }
 
-  private FunctionRegistry(Map<String, JmesPathFunction> functions0, JmesPathFunction... functions1) {
-    this.functions = functions0 == null ? new HashMap<String, JmesPathFunction>() : new HashMap<String, JmesPathFunction>(functions0);
-    for (JmesPathFunction function : functions1) {
+  private FunctionRegistry(Map<String, Function> functions0, Function... functions1) {
+    this.functions = functions0 == null ? new HashMap<String, Function>() : new HashMap<String, Function>(functions0);
+    for (Function function : functions1) {
       this.functions.put(function.name(), function);
     }
   }
 
   /**
-   * Call a function by name, passing the specified list of arguments.
-   *
-   * @throws FunctionCallException when the function is not found
-   * @throws ArityException when there are too few or too many arguments
-   * @throws ArgumentTypeException when an argument does not match the function's argument type constraints
+   * Returns the function by the specified name or null if no such function exists.
    */
-  public <T> T callFunction(Adapter<T> adapter, String functionName, List<ExpressionOrValue<T>> arguments) {
-    JmesPathFunction function = functions.get(functionName);
-    if (function != null) {
-      return function.call(adapter, arguments);
-    } else {
-      throw new FunctionCallException(String.format("Unknown function: \"%s\"", functionName));
-    }
+  public Function getFunction(String functionName) {
+    return functions.get(functionName);
   }
 
   /**
@@ -86,7 +77,7 @@ public class FunctionRegistry {
    * registry and the specified functions. When a new function has the same name
    * as one of the functions in this registry, the new function will be used.
    */
-  public FunctionRegistry extend(JmesPathFunction... functions) {
+  public FunctionRegistry extend(Function... functions) {
     return new FunctionRegistry(this.functions, functions);
   }
 }

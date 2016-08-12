@@ -5,9 +5,12 @@ import java.util.List;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.node.JmesPathNode;
+import io.burt.jmespath.Expression;
 
-public abstract class CompareByFunction extends JmesPathFunction {
+/**
+ * Helper base class for higher order comparison functions like max_by and min_by.
+ */
+public abstract class CompareByFunction extends BaseFunction {
   public CompareByFunction() {
     super(
       ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.OBJECT)),
@@ -15,38 +18,42 @@ public abstract class CompareByFunction extends JmesPathFunction {
     );
   }
 
+  /**
+   * Subclasses override this method to decide whether the greatest or least
+   * element sorts first.
+   */
   protected abstract boolean sortsBefore(int compareResult);
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    Iterator<T> elements = adapter.toList(arguments.get(0).value()).iterator();
-    JmesPathNode expression = arguments.get(1).expression();
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
+    Iterator<T> elements = runtime.toList(arguments.get(0).value()).iterator();
+    Expression<T> expression = arguments.get(1).expression();
     if (elements.hasNext()) {
       T result = elements.next();
-      T resultValue = expression.evaluate(adapter, result);
+      T resultValue = expression.search(result);
       boolean expectNumbers = true;
-      if (adapter.typeOf(resultValue) == JmesPathType.STRING) {
+      if (runtime.typeOf(resultValue) == JmesPathType.STRING) {
         expectNumbers = false;
-      } else if (adapter.typeOf(resultValue) != JmesPathType.NUMBER) {
-        throw new ArgumentTypeException(name(), "number or string", adapter.typeOf(resultValue).toString());
+      } else if (runtime.typeOf(resultValue) != JmesPathType.NUMBER) {
+        throw new ArgumentTypeException(name(), "number or string", runtime.typeOf(resultValue).toString());
       }
       while (elements.hasNext()) {
         T candidate = elements.next();
-        T candidateValue = expression.evaluate(adapter, candidate);
-        JmesPathType candidateType = adapter.typeOf(candidateValue);
+        T candidateValue = expression.search(candidate);
+        JmesPathType candidateType = runtime.typeOf(candidateValue);
         if (expectNumbers && candidateType != JmesPathType.NUMBER) {
           throw new ArgumentTypeException(name(), "number", candidateType.toString());
         } else if (!expectNumbers && candidateType != JmesPathType.STRING) {
           throw new ArgumentTypeException(name(), "string", candidateType.toString());
         }
-        if (sortsBefore(adapter.compare(candidateValue, resultValue))) {
+        if (sortsBefore(runtime.compare(candidateValue, resultValue))) {
           result = candidate;
           resultValue = candidateValue;
         }
       }
       return result;
     } else {
-      return adapter.createNull();
+      return runtime.createNull();
     }
   }
 }

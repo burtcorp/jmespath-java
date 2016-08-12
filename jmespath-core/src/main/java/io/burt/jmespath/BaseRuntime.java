@@ -3,30 +3,31 @@ package io.burt.jmespath;
 import java.util.List;
 import java.util.Iterator;
 
+import io.burt.jmespath.parser.ExpressionParser;
 import io.burt.jmespath.function.FunctionRegistry;
-import io.burt.jmespath.function.ExpressionOrValue;
+import io.burt.jmespath.function.Function;
 
 /**
  * This class can be extended instead of implementing {@link Adapter} directly,
  * in order to not have to implement a few of the methods that have non-specific
- * implementations, like {@link Adapter#callFunction}, {@link Adapter#typeOf}
- * or the {@link Comparable} interface. Subclasses are encouraged to override
- * these methods if they have more efficient means to perform the same job.
+ * implementations, like {@link Adapter#getFunction}, {@link Adapter#typeOf} or
+ * the {@link Comparable} interface. Subclasses are encouraged to override these
+ * methods if they have more efficient means to perform the same job.
  */
-public abstract class BaseAdapter<T> implements Adapter<T> {
+public abstract class BaseRuntime<T> implements Adapter<T> {
   private final FunctionRegistry functionRegistry;
 
   /**
-   * Create a new adapter with a default function registry.
+   * Create a new runtime with a default function registry.
    */
-  public BaseAdapter() {
+  public BaseRuntime() {
     this(null);
   }
 
   /**
-   * Create a new adapter with a custom function registry.
+   * Create a new runtime with a custom function registry.
    */
-  public BaseAdapter(FunctionRegistry functionRegistry) {
+  public BaseRuntime(FunctionRegistry functionRegistry) {
     if (functionRegistry == null) {
       this.functionRegistry = FunctionRegistry.defaultRegistry();
     } else {
@@ -34,21 +35,27 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
     }
   }
 
+  @Override
+  public Expression<T> compile(String expression) {
+    return ExpressionParser.fromString(this, expression);
+  }
+
   /**
    * Basic implementation of {@link Adapter#compare}.
-   *
+   * <p>
    * Subclasses should override this method if they have a more efficient way to
    * compare booleans, numbers and strings than to convert them to Java types
-   * using {@link Adapter#isTruthy}, {@link Adapter#toNumber}, {@link Adapter#toString}, etc.
-   *
+   * using {@link Adapter#isTruthy}, {@link Adapter#toNumber},
+   * {@link Adapter#toString}, etc.
+   * <p>
    * This only implements {@link Comparator#compare} fully for <code>null</code>,
-   * <code>boolean</code>, <code>number</code> and <code>string</code>, for
+   * <code>number</code> and <code>string</code>, for <code>boolean</code>
    * <code>array</code> and <code>object</code> it only does equality –
-   * specifically this means that it will return 0 for equal objects or arrays,
-   * and -1 otherwise. The reason is that JMESPath doesn't have any mechanisms
-   * for comparing objects or arrays, and doesn't define how objects and arrays
-   * should be compared.
-   *
+   * specifically this means that it will return 0 for equal booleans, objects
+   * or arrays, and -1 otherwise. The reason is that JMESPath doesn't have any
+   * mechanisms for comparing objects or arrays, and doesn't define how objects
+   * and arrays should be compared.
+   * <p>
    * When the arguments are not of the same type -1 is returned.
    */
   @Override
@@ -60,7 +67,7 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
         case NULL:
           return 0;
         case BOOLEAN:
-          return (isTruthy(value1) && isTruthy(value2)) || (!isTruthy(value1) && !isTruthy(value2)) ? 0 : -1;
+          return isTruthy(value1) == isTruthy(value2) ? 0 : -1;
         case NUMBER:
           Double d1 = toNumber(value1).doubleValue();
           Double d2 = toNumber(value2).doubleValue();
@@ -81,15 +88,14 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
   }
 
   /**
-   * Calls a function with the specified arguments and returns the result.
-   *
-   * Very few adapters will have any reason to override this method, it only
-   * proxies the call to {@link FunctionRegistry#callFunction} passing itself
-   * along as the adapter.
+   * Returns the function by the specified name or null if no such function exists.
+   * <p>
+   * Very few runtimes will have any reason to override this method, it only
+   * proxies the call to {@link FunctionRegistry#getFunction}.
    */
   @Override
-  public T callFunction(String name, List<ExpressionOrValue<T>> arguments) {
-    return functionRegistry.callFunction(this, name, arguments);
+  public Function getFunction(String name) {
+    return functionRegistry.getFunction(name);
   }
 
   /**
@@ -98,7 +104,7 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
    */
   @Override
   public boolean equals(Object o) {
-    return o.getClass().isAssignableFrom(this.getClass());
+    return getClass().isInstance(o);
   }
 
   /**
@@ -108,24 +114,42 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
    * render themseves correctly with <code>toString</code>, and that
    * <code>string</code> renders itself as an unquoted string.
    */
-  protected String unparse(T obj) {
-    switch (typeOf(obj)) {
+  protected String unparse(T object) {
+    switch (typeOf(object)) {
       case NUMBER:
+        return unparseNumber(object);
       case BOOLEAN:
+        return unparseBoolean(object);
       case NULL:
-        return obj.toString();
+        return unparseNull(object);
       case STRING:
-        return String.format("\"%s\"", obj);
+        return unparseString(object);
       case OBJECT:
-        return unparseObject(obj);
+        return unparseObject(object);
       case ARRAY:
-        return unparseArray(obj);
+        return unparseArray(object);
       default:
         throw new IllegalStateException();
     }
   }
 
-  private String unparseObject(T object) {
+  protected String unparseNumber(T object) {
+    return object.toString();
+  }
+
+  protected String unparseBoolean(T object) {
+    return object.toString();
+  }
+
+  protected String unparseNull(T object) {
+    return object.toString();
+  }
+
+  protected String unparseString(T object) {
+    return String.format("\"%s\"", object);
+  }
+
+  protected String unparseObject(T object) {
     StringBuilder str = new StringBuilder("{");
     Iterator<T> keys = getPropertyNames(object).iterator();
     while (keys.hasNext()) {
@@ -140,7 +164,7 @@ public abstract class BaseAdapter<T> implements Adapter<T> {
     return str.toString();
   }
 
-  private String unparseArray(T array) {
+  protected String unparseArray(T array) {
     StringBuilder str = new StringBuilder("[");
     Iterator<T> elements = toList(array).iterator();
     while (elements.hasNext()) {

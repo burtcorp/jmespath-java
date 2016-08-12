@@ -1,11 +1,15 @@
 package io.burt.jmespath.parser;
 
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.Ignore;
 
-import io.burt.jmespath.Query;
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.jcf.JcfAdapter;
+import io.burt.jmespath.Expression;
+import io.burt.jmespath.jcf.JcfRuntime;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
 import io.burt.jmespath.node.CreateArrayNode;
@@ -17,10 +21,9 @@ import io.burt.jmespath.node.FlattenObjectNode;
 import io.burt.jmespath.node.ForkNode;
 import io.burt.jmespath.node.FunctionCallNode;
 import io.burt.jmespath.node.IndexNode;
-import io.burt.jmespath.node.JmesPathNode;
+import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.JoinNode;
 import io.burt.jmespath.node.JsonLiteralNode;
-import io.burt.jmespath.node.ParsedJsonLiteralNode;
 import io.burt.jmespath.node.NegateNode;
 import io.burt.jmespath.node.OrNode;
 import io.burt.jmespath.node.PropertyNode;
@@ -33,289 +36,269 @@ import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
 
 public class ParserTest {
-  private Adapter<Object> adapter = new JcfAdapter();
+  private Adapter<Object> runtime = new JcfRuntime();
+  private CurrentNode<Object> currentNode = new CurrentNode<Object>(runtime);
 
-  private Query parse(String str) {
-    return Query.fromString(adapter, str);
+  private Expression<Object> compile(String str) {
+    return runtime.compile(str);
   }
 
-  private JsonLiteralNode createJsonLiteralNode(String json) {
-    return new ParsedJsonLiteralNode(json, adapter.parseString(json));
+  private JsonLiteralNode<Object> createJsonLiteralNode(String json) {
+    return new JsonLiteralNode<Object>(runtime, json, runtime.parseString(json));
+  }
+
+  @SafeVarargs
+  private final List<Expression<Object>> asExpressionList(Expression<Object>... expressions) {
+    return Arrays.asList(expressions);
   }
 
   @Test
   public void identifierExpression() {
-    Query expected = new Query(new PropertyNode("foo", new CurrentNode()));
-    Query actual = parse("foo");
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "foo", currentNode);
+    Expression<Object> actual = compile("foo");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void quotedIdentifierExpression() {
-    Query expected = new Query(new PropertyNode("foo-bar", new CurrentNode()));
-    Query actual = parse("\"foo-bar\"");
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "foo-bar", currentNode);
+    Expression<Object> actual = compile("\"foo-bar\"");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void chainExpression() {
-    Query expected = new Query(
-      new PropertyNode("bar",
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "bar",
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo.bar");
+    Expression<Object> actual = compile("foo.bar");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void longChainExpression() {
-    Query expected = new Query(
-      new PropertyNode("qux",
-        new PropertyNode("baz",
-          new PropertyNode("bar",
-            new PropertyNode("foo", new CurrentNode())
-          )
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "qux",
+      new PropertyNode<Object>(runtime, "baz",
+        new PropertyNode<Object>(runtime, "bar",
+          new PropertyNode<Object>(runtime, "foo", currentNode)
         )
       )
     );
-    Query actual = parse("foo.bar.baz.qux");
+    Expression<Object> actual = compile("foo.bar.baz.qux");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void pipeExpressionWithoutProjection() {
-    Query expected = new Query(
-      new PropertyNode("bar",
-        new JoinNode(
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "bar",
+      new JoinNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo | bar");
+    Expression<Object> actual = compile("foo | bar");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void longPipeExpressionWithoutProjection() {
-    Query expected = new Query(
-      new PropertyNode("qux",
-        new JoinNode(
-          new PropertyNode("baz",
-            new JoinNode(
-              new PropertyNode("bar",
-                new JoinNode(
-                  new PropertyNode("foo", new CurrentNode())
-                )
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "qux",
+      new JoinNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "baz",
+          new JoinNode<Object>(runtime,
+            new PropertyNode<Object>(runtime, "bar",
+              new JoinNode<Object>(runtime,
+                new PropertyNode<Object>(runtime, "foo", currentNode)
               )
             )
           )
         )
       )
     );
-    Query actual = parse("foo | bar | baz | qux");
+    Expression<Object> actual = compile("foo | bar | baz | qux");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void pipesAndChains() {
-    Query expected = new Query(
-      new PropertyNode("qux",
-        new PropertyNode("baz",
-          new JoinNode(
-            new PropertyNode("bar",
-              new PropertyNode("foo", new CurrentNode())
-            )
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "qux",
+      new PropertyNode<Object>(runtime, "baz",
+        new JoinNode<Object>(runtime,
+          new PropertyNode<Object>(runtime, "bar",
+            new PropertyNode<Object>(runtime, "foo", currentNode)
           )
         )
       )
     );
-    Query actual = parse("foo.bar | baz.qux");
+    Expression<Object> actual = compile("foo.bar | baz.qux");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void indexExpression() {
-    Query expected = new Query(
-      new IndexNode(3,
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new IndexNode<Object>(runtime, 3,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo[3]");
+    Expression<Object> actual = compile("foo[3]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareIndexExpression() {
-    Query expected = new Query(new IndexNode(3, new CurrentNode()));
-    Query actual = parse("[3]");
+    Expression<Object> expected = new IndexNode<Object>(runtime, 3, currentNode);
+    Expression<Object> actual = compile("[3]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceExpression() {
-    Query expected = new Query(
-      new SliceNode(3, 4, 1,
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new SliceNode<Object>(runtime, 3, 4, 1,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo[3:4]");
+    Expression<Object> actual = compile("foo[3:4]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithoutStopExpression() {
-    Query expected = new Query(
-      new SliceNode(3, 0, 1,
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new SliceNode<Object>(runtime, 3, 0, 1,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo[3:]");
+    Expression<Object> actual = compile("foo[3:]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithoutStartExpression() {
-    Query expected = new Query(
-      new SliceNode(0, 4, 1,
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new SliceNode<Object>(runtime, 0, 4, 1,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo[:4]");
+    Expression<Object> actual = compile("foo[:4]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithStepExpression() {
-    Query expected = new Query(
-      new SliceNode(3, 4, 5,
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new SliceNode<Object>(runtime, 3, 4, 5,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo[3:4:5]");
+    Expression<Object> actual = compile("foo[3:4:5]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithStepButWithoutStopExpression() {
-    Query expected = new Query(
-      new SliceNode(3, 0, 5,
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new SliceNode<Object>(runtime, 3, 0, 5,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo[3::5]");
+    Expression<Object> actual = compile("foo[3::5]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithJustColonExpression() {
-    Query expected = new Query(
-      new SliceNode(0, 0, 1,
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new SliceNode<Object>(runtime, 0, 0, 1,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo[:]");
+    Expression<Object> actual = compile("foo[:]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceWithJustTwoColonsExpression() {
-    Query expected = new Query(
-      new SliceNode(0, 0, 1,
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new SliceNode<Object>(runtime, 0, 0, 1,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo[::]");
+    Expression<Object> actual = compile("foo[::]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareSliceExpression() {
-    Query expected = new Query(new SliceNode(0, 1, 2, new CurrentNode()));
-    Query actual = parse("[0:1:2]");
+    Expression<Object> expected = new SliceNode<Object>(runtime, 0, 1, 2, currentNode);
+    Expression<Object> actual = compile("[0:1:2]");
     assertThat(actual, is(expected));
   }
 
   @Test
   @Ignore("Should raise a parse error")
   public void sliceWithZeroStepSize() {
-    parse("[0:1:0]");
+    compile("[0:1:0]");
   }
 
   @Test
   public void flattenExpression() {
-    Query expected = new Query(
-      new ForkNode(
-        new FlattenArrayNode(
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+    new FlattenArrayNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo[]");
+    Expression<Object> actual = compile("foo[]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareFlattenExpression() {
-    Query expected = new Query(new ForkNode(new FlattenArrayNode(new CurrentNode())));
-    Query actual = parse("[]");
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new FlattenArrayNode<Object>(runtime, currentNode)
+    );
+    Expression<Object> actual = compile("[]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void listWildcardExpression() {
-    Query expected = new Query(new ForkNode(new PropertyNode("foo", new CurrentNode())));
-    Query actual = parse("foo[*]");
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
+    );
+    Expression<Object> actual = compile("foo[*]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareListWildcardExpression() {
-    Query expected = new Query(new ForkNode(new CurrentNode()));
-    Query actual = parse("[*]");
+    Expression<Object> expected = new ForkNode<Object>(runtime, currentNode);
+    Expression<Object> actual = compile("[*]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void hashWildcardExpression() {
-    Query expected = new Query(
-      new ForkNode(
-        new FlattenObjectNode(
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new FlattenObjectNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo.*");
+    Expression<Object> actual = compile("foo.*");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareHashWildcardExpression() {
-    Query expected = new Query(new ForkNode(new FlattenObjectNode(new CurrentNode())));
-    Query actual = parse("*");
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new FlattenObjectNode<Object>(runtime, currentNode)
+    );
+    Expression<Object> actual = compile("*");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void currentNodeExpression() {
-    Query expected = new Query(new CurrentNode());
-    Query actual = parse("@");
+    Expression<Object> expected = currentNode;
+    Expression<Object> actual = compile("@");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void currentNodeInPipes() {
-    Query expected = new Query(
-      new CurrentNode(
-        new JoinNode(
-          new PropertyNode("bar",
-            new JoinNode(
-              new CurrentNode(
-                new JoinNode(
-                  new PropertyNode("foo",
-                    new JoinNode(
-                      new CurrentNode()
-                    )
+    Expression<Object> expected = new CurrentNode<Object>(runtime,
+      new JoinNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "bar",
+          new JoinNode<Object>(runtime,
+            new CurrentNode<Object>(runtime,
+              new JoinNode<Object>(runtime,
+                new PropertyNode<Object>(runtime, "foo",
+                  new JoinNode<Object>(runtime,
+                    currentNode
                   )
                 )
               )
@@ -324,374 +307,375 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("@ | foo | @ | bar | @");
+    Expression<Object> actual = compile("@ | foo | @ | bar | @");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void selectionExpression() {
-    Query expected = new Query(
-      new ForkNode(
-        new SelectionNode(
-          new PropertyNode("bar", new CurrentNode()),
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SelectionNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "bar", currentNode),
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo[?bar]");
+    Expression<Object> actual = compile("foo[?bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void selectionWithConditionExpression() {
-    Query expected = new Query(
-      new ForkNode(
-        new SelectionNode(
-          new ComparisonNode("==",
-            new PropertyNode("bar", new CurrentNode()),
-            new PropertyNode("baz", new CurrentNode())
-          ),
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SelectionNode<Object>(runtime,
+        new ComparisonNode<Object>(runtime, "==",
+          new PropertyNode<Object>(runtime, "bar", currentNode),
+          new PropertyNode<Object>(runtime, "baz", currentNode)
+        ),
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo[?bar == baz]");
+    Expression<Object> actual = compile("foo[?bar == baz]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareSelection() {
-    Query expected = new Query(
-      new ForkNode(
-        new SelectionNode(
-          new PropertyNode("bar", new CurrentNode()),
-          new CurrentNode()
-        )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SelectionNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "bar", currentNode),
+        currentNode
       )
     );
-    Query actual = parse("[?bar]");
+    Expression<Object> actual = compile("[?bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void simpleFunctionCallExpression() {
-    Query expected = new Query(
-      new FunctionCallNode("foo",
-        new JmesPathNode[] {},
-        new CurrentNode()
-      )
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("sort"),
+      Arrays.asList(currentNode),
+      currentNode
     );
-    Query actual = parse("foo()");
+    Expression<Object> actual = compile("sort(@)");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void functionCallWithArgumentExpression() {
-    Query expected = new Query(
-      new FunctionCallNode("foo",
-        new JmesPathNode[] {new PropertyNode("bar", new CurrentNode())},
-        new CurrentNode()
-      )
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("sort"),
+      Arrays.asList(
+        new PropertyNode<Object>(runtime, "bar", currentNode)
+      ),
+      currentNode
     );
-    Query actual = parse("foo(bar)");
+    Expression<Object> actual = compile("sort(bar)");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void functionCallWithMultipleArgumentsExpression() {
-    Query expected = new Query(
-      new FunctionCallNode("foo",
-        new JmesPathNode[] {
-          new PropertyNode("bar", new CurrentNode()),
-          new PropertyNode("baz", new CurrentNode()),
-          new CurrentNode()
-        },
-        new CurrentNode()
-      )
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("merge"),
+      Arrays.asList(
+        new PropertyNode<Object>(runtime, "bar", currentNode),
+        new PropertyNode<Object>(runtime, "baz", currentNode),
+        currentNode
+      ),
+      currentNode
     );
-    Query actual = parse("foo(bar, baz, @)");
+    Expression<Object> actual = compile("merge(bar, baz, @)");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void chainedFunctionCallExpression() {
-    Query expected = new Query(
-      new FunctionCallNode("to_string",
-        new JmesPathNode[] {new CurrentNode()},
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("to_string"),
+      Arrays.asList(currentNode),
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("foo.to_string(@)");
+    Expression<Object> actual = compile("foo.to_string(@)");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void functionCallWithExpressionReference() {
-    Query expected = new Query(
-      new FunctionCallNode(
-        "foo",
-        new JmesPathNode[] {
-          new ExpressionReferenceNode(
-            new PropertyNode("bar",
-              new PropertyNode("bar", new CurrentNode())
-            )
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("sort"),
+      Arrays.asList(
+        new ExpressionReferenceNode<Object>(runtime,
+          new PropertyNode<Object>(runtime, "bar",
+            new PropertyNode<Object>(runtime, "bar", currentNode)
           )
-        },
-        new CurrentNode()
-      )
+        )
+      ),
+      currentNode
     );
-    Query actual = parse("foo(&bar.bar)");
+    Expression<Object> actual = compile("sort(&bar.bar)");
     assertThat(actual, is(expected));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void functionCallWithUnknownFunction() {
+    try {
+      compile("to_unicorn(@)");
+      fail("Expected ParseException to be thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), is("Error while parsing \"to_unicorn(@)\": unknown function \"to_unicorn\" at position 0"));
+    }
   }
 
   @Test
   public void bareRawStringExpression() {
-    Query expected = new Query(new StringNode("foo"));
-    Query actual = parse("'foo'");
+    Expression<Object> expected = new StringNode<Object>(runtime, "foo");
+    Expression<Object> actual = compile("'foo'");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void rawStringComparisonExpression() {
-    Query expected = new Query(
-      new ForkNode(
-        new SelectionNode(
-          new ComparisonNode("!=",
-            new PropertyNode("bar", new CurrentNode()),
-            new StringNode("baz")
-          ),
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SelectionNode<Object>(runtime,
+        new ComparisonNode<Object>(runtime, "!=",
+          new PropertyNode<Object>(runtime, "bar", currentNode),
+          new StringNode<Object>(runtime, "baz")
+        ),
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo[?bar != 'baz']");
+    Expression<Object> actual = compile("foo[?bar != 'baz']");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void andExpression() {
-    Query expected = new Query(
-      new AndNode(
-        new PropertyNode("foo", new CurrentNode()),
-        new PropertyNode("bar", new CurrentNode())
-      )
+    Expression<Object> expected = new AndNode<Object>(runtime,
+      new PropertyNode<Object>(runtime, "foo", currentNode),
+      new PropertyNode<Object>(runtime, "bar", currentNode)
     );
-    Query actual = parse("foo && bar");
+    Expression<Object> actual = compile("foo && bar");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void orExpression() {
-    Query expected = new Query(
-      new OrNode(
-        new PropertyNode("foo", new CurrentNode()),
-        new PropertyNode("bar", new CurrentNode())
-      )
+    Expression<Object> expected = new OrNode<Object>(runtime,
+      new PropertyNode<Object>(runtime, "foo", currentNode),
+      new PropertyNode<Object>(runtime, "bar", currentNode)
     );
-    Query actual = parse("foo || bar");
+    Expression<Object> actual = compile("foo || bar");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void wildcardAfterPipe() {
-    Query expected = new Query(
-      new ForkNode(
-        new JoinNode(
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new JoinNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo | [*]");
+    Expression<Object> actual = compile("foo | [*]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void indexAfterPipe() {
-    Query expected = new Query(
-      new IndexNode(1,
-        new JoinNode(
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new IndexNode<Object>(runtime, 1,
+      new JoinNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo | [1]");
+    Expression<Object> actual = compile("foo | [1]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceAfterPipe() {
-    Query expected = new Query(
-      new SliceNode(1, 2, 1,
-        new JoinNode(
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new SliceNode<Object>(runtime, 1, 2, 1,
+      new JoinNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo | [1:2]");
+    Expression<Object> actual = compile("foo | [1:2]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void flattenAfterPipe() {
-    Query expected = new Query(
-      new ForkNode(
-        new FlattenArrayNode(
-          new JoinNode(
-            new PropertyNode("foo", new CurrentNode())
-          )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new FlattenArrayNode<Object>(runtime,
+        new JoinNode<Object>(runtime,
+          new PropertyNode<Object>(runtime, "foo", currentNode)
         )
       )
     );
-    Query actual = parse("foo | []");
+    Expression<Object> actual = compile("foo | []");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void selectionAfterPipe() {
-    Query expected = new Query(
-      new ForkNode(
-        new SelectionNode(
-          new PropertyNode("bar", new CurrentNode()),
-          new JoinNode(
-            new PropertyNode("foo", new CurrentNode())
-          )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SelectionNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "bar", currentNode),
+        new JoinNode<Object>(runtime,
+          new PropertyNode<Object>(runtime, "foo", currentNode)
         )
       )
     );
-    Query actual = parse("foo | [?bar]");
+    Expression<Object> actual = compile("foo | [?bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void booleanComparisonExpression() {
-    Query expected = new Query(
-      new ForkNode(
-        new SelectionNode(
-          new OrNode(
-            new AndNode(
-              new ComparisonNode("!=", new PropertyNode("bar", new CurrentNode()), new StringNode("baz")),
-              new ComparisonNode("==", new PropertyNode("qux", new CurrentNode()), new StringNode("fux"))
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SelectionNode<Object>(runtime,
+        new OrNode<Object>(runtime,
+          new AndNode<Object>(runtime,
+            new ComparisonNode<Object>(runtime, "!=",
+              new PropertyNode<Object>(runtime, "bar", currentNode),
+              new StringNode<Object>(runtime, "baz")
             ),
-            new ComparisonNode(">", new PropertyNode("mux", new CurrentNode()), new StringNode("lux"))
+            new ComparisonNode<Object>(runtime, "==",
+              new PropertyNode<Object>(runtime, "qux", currentNode),
+              new StringNode<Object>(runtime, "fux")
+            )
           ),
-          new PropertyNode("foo", new CurrentNode())
-        )
+          new ComparisonNode<Object>(runtime, ">",
+            new PropertyNode<Object>(runtime, "mux", currentNode),
+            new StringNode<Object>(runtime, "lux")
+          )
+        ),
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
+    Expression<Object> actual = compile("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void chainPipeFunctionCallCombination() {
-    Query expected = new Query(
-      new FunctionCallNode("sort",
-        new JmesPathNode[] {new CurrentNode()},
-        new JoinNode(
-          new ForkNode(
-            new FlattenArrayNode(
-              new PropertyNode("bar",
-                new PropertyNode("foo", new CurrentNode())
-              )
+    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
+      runtime.getFunction("sort"),
+      Arrays.asList(currentNode),
+      new JoinNode<Object>(runtime,
+        new ForkNode<Object>(runtime,
+          new FlattenArrayNode<Object>(runtime,
+            new PropertyNode<Object>(runtime, "bar",
+              new PropertyNode<Object>(runtime, "foo", currentNode)
             )
           )
         )
       )
     );
-    Query actual = parse("foo.bar[] | sort(@)");
+    Expression<Object> actual = compile("foo.bar[] | sort(@)");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void chainPipeIndexSliceCombination() {
-    Query expected = new Query(
-      new SliceNode(2, 3, 1,
-        new PropertyNode("qux",
-          new PropertyNode("baz",
-            new JoinNode(
-              new PropertyNode("bar",
-                new IndexNode(3,
-                  new PropertyNode("foo", new CurrentNode())
-                )
+    Expression<Object> expected = new SliceNode<Object>(runtime, 2, 3, 1,
+      new PropertyNode<Object>(runtime, "qux",
+        new PropertyNode<Object>(runtime, "baz",
+          new JoinNode<Object>(runtime,
+            new PropertyNode<Object>(runtime, "bar",
+              new IndexNode<Object>(runtime, 3,
+                new PropertyNode<Object>(runtime, "foo", currentNode)
               )
             )
           )
         )
       )
     );
-    Query actual = parse("foo[3].bar | baz.qux[2:3]");
+    Expression<Object> actual = compile("foo[3].bar | baz.qux[2:3]");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void bareMultiSelectHashExpression() {
-    CreateObjectNode.Entry[] pieces = new CreateObjectNode.Entry[] {
-      new CreateObjectNode.Entry("foo", new StringNode("bar")),
-      new CreateObjectNode.Entry("baz", new CurrentNode())
-    };
-    Query expected = new Query(new CreateObjectNode(pieces, new CurrentNode()));
-    Query actual = parse("{foo: 'bar', baz: @}");
+    Expression<Object> expected = new CreateObjectNode<Object>(runtime,
+      Arrays.asList(
+        new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
+        new CreateObjectNode.Entry<Object>("baz", currentNode)
+      ),
+      currentNode
+    );
+    Expression<Object> actual = compile("{foo: 'bar', baz: @}");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashExpression() {
-    CreateObjectNode.Entry[] pieces = new CreateObjectNode.Entry[] {
-      new CreateObjectNode.Entry("foo", new StringNode("bar")),
-      new CreateObjectNode.Entry("baz", new CurrentNode())
-    };
-    Query expected = new Query(
-      new CreateObjectNode(pieces,
-        new PropertyNode("world",
-          new JoinNode(
-            new PropertyNode("hello", new CurrentNode())
-          )
+    Expression<Object> expected = new CreateObjectNode<Object>(runtime,
+      Arrays.asList(
+        new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
+        new CreateObjectNode.Entry<Object>("baz", currentNode)
+      ),
+      new PropertyNode<Object>(runtime, "world",
+        new JoinNode<Object>(runtime,
+          new PropertyNode<Object>(runtime, "hello", currentNode)
         )
       )
     );
-    Query actual = parse("hello | world.{foo: 'bar', baz: @}");
+    Expression<Object> actual = compile("hello | world.{foo: 'bar', baz: @}");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashWithQuotedKeys() {
-    CreateObjectNode.Entry[] pieces = new CreateObjectNode.Entry[] {
-      new CreateObjectNode.Entry("foo", new StringNode("bar")),
-      new CreateObjectNode.Entry("baz", new CurrentNode())
-    };
-    Query expected = new Query(new CreateObjectNode(pieces, new CurrentNode()));
-    Query actual = parse("{\"foo\": 'bar', \"baz\": @}");
+    Expression<Object> expected = new CreateObjectNode<Object>(runtime,
+      Arrays.asList(
+        new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
+        new CreateObjectNode.Entry<Object>("baz", currentNode)
+      ),
+      currentNode
+    );
+    Expression<Object> actual = compile("{\"foo\": 'bar', \"baz\": @}");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void jmesPathSiteExampleExpression() {
-    CreateObjectNode.Entry[] pieces = new CreateObjectNode.Entry[] {
-      new CreateObjectNode.Entry("WashingtonCities",
-        new FunctionCallNode("join",
-          new JmesPathNode[] {
-            new StringNode(", "),
-            new CurrentNode()
-          },
-          new CurrentNode()
+    Expression<Object> expected = new CreateObjectNode<Object>(runtime,
+      Arrays.asList(
+        new CreateObjectNode.Entry<Object>("WashingtonCities",
+          new FunctionCallNode<Object>(runtime,
+            runtime.getFunction("join"),
+            Arrays.asList(
+              new StringNode<Object>(runtime, ", "),
+              currentNode
+            ),
+            currentNode
+          )
         )
-      )
-    };
-    Query expected = new Query(
-      new CreateObjectNode(pieces,
-        new JoinNode(
-          new FunctionCallNode("sort",
-            new JmesPathNode[] {new CurrentNode()},
-            new JoinNode(
-              new PropertyNode("name",
-                new ForkNode(
-                  new SelectionNode(
-                    new ComparisonNode("==",
-                      new PropertyNode("state", new CurrentNode()),
-                      new StringNode("WA")
-                    ),
-                    new PropertyNode("locations", new CurrentNode())
-                  )
+      ),
+      new JoinNode<Object>(runtime,
+        new FunctionCallNode<Object>(runtime,
+          runtime.getFunction("sort"),
+          Arrays.asList(currentNode),
+          new JoinNode<Object>(runtime,
+            new PropertyNode<Object>(runtime, "name",
+              new ForkNode<Object>(runtime,
+                new SelectionNode<Object>(runtime,
+                  new ComparisonNode<Object>(runtime, "==",
+                    new PropertyNode<Object>(runtime, "state", currentNode),
+                    new StringNode<Object>(runtime, "WA")
+                  ),
+                  new PropertyNode<Object>(runtime, "locations", currentNode)
                 )
               )
             )
@@ -699,155 +683,145 @@ public class ParserTest {
         )
       )
     );
-    Query actual = parse("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
+    Expression<Object> actual = compile("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void bareMultiSelectListExpression() {
-    Query expected = new Query(
-      new CreateArrayNode(
-        new JmesPathNode[] {
-          new StringNode("bar"),
-          new CurrentNode()
-        },
-        new CurrentNode()
-      )
+    Expression<Object> expected = new CreateArrayNode<Object>(runtime,
+      asExpressionList(
+        new StringNode<Object>(runtime, "bar"),
+        currentNode
+      ),
+      currentNode
     );
-    Query actual = parse("['bar', @]");
+    Expression<Object> actual = compile("['bar', @]");
     assertThat(actual, is(expected));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void chainedMultiSelectListExpression() {
-    Query expected = new Query(
-      new CreateArrayNode(
-        new JmesPathNode[] {
-          new StringNode("bar"),
-          new CurrentNode()
-        },
-        new PropertyNode("world",
-          new JoinNode(
-            new PropertyNode("hello", new CurrentNode())
-          )
+    Expression<Object> expected = new CreateArrayNode<Object>(runtime,
+      asExpressionList(
+        new StringNode<Object>(runtime, "bar"),
+        currentNode
+      ),
+      new PropertyNode<Object>(runtime, "world",
+        new JoinNode<Object>(runtime,
+          new PropertyNode<Object>(runtime, "hello", currentNode)
         )
       )
     );
-    Query actual = parse("hello | world.['bar', @]");
+    Expression<Object> actual = compile("hello | world.['bar', @]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void parenthesizedPipeExpression() {
-    Query expected = new Query(
-      new PropertyNode("baz",
-        new JoinNode(
-          new PropertyNode("bar",
-            new JoinNode(
-              new PropertyNode("foo", new CurrentNode())
-            )
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "baz",
+      new JoinNode<Object>(runtime,
+        new PropertyNode<Object>(runtime, "bar",
+          new JoinNode<Object>(runtime,
+            new PropertyNode<Object>(runtime, "foo", currentNode)
           )
         )
       )
     );
-    Query actual = parse("foo | (bar | baz)");
+    Expression<Object> actual = compile("foo | (bar | baz)");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void parenthesizedComparisonExpression() {
-    Query expected = new Query(
-      new ForkNode(
-        new SelectionNode(
-          new AndNode(
-            new ComparisonNode("==",
-              new PropertyNode("bar", new CurrentNode()),
-              new StringNode("baz")
-            ),
-            new OrNode(
-              new ComparisonNode("==",
-                new PropertyNode("qux", new CurrentNode()),
-                new StringNode("fux")
-              ),
-              new ComparisonNode("==",
-                new PropertyNode("mux", new CurrentNode()),
-                new StringNode("lux")
-              )
-            )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SelectionNode<Object>(runtime,
+        new AndNode<Object>(runtime,
+          new ComparisonNode<Object>(runtime, "==",
+            new PropertyNode<Object>(runtime, "bar", currentNode),
+            new StringNode<Object>(runtime, "baz")
           ),
-          new PropertyNode("foo", new CurrentNode())
-        )
+          new OrNode<Object>(runtime,
+            new ComparisonNode<Object>(runtime, "==",
+              new PropertyNode<Object>(runtime, "qux", currentNode),
+              new StringNode<Object>(runtime, "fux")
+            ),
+            new ComparisonNode<Object>(runtime, "==",
+              new PropertyNode<Object>(runtime, "mux", currentNode),
+              new StringNode<Object>(runtime, "lux")
+            )
+          )
+        ),
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
+    Expression<Object> actual = compile("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareNegatedExpression() {
-    Query expected = new Query(
-      new NegateNode(
-        new PropertyNode("foo", new CurrentNode())
-      )
+    Expression<Object> expected = new NegateNode<Object>(runtime,
+      new PropertyNode<Object>(runtime, "foo", currentNode)
     );
-    Query actual = parse("!foo");
+    Expression<Object> actual = compile("!foo");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void negatedSelectionExpression() {
-    Query expected = new Query(
-      new ForkNode(
-        new SelectionNode(
-          new NegateNode(new PropertyNode("bar", new CurrentNode())),
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SelectionNode<Object>(runtime,
+        new NegateNode<Object>(runtime, new PropertyNode<Object>(runtime, "bar", currentNode)),
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo[?!bar]");
+    Expression<Object> actual = compile("foo[?!bar]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralExpression() {
-    Query expected = new Query(createJsonLiteralNode("{}"));
-    Query actual = parse("`{}`");
+    Expression<Object> expected = createJsonLiteralNode("{}");
+    Expression<Object> actual = compile("`{}`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralArray() {
-    Query expected = new Query(createJsonLiteralNode("[]"));
-    Query actual = parse("`[]`");
+    Expression<Object> expected = createJsonLiteralNode("[]");
+    Expression<Object> actual = compile("`[]`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralNumber() {
-    Query expected = new Query(createJsonLiteralNode("3.14"));
-    Query actual = parse("`3.14`");
+    Expression<Object> expected = createJsonLiteralNode("3.14");
+    Expression<Object> actual = compile("`3.14`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralString() {
-    Query expected = new Query(createJsonLiteralNode("\"foo\""));
-    Query actual = parse("`\"foo\"`");
+    Expression<Object> expected = createJsonLiteralNode("\"foo\"");
+    Expression<Object> actual = compile("`\"foo\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralConstant() {
-    Query expected = new Query(createJsonLiteralNode("false"));
-    Query actual = parse("`false`");
+    Expression<Object> expected = createJsonLiteralNode("false");
+    Expression<Object> actual = compile("`false`");
     assertThat(actual, is(expected));
   }
 
   @Test
   @Ignore
   public void escapedBacktickInJsonString() {
-    Query expected = new Query(createJsonLiteralNode("\"fo`o\""));
-    Query actual = parse("`\"fo\\`o\"`");
+    Expression<Object> expected = createJsonLiteralNode("\"fo`o\"");
+    Expression<Object> actual = compile("`\"fo\\`o\"`");
     assertThat(actual, is(expected));
   }
 
@@ -855,13 +829,13 @@ public class ParserTest {
   @Ignore
   public void unEscapedBacktickInJsonString() {
     try {
-      parse("`\"fo`o\"`");
+      compile("`\"fo`o\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
       assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 5"));
     }
     try {
-      parse("`\"`foo\"`");
+      compile("`\"`foo\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
       assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 3"));
@@ -870,26 +844,24 @@ public class ParserTest {
 
   @Test
   public void comparisonWithJsonLiteralExpression() {
-    Query expected = new Query(
-      new ForkNode(
-        new SelectionNode(
-          new ComparisonNode("==",
-            new PropertyNode("bar", new CurrentNode()),
-            createJsonLiteralNode("{\"foo\":\"bar\"}")
-          ),
-          new PropertyNode("foo", new CurrentNode())
-        )
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SelectionNode<Object>(runtime,
+        new ComparisonNode<Object>(runtime, "==",
+          new PropertyNode<Object>(runtime, "bar", currentNode),
+          createJsonLiteralNode("{\"foo\":\"bar\"}")
+        ),
+        new PropertyNode<Object>(runtime, "foo", currentNode)
       )
     );
-    Query actual = parse("foo[?bar == `{\"foo\": \"bar\"}`]");
+    Expression<Object> actual = compile("foo[?bar == `{\"foo\": \"bar\"}`]");
     assertThat(actual, is(expected));
   }
 
   @Test
   @Ignore("Known issue")
   public void jsonBuiltinsAsNames() {
-    Query expected = new Query(new PropertyNode("false", new CurrentNode()));
-    Query actual = parse("false");
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "false", currentNode);
+    Expression<Object> actual = compile("false");
     assertThat(actual, is(expected));
   }
 }

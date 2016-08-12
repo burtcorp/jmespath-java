@@ -2,14 +2,14 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class NegateNode extends JmesPathNode {
-  public NegateNode(JmesPathNode source) {
-    super(source);
+public class NegateNode<T> extends Node<T> {
+  public NegateNode(Adapter<T> runtime, Node<T> source) {
+    super(runtime, source);
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    return adapter.createBoolean(!adapter.isTruthy(currentValue));
+  protected T searchOne(T currentValue) {
+    return runtime.createBoolean(!runtime.isTruthy(currentValue));
   }
 
   @Override

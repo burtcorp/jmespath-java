@@ -5,7 +5,7 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ContainsFunction extends JmesPathFunction {
+public class ContainsFunction extends BaseFunction {
   public ContainsFunction() {
     super(
       ArgumentConstraints.typeOf(JmesPathType.ARRAY, JmesPathType.STRING),
@@ -14,14 +14,14 @@ public class ContainsFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T haystack = arguments.get(0).value();
     T needle = arguments.get(1).value();
-    JmesPathType haystackType = adapter.typeOf(haystack);
+    JmesPathType haystackType = runtime.typeOf(haystack);
     if (haystackType == JmesPathType.ARRAY) {
-      return adapter.createBoolean(adapter.toList(haystack).contains(needle));
+      return runtime.createBoolean(runtime.toList(haystack).contains(needle));
     } else {
-      return adapter.createBoolean(adapter.toString(haystack).indexOf(adapter.toString(needle)) >= 0);
+      return runtime.createBoolean(runtime.toString(haystack).indexOf(runtime.toString(needle)) >= 0);
     }
   }
 }

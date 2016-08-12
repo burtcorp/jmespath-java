@@ -5,25 +5,25 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ToNumberFunction extends JmesPathFunction {
+public class ToNumberFunction extends BaseFunction {
   public ToNumberFunction() {
     super(ArgumentConstraints.anyValue());
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T subject = arguments.get(0).value();
-    JmesPathType subjectType = adapter.typeOf(subject);
+    JmesPathType subjectType = runtime.typeOf(subject);
     if (subjectType == JmesPathType.NUMBER) {
       return subject;
     } else if (subjectType == JmesPathType.STRING) {
       try {
-        return adapter.createNumber(Double.parseDouble(adapter.toString(subject)));
+        return runtime.createNumber(Double.parseDouble(runtime.toString(subject)));
       } catch (NumberFormatException nfe) {
-        return adapter.createNull();
+        return runtime.createNull();
       }
     } else {
-      return adapter.createNull();
+      return runtime.createNull();
     }
   }
 }

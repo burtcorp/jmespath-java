@@ -6,26 +6,26 @@ import java.util.LinkedList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class FlattenArrayNode extends JmesPathNode {
-  public FlattenArrayNode(JmesPathNode source) {
-    super(source);
+public class FlattenArrayNode<T> extends Node<T> {
+  public FlattenArrayNode(Adapter<T> runtime, Node<T> source) {
+    super(runtime, source);
   }
 
   @Override
-  protected <T> T evaluateWithCurrentValue(Adapter<T> adapter, T currentValue) {
-    if (!isProjection() && adapter.typeOf(currentValue) != JmesPathType.ARRAY) {
-      return adapter.createNull();
+  protected T searchWithCurrentValue(T currentValue) {
+    if (!isProjection() && runtime.typeOf(currentValue) != JmesPathType.ARRAY) {
+      return runtime.createNull();
     } else {
-      List<T> elements = adapter.toList(currentValue);
+      List<T> elements = runtime.toList(currentValue);
       List<T> flattened = new LinkedList<>();
       for (T element : elements) {
-        if (adapter.typeOf(element) == JmesPathType.ARRAY) {
-          flattened.addAll(adapter.toList(element));
+        if (runtime.typeOf(element) == JmesPathType.ARRAY) {
+          flattened.addAll(runtime.toList(element));
         } else {
           flattened.add(element);
         }
       }
-      return adapter.createArray(flattened);
+      return runtime.createArray(flattened);
     }
   }
 

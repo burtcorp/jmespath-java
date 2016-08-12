@@ -11,11 +11,11 @@ public class SumFunction extends ArrayMathFunction {
   }
 
   @Override
-  protected <T> T performMathOperation(Adapter<T> adapter, List<T> values) {
+  protected <T> T performMathOperation(Adapter<T> runtime, List<T> values) {
     double sum = 0;
     for (T n : values) {
-      sum += adapter.toNumber(n).doubleValue();
+      sum += runtime.toNumber(n).doubleValue();
     }
-    return adapter.createNumber(sum);
+    return runtime.createNumber(sum);
   }
 }

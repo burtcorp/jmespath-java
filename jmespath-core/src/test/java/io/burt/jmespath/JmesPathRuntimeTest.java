@@ -14,8 +14,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
-import io.burt.jmespath.Query;
-import io.burt.jmespath.function.FunctionCallException;
+import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.function.ArityException;
 import io.burt.jmespath.function.ArgumentTypeException;
 
@@ -26,12 +25,11 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
 
-@SuppressWarnings("unchecked")
-public abstract class AdapterTest<T> {
+public abstract class JmesPathRuntimeTest<T> {
   protected T contact;
   protected T cloudtrail;
 
-  protected abstract Adapter<T> adapter();
+  protected abstract Adapter<T> runtime();
 
   protected T loadExample(String path) {
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {
@@ -40,22 +38,27 @@ public abstract class AdapterTest<T> {
       while ((line = reader.readLine()) != null) {
         buffer.append(line);
       }
-      return adapter().parseString(buffer.toString());
+      return parse(buffer.toString());
     } catch (IOException ioe) {
       throw new RuntimeException(String.format("Failed parsing %s", path), ioe);
     }
   }
 
-  protected T evaluate(String query, T input) {
-    return Query.fromString(adapter(), query).evaluate(adapter(), input);
+  protected T search(String query, T input) {
+    return runtime().compile(query).search(input);
+  }
+
+  protected T parse(String json) {
+    return runtime().parseString(json);
   }
 
   protected Matcher<T> jsonBoolean(final boolean b) {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
         T node = (T) n;
-        return adapter().typeOf(node) == JmesPathType.BOOLEAN && adapter().isTruthy(node) == b;
+        return runtime().typeOf(node) == JmesPathType.BOOLEAN && runtime().isTruthy(node) == b;
       }
 
       @Override
@@ -68,10 +71,11 @@ public abstract class AdapterTest<T> {
   protected Matcher<T> jsonNumber(final Number e) {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
         T actual = (T) n;
-        T expected = adapter().createNumber(e.doubleValue());
-        return adapter().typeOf(actual) == JmesPathType.NUMBER && adapter().compare(actual, expected) == 0;
+        T expected = runtime().createNumber(e.doubleValue());
+        return runtime().typeOf(actual) == JmesPathType.NUMBER && runtime().compare(actual, expected) == 0;
       }
 
       @Override
@@ -84,9 +88,10 @@ public abstract class AdapterTest<T> {
   protected Matcher<T> jsonNull() {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
         T node = (T) n;
-        return adapter().typeOf(node) == JmesPathType.NULL;
+        return runtime().typeOf(node) == JmesPathType.NULL;
       }
 
       @Override
@@ -99,9 +104,10 @@ public abstract class AdapterTest<T> {
   protected Matcher<T> jsonString(final String str) {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
         T node = (T) n;
-        return adapter().createString(str).equals(node);
+        return runtime().createString(str).equals(node);
       }
 
       @Override
@@ -114,13 +120,14 @@ public abstract class AdapterTest<T> {
   protected Matcher<T> jsonArrayOfStrings(final String... strs) {
     return new BaseMatcher<T>() {
       @Override
+      @SuppressWarnings("unchecked")
       public boolean matches(final Object n) {
-        List<T> input = adapter().toList((T) n);
+        List<T> input = runtime().toList((T) n);
         if (input.size() != strs.length) {
           return false;
         }
         for (int i = 0; i < strs.length; i++) {
-          if (!adapter().toString(input.get(i)).equals(strs[i])) {
+          if (!runtime().toString(input.get(i)).equals(strs[i])) {
             return false;
           }
         }
@@ -142,1656 +149,1655 @@ public abstract class AdapterTest<T> {
 
   @Test
   public void topLevelProperty() {
-    T result = evaluate("lastName", contact);
+    T result = search("lastName", contact);
     assertThat(result, is(jsonString("Smith")));
   }
 
   @Test
   public void chainProperty() {
-    T result = evaluate("address.state", contact);
+    T result = search("address.state", contact);
     assertThat(result, is(jsonString("NY")));
   }
 
   @Test
   public void propertyNotFound() {
-    T result = evaluate("address.country", contact);
+    T result = search("address.country", contact);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void nullValue() {
-    T result = evaluate("spouse", contact);
+    T result = search("spouse", contact);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void index() {
-    T result = evaluate("phoneNumbers[1].type", contact);
+    T result = search("phoneNumbers[1].type", contact);
     assertThat(result, is(jsonString("office")));
   }
 
   @Test
   public void negativeIndex() {
-    T result = evaluate("phoneNumbers[-2].type", contact);
+    T result = search("phoneNumbers[-2].type", contact);
     assertThat(result, is(jsonString("office")));
   }
 
   @Test
   public void indexNotFound() {
-    T result = evaluate("phoneNumbers[3].type", contact);
+    T result = search("phoneNumbers[3].type", contact);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void negativeIndexNotFound() {
-    T result = evaluate("phoneNumbers[-4].type", contact);
+    T result = search("phoneNumbers[-4].type", contact);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void indexOnNonArrayProducesNull() {
-    T result = evaluate("[0]", contact);
+    T result = search("[0]", contact);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void projection() {
-    T result = evaluate("phoneNumbers[*].type", contact);
+    T result = search("phoneNumbers[*].type", contact);
     assertThat(result, is(jsonArrayOfStrings("home", "office", "mobile")));
   }
 
   @Test
   public void multiStepProjection() {
-    T result = evaluate("Records[*].userIdentity.userName", cloudtrail);
+    T result = search("Records[*].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
   @Test
   public void projectionFiltersNull() {
-    T result = evaluate("Records[*].requestParameters.keyName", cloudtrail);
+    T result = search("Records[*].requestParameters.keyName", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("mykeypair")));
   }
 
   @Test
   public void projectionOnNonArrayProducesNull() {
-    T result = evaluate("[*]", contact);
+    T result = search("[*]", contact);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void pipeStopsProjections() {
-    T result = evaluate("Records[*].userIdentity | [1].userName", cloudtrail);
+    T result = search("Records[*].userIdentity | [1].userName", cloudtrail);
     assertThat(result, is(jsonString("Bob")));
   }
 
   @Test
   public void literalString() {
-    T result = evaluate("'hello world'", cloudtrail);
+    T result = search("'hello world'", cloudtrail);
     assertThat(result, is(jsonString("hello world")));
   }
 
   @Test
   public void literalStringIgnoresSource() {
-    T result = evaluate("Records[*] | 'hello world'", cloudtrail);
+    T result = search("Records[*] | 'hello world'", cloudtrail);
     assertThat(result, is(jsonString("hello world")));
   }
 
   public void flattenStartsProjection() {
-    T result = evaluate("Records[].userIdentity.userName", cloudtrail);
+    T result = search("Records[].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
   @Test
   public void flattenArray() {
-    T nestedArray = adapter().parseString("[[0, 1, 2]]");
-    T result = evaluate("[]", nestedArray);
-    assertThat(result, is(adapter().parseString("[0, 1, 2]")));
+    T nestedArray = parse("[[0, 1, 2]]");
+    T result = search("[]", nestedArray);
+    assertThat(result, is(parse("[0, 1, 2]")));
   }
 
   @Test
   public void flattenNonArrayProducesNull() {
-    T result = evaluate("Records[0].userIdentity.userName[]", cloudtrail);
+    T result = search("Records[0].userIdentity.userName[]", cloudtrail);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void flattenMultipleTimes() {
-    T nestedArray = adapter().parseString("[[0, 1, 2]]");
-    T result = evaluate("[][][][][][][][][][][][][]", nestedArray);
-    assertThat(result, is(adapter().parseString("[0, 1, 2]")));
+    T nestedArray = parse("[[0, 1, 2]]");
+    T result = search("[][][][][][][][][][][][][]", nestedArray);
+    assertThat(result, is(parse("[0, 1, 2]")));
   }
 
   @Test
   public void flattenInProjection() {
-    T nestedArray = adapter().parseString("[{\"a\":[0]},{\"a\":[1]}]");
-    T result = evaluate("[*].a[]", nestedArray);
-    assertThat(result, is(adapter().parseString("[0, 1]")));
+    T nestedArray = parse("[{\"a\":[0]},{\"a\":[1]}]");
+    T result = search("[*].a[]", nestedArray);
+    assertThat(result, is(parse("[0, 1]")));
   }
 
   @Test
   public void flattenObject() {
-    T result = evaluate("Records[0].userIdentity.*", cloudtrail);
+    T result = search("Records[0].userIdentity.*", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("IAMUser", "EX_PRINCIPAL_ID", "arn:aws:iam::123456789012:user/Alice", "EXAMPLE_KEY_ID_ALICE", "123456789012", "Alice")));
   }
 
   @Test
   public void flattenObjectCreatesProjection() {
-    T result = evaluate("Records[0].responseElements.*.items[].instanceId", cloudtrail);
+    T result = search("Records[0].responseElements.*.items[].instanceId", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("i-ebeaf9e2")));
   }
 
   @Test
   public void multipleFlattenObject() {
-    T nestedObject = adapter().parseString("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
-    T result = evaluate("*.*", nestedObject);
-    assertThat(result, is(adapter().parseString("[[{\"inner\":1}],[{\"inner\":2}]]")));
+    T nestedObject = parse("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
+    T result = search("*.*", nestedObject);
+    assertThat(result, is(parse("[[{\"inner\":1}],[{\"inner\":2}]]")));
   }
 
   @Test
   @Ignore("How can the result in the first assertion be the basis for the result in the second?")
   public void multipleFlattenObjectWithFollowingProjection() {
-    T nestedObject = adapter().parseString("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
-    T result1 = evaluate("*.*.inner", nestedObject);
-    assertThat(result1, is(adapter().parseString("[[1],[2]]")));
-    T result = evaluate("*.*.inner[]", nestedObject);
-    assertThat(result, is(adapter().parseString("[1,2]")));
+    T nestedObject = parse("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
+    T result1 = search("*.*.inner", nestedObject);
+    assertThat(result1, is(parse("[[1],[2]]")));
+    T result = search("*.*.inner[]", nestedObject);
+    assertThat(result, is(parse("[1,2]")));
   }
 
   @Test
   public void flattenNonObjectProducesNull() {
-    T result = evaluate("Records[0].responseElements.instancesSet.items.*", cloudtrail);
+    T result = search("Records[0].responseElements.instancesSet.items.*", cloudtrail);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void slice() {
-    T result = evaluate("Records[0].userIdentity.* | [1::2]", cloudtrail);
+    T result = search("Records[0].userIdentity.* | [1::2]", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("EX_PRINCIPAL_ID", "EXAMPLE_KEY_ID_ALICE", "Alice")));
   }
 
   @Test
   public void sliceNotFound() {
-    T result = evaluate("Records[0].userIdentity.* | [99:]", cloudtrail);
-    assertThat(adapter().toList(result), is(empty()));
+    T result = search("Records[0].userIdentity.* | [99:]", cloudtrail);
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test
   public void negativeStopSlice() {
-    T result = evaluate("Records[0].userIdentity.* | [:-2]", cloudtrail);
+    T result = search("Records[0].userIdentity.* | [:-2]", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("IAMUser", "EX_PRINCIPAL_ID", "arn:aws:iam::123456789012:user/Alice", "EXAMPLE_KEY_ID_ALICE")));
   }
 
   @Test
   public void negativeStartSlice() {
-    T result = evaluate("Records[0].userIdentity.* | [-3:4]", cloudtrail);
+    T result = search("Records[0].userIdentity.* | [-3:4]", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("EXAMPLE_KEY_ID_ALICE")));
   }
 
   @Test
   public void negativeStepSliceReversesOrder() {
-    T result = evaluate("Records[0].userIdentity.* | [::-2]", cloudtrail);
+    T result = search("Records[0].userIdentity.* | [::-2]", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("Alice", "EXAMPLE_KEY_ID_ALICE", "EX_PRINCIPAL_ID")));
   }
 
   @Test
   public void currentNodeReturnsInput() {
-    T result = evaluate("@", cloudtrail);
-    assertThat(adapter().toList(adapter().getProperty(result, "Records")), hasSize(3));
+    T result = search("@", cloudtrail);
+    assertThat(runtime().toList(runtime().getProperty(result, "Records")), hasSize(3));
   }
 
   @Test
   public void currentNodeAsNoOp() {
-    T result = evaluate("@ | Records[0].userIdentity | @ | userName | @ | @", cloudtrail);
+    T result = search("@ | Records[0].userIdentity | @ | userName | @ | @", cloudtrail);
     assertThat(result, is(jsonString("Alice")));
   }
 
   @Test
   public void andReturnsSecondOperandWhenFirstIsTruthy() {
-    T result = evaluate("Records[0].userIdentity.userName && Records[1].userIdentity.userName", cloudtrail);
+    T result = search("Records[0].userIdentity.userName && Records[1].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonString("Bob")));
   }
 
   @Test
   public void andReturnsFirstOperandWhenItIsFalsy() {
-    T result = evaluate("'' && Records[1].userIdentity.userName", cloudtrail);
+    T result = search("'' && Records[1].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonString("")));
   }
 
   @Test
   public void aLongChainOfAnds() {
-    T result = evaluate("@ && Records[2] && Records[2].responseElements && Records[2].responseElements.keyName", cloudtrail);
+    T result = search("@ && Records[2] && Records[2].responseElements && Records[2].responseElements.keyName", cloudtrail);
     assertThat(result, is(jsonString("mykeypair")));
   }
 
   @Test
   public void orReturnsFirstOperandWhenItIsTruthy() {
-    T result = evaluate("Records[0].userIdentity.userName || Records[1].userIdentity.userName", cloudtrail);
+    T result = search("Records[0].userIdentity.userName || Records[1].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonString("Alice")));
   }
 
   @Test
   public void orReturnsSecondOperandWhenFirstIsFalsy() {
-    T result = evaluate("'' || Records[1].userIdentity.userName", cloudtrail);
+    T result = search("'' || Records[1].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonString("Bob")));
   }
 
   @Test
   public void aLongChainOfOrs() {
-    T result = evaluate("'' || Records[3] || Records[2].foobar || Records[2].responseElements.keyName", cloudtrail);
+    T result = search("'' || Records[3] || Records[2].foobar || Records[2].responseElements.keyName", cloudtrail);
     assertThat(result, is(jsonString("mykeypair")));
   }
 
   @Test
   public void selectionWithTrueTest() {
-    T result = evaluate("Records[?@]", cloudtrail);
-    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
-    assertThat(adapter().toList(result), hasSize(3));
+    T result = search("Records[?@]", cloudtrail);
+    assertThat(runtime().typeOf(result), is(JmesPathType.ARRAY));
+    assertThat(runtime().toList(result), hasSize(3));
   }
 
   @Test
   public void selectionWithBooleanProperty() {
-    T result = evaluate("Records[*] | [?userIdentity.sessionContext.attributes.mfaAuthenticated].eventTime", cloudtrail);
+    T result = search("Records[*] | [?userIdentity.sessionContext.attributes.mfaAuthenticated].eventTime", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("2014-03-06T17:10:34Z")));
   }
 
   @Test
   public void selectionWithFalseTest() {
-    T result = evaluate("Records[?'']", cloudtrail);
-    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
-    assertThat(adapter().toList(result), is(empty()));
+    T result = search("Records[?'']", cloudtrail);
+    assertThat(runtime().typeOf(result), is(JmesPathType.ARRAY));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test
   public void selectionStartsProjection() {
-    T result = evaluate("Records[?@].userIdentity.userName", cloudtrail);
+    T result = search("Records[?@].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
   @Test
   public void selectionTestReferencingProperty() {
-    T result = evaluate("Records[*].responseElements | [?keyFingerprint]", cloudtrail);
-    List<T> elements = adapter().toList(result);
-    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
+    T result = search("Records[*].responseElements | [?keyFingerprint]", cloudtrail);
+    List<T> elements = runtime().toList(result);
+    assertThat(runtime().typeOf(result), is(JmesPathType.ARRAY));
     assertThat(elements, hasSize(1));
-    assertThat(adapter().getProperty(elements.get(0), "keyName"), is(jsonString("mykeypair")));
+    assertThat(runtime().getProperty(elements.get(0), "keyName"), is(jsonString("mykeypair")));
   }
 
   @Test
   public void selectionDoesNotSelectProjectionPutEachProjectedElement() {
-    T result = evaluate("Records[*].responseElements.keyName[?@]", cloudtrail);
-    assertThat(adapter().typeOf(result), is(JmesPathType.ARRAY));
-    assertThat(adapter().toList(result), is(empty()));
+    T result = search("Records[*].responseElements.keyName[?@]", cloudtrail);
+    assertThat(runtime().typeOf(result), is(JmesPathType.ARRAY));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test
   public void selectionOnNonArrayProducesNull() {
-    T result = evaluate("Records[0].userIdentity[?@]", cloudtrail);
+    T result = search("Records[0].userIdentity[?@]", cloudtrail);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void selectionWithComplexTest() {
-    T result = evaluate("Records[*] | [?userIdentity.userName == 'Bob' || responseElements.instancesSet.items[0].instanceId == 'i-ebeaf9e2'].userIdentity.userName", cloudtrail);
+    T result = search("Records[*] | [?userIdentity.userName == 'Bob' || responseElements.instancesSet.items[0].instanceId == 'i-ebeaf9e2'].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("Alice", "Bob")));
   }
 
   @Test
   public void compareEqualityWhenEqualProducesTrue() {
-    T result = evaluate("Records[0].userIdentity.userName == Records[2].userIdentity.userName", cloudtrail);
+    T result = search("Records[0].userIdentity.userName == Records[2].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareEqualityWhenNotEqualProducesFalse() {
-    T result = evaluate("Records[0].userIdentity.userName == Records[1].userIdentity.userName", cloudtrail);
+    T result = search("Records[0].userIdentity.userName == Records[1].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void compareNonEqualityWhenEqualProducesFalse() {
-    T result = evaluate("Records[0].userIdentity.userName != Records[2].userIdentity.userName", cloudtrail);
+    T result = search("Records[0].userIdentity.userName != Records[2].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void compareNonEqualityWhenNotEqualProducesTrue() {
-    T result = evaluate("Records[0].userIdentity.userName != Records[1].userIdentity.userName", cloudtrail);
+    T result = search("Records[0].userIdentity.userName != Records[1].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareNumbersEqWhenEq() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code == currentState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code == currentState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareNumbersEqWhenNotEq() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code == previousState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code == previousState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void compareNumbersNotEqWhenEq() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code != currentState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code != currentState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void compareNumbersNotEqWhenNotEq() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code != previousState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code != previousState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareNumbersGtWhenGt() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code > previousState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code > previousState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareNumbersGtWhenLt() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState.code > currentState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | previousState.code > currentState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void compareNumbersGteWhenGt() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code >= previousState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code >= previousState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareNumbersGteWhenEq() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code >= currentState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code >= currentState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareNumbersGteWhenLt() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState.code >= currentState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | previousState.code >= currentState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void compareNumbersLtWhenGt() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code < previousState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code < previousState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void compareNumbersLtWhenLt() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState.code < currentState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | previousState.code < currentState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareNumbersLteWhenGt() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code <= previousState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code <= previousState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void compareNumbersLteWhenEq() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | currentState.code <= currentState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | currentState.code <= currentState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareNumbersLteWhenLt() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState.code <= currentState.code", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | previousState.code <= currentState.code", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void compareGtWithNonNumberProducesNull() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState > currentState", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | previousState > currentState", cloudtrail);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void compareGteWithNonNumberProducesNull() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState >= currentState", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | previousState >= currentState", cloudtrail);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void compareLtWithNonNumberProducesNull() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState < currentState", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | previousState < currentState", cloudtrail);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void compareLteWithNonNumberProducesNull() {
-    T result = evaluate("Records[1].responseElements.instancesSet.items[0] | previousState <= currentState", cloudtrail);
+    T result = search("Records[1].responseElements.instancesSet.items[0] | previousState <= currentState", cloudtrail);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void negateSomethingTruthyProducesFalse() {
-    T result = evaluate("!'hello'", cloudtrail);
+    T result = search("!'hello'", cloudtrail);
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void negateNullProducesTrue() {
-    T result = evaluate("!Records[3]", cloudtrail);
+    T result = search("!Records[3]", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void negateEmptyStringProducesTrue() {
-    T result = evaluate("!''", cloudtrail);
+    T result = search("!''", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void negateEmptyArrayProducesTrue() {
-    T result = evaluate("Records[?''] | !@", cloudtrail);
+    T result = search("Records[?''] | !@", cloudtrail);
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void createObject() {
-    T result = evaluate("{userNames: Records[*].userIdentity.userName, keyName: Records[2].responseElements.keyName}", cloudtrail);
-    T userNames = adapter().getProperty(result, "userNames");
-    T keyName = adapter().getProperty(result, "keyName");
+    T result = search("{userNames: Records[*].userIdentity.userName, keyName: Records[2].responseElements.keyName}", cloudtrail);
+    T userNames = runtime().getProperty(result, "userNames");
+    T keyName = runtime().getProperty(result, "keyName");
     assertThat(userNames, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(keyName, is(jsonString("mykeypair")));
   }
 
   @Test
   public void createObjectInPipe() {
-    T result = evaluate("Records[*].userIdentity | {userNames: [*].userName, anyUsedMfa: ([?sessionContext.attributes.mfaAuthenticated] | !!@)}", cloudtrail);
-    T userNames = adapter().getProperty(result, "userNames");
-    T anyUsedMfa = adapter().getProperty(result, "anyUsedMfa");
+    T result = search("Records[*].userIdentity | {userNames: [*].userName, anyUsedMfa: ([?sessionContext.attributes.mfaAuthenticated] | !!@)}", cloudtrail);
+    T userNames = runtime().getProperty(result, "userNames");
+    T anyUsedMfa = runtime().getProperty(result, "anyUsedMfa");
     assertThat(userNames, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(anyUsedMfa, is(jsonBoolean(true)));
   }
 
   @Test
   public void createObjectInProjection() {
-    T result = evaluate("Records[*].userIdentity.{userName: userName, usedMfa: sessionContext.attributes.mfaAuthenticated}", cloudtrail);
-    List<T> elements = adapter().toList(result);
-    assertThat(adapter().getProperty(elements.get(0), "usedMfa"), is(jsonNull()));
-    assertThat(adapter().getProperty(elements.get(1), "usedMfa"), is(jsonNull()));
-    assertThat(adapter().getProperty(elements.get(2), "usedMfa"), is(jsonBoolean(true)));
+    T result = search("Records[*].userIdentity.{userName: userName, usedMfa: sessionContext.attributes.mfaAuthenticated}", cloudtrail);
+    List<T> elements = runtime().toList(result);
+    assertThat(runtime().getProperty(elements.get(0), "usedMfa"), is(jsonNull()));
+    assertThat(runtime().getProperty(elements.get(1), "usedMfa"), is(jsonNull()));
+    assertThat(runtime().getProperty(elements.get(2), "usedMfa"), is(jsonBoolean(true)));
   }
 
   @Test
   public void nestedCreateObject() {
-    T result = evaluate("Records[*].userIdentity | {users: {names: [*].userName}}", cloudtrail);
-    T names = adapter().getProperty(adapter().getProperty(result, "users"), "names");
+    T result = search("Records[*].userIdentity | {users: {names: [*].userName}}", cloudtrail);
+    T names = runtime().getProperty(runtime().getProperty(result, "users"), "names");
     assertThat(names, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
   @Test
   public void createObjectOnNullProducesNull() {
-    T result = evaluate("bork.{foo: bar}", cloudtrail);
+    T result = search("bork.{foo: bar}", cloudtrail);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void createArray() {
-    T result = evaluate("[Records[*].userIdentity.userName, Records[2].responseElements.keyName]", cloudtrail);
-    List<T> elements = adapter().toList(result);
+    T result = search("[Records[*].userIdentity.userName, Records[2].responseElements.keyName]", cloudtrail);
+    List<T> elements = runtime().toList(result);
     assertThat(elements.get(0), is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(elements.get(1), is(jsonString("mykeypair")));
   }
 
   @Test
   public void createArrayInPipe() {
-    T result = evaluate("Records[*].userIdentity | [[*].userName, ([?sessionContext.attributes.mfaAuthenticated] | !!@)]", cloudtrail);
-    List<T> elements = adapter().toList(result);
+    T result = search("Records[*].userIdentity | [[*].userName, ([?sessionContext.attributes.mfaAuthenticated] | !!@)]", cloudtrail);
+    List<T> elements = runtime().toList(result);
     assertThat(elements.get(0), is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(elements.get(1), is(jsonBoolean(true)));
   }
 
   @Test
   public void createArrayInProjection() {
-    T result = evaluate("Records[*].userIdentity.[userName, sessionContext.attributes.mfaAuthenticated]", cloudtrail);
-    List<T> elements = adapter().toList(result);
-    assertThat(adapter().toList(elements.get(0)).get(1), is(jsonNull()));
-    assertThat(adapter().toList(elements.get(1)).get(1), is(jsonNull()));
-    assertThat(adapter().toList(elements.get(2)).get(1), is(jsonBoolean(true)));
+    T result = search("Records[*].userIdentity.[userName, sessionContext.attributes.mfaAuthenticated]", cloudtrail);
+    List<T> elements = runtime().toList(result);
+    assertThat(runtime().toList(elements.get(0)).get(1), is(jsonNull()));
+    assertThat(runtime().toList(elements.get(1)).get(1), is(jsonNull()));
+    assertThat(runtime().toList(elements.get(2)).get(1), is(jsonBoolean(true)));
   }
 
   @Test
   public void nestedCreateArray() {
-    T result = evaluate("Records[*].userIdentity | [[*].type, [[*].userName]]", cloudtrail);
-    List<T> elements = adapter().toList(result);
+    T result = search("Records[*].userIdentity | [[*].type, [[*].userName]]", cloudtrail);
+    List<T> elements = runtime().toList(result);
     assertThat(elements.get(0), is(jsonArrayOfStrings("IAMUser", "IAMUser", "IAMUser")));
-    assertThat(adapter().toList(elements.get(1)).get(0), is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
+    assertThat(runtime().toList(elements.get(1)).get(0), is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
   @Test
   public void createArrayOnNullProducesNull() {
-    T result = evaluate("bork.[snork]", cloudtrail);
+    T result = search("bork.[snork]", cloudtrail);
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void jsonLiteralNumber() {
-    T result = evaluate("`42`", adapter().parseString("{}"));
-    assertThat(result, is(adapter().parseString("42")));
+    T result = search("`42`", parse("{}"));
+    assertThat(result, is(parse("42")));
   }
 
   @Test
   public void jsonLiteralString() {
-    T result = evaluate("`\"foo\"`", adapter().parseString("{}"));
+    T result = search("`\"foo\"`", parse("{}"));
     assertThat(result, is(jsonString("foo")));
   }
 
   @Test
   public void jsonLiteralBoolean() {
-    T result = evaluate("`true`", adapter().parseString("{}"));
+    T result = search("`true`", parse("{}"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void jsonLiteralArray() {
-    T result = evaluate("`[42, \"foo\", true]`", adapter().parseString("{}"));
-    assertThat(result, is(adapter().parseString("[42, \"foo\", true]")));
+    T result = search("`[42, \"foo\", true]`", parse("{}"));
+    assertThat(result, is(parse("[42, \"foo\", true]")));
   }
 
   @Test
   public void jsonLiteralObject() {
-    T result = evaluate("`{\"n\": 42, \"s\": \"foo\", \"b\": true}`", adapter().parseString("{}"));
-    assertThat(result, is(adapter().parseString("{\"n\": 42, \"s\": \"foo\", \"b\": true}")));
+    T result = search("`{\"n\": 42, \"s\": \"foo\", \"b\": true}`", parse("{}"));
+    assertThat(result, is(parse("{\"n\": 42, \"s\": \"foo\", \"b\": true}")));
   }
 
   @Test
   public void jsonLiteralInComparison() {
-    T result = evaluate("Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress", cloudtrail);
-    assertThat(result, is(jsonArrayOfStrings("72.21.198.64")));
-  }
-
-  @Test
-  public void comparingJsonLiteralsWithRawContents() {
-    Query query = Query.fromString(null, "Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress");
-    T result = query.evaluate(adapter(), cloudtrail);
+    T result = search("Records[?requestParameters == `{\"keyName\":\"mykeypair\"}`].sourceIPAddress", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("72.21.198.64")));
   }
 
   @Test
   public void numbersAreTruthy() {
-    T result = evaluate("!@", adapter().parseString("1"));
+    T result = search("!@", parse("1"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void stringsAreTruthy() {
-    T result = evaluate("!@", adapter().parseString("\"foo\""));
+    T result = search("!@", parse("\"foo\""));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void nonEmptyArraysAreTruthy() {
-    T result = evaluate("!@", adapter().parseString("[\"foo\"]"));
+    T result = search("!@", parse("[\"foo\"]"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void nonEmptyObjectsAreTruthy() {
-    T result = evaluate("!@", adapter().parseString("{\"foo\":3}"));
+    T result = search("!@", parse("{\"foo\":3}"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void trueIsTruthy() {
-    T result = evaluate("!@", adapter().parseString("true"));
+    T result = search("!@", parse("true"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void falseIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("false"));
+    T result = search("!@", parse("false"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void nullIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("null"));
+    T result = search("!@", parse("null"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void anEmptyStringIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("\"\""));
+    T result = search("!@", parse("\"\""));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void anEmptyArrayIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("[]"));
+    T result = search("!@", parse("[]"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void anEmptyObjectIsNotTruthy() {
-    T result = evaluate("!@", adapter().parseString("{}"));
+    T result = search("!@", parse("{}"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void callFunction() {
-    T result = evaluate("type(@)", adapter().parseString("{}"));
+    T result = search("type(@)", parse("{}"));
     assertThat(result, is(jsonString("object")));
   }
 
   @Test
   public void callFunctionWithExpressionReference() {
-    T result = evaluate("map(&userIdentity.userName, Records)", cloudtrail);
+    T result = search("map(&userIdentity.userName, Records)", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
   @Test
   public void callVariadicFunction() {
-    T result = evaluate("not_null(Records[0].requestParameters.keyName, Records[1].requestParameters.keyName, Records[2].requestParameters.keyName)", cloudtrail);
+    T result = search("not_null(Records[0].requestParameters.keyName, Records[1].requestParameters.keyName, Records[2].requestParameters.keyName)", cloudtrail);
     assertThat(result, is(jsonString("mykeypair")));
   }
 
-  @Test(expected = FunctionCallException.class)
-  public void callNonExistentFunctionThrowsFunctionCallException() {
-    evaluate("bork()", adapter().parseString("{}"));
+  @Test(expected = ParseException.class)
+  public void callNonExistentFunctionThrowsParseException() {
+    search("bork()", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void callFunctionWithTooFewArgumentsThrowsArityException() {
-    evaluate("type()", adapter().parseString("{}"));
+    search("type()", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void callFunctionWithTooManyArgumentsThrowsArityException() {
-    evaluate("type(@, @, @)", adapter().parseString("{}"));
+    search("type(@, @, @)", parse("{}"));
   }
 
   @Test
   public void absReturnsTheAbsoluteValueOfANumber() {
-    T result1 = evaluate("abs(`-1`)", adapter().parseString("{}"));
-    T result2 = evaluate("abs(`1`)", adapter().parseString("{}"));
+    T result1 = search("abs(`-1`)", parse("{}"));
+    T result2 = search("abs(`1`)", parse("{}"));
     assertThat(result1, is(jsonNumber(1)));
     assertThat(result2, is(jsonNumber(1)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void absRequiresANumberArgument() {
-    evaluate("abs('foo')", adapter().parseString("{}"));
+    search("abs('foo')", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void absRequiresExactlyOneArgument() {
-    evaluate("abs(`1`, `2`)", adapter().parseString("{}"));
+    search("abs(`1`, `2`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void absRequiresAValue() {
-    evaluate("abs(&foo)", adapter().parseString("{}"));
+    search("abs(&foo)", parse("{}"));
   }
 
   @Test
   public void avgReturnsTheAverageOfAnArrayOfNumbers() {
-    T result = evaluate("avg(`[0, 1, 2, 3.5, 4]`)", adapter().parseString("{}"));
+    T result = search("avg(`[0, 1, 2, 3.5, 4]`)", parse("{}"));
     assertThat(result, is(jsonNumber(2.1)));
   }
 
   @Test
   public void avgReturnsNullWhenGivenAnEmptyArray() {
-    T result = evaluate("avg(`[]`)", adapter().parseString("{}"));
+    T result = search("avg(`[]`)", parse("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void avgRequiresAnArrayOfNumbers() {
-    evaluate("avg('foo')", adapter().parseString("{}"));
+    search("avg('foo')", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void avgRequiresExactlyOneArgument() {
-    evaluate("avg(`[]`, `[]`)", adapter().parseString("{}"));
+    search("avg(`[]`, `[]`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void avgRequiresAValue() {
-    evaluate("avg(&foo)", adapter().parseString("{}"));
+    search("avg(&foo)", parse("{}"));
   }
 
   @Test
   public void containsReturnsTrueWhenTheNeedleIsFoundInTheHaystack() {
-    T result = evaluate("contains(@, `3`)", adapter().parseString("[1, 2, 3, \"foo\"]"));
+    T result = search("contains(@, `3`)", parse("[1, 2, 3, \"foo\"]"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void containsComparesDeeply() {
-    T result = evaluate("contains(@, `[\"bar\", {\"baz\": 42}]`)", adapter().parseString("[1, 2, 3, \"foo\", [\"bar\", {\"baz\": 42}]]"));
+    T result = search("contains(@, `[\"bar\", {\"baz\": 42}]`)", parse("[1, 2, 3, \"foo\", [\"bar\", {\"baz\": 42}]]"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void containsReturnsFalseWhenTheNeedleIsNotFoundInTheHaystack() {
-    T result = evaluate("contains(@, `4`)", adapter().parseString("[1, 2, 3, \"foo\"]"));
+    T result = search("contains(@, `4`)", parse("[1, 2, 3, \"foo\"]"));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test
   public void containsSearchesInStrings() {
-    T result = evaluate("contains('hello', 'hell')", adapter().parseString("{}"));
+    T result = search("contains('hello', 'hell')", parse("{}"));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test(expected = ArityException.class)
   public void containsRequiresTwoArguments() {
-    evaluate("contains(@)", adapter().parseString("[]"));
+    search("contains(@)", parse("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void containsRequiresAnArrayOrStringAsFirstArgument() {
-    evaluate("contains(@, 'foo')", adapter().parseString("{}"));
+    search("contains(@, 'foo')", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void containsRequiresTwoArguments1() {
-    evaluate("contains('foo')", adapter().parseString("{}"));
+    search("contains('foo')", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void containsRequiresTwoArguments2() {
-    evaluate("contains('foo', 'bar', 'baz')", adapter().parseString("{}"));
+    search("contains('foo', 'bar', 'baz')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void containsRequiresValues1() {
-    evaluate("contains(@, &foo)", adapter().parseString("{}"));
+    search("contains(@, &foo)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void containsRequiresValues2() {
-    evaluate("contains(&foo, 'bar')", adapter().parseString("{}"));
+    search("contains(&foo, 'bar')", parse("{}"));
   }
 
   @Test
   public void ceilReturnsTheNextWholeNumber() {
-    T result1 = evaluate("ceil(`0.9`)", adapter().parseString("{}"));
-    T result2 = evaluate("ceil(`33.3`)", adapter().parseString("{}"));
+    T result1 = search("ceil(`0.9`)", parse("{}"));
+    T result2 = search("ceil(`33.3`)", parse("{}"));
     assertThat(result1, is(jsonNumber(1)));
     assertThat(result2, is(jsonNumber(34)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void ceilRequiresANumberArgument() {
-    evaluate("ceil('foo')", adapter().parseString("{}"));
+    search("ceil('foo')", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void ceilRequiresExactlyOneArgument() {
-    evaluate("ceil(`1`, `2`)", adapter().parseString("{}"));
+    search("ceil(`1`, `2`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void ceilRequiresAValue() {
-    evaluate("ceil(&foo)", adapter().parseString("{}"));
+    search("ceil(&foo)", parse("{}"));
   }
 
   @Test
   public void endsWithReturnsTrueWhenTheFirstArgumentEndsWithTheSecond() {
-    T result = evaluate("ends_with(@, 'rld')", adapter().parseString("\"world\""));
+    T result = search("ends_with(@, 'rld')", parse("\"world\""));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void endsWithReturnsFalseWhenTheFirstArgumentDoesNotEndWithTheSecond() {
-    T result = evaluate("ends_with(@, 'rld')", adapter().parseString("\"hello\""));
+    T result = search("ends_with(@, 'rld')", parse("\"hello\""));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments() {
-    evaluate("ends_with('')", adapter().parseString("{}"));
+    search("ends_with('')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAStringAsFirstArgument() {
-    evaluate("ends_with(@, 'foo')", adapter().parseString("{}"));
+    search("ends_with(@, 'foo')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAStringAsSecondArgument() {
-    evaluate("ends_with('foo', @)", adapter().parseString("{}"));
+    search("ends_with('foo', @)", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments1() {
-    evaluate("ends_with('foo')", adapter().parseString("{}"));
+    search("ends_with('foo')", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void endsWithRequiresTwoArguments2() {
-    evaluate("ends_with('foo', 'bar', @)", adapter().parseString("{}"));
+    search("ends_with('foo', 'bar', @)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAValue1() {
-    evaluate("ends_with(&foo, 'bar')", adapter().parseString("{}"));
+    search("ends_with(&foo, 'bar')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void endsWithRequiresAValue2() {
-    evaluate("ends_with('foo', &bar)", adapter().parseString("{}"));
+    search("ends_with('foo', &bar)", parse("{}"));
   }
 
   @Test
   public void floorReturnsThePreviousWholeNumber() {
-    T result1 = evaluate("floor(`0.9`)", adapter().parseString("{}"));
-    T result2 = evaluate("floor(`33.3`)", adapter().parseString("{}"));
+    T result1 = search("floor(`0.9`)", parse("{}"));
+    T result2 = search("floor(`33.3`)", parse("{}"));
     assertThat(result1, is(jsonNumber(0)));
     assertThat(result2, is(jsonNumber(33)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void floorRequiresANumberArgument() {
-    evaluate("floor('foo')", adapter().parseString("{}"));
+    search("floor('foo')", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void floorRequiresExactlyOneArgument() {
-    evaluate("floor(`1`, `2`)", adapter().parseString("{}"));
+    search("floor(`1`, `2`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void floorRequiresAValue() {
-    evaluate("floor(&foo)", adapter().parseString("{}"));
+    search("floor(&foo)", parse("{}"));
   }
 
   @Test
   public void joinSmashesAnArrayOfStringsTogether() {
-    T result = evaluate("join('|', @)", adapter().parseString("[\"foo\", \"bar\", \"baz\"]"));
+    T result = search("join('|', @)", parse("[\"foo\", \"bar\", \"baz\"]"));
     assertThat(result, is(jsonString("foo|bar|baz")));
   }
 
   @Test
   public void joinHandlesDuplicates() {
-    T string = adapter().createString("foo");
-    T value = adapter().createArray(Arrays.asList(string, string, string));
-    T result = evaluate("join('|', @)", value);
+    T string = runtime().createString("foo");
+    T value = runtime().createArray(Arrays.asList(string, string, string));
+    T result = search("join('|', @)", value);
     assertThat(result, is(jsonString("foo|foo|foo")));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAStringAsFirstArgument() {
-    evaluate("join(`3`, @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
+    search("join(`3`, @)", parse("[\"foo\", 3, \"bar\", \"baz\"]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAStringArrayAsSecondArgument() {
-    evaluate("join('|', @)", adapter().parseString("[\"foo\", 3, \"bar\", \"baz\"]"));
+    search("join('|', @)", parse("[\"foo\", 3, \"bar\", \"baz\"]"));
   }
 
   @Test(expected = ArityException.class)
   public void joinRequiresTwoArguments1() {
-    evaluate("join('|')", adapter().parseString("[]"));
+    search("join('|')", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void joinRequiresTwoArguments2() {
-    evaluate("join('|', @, @)", adapter().parseString("[]"));
+    search("join('|', @, @)", parse("[]"));
   }
 
   @Test
   public void joinWithAnEmptyArrayReturnsAnEmptyString() {
-    T result = evaluate("join('|', @)", adapter().parseString("[]"));
+    T result = search("join('|', @)", parse("[]"));
     assertThat(result, is(jsonString("")));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAValue1() {
-    evaluate("join(&foo, @)", adapter().parseString("{}"));
+    search("join(&foo, @)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void joinRequiresAValue2() {
-    evaluate("join('foo', &bar)", adapter().parseString("{}"));
+    search("join('foo', &bar)", parse("{}"));
   }
 
   @Test
   public void keysReturnsTheNamesOfAnObjectsProperties() {
-    T result = evaluate("keys(@)", adapter().parseString("{\"foo\":3,\"bar\":4}"));
+    T result = search("keys(@)", parse("{\"foo\":3,\"bar\":4}"));
     assertThat(result, is(jsonArrayOfStrings("foo", "bar")));
   }
 
   @Test
   public void keysReturnsAnEmptyArrayWhenGivenAnEmptyObject() {
-    T result = evaluate("keys(@)", adapter().parseString("{}"));
-    assertThat(adapter().toList(result), is(empty()));
+    T result = search("keys(@)", parse("{}"));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void keysRequiresAnObjectAsArgument() {
-    evaluate("keys(@)", adapter().parseString("[3]"));
+    search("keys(@)", parse("[3]"));
   }
 
   @Test(expected = ArityException.class)
   public void keysRequiresASingleArgument() {
-    evaluate("keys(@, @)", adapter().parseString("{}"));
+    search("keys(@, @)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void keysRequiresAValue() {
-    evaluate("keys(&foo)", adapter().parseString("{}"));
+    search("keys(&foo)", parse("{}"));
   }
 
   @Test
   public void lengthReturnsTheLengthOfAString() {
-    T result = evaluate("length(foo)", adapter().parseString("{\"foo\":\"bar\"}"));
+    T result = search("length(foo)", parse("{\"foo\":\"bar\"}"));
     assertThat(result, is(jsonNumber(3)));
   }
 
   @Test
   public void lengthReturnsTheSizeOfAnArray() {
-    T result = evaluate("length(foo)", adapter().parseString("{\"foo\":[0, 1, 2, 3]}"));
+    T result = search("length(foo)", parse("{\"foo\":[0, 1, 2, 3]}"));
     assertThat(result, is(jsonNumber(4)));
   }
 
   @Test
   public void lengthReturnsTheSizeOfAnObject() {
-    T result = evaluate("length(@)", adapter().parseString("{\"foo\":[0, 1, 2, 3]}"));
+    T result = search("length(@)", parse("{\"foo\":[0, 1, 2, 3]}"));
     assertThat(result, is(jsonNumber(1)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void lengthRequiresAStringArrayOrObjectAsArgument() {
-    evaluate("length(@)", adapter().parseString("3"));
+    search("length(@)", parse("3"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void lengthRequiresAValue() {
-    evaluate("length(&foo)", adapter().parseString("{}"));
+    search("length(&foo)", parse("{}"));
   }
 
   @Test
   public void mapTransformsAnArrayIntoAnAnotherArrayByApplyingAnExpressionToEachElement() {
-    T result = evaluate("map(&type, phoneNumbers)", contact);
+    T result = search("map(&type, phoneNumbers)", contact);
     assertThat(result, is(jsonArrayOfStrings("home", "office", "mobile")));
   }
 
   @Test
   public void mapReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
-    T result = evaluate("map(&foo, @)", adapter().parseString("[]"));
-    assertThat(adapter().toList(result), is(empty()));
+    T result = search("map(&foo, @)", parse("[]"));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mapRequiresAnExpressionAsFirstArgument() {
-    evaluate("map(@, @)", adapter().parseString("[]"));
+    search("map(@, @)", parse("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mapRequiresAnArrayAsSecondArgument1() {
-    evaluate("map(&foo, @)", adapter().parseString("{}"));
+    search("map(&foo, @)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mapRequiresAnArrayAsSecondArgument2() {
-    evaluate("map(@, &foo)", adapter().parseString("[]"));
+    search("map(@, &foo)", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void mapRequiresTwoArguments1() {
-    evaluate("map(&foo.bar)", adapter().parseString("[]"));
+    search("map(&foo.bar)", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void mapRequiresTwoArguments2() {
-    evaluate("map(&foo.bar, @, @)", adapter().parseString("[]"));
+    search("map(&foo.bar, @, @)", parse("[]"));
   }
 
   @Test
   public void maxReturnsTheGreatestOfAnArrayOfNumbers() {
-    T result = evaluate("max(`[0, 1, 4, 3.5, 2]`)", adapter().parseString("{}"));
+    T result = search("max(`[0, 1, 4, 3.5, 2]`)", parse("{}"));
     assertThat(result, is(jsonNumber(4)));
   }
 
   @Test
   public void maxReturnsTheGreatestOfAnArrayOfStrings() {
-    T result = evaluate("max(`[\"a\", \"d\", \"b\"]`)", adapter().parseString("{}"));
+    T result = search("max(`[\"a\", \"d\", \"b\"]`)", parse("{}"));
     assertThat(result, is(jsonString("d")));
   }
 
   @Test
   public void maxReturnsNullWhenGivenAnEmptyArray() {
-    T result = evaluate("max(`[]`)", adapter().parseString("{}"));
+    T result = search("max(`[]`)", parse("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxRequiresAnArrayOfNumbersOrStrings() {
-    evaluate("max('foo')", adapter().parseString("{}"));
+    search("max('foo')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxRequiresTheElementsToBeOfTheSameType() {
-    evaluate("max(`[\"foo\", 1]`)", adapter().parseString("{}"));
+    search("max(`[\"foo\", 1]`)", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void maxRequiresExactlyOneArgument() {
-    evaluate("max(`[]`, `[]`)", adapter().parseString("{}"));
+    search("max(`[]`, `[]`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxRequiresAValue() {
-    evaluate("max(&foo)", adapter().parseString("{}"));
+    search("max(&foo)", parse("{}"));
   }
 
   @Test
   public void maxByReturnsTheElementWithTheGreatestValueForAnExpressionThatReturnsStrings() {
-    T result = evaluate("max_by(phoneNumbers, &type)", contact);
-    assertThat(result, is(adapter().parseString("{\"type\": \"office\", \"number\": \"646 555-4567\"}")));
+    T result = search("max_by(phoneNumbers, &type)", contact);
+    assertThat(result, is(parse("{\"type\": \"office\", \"number\": \"646 555-4567\"}")));
   }
 
   @Test
   public void maxByReturnsTheElementWithTheGreatestValueForAnExpressionThatReturnsNumbers() {
-    T result = evaluate("max_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": 6}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("{\"foo\": 6}")));
+    T result = search("max_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": 6}, {\"foo\": 1}]"));
+    assertThat(result, is(parse("{\"foo\": 6}")));
   }
 
   @Test
   public void maxByReturnsWithAnEmptyArrayReturnsNull() {
-    T result = evaluate("max_by(@, &foo)", adapter().parseString("[]"));
+    T result = search("max_by(@, &foo)", parse("[]"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByDoesNotAcceptMixedResults() {
-    evaluate("max_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    search("max_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByDoesNotAcceptNonStringsOrNumbers() {
-    evaluate("max_by(@, &foo)", adapter().parseString("[{\"foo\": []}]"));
+    search("max_by(@, &foo)", parse("[{\"foo\": []}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByRequiresAnArrayAsFirstArgument1() {
-    evaluate("max_by(@, &foo)", adapter().parseString("{}"));
+    search("max_by(@, &foo)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByRequiresAnArrayAsFirstArgument2() {
-    evaluate("max_by(&foo, @)", adapter().parseString("[]"));
+    search("max_by(&foo, @)", parse("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void maxByRequiresAnExpressionAsSecondArgument() {
-    evaluate("max_by(@, @)", adapter().parseString("[]"));
+    search("max_by(@, @)", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void maxByRequiresTwoArguments1() {
-    evaluate("max_by(@)", adapter().parseString("[]"));
+    search("max_by(@)", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void maxByRequiresTwoArguments2() {
-    evaluate("max_by(@, &foo, @)", adapter().parseString("[]"));
+    search("max_by(@, &foo, @)", parse("[]"));
   }
 
   @Test
   public void mergeMergesObjects() {
-    T result = evaluate("merge(foo, bar)", adapter().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
-    assertThat(result, is(adapter().parseString("{\"a\": 1, \"b\": 2}")));
+    T result = search("merge(foo, bar)", parse("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
+    assertThat(result, is(parse("{\"a\": 1, \"b\": 2}")));
   }
 
   @Test
   public void mergeReturnsTheArgumentWhenOnlyGivenOne() {
-    T result = evaluate("merge(foo)", adapter().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
-    assertThat(result, is(adapter().parseString("{\"a\": 1, \"b\": 1}}")));
+    T result = search("merge(foo)", parse("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
+    assertThat(result, is(parse("{\"a\": 1, \"b\": 1}}")));
   }
 
   @Test
   public void mergeDoesNotMutate() {
-    T result = evaluate("merge(foo, bar) && foo", adapter().parseString("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
-    assertThat(result, is(adapter().parseString("{\"a\": 1, \"b\": 1}")));
+    T result = search("merge(foo, bar) && foo", parse("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
+    assertThat(result, is(parse("{\"a\": 1, \"b\": 1}")));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mergeRequiresObjectArguments1() {
-    evaluate("merge('foo', 'bar')", adapter().parseString("{}"));
+    search("merge('foo', 'bar')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mergeRequiresObjectArguments2() {
-    evaluate("merge(`{}`, @)", adapter().parseString("[]"));
+    search("merge(`{}`, @)", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void mergeRequiresAtLeastOneArgument() {
-    evaluate("merge()", adapter().parseString("{}"));
+    search("merge()", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void mergeRequiresAValue() {
-    evaluate("merge(&foo)", adapter().parseString("{}"));
+    search("merge(&foo)", parse("{}"));
   }
 
   @Test
   public void minReturnsTheGreatestOfAnArrayOfNumbers() {
-    T result = evaluate("min(`[0, 1, -4, 3.5, 2]`)", adapter().parseString("{}"));
+    T result = search("min(`[0, 1, -4, 3.5, 2]`)", parse("{}"));
     assertThat(result, is(jsonNumber(-4)));
   }
 
   @Test
   public void minReturnsTheGreatestOfAnArrayOfStrings() {
-    T result = evaluate("min(`[\"foo\", \"bar\"]`)", adapter().parseString("{}"));
+    T result = search("min(`[\"foo\", \"bar\"]`)", parse("{}"));
     assertThat(result, is(jsonString("bar")));
   }
 
   @Test
   public void minReturnsNullWhenGivenAnEmptyArray() {
-    T result = evaluate("min(`[]`)", adapter().parseString("{}"));
+    T result = search("min(`[]`)", parse("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minRequiresAnArrayOfNumbersOrStrings() {
-    evaluate("min('foo')", adapter().parseString("{}"));
+    search("min('foo')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minRequiresTheElementsToBeOfTheSameType() {
-    evaluate("min(`[\"foo\", 1]`)", adapter().parseString("{}"));
+    search("min(`[\"foo\", 1]`)", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void minRequiresExactlyOneArgument() {
-    evaluate("min(`[]`, `[]`)", adapter().parseString("{}"));
+    search("min(`[]`, `[]`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minRequiresAValue() {
-    evaluate("min(&foo)", adapter().parseString("{}"));
+    search("min(&foo)", parse("{}"));
   }
 
   @Test
   public void minByReturnsTheElementWithTheLeastValueForAnExpressionThatReturnsStrings() {
-    T result = evaluate("min_by(phoneNumbers, &type)", contact);
-    assertThat(result, is(adapter().parseString("{\"type\": \"home\",\"number\": \"212 555-1234\"}")));
+    T result = search("min_by(phoneNumbers, &type)", contact);
+    assertThat(result, is(parse("{\"type\": \"home\",\"number\": \"212 555-1234\"}")));
   }
 
   @Test
   public void minByReturnsTheElementWithTheLeastValueForAnExpressionThatReturnsNumbers() {
-    T result = evaluate("min_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("{\"foo\": -6}")));
+    T result = search("min_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
+    assertThat(result, is(parse("{\"foo\": -6}")));
   }
 
   @Test
   public void minByReturnsWithAnEmptyArrayReturnsNull() {
-    T result = evaluate("min_by(@, &foo)", adapter().parseString("[]"));
+    T result = search("min_by(@, &foo)", parse("[]"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByDoesNotAcceptMixedResults() {
-    evaluate("min_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    search("min_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByDoesNotAcceptNonStringsOrNumbers() {
-    evaluate("min_by(@, &foo)", adapter().parseString("[{\"foo\": []}]"));
+    search("min_by(@, &foo)", parse("[{\"foo\": []}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByRequiresAnArrayAsFirstArgument1() {
-    evaluate("min_by(@, &foo)", adapter().parseString("{}"));
+    search("min_by(@, &foo)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByRequiresAnArrayAsFirstArgument2() {
-    evaluate("min_by(&foo, @)", adapter().parseString("[]"));
+    search("min_by(&foo, @)", parse("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void minByRequiresAnExpressionAsSecondArgument() {
-    evaluate("min_by(@, @)", adapter().parseString("[]"));
+    search("min_by(@, @)", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void minByRequiresTwoArguments1() {
-    evaluate("min_by(@)", adapter().parseString("[]"));
+    search("min_by(@)", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void minByRequiresTwoArguments2() {
-    evaluate("min_by(@, &foo, @)", adapter().parseString("[]"));
+    search("min_by(@, &foo, @)", parse("[]"));
   }
 
   @Test
   public void notNullReturnsTheFirstNonNullArgument() {
-    T result = evaluate("not_null(`null`, `null`, `3`, `null`)", adapter().parseString("{}"));
+    T result = search("not_null(`null`, `null`, `3`, `null`)", parse("{}"));
     assertThat(result, is(jsonNumber(3)));
   }
 
   @Test
   public void notNullReturnsNullWhenGivenOnlyNull() {
-    T result = evaluate("not_null(`null`, `null`)", adapter().parseString("{}"));
+    T result = search("not_null(`null`, `null`)", parse("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArityException.class)
   public void notNullRequiresAtLeastOneArgument() {
-    evaluate("not_null()", adapter().parseString("{}"));
+    search("not_null()", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void notNullRequiresAValue() {
-    evaluate("not_null(`null`, &foo)", adapter().parseString("{}"));
+    search("not_null(`null`, &foo)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   @Ignore("Not sure if this should be an error or not")
   public void notNullRequiresAValueForArgumentsThatAreNotInspected() {
-    evaluate("not_null('foo', &foo)", adapter().parseString("{}"));
+    search("not_null('foo', &foo)", parse("{}"));
   }
 
   @Test
   public void reverseReversesAnArray() {
-    T result = evaluate("reverse(@)", adapter().parseString("[\"foo\", 3, 2, 1]"));
-    assertThat(result, is(adapter().parseString("[1, 2, 3, \"foo\"]")));
+    T result = search("reverse(@)", parse("[\"foo\", 3, 2, 1]"));
+    assertThat(result, is(parse("[1, 2, 3, \"foo\"]")));
   }
 
   @Test
   public void reverseReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
-    T result = evaluate("reverse(@)", adapter().parseString("[]"));
-    assertThat(result, is(adapter().parseString("[]")));
+    T result = search("reverse(@)", parse("[]"));
+    assertThat(result, is(parse("[]")));
   }
 
   @Test
   public void reverseReversesAString() {
-    T result = evaluate("reverse('hello world')", adapter().parseString("{}"));
+    T result = search("reverse('hello world')", parse("{}"));
     assertThat(result, is(jsonString("dlrow olleh")));
   }
 
   @Test
   public void reverseReturnsAnEmptyStringWhenGivenAnEmptyString() {
-    T result = evaluate("reverse('')", adapter().parseString("{}"));
+    T result = search("reverse('')", parse("{}"));
     assertThat(result, is(jsonString("")));
   }
 
   @Test(expected = ArityException.class)
   public void reverseRequiresOneArgument1() {
-    evaluate("reverse()", adapter().parseString("[]"));
+    search("reverse()", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void reverseRequiresOneArgument2() {
-    evaluate("reverse(@, @)", adapter().parseString("[]"));
+    search("reverse(@, @)", parse("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void reverseRequiresAnArrayAsArgument() {
-    evaluate("reverse(@)", adapter().parseString("{}"));
+    search("reverse(@)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void reverseRequiresAValue() {
-    evaluate("reverse(&foo)", adapter().parseString("{}"));
+    search("reverse(&foo)", parse("{}"));
   }
 
   @Test
   public void sortsSortsAnArrayOfNumbers() {
-    T result = evaluate("sort(@)", adapter().parseString("[6, 7, 1]"));
-    assertThat(result, is(adapter().parseString("[1, 6, 7]")));
+    T result = search("sort(@)", parse("[6, 7, 1]"));
+    assertThat(result, is(parse("[1, 6, 7]")));
   }
 
   @Test
   public void sortsHandlesDuplicates() {
-    T result = evaluate("sort(@)", adapter().parseString("[6, 6, 7, 1, 1]"));
-    assertThat(result, is(adapter().parseString("[1, 1, 6, 6, 7]")));
+    T result = search("sort(@)", parse("[6, 6, 7, 1, 1]"));
+    assertThat(result, is(parse("[1, 1, 6, 6, 7]")));
   }
 
   @Test
   public void sortsSortsAnArrayOfStrings() {
-    T result = evaluate("sort(@)", adapter().parseString("[\"b\", \"a\", \"x\"]"));
-    assertThat(result, is(adapter().parseString("[\"a\", \"b\", \"x\"]")));
+    T result = search("sort(@)", parse("[\"b\", \"a\", \"x\"]"));
+    assertThat(result, is(parse("[\"a\", \"b\", \"x\"]")));
   }
 
   @Test
   public void sortReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
-    T result = evaluate("sort(@)", adapter().parseString("[]"));
-    assertThat(result, is(adapter().parseString("[]")));
+    T result = search("sort(@)", parse("[]"));
+    assertThat(result, is(parse("[]")));
   }
 
   @Test(expected = ArityException.class)
   public void sortRequiresOneArgument1() {
-    evaluate("sort()", adapter().parseString("[]"));
+    search("sort()", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void sortRequiresOneArgument2() {
-    evaluate("sort(@, @)", adapter().parseString("[]"));
+    search("sort(@, @)", parse("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortRequiresAnArrayAsArgument() {
-    evaluate("sort(@)", adapter().parseString("{}"));
+    search("sort(@)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortDoesNotAcceptMixedInputs() {
-    evaluate("sort(@)", adapter().parseString("[1, \"foo\"]"));
+    search("sort(@)", parse("[1, \"foo\"]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortRequiresAValue() {
-    evaluate("sort(&foo)", adapter().parseString("{}"));
+    search("sort(&foo)", parse("{}"));
   }
 
   @Test
   public void sortBySortsTheInputBasedOnStringsReturnedByAnExpression() {
-    T result = evaluate("sort_by(phoneNumbers, &type)[*].type", contact);
+    T result = search("sort_by(phoneNumbers, &type)[*].type", contact);
     assertThat(result, is(jsonArrayOfStrings("home", "mobile", "office")));
   }
 
   @Test
   public void sortBySortsTheInputBasedOnNumbersReturnedByAnExpression() {
-    T result = evaluate("sort_by(@, &foo)[*].foo", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("[-6, 1, 3]")));
+    T result = search("sort_by(@, &foo)[*].foo", parse("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": 1}]"));
+    assertThat(result, is(parse("[-6, 1, 3]")));
   }
 
   @Test
   public void sortByHandlesDuplicates() {
-    T result = evaluate("sort_by(@, &foo)[*].foo", adapter().parseString("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": -6}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("[-6, -6, 1, 3]")));
+    T result = search("sort_by(@, &foo)[*].foo", parse("[{\"foo\": 3}, {\"foo\": -6}, {\"foo\": -6}, {\"foo\": 1}]"));
+    assertThat(result, is(parse("[-6, -6, 1, 3]")));
   }
 
   @Test
   public void sortBySortsIsStable() {
-    T result = evaluate("sort_by(@, &foo)[*].x", adapter().parseString("[{\"foo\": 3, \"x\": 3}, {\"foo\": 3, \"x\": 1}, {\"foo\": 1}]"));
-    assertThat(result, is(adapter().parseString("[3, 1]")));
+    T result = search("sort_by(@, &foo)[*].x", parse("[{\"foo\": 3, \"x\": 3}, {\"foo\": 3, \"x\": 1}, {\"foo\": 1}]"));
+    assertThat(result, is(parse("[3, 1]")));
   }
 
   @Test
   public void sortByReturnsWithAnEmptyArrayReturnsNull() {
-    T result = evaluate("sort_by(@, &foo)", adapter().parseString("[]"));
-    assertThat(result, is(adapter().parseString("[]")));
+    T result = search("sort_by(@, &foo)", parse("[]"));
+    assertThat(result, is(parse("[]")));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByDoesNotAcceptMixedResults() {
-    evaluate("sort_by(@, &foo)", adapter().parseString("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    search("sort_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByDoesNotAcceptNonStringsOrNumbers() {
-    evaluate("sort_by(@, &foo)", adapter().parseString("[{\"foo\": []}]"));
+    search("sort_by(@, &foo)", parse("[{\"foo\": []}]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByRequiresAnArrayAsFirstArgument1() {
-    evaluate("sort_by(@, &foo)", adapter().parseString("{}"));
+    search("sort_by(@, &foo)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByRequiresAnArrayAsFirstArgument2() {
-    evaluate("sort_by(&foo, @)", adapter().parseString("[]"));
+    search("sort_by(&foo, @)", parse("[]"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sortByRequiresAnExpressionAsSecondArgument() {
-    evaluate("sort_by(@, @)", adapter().parseString("[]"));
+    search("sort_by(@, @)", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void sortByRequiresTwoArguments1() {
-    evaluate("sort_by(@)", adapter().parseString("[]"));
+    search("sort_by(@)", parse("[]"));
   }
 
   @Test(expected = ArityException.class)
   public void sortByRequiresTwoArguments2() {
-    evaluate("sort_by(@, &foo, @)", adapter().parseString("[]"));
+    search("sort_by(@, &foo, @)", parse("[]"));
   }
 
   @Test
   public void startsWithReturnsTrueWhenTheFirstArgumentEndsWithTheSecond() {
-    T result = evaluate("starts_with(@, 'wor')", adapter().parseString("\"world\""));
+    T result = search("starts_with(@, 'wor')", parse("\"world\""));
     assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
   public void startsWithReturnsFalseWhenTheFirstArgumentDoesNotEndWithTheSecond() {
-    T result = evaluate("starts_with(@, 'wor')", adapter().parseString("\"hello\""));
+    T result = search("starts_with(@, 'wor')", parse("\"hello\""));
     assertThat(result, is(jsonBoolean(false)));
   }
 
   @Test(expected = ArityException.class)
   public void startsWithRequiresTwoArguments() {
-    evaluate("starts_with('')", adapter().parseString("{}"));
+    search("starts_with('')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void startsWithRequiresAStringAsFirstArgument() {
-    evaluate("starts_with(@, 'foo')", adapter().parseString("{}"));
+    search("starts_with(@, 'foo')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void startsWithRequiresAStringAsSecondArgument() {
-    evaluate("starts_with('foo', @)", adapter().parseString("{}"));
+    search("starts_with('foo', @)", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void startsWithRequiresTwoArguments1() {
-    evaluate("starts_with('foo')", adapter().parseString("{}"));
+    search("starts_with('foo')", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void startsWithRequiresTwoArguments2() {
-    evaluate("starts_with('foo', 'bar', @)", adapter().parseString("{}"));
+    search("starts_with('foo', 'bar', @)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void startsWithRequiresAValue1() {
-    evaluate("starts_with(&foo, 'bar')", adapter().parseString("{}"));
+    search("starts_with(&foo, 'bar')", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void startsWithRequiresAValue2() {
-    evaluate("starts_with('foo', &bar)", adapter().parseString("{}"));
+    search("starts_with('foo', &bar)", parse("{}"));
   }
 
   @Test
   public void sumReturnsTheAverageOfAnArrayOfNumbers() {
-    T result = evaluate("sum(`[0, 1, 2, 3.5, 4]`)", adapter().parseString("{}"));
+    T result = search("sum(`[0, 1, 2, 3.5, 4]`)", parse("{}"));
     assertThat(result, is(jsonNumber(10.5)));
   }
 
   @Test
   public void sumReturnsZeroWhenGivenAnEmptyArray() {
-    T result = evaluate("sum(`[]`)", adapter().parseString("{}"));
+    T result = search("sum(`[]`)", parse("{}"));
     assertThat(result, is(jsonNumber(0)));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sumRequiresAnArrayOfNumbers() {
-    evaluate("sum('foo')", adapter().parseString("{}"));
+    search("sum('foo')", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void sumRequiresExactlyOneArgument() {
-    evaluate("sum(`[]`, `[]`)", adapter().parseString("{}"));
+    search("sum(`[]`, `[]`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void sumRequiresAValue() {
-    evaluate("sum(&foo)", adapter().parseString("{}"));
+    search("sum(&foo)", parse("{}"));
   }
 
   @Test
   public void toArrayReturnsASingletonArrayWithTheArgument() {
-    T result = evaluate("to_array(`34`)", adapter().parseString("{}"));
-    assertThat(result, is(adapter().parseString("[34]")));
+    T result = search("to_array(`34`)", parse("{}"));
+    assertThat(result, is(parse("[34]")));
   }
 
   @Test
   public void toArrayWithAnArrayReturnsTheArgument() {
-    T result = evaluate("to_array(@)", adapter().parseString("[0, 1, 2, 3.5, 4]"));
-    assertThat(result, is(adapter().parseString("[0, 1, 2, 3.5, 4]")));
+    T result = search("to_array(@)", parse("[0, 1, 2, 3.5, 4]"));
+    assertThat(result, is(parse("[0, 1, 2, 3.5, 4]")));
   }
 
   @Test(expected = ArityException.class)
   public void toArrayRequiresExactlyOneArgument1() {
-    evaluate("to_array()", adapter().parseString("{}"));
+    search("to_array()", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void toArrayRequiresExactlyOneArgument2() {
-    evaluate("to_array(`1`, `2`)", adapter().parseString("{}"));
+    search("to_array(`1`, `2`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void toArrayRequiresAValue() {
-    evaluate("to_array(&foo)", adapter().parseString("{}"));
+    search("to_array(&foo)", parse("{}"));
   }
 
   @Test
   public void toStringReturnsTheJsonEncodingOfTheArgument() {
-    T input = adapter().parseString("{\"foo\": [1, 2, [\"bar\"]]}");
-    T result = evaluate("to_string(@)", input);
-    assertThat(adapter().toString(result), both(containsString("\"foo\"")).and(is(adapter().toString(input))));
+    T input = parse("{\"foo\": [1, 2, [\"bar\"]]}");
+    T result = search("to_string(@)", input);
+    assertThat(runtime().toString(result), both(containsString("\"foo\"")).and(is(runtime().toString(input))));
+  }
+
+  @Test
+  public void toStringReturnsTheJsonEncodingOfNull() {
+    T result = search("to_string(`null`)", parse("{}"));
+    assertThat(runtime().toString(result), is("null"));
   }
 
   @Test
   public void toStringWithAStringReturnsTheArgument() {
-    T result = evaluate("to_string('hello')", adapter().parseString("{}"));
+    T result = search("to_string('hello')", parse("{}"));
     assertThat(result, is(jsonString("hello")));
   }
 
   @Test(expected = ArityException.class)
   public void toStringRequiresExactlyOneArgument1() {
-    evaluate("to_string()", adapter().parseString("{}"));
+    search("to_string()", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void toStringRequiresExactlyOneArgument2() {
-    evaluate("to_string(`1`, `2`)", adapter().parseString("{}"));
+    search("to_string(`1`, `2`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void toStringRequiresAValue() {
-    evaluate("to_string(&foo)", adapter().parseString("{}"));
+    search("to_string(&foo)", parse("{}"));
   }
 
   @Test
   public void toNumberWithANumberReturnsTheArgument() {
-    T result = evaluate("to_number(`3`)", adapter().parseString("{}"));
+    T result = search("to_number(`3`)", parse("{}"));
     assertThat(result, is(jsonNumber(3)));
   }
 
   @Test
   public void toNumberParsesAnIntegerStringToANumber() {
-    T result = evaluate("to_number('33')", adapter().parseString("{}"));
+    T result = search("to_number('33')", parse("{}"));
     assertThat(result, is(jsonNumber(33)));
   }
 
   @Test
   public void toNumberParsesAnFloatStringToANumber() {
-    T result = evaluate("to_number('3.3')", adapter().parseString("{}"));
+    T result = search("to_number('3.3')", parse("{}"));
     assertThat(result, is(jsonNumber(3.3)));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenNonNumberString() {
-    T result = evaluate("to_number('n=3.3')", adapter().parseString("[]"));
+    T result = search("to_number('n=3.3')", parse("[]"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenAnArray() {
-    T result = evaluate("to_number(@)", adapter().parseString("[]"));
+    T result = search("to_number(@)", parse("[]"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenAnObject() {
-    T result = evaluate("to_number(@)", adapter().parseString("{}"));
+    T result = search("to_number(@)", parse("{}"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenABoolean() {
-    T result = evaluate("to_number(@)", adapter().parseString("true"));
+    T result = search("to_number(@)", parse("true"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test
   public void toNumberReturnsNullWhenGivenNull() {
-    T result = evaluate("to_number(@)", adapter().parseString("null"));
+    T result = search("to_number(@)", parse("null"));
     assertThat(result, is(jsonNull()));
   }
 
   @Test(expected = ArityException.class)
   public void toNumberRequiresExactlyOneArgument1() {
-    evaluate("to_number()", adapter().parseString("{}"));
+    search("to_number()", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void toNumberRequiresExactlyOneArgument2() {
-    evaluate("to_number(`1`, `2`)", adapter().parseString("{}"));
+    search("to_number(`1`, `2`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void toNumberRequiresAValue() {
-    evaluate("to_number(&foo)", adapter().parseString("{}"));
+    search("to_number(&foo)", parse("{}"));
   }
 
   @Test
   public void typeReturnsTheTypeOfTheArgument() {
-    assertThat(evaluate("type(@)", adapter().parseString("null")), is(jsonString("null")));
-    assertThat(evaluate("type(@)", adapter().parseString("false")), is(jsonString("boolean")));
-    assertThat(evaluate("type(@)", adapter().parseString("{\"foo\":3}")), is(jsonString("object")));
-    assertThat(evaluate("type(@)", adapter().parseString("[3, 4]")), is(jsonString("array")));
-    assertThat(evaluate("type(@)", adapter().parseString("\"foo\"")), is(jsonString("string")));
-    assertThat(evaluate("type(@)", adapter().parseString("1")), is(jsonString("number")));
+    assertThat(search("type(@)", parse("null")), is(jsonString("null")));
+    assertThat(search("type(@)", parse("false")), is(jsonString("boolean")));
+    assertThat(search("type(@)", parse("{\"foo\":3}")), is(jsonString("object")));
+    assertThat(search("type(@)", parse("[3, 4]")), is(jsonString("array")));
+    assertThat(search("type(@)", parse("\"foo\"")), is(jsonString("string")));
+    assertThat(search("type(@)", parse("1")), is(jsonString("number")));
   }
 
   @Test(expected = ArityException.class)
   public void typeRequiresExactlyOneArgument1() {
-    evaluate("type()", adapter().parseString("{}"));
+    search("type()", parse("{}"));
   }
 
   @Test(expected = ArityException.class)
   public void typeRequiresExactlyOneArgument2() {
-    evaluate("type(`1`, `2`)", adapter().parseString("{}"));
+    search("type(`1`, `2`)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void typeRequiresAValue() {
-    evaluate("type(&foo)", adapter().parseString("{}"));
+    search("type(&foo)", parse("{}"));
   }
 
   @Test
   public void valuesReturnsTheValuesOfAnObjectsProperties() {
-    T result = evaluate("values(@)", adapter().parseString("{\"foo\":\"one\",\"bar\":\"two\"}"));
+    T result = search("values(@)", parse("{\"foo\":\"one\",\"bar\":\"two\"}"));
     assertThat(result, is(jsonArrayOfStrings("one", "two")));
   }
 
   @Test
   public void valuesReturnsAnEmptyArrayWhenGivenAnEmptyObject() {
-    T result = evaluate("values(@)", adapter().parseString("{}"));
-    assertThat(adapter().toList(result), is(empty()));
+    T result = search("values(@)", parse("{}"));
+    assertThat(runtime().toList(result), is(empty()));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void valuesRequiresAnObjectAsArgument() {
-    evaluate("values(@)", adapter().parseString("[3]"));
+    search("values(@)", parse("[3]"));
   }
 
   @Test(expected = ArityException.class)
   public void valuesRequiresASingleArgument() {
-    evaluate("values(@, @)", adapter().parseString("{}"));
+    search("values(@, @)", parse("{}"));
   }
 
   @Test(expected = ArgumentTypeException.class)
   public void valuesRequiresAValue() {
-    evaluate("values(&foo)", adapter().parseString("{}"));
+    search("values(&foo)", parse("{}"));
   }
 }

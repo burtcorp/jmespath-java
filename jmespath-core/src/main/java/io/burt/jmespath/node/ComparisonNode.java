@@ -1,55 +1,56 @@
 package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
 
-public class ComparisonNode extends OperatorNode {
+public class ComparisonNode<T> extends OperatorNode<T> {
   private final String operator;
 
-  public ComparisonNode(String operator, JmesPathNode left, JmesPathNode right) {
-    super(left, right);
+  public ComparisonNode(Adapter<T> runtime, String operator, Expression<T> left, Expression<T> right) {
+    super(runtime, left, right);
     this.operator = operator;
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    T leftResult = operands()[0].evaluate(adapter, currentValue);
-    T rightResult = operands()[1].evaluate(adapter, currentValue);
-    JmesPathType leftType = adapter.typeOf(leftResult);
-    JmesPathType rightType = adapter.typeOf(rightResult);
+  protected T searchOne(T currentValue) {
+    T leftResult = operand(0).search(currentValue);
+    T rightResult = operand(1).search(currentValue);
+    JmesPathType leftType = runtime.typeOf(leftResult);
+    JmesPathType rightType = runtime.typeOf(rightResult);
     if (leftType == JmesPathType.NUMBER && rightType == JmesPathType.NUMBER) {
-      return compareNumbers(adapter, leftResult, rightResult);
+      return compareNumbers(leftResult, rightResult);
     } else {
-      return compareObjects(adapter, leftResult, rightResult);
+      return compareObjects(leftResult, rightResult);
     }
   }
 
-  private <T> T compareObjects(Adapter<T> adapter, T leftResult, T rightResult) {
-    int result = adapter.compare(leftResult, rightResult);
+  private T compareObjects(T leftResult, T rightResult) {
+    int result = runtime.compare(leftResult, rightResult);
     if (operator.equals("==")) {
-      return adapter.createBoolean(result == 0);
+      return runtime.createBoolean(result == 0);
     } else if (operator.equals("!=")) {
-      return adapter.createBoolean(result != 0);
+      return runtime.createBoolean(result != 0);
     }
-    return adapter.createNull();
+    return runtime.createNull();
   }
 
-  private <T> T compareNumbers(Adapter<T> adapter, T leftResult, T rightResult) {
-    int result = adapter.compare(leftResult, rightResult);
+  private T compareNumbers(T leftResult, T rightResult) {
+    int result = runtime.compare(leftResult, rightResult);
     if (operator.equals("==")) {
-      return adapter.createBoolean(result == 0);
+      return runtime.createBoolean(result == 0);
     } else if (operator.equals("!=")) {
-      return adapter.createBoolean(result != 0);
+      return runtime.createBoolean(result != 0);
     } else if (operator.equals(">")) {
-      return adapter.createBoolean(result > 0);
+      return runtime.createBoolean(result > 0);
     } else if (operator.equals(">=")) {
-      return adapter.createBoolean(result >= 0);
+      return runtime.createBoolean(result >= 0);
     } else if (operator.equals("<")) {
-      return adapter.createBoolean(result < 0);
+      return runtime.createBoolean(result < 0);
     } else if (operator.equals("<=")) {
-      return adapter.createBoolean(result <= 0);
+      return runtime.createBoolean(result <= 0);
     }
-    return adapter.createNull();
+    return runtime.createNull();
   }
 
   protected String operator() {
@@ -58,7 +59,7 @@ public class ComparisonNode extends OperatorNode {
 
   @Override
   protected String internalToString() {
-    return String.format("%s, %s, %s", operator, operands()[0], operands()[1]);
+    return String.format("%s, %s, %s", operator, operand(0), operand(1));
   }
 
   @Override

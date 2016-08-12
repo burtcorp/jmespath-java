@@ -1,19 +1,20 @@
 package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 
-public class OrNode extends OperatorNode {
-  public OrNode(JmesPathNode left, JmesPathNode right) {
-    super(left, right);
+public class OrNode<T> extends OperatorNode<T> {
+  public OrNode(Adapter<T> runtime, Expression<T> left, Expression<T> right) {
+    super(runtime, left, right);
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    T leftResult = operands()[0].evaluate(adapter, currentValue);
-    if (adapter.isTruthy(leftResult)) {
+  protected T searchOne(T currentValue) {
+    T leftResult = operand(0).search(currentValue);
+    if (runtime.isTruthy(leftResult)) {
       return leftResult;
     } else {
-      return operands()[1].evaluate(adapter, currentValue);
+      return operand(1).search(currentValue);
     }
   }
 }

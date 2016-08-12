@@ -37,7 +37,7 @@ public final class ArgumentConstraints {
    * the number of arguments does not exactly match the number of constraints.
    * <p>
    * May only be used as a top level constraint – and is already built in to
-   * {@link JmesPathFunction}, so direct usage of this method should not be needed.
+   * {@link Function}, so direct usage of this method should not be needed.
    */
   public static ArgumentConstraint listOf(ArgumentConstraint... constraints) {
     return new HeterogenousListOf(constraints);
@@ -75,8 +75,8 @@ public final class ArgumentConstraints {
   /**
    * Describes a single argument that is of one of the specified value types.
    * An {@link ArgumentTypeException} will be thrown when the argument is not of
-   * one of the specified types (as determined by {@link Adapter#typeOf}) or is
-   * an expression.
+   * one of the specified types (as determined by {@link Adapter#typeOf})
+   * or is an expression.
    */
   public static ArgumentConstraint typeOf(JmesPathType... types) {
     return new TypeOfEither(types);
@@ -132,18 +132,18 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> void check(Adapter<T> adapter, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments) {
       int i = 0;
       for (; i < minArity; i++) {
         if (!arguments.hasNext()) {
           throw new InternalArityException();
         } else {
-          subConstraint.check(adapter, arguments);
+          subConstraint.check(runtime, arguments);
         }
       }
       for (; i < maxArity; i++) {
         if (arguments.hasNext()) {
-          subConstraint.check(adapter, arguments);
+          subConstraint.check(runtime, arguments);
         } else {
           break;
         }
@@ -184,10 +184,10 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> void check(Adapter<T> adapter, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments) {
       for (int i = 0; i < subConstraints.length; i++) {
         if (arguments.hasNext()) {
-          subConstraints[i].check(adapter, arguments);
+          subConstraints[i].check(runtime, arguments);
         } else {
           throw new InternalArityException();
         }
@@ -212,15 +212,15 @@ public final class ArgumentConstraints {
 
   private static abstract class TypeCheck implements ArgumentConstraint {
     @Override
-    public <T> void check(Adapter<T> adapter, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments) {
       if (arguments.hasNext()) {
-        checkType(adapter, arguments.next());
+        checkType(runtime, arguments.next());
       } else {
         throw new InternalArityException();
       }
     }
 
-    protected abstract <T> void checkType(Adapter<T> adapter, ExpressionOrValue<T> argument);
+    protected abstract <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument);
 
     @Override
     public int minArity() {
@@ -235,7 +235,7 @@ public final class ArgumentConstraints {
 
   private static class AnyValue extends TypeCheck {
     @Override
-    protected <T> void checkType(Adapter<T> adapter, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
         throw new InternalArgumentTypeException("any value", "expression");
       }
@@ -255,11 +255,11 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> void checkType(Adapter<T> adapter, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
         throw new InternalArgumentTypeException(expectedType.toString(), "expression");
       } else {
-        JmesPathType actualType = adapter.typeOf(argument.value());
+        JmesPathType actualType = runtime.typeOf(argument.value());
         if (actualType != expectedType) {
           throw new InternalArgumentTypeException(expectedType.toString(), actualType.toString());
         }
@@ -295,11 +295,11 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> void checkType(Adapter<T> adapter, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
         throw new InternalArgumentTypeException(expectedTypeString, "expression");
       } else {
-        JmesPathType actualType = adapter.typeOf(argument.value());
+        JmesPathType actualType = runtime.typeOf(argument.value());
         for (int i = 0; i < expectedTypes.length; i++) {
           if (expectedTypes[i] == actualType) {
             return;
@@ -317,9 +317,9 @@ public final class ArgumentConstraints {
 
   private static class Expression extends TypeCheck {
     @Override
-    protected <T> void checkType(Adapter<T> adapter, ExpressionOrValue<T> argument) {
+    protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (!argument.isExpression()) {
-        throw new InternalArgumentTypeException("expression", adapter.typeOf(argument.value()).toString());
+        throw new InternalArgumentTypeException("expression", runtime.typeOf(argument.value()).toString());
       }
     }
 
@@ -347,16 +347,16 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> void check(Adapter<T> adapter, Iterator<ExpressionOrValue<T>> arguments) {
+    public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments) {
       if (arguments.hasNext()) {
-        ExpressionOrValue<T> argument = arguments.next();
+        FunctionArgument<T> argument = arguments.next();
         if (argument.isExpression()) {
           throw new InternalArgumentTypeException(expectedType(), "expression");
         } else {
           T value = argument.value();
-          JmesPathType type = adapter.typeOf(value);
+          JmesPathType type = runtime.typeOf(value);
           if (type == JmesPathType.ARRAY) {
-            checkElements(adapter, value);
+            checkElements(runtime, value);
           } else {
             throw new InternalArgumentTypeException(expectedType(), type.toString());
           }
@@ -366,22 +366,22 @@ public final class ArgumentConstraints {
       }
     }
 
-    private <T> void checkElements(Adapter<T> adapter, T value) {
-      List<T> elements = adapter.toList(value);
+    private <T> void checkElements(Adapter<T> runtime, T value) {
+      List<T> elements = runtime.toList(value);
       if (!elements.isEmpty()) {
-        List<ExpressionOrValue<T>> wrappedElements = new ArrayList<>(elements.size());
+        List<FunctionArgument<T>> wrappedElements = new ArrayList<>(elements.size());
         Set<JmesPathType> types = new LinkedHashSet<>();
         for (T element : elements) {
-          wrappedElements.add(new ExpressionOrValue<T>(element));
-          types.add(adapter.typeOf(element));
+          wrappedElements.add(FunctionArgument.of(element));
+          types.add(runtime.typeOf(element));
         }
         if (types.size() > 1) {
           handleMixedError(types);
         }
-        Iterator<ExpressionOrValue<T>> wrappedElementsIterator = wrappedElements.iterator();
+        Iterator<FunctionArgument<T>> wrappedElementsIterator = wrappedElements.iterator();
         while (wrappedElementsIterator.hasNext()) {
           try {
-            subConstraint.check(adapter, wrappedElementsIterator);
+            subConstraint.check(runtime, wrappedElementsIterator);
           } catch (InternalArgumentTypeException iate) {
             throw new InternalArgumentTypeException(expectedType(), String.format("array containing %s", iate.actualType()));
           }

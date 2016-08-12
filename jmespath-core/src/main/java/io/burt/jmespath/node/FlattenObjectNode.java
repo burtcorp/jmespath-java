@@ -3,17 +3,17 @@ package io.burt.jmespath.node;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class FlattenObjectNode extends JmesPathNode {
-  public FlattenObjectNode(JmesPathNode source) {
-    super(source);
+public class FlattenObjectNode<T> extends Node<T> {
+  public FlattenObjectNode(Adapter<T> runtime, Node<T> source) {
+    super(runtime, source);
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    if (adapter.typeOf(currentValue) == JmesPathType.OBJECT) {
-      return adapter.createArray(adapter.toList(currentValue));
+  protected T searchOne(T currentValue) {
+    if (runtime.typeOf(currentValue) == JmesPathType.OBJECT) {
+      return runtime.createArray(runtime.toList(currentValue));
     } else {
-      return adapter.createNull();
+      return runtime.createNull();
     }
   }
 

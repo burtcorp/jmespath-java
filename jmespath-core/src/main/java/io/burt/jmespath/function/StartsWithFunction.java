@@ -5,7 +5,7 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class StartsWithFunction extends JmesPathFunction {
+public class StartsWithFunction extends BaseFunction {
   public StartsWithFunction() {
     super(
       ArgumentConstraints.typeOf(JmesPathType.STRING),
@@ -14,9 +14,9 @@ public class StartsWithFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T subject = arguments.get(0).value();
     T prefix = arguments.get(1).value();
-    return adapter.createBoolean(adapter.toString(subject).startsWith(adapter.toString(prefix)));
+    return runtime.createBoolean(runtime.toString(subject).startsWith(runtime.toString(prefix)));
   }
 }

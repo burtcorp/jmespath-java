@@ -1,21 +1,22 @@
 package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 
-public class ExpressionReferenceNode extends JmesPathNode {
-  private final JmesPathNode expression;
+public class ExpressionReferenceNode<T> extends Node<T> {
+  private final Expression<T> expression;
 
-  public ExpressionReferenceNode(JmesPathNode expression) {
-    super(new CurrentNode());
+  public ExpressionReferenceNode(Adapter<T> runtime, Expression<T> expression) {
+    super(runtime, new CurrentNode<T>(runtime));
     this.expression = expression;
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    return expression().evaluate(adapter, currentValue);
+  protected T searchOne(T currentValue) {
+    return expression().search(currentValue);
   }
 
-  protected JmesPathNode expression() {
+  protected Expression<T> expression() {
     return expression;
   }
 

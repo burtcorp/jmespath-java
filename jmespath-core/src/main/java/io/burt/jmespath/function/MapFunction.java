@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.node.JmesPathNode;
 
-public class MapFunction extends JmesPathFunction {
+public class MapFunction extends BaseFunction {
   public MapFunction() {
     super(
       ArgumentConstraints.expression(),
@@ -16,14 +16,14 @@ public class MapFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
-    JmesPathNode expression = arguments.get(0).expression();
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
+    Expression<T> expression = arguments.get(0).expression();
     T array = arguments.get(1).value();
-    List<T> elements = adapter.toList(array);
+    List<T> elements = runtime.toList(array);
     List<T> result = new ArrayList<>(elements.size());
     for (T element : elements) {
-      result.add(expression.evaluate(adapter, element));
+      result.add(expression.search(element));
     }
-    return adapter.createArray(result);
+    return runtime.createArray(result);
   }
 }

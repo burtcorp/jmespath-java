@@ -5,18 +5,18 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class IndexNode extends JmesPathNode {
+public class IndexNode<T> extends Node<T> {
   private final int index;
 
-  public IndexNode(int index, JmesPathNode source) {
-    super(source);
+  public IndexNode(Adapter<T> runtime, int index, Node<T> source) {
+    super(runtime, source);
     this.index = index;
   }
 
   @Override
-  protected <T> T evaluateOne(Adapter<T> adapter, T currentValue) {
-    if (adapter.typeOf(currentValue) == JmesPathType.ARRAY) {
-      List<T> elements = adapter.toList(currentValue);
+  protected T searchOne(T currentValue) {
+    if (runtime.typeOf(currentValue) == JmesPathType.ARRAY) {
+      List<T> elements = runtime.toList(currentValue);
       int i = index();
       if (i < 0) {
         i = elements.size() + i;
@@ -25,7 +25,7 @@ public class IndexNode extends JmesPathNode {
         return elements.get(i);
       }
     }
-    return adapter.createNull();
+    return runtime.createNull();
   }
 
   protected int index() {

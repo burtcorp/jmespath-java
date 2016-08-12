@@ -2,13 +2,13 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class CurrentNode extends JmesPathNode {
-  public CurrentNode() {
-    super(null);
+public class CurrentNode<T> extends Node<T> {
+  public CurrentNode(Adapter<T> runtime) {
+    super(runtime, null);
   }
 
-  public CurrentNode(JmesPathNode source) {
-    super(source);
+  public CurrentNode(Adapter<T> runtime, Node<T> source) {
+    super(runtime, source);
   }
 
   @Override
@@ -17,8 +17,8 @@ public class CurrentNode extends JmesPathNode {
   }
 
   @Override
-  public <T> T evaluate(Adapter<T> adapter, T input) {
-    return source() == null ? input : super.evaluate(adapter, input);
+  public T search(T input) {
+    return source() == null ? input : super.search(input);
   }
 
   @Override

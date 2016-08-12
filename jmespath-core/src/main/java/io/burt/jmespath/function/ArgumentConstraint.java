@@ -18,7 +18,7 @@ public interface ArgumentConstraint {
    * @throws ArityException when there are not enough arguments left to satisfy the constraint
    * @throws ArgumentTypeException when an argument does not satisfy the constraint
    */
-  public <T> void check(Adapter<T> adapter, Iterator<ExpressionOrValue<T>> arguments);
+  public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments);
 
   /**
    * @return the minimum number of arguments required.

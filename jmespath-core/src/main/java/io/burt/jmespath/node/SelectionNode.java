@@ -4,33 +4,34 @@ import java.util.List;
 import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
 
-public class SelectionNode extends JmesPathNode {
-  private final JmesPathNode test;
+public class SelectionNode<T> extends Node<T> {
+  private final Expression<T> test;
 
-  public SelectionNode(JmesPathNode test, JmesPathNode source) {
-    super(source);
+  public SelectionNode(Adapter<T> runtime, Expression<T> test, Node<T> source) {
+    super(runtime, source);
     this.test = test;
   }
 
   @Override
-  public <T> T evaluateOne(Adapter<T> adapter, T projectionElement) {
-    if (adapter.typeOf(projectionElement) == JmesPathType.ARRAY) {
+  public T searchOne(T projectionElement) {
+    if (runtime.typeOf(projectionElement) == JmesPathType.ARRAY) {
       List<T> selectedElements = new LinkedList<>();
-      for (T element : adapter.toList(projectionElement)) {
-        T testResult = test().evaluate(adapter, element);
-        if (adapter.isTruthy(testResult)) {
+      for (T element : runtime.toList(projectionElement)) {
+        T testResult = test().search(element);
+        if (runtime.isTruthy(testResult)) {
           selectedElements.add(element);
         }
       }
-      return adapter.createArray(selectedElements);
+      return runtime.createArray(selectedElements);
     } else {
-      return adapter.createNull();
+      return runtime.createNull();
     }
   }
 
-  protected JmesPathNode test() {
+  protected Expression<T> test() {
     return test;
   }
 

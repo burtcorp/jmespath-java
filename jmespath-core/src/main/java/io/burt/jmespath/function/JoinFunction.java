@@ -6,7 +6,7 @@ import java.util.Iterator;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class JoinFunction extends JmesPathFunction {
+public class JoinFunction extends BaseFunction {
   public JoinFunction() {
     super(
       ArgumentConstraints.typeOf(JmesPathType.STRING),
@@ -15,21 +15,21 @@ public class JoinFunction extends JmesPathFunction {
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T glue = arguments.get(0).value();
     T components = arguments.get(1).value();
-    Iterator<T> values = adapter.toList(components).iterator();
+    Iterator<T> values = runtime.toList(components).iterator();
     if (values.hasNext()) {
       StringBuilder buffer = new StringBuilder();
-      String glueString = adapter.toString(glue);
-      buffer.append(adapter.toString(values.next()));
+      String glueString = runtime.toString(glue);
+      buffer.append(runtime.toString(values.next()));
       while (values.hasNext()) {
         buffer.append(glueString);
-        buffer.append(adapter.toString(values.next()));
+        buffer.append(runtime.toString(values.next()));
       }
-      return adapter.createString(buffer.toString());
+      return runtime.createString(buffer.toString());
     } else {
-      return adapter.createString("");
+      return runtime.createString("");
     }
   }
 }

@@ -7,21 +7,21 @@ import java.util.ArrayList;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ReverseFunction extends JmesPathFunction {
+public class ReverseFunction extends BaseFunction {
   public ReverseFunction() {
     super(ArgumentConstraints.typeOf(JmesPathType.ARRAY, JmesPathType.STRING));
   }
 
   @Override
-  protected <T> T callFunction(Adapter<T> adapter, List<ExpressionOrValue<T>> arguments) {
+  protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T subject = arguments.get(0).value();
-    JmesPathType subjectType = adapter.typeOf(subject);
+    JmesPathType subjectType = runtime.typeOf(subject);
     if (subjectType == JmesPathType.ARRAY) {
-      List<T> elements = new ArrayList<T>(adapter.toList(subject));
+      List<T> elements = new ArrayList<T>(runtime.toList(subject));
       Collections.reverse(elements);
-      return adapter.createArray(elements);
+      return runtime.createArray(elements);
     } else {
-      return adapter.createString(new StringBuilder(adapter.toString(subject)).reverse().toString());
+      return runtime.createString(new StringBuilder(runtime.toString(subject)).reverse().toString());
     }
   }
 }
