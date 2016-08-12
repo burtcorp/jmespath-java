@@ -15,6 +15,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.util.StringEscapes;
 import io.burt.jmespath.function.Function;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
@@ -38,6 +39,11 @@ import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
 public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
+  private static final char[] RAW_STRING_REPLACEMENTS = StringEscapes.createReplacements(
+    '\'', '\'',
+    '\\', '\\'
+  );
+
   private final ParseTree tree;
   private final Deque<Node<T>> currentSource;
   private final Adapter<T> runtime;
@@ -98,24 +104,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   }
 
   private String unescapeRawString(String str) {
-    int slashIndex = str.indexOf('\\');
-    if (slashIndex > -1) {
-      int offset = 0;
-      StringBuilder unescaped = new StringBuilder();
-      while (slashIndex > -1) {
-        char c = str.charAt(slashIndex + 1);
-        if (c == '\'' || c == '\\') {
-          unescaped.append(str.substring(offset, slashIndex));
-          unescaped.append(c);
-          offset = slashIndex + 2;
-        }
-        slashIndex = str.indexOf('\\', slashIndex + 2);
-      }
-      unescaped.append(str.substring(offset, str.length()));
-      return unescaped.toString();
-    } else {
-      return str;
-    }
+    return StringEscapes.unescape(RAW_STRING_REPLACEMENTS, str, false);
   }
 
   private void checkForUnescapedBackticks(Token token) {
