@@ -24,7 +24,6 @@ import io.burt.jmespath.node.IndexNode;
 import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.JoinNode;
 import io.burt.jmespath.node.JsonLiteralNode;
-import io.burt.jmespath.node.ParsedJsonLiteralNode;
 import io.burt.jmespath.node.NegateNode;
 import io.burt.jmespath.node.OrNode;
 import io.burt.jmespath.node.PropertyNode;
@@ -45,7 +44,7 @@ public class ParserTest {
   }
 
   private JsonLiteralNode<Object> createJsonLiteralNode(String json) {
-    return new ParsedJsonLiteralNode<Object>(runtime, json, runtime.parseString(json));
+    return new JsonLiteralNode<Object>(runtime, json, runtime.parseString(json));
   }
 
   @SafeVarargs

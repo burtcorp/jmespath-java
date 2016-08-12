@@ -30,7 +30,6 @@ import io.burt.jmespath.node.IndexNode;
 import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.JoinNode;
 import io.burt.jmespath.node.JsonLiteralNode;
-import io.burt.jmespath.node.ParsedJsonLiteralNode;
 import io.burt.jmespath.node.NegateNode;
 import io.burt.jmespath.node.OrNode;
 import io.burt.jmespath.node.PropertyNode;
@@ -294,7 +293,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   @Override
   public Node<T> visitLiteral(JmesPathParser.LiteralContext ctx) {
     String string = ctx.jsonValue().getText();
-    return new ParsedJsonLiteralNode<T>(runtime, string, runtime.parseString(string));
+    return new JsonLiteralNode<T>(runtime, string, runtime.parseString(string));
   }
 
   @Override
