@@ -121,19 +121,24 @@ public abstract class JmesPathComplianceTest<T> {
     List<ComplianceTest<T>> tests = new LinkedList<>();
     T featureDescription = loadFeatureDescription(featureName);
     for (T suiteDescription : runtime().toList(featureDescription)) {
-      String suiteComment = runtime().toString(runtime().getProperty(suiteDescription, "comment"));
+      String suiteComment = valueAsStringOrNull(suiteDescription, "comment");
       T input = runtime().getProperty(suiteDescription, "given");
       T caseDescriptions = runtime().getProperty(suiteDescription, "cases");
       for (T caseDescription : runtime().toList(caseDescriptions)) {
-        String testComment = runtime().toString(runtime().getProperty(caseDescription, "comment"));
-        String expression = runtime().toString(runtime().getProperty(caseDescription, "expression"));
+        String testComment = valueAsStringOrNull(caseDescription, "comment");
+        String expression = valueAsStringOrNull(caseDescription, "expression");
         T expectedResult = runtime().getProperty(caseDescription, "result");
-        String expectedError = runtime().toString(runtime().getProperty(caseDescription, "error"));
-        String benchmark = runtime().toString(runtime().getProperty(caseDescription, "benchmark"));
+        String expectedError = valueAsStringOrNull(caseDescription, "error");
+        String benchmark = valueAsStringOrNull(caseDescription, "benchmark");
         tests.add(new ComplianceTest<T>(runtime(), featureName, expression, input, expectedResult, expectedError, suiteComment, testComment, benchmark));
       }
     }
     return tests;
+  }
+
+  private String valueAsStringOrNull(T object, String key) {
+    T value = runtime().getProperty(object, key);
+    return value == null ? null : runtime().toString(value);
   }
 
   public Collection<ComplianceTest<T>> getAllTests() {
