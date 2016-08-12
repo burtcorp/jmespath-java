@@ -933,10 +933,13 @@ public class ParserTest {
   }
 
   @Test
-  @Ignore("Known issue")
   public void jsonBuiltinsAsNames() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "false", currentNode);
-    Expression<Object> actual = compile("false");
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "true",
+      new PropertyNode<Object>(runtime, "null",
+        new PropertyNode<Object>(runtime, "false", currentNode)
+      )
+    );
+    Expression<Object> actual = compile("false.null.true");
     assertThat(actual, is(expected));
   }
 

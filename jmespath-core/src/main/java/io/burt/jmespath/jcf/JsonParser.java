@@ -123,12 +123,11 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonConstantValue(JmesPathParser.JsonConstantValueContext ctx) {
-    if (ctx.t != null) {
-      return runtime.createBoolean(true);
-    } else if (ctx.f != null) {
-      return runtime.createBoolean(false);
-    } else {
-      return runtime.createNull();
+    switch (ctx.getText().charAt(0)) {
+      case 't': return runtime.createBoolean(true);
+      case 'f': return runtime.createBoolean(false);
+      case 'n': return runtime.createNull();
+      default: throw new IllegalStateException(String.format("Expected true, false or null but encountered %s", ctx.getText()));
     }
   }
 }

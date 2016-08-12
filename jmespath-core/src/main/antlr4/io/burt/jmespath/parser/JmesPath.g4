@@ -80,6 +80,13 @@ literal : '`' jsonValue '`' ;
 identifier
   : NAME
   | STRING
+  | JSON_CONSTANT
+  ;
+
+JSON_CONSTANT
+  : 'true'
+  | 'false'
+  | 'null'
   ;
 
 NAME : [a-zA-Z_] [a-zA-Z0-9_]* ;
@@ -103,7 +110,7 @@ jsonValue
   | (REAL_OR_EXPONENT_NUMBER | SIGNED_INT) # jsonNumberValue
   | jsonObject # jsonObjectValue
   | jsonArray # jsonArrayValue
-  | (t='true' | f='false' | n='null') # jsonConstantValue
+  | JSON_CONSTANT # jsonConstantValue
   ;
 
 STRING
