@@ -111,7 +111,7 @@ STRING
   ;
 
 fragment ESC
-  : '\\' (["\\/bfnrt] | UNICODE)
+  : '\\' (["\\/bfnrt`] | UNICODE)
   ;
 
 fragment UNICODE

@@ -76,6 +76,10 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
         String replacement = null;
         char escapeChar = builder.charAt(slashIndex + 1);
         switch (escapeChar) {
+          case '`':
+            length = 2;
+            replacement = "`";
+            break;
           case '"':
             length = 2;
             replacement = "\"";

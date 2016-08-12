@@ -888,7 +888,6 @@ public class ParserTest {
   }
 
   @Test
-  @Ignore
   public void escapedBacktickInJsonString() {
     Expression<Object> expected = createJsonLiteralNode("\"fo`o\"");
     Expression<Object> actual = compile("`\"fo\\`o\"`");
@@ -896,19 +895,18 @@ public class ParserTest {
   }
 
   @Test
-  @Ignore
   public void unEscapedBacktickInJsonString() {
     try {
       compile("`\"fo`o\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
-      assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 5"));
+      assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 4"));
     }
     try {
       compile("`\"`foo\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
-      assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 3"));
+      assertThat(pe.getMessage(), is("Error while parsing \"`\"`foo\"`\": unexpected ` at position 2"));
     }
   }
 

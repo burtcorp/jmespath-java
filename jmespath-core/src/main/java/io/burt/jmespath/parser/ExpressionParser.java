@@ -118,6 +118,24 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     }
   }
 
+  private void checkForUnescapedBackticks(Token token) {
+    int unescapedBacktickIndex = indexOfUnescapedBacktick(token.getText());
+    if (unescapedBacktickIndex > -1) {
+      errors.parseError("unexpected `", token.getLine(), token.getStartIndex() + unescapedBacktickIndex);
+    }
+  }
+
+  private int indexOfUnescapedBacktick(String str) {
+    int backtickIndex = str.indexOf('`');
+    while (backtickIndex > -1) {
+      if (backtickIndex == 0 || str.charAt(backtickIndex - 1) != '\\') {
+        return backtickIndex;
+      }
+      backtickIndex = str.indexOf('`', backtickIndex + 1);
+    }
+    return -1;
+  }
+
   @Override
   public Node<T> visitJmesPathExpression(JmesPathParser.JmesPathExpressionContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
@@ -313,8 +331,21 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitLiteral(JmesPathParser.LiteralContext ctx) {
+    visit(ctx.jsonValue());
     String string = ctx.jsonValue().getText();
     return new JsonLiteralNode<T>(runtime, string, runtime.parseString(string));
+  }
+
+  @Override
+  public Node<T> visitJsonStringValue(JmesPathParser.JsonStringValueContext ctx) {
+    checkForUnescapedBackticks(ctx.getStart());
+    return super.visitJsonStringValue(ctx);
+  }
+
+  @Override
+  public Node<T> visitJsonObjectPair(JmesPathParser.JsonObjectPairContext ctx) {
+    checkForUnescapedBackticks(ctx.STRING().getSymbol());
+    return super.visitJsonObjectPair(ctx);
   }
 
   @Override
