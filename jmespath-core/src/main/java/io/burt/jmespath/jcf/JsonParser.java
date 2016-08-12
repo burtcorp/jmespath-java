@@ -1,5 +1,6 @@
 package io.burt.jmespath.jcf;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedHashMap;
@@ -12,6 +13,7 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.util.StringEscapes;
 import io.burt.jmespath.parser.ParseErrorAccumulator;
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.parser.JmesPathBaseVisitor;
@@ -19,6 +21,18 @@ import io.burt.jmespath.parser.JmesPathParser;
 import io.burt.jmespath.parser.JmesPathLexer;
 
 public class JsonParser extends JmesPathBaseVisitor<Object> {
+  private static final char[] JSON_REPLACEMENTS = StringEscapes.createReplacements(
+    '"', '"',
+    '/', '/',
+    '\\', '\\',
+    '`', '`',
+    'b', '\b',
+    'f', '\f',
+    'n', '\n',
+    'r', '\r',
+    't', '\t'
+  );
+
   private final ParseTree tree;
   private final Adapter<Object> runtime;
 
@@ -67,67 +81,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
   }
 
   private String unescape(String str) {
-    int slashIndex = str.indexOf("\\");
-    if (slashIndex > -1) {
-      int offset = 0;
-      StringBuilder builder = new StringBuilder(str);
-      while (slashIndex > -1) {
-        int length = -1;
-        String replacement = null;
-        char escapeChar = builder.charAt(slashIndex + 1);
-        switch (escapeChar) {
-          case '`':
-            length = 2;
-            replacement = "`";
-            break;
-          case '"':
-            length = 2;
-            replacement = "\"";
-            break;
-          case '/':
-            length = 2;
-            replacement = "/";
-            break;
-          case '\\':
-            length = 2;
-            replacement = "\\";
-            break;
-          case 'b':
-            length = 2;
-            replacement = "\b";
-            break;
-          case 'f':
-            length = 2;
-            replacement = "\f";
-            break;
-          case 'n':
-            length = 2;
-            replacement = "\n";
-            break;
-          case 'r':
-            length = 2;
-            replacement = "\r";
-            break;
-          case 't':
-            length = 2;
-            replacement = "\t";
-            break;
-          case 'u':
-            String hexCode = builder.substring(slashIndex + 2, slashIndex + 6);
-            length = 6;
-            replacement = new String(Character.toChars(Integer.parseInt(hexCode, 16)));
-            break;
-          default:
-            throw new IllegalStateException(String.format("Bad escape encountered \"\\%s\" (in \"%s\")", escapeChar, tree.getText()));
-        }
-        builder.replace(slashIndex, slashIndex + length, replacement);
-        offset = slashIndex + 1;
-        slashIndex = builder.indexOf("\\", offset);
-      }
-      return builder.toString();
-    } else {
-      return str;
-    }
+    return StringEscapes.unescape(JSON_REPLACEMENTS, str, true);
   }
 
   @Override
