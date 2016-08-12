@@ -66,6 +66,13 @@ public class ParserTest {
     assertThat(actual, is(expected));
   }
 
+  @Test()
+  public void quotedIdentifierExpressionsAreUnescapedLikeJsonStrings() {
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "\\foo bar\n", currentNode);
+    Expression<Object> actual = compile("\"\\\\foo\\u0020bar\\n\"");
+    assertThat(actual, is(expected));
+  }
+
   @Test
   public void chainExpression() {
     Expression<Object> expected = new PropertyNode<Object>(runtime, "bar",

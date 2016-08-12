@@ -39,6 +39,17 @@ import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
 public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
+  private static final char[] IDENTIFIER_REPLACEMENTS = StringEscapes.createReplacements(
+    '"', '"',
+    '/', '/',
+    '\\', '\\',
+    'b', '\b',
+    'f', '\f',
+    'n', '\n',
+    'r', '\r',
+    't', '\t'
+  );
+
   private static final char[] RAW_STRING_REPLACEMENTS = StringEscapes.createReplacements(
     '\'', '\'',
     '\\', '\\'
@@ -98,9 +109,13 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private String identifierToString(JmesPathParser.IdentifierContext ctx) {
     String id = ctx.getText();
     if (ctx.STRING() != null) {
-      id = id.substring(1, id.length() - 1);
+      id = unescapeIdentifier(id.substring(1, id.length() - 1));
     }
     return id;
+  }
+
+  private String unescapeIdentifier(String str) {
+    return StringEscapes.unescape(IDENTIFIER_REPLACEMENTS, str, true);
   }
 
   private String unescapeRawString(String str) {
