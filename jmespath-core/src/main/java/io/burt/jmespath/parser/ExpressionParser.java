@@ -97,6 +97,27 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     return id;
   }
 
+  private String unescapeRawString(String str) {
+    int slashIndex = str.indexOf('\\');
+    if (slashIndex > -1) {
+      int offset = 0;
+      StringBuilder unescaped = new StringBuilder();
+      while (slashIndex > -1) {
+        char c = str.charAt(slashIndex + 1);
+        if (c == '\'' || c == '\\') {
+          unescaped.append(str.substring(offset, slashIndex));
+          unescaped.append(c);
+          offset = slashIndex + 2;
+        }
+        slashIndex = str.indexOf('\\', slashIndex + 2);
+      }
+      unescaped.append(str.substring(offset, str.length()));
+      return unescaped.toString();
+    } else {
+      return str;
+    }
+  }
+
   @Override
   public Node<T> visitJmesPathExpression(JmesPathParser.JmesPathExpressionContext ctx) {
     currentSource.push(new CurrentNode<T>(runtime));
@@ -126,7 +147,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   @Override
   public Node<T> visitRawStringExpression(JmesPathParser.RawStringExpressionContext ctx) {
     String quotedString = ctx.RAW_STRING().getText();
-    String unquotedString = quotedString.substring(1, quotedString.length() - 1);
+    String unquotedString = unescapeRawString(quotedString.substring(1, quotedString.length() - 1));
     return new StringNode<T>(runtime, unquotedString);
   }
 

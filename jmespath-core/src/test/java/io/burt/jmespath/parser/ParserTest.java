@@ -934,4 +934,25 @@ public class ParserTest {
     Expression<Object> actual = compile("false");
     assertThat(actual, is(expected));
   }
+
+  @Test
+  public void escapesInRawStringsArePreserved() {
+    Expression<Object> expected = new StringNode<Object>(runtime, "\\u03a6hello\\nworld\\t");
+    Expression<Object> actual = compile("'\\u03a6hello\\nworld\\t'");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void singleQuotesNeedsToBeEscapedInRawStrings() {
+    Expression<Object> expected = new StringNode<Object>(runtime, "'");
+    Expression<Object> actual = compile("'\\''");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void backslashesMustBeEscapedInRawStrings() {
+    Expression<Object> expected = new StringNode<Object>(runtime, "\\");
+    Expression<Object> actual = compile("'\\\\'");
+    assertThat(actual, is(expected));
+  }
 }
