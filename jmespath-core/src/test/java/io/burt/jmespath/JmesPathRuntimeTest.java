@@ -1168,6 +1168,24 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(runtime().toList(result), is(empty()));
   }
 
+  @Test
+  public void mapAcceptsAnArrayOfObjects() {
+    T result = search("map(&a, @)", parse("[{\"a\":1},{\"a\":2}]"));
+    assertThat(result, is(parse("[1,2]")));
+  }
+
+  @Test
+  public void mapAcceptsAnArrayOfArrays() {
+    T result = search("map(&[], @)", parse("[[1, 2, 3, [4]], [5, 6, 7, [8, 9]]]"));
+    assertThat(result, is(parse("[[1, 2, 3, 4], [5, 6, 7, 8, 9]]")));
+  }
+
+  @Test
+  public void mapAcceptsAnArrayOfNumbers() {
+    T result = search("map(&to_string(@), @)", parse("[1, -2, 3]"));
+    assertThat(result, is(parse("[\"1\", \"-2\", \"3\"]")));
+  }
+
   @Test(expected = ArgumentTypeException.class)
   public void mapRequiresAnExpressionAsFirstArgument() {
     search("map(@, @)", parse("[]"));

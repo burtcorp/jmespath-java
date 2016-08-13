@@ -11,7 +11,7 @@ public class MapFunction extends BaseFunction {
   public MapFunction() {
     super(
       ArgumentConstraints.expression(),
-      ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.OBJECT))
+      ArgumentConstraints.arrayOf(ArgumentConstraints.anyValue())
     );
   }
 
