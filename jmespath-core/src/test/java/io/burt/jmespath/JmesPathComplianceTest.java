@@ -51,7 +51,19 @@ public abstract class JmesPathComplianceTest<T> {
     }
 
     public String name() {
-      return String.format("%s<\"%s\">", featureName, expression);
+      StringBuilder name = new StringBuilder();
+      name.append(featureName);
+      name.append(": ");
+      if (suiteComment != null) {
+        name.append(suiteComment);
+        name.append(" ");
+      }
+      if (testComment != null) {
+        name.append(testComment);
+      } else {
+        name.append(expression);
+      }
+      return name.toString();
     }
 
     public void run() {
