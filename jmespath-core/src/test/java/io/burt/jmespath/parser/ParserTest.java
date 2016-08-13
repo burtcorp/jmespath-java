@@ -167,7 +167,7 @@ public class ParserTest {
 
   @Test
   public void sliceWithoutStopExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 3, 0, 1,
+    Expression<Object> expected = new SliceNode<Object>(runtime, 3, null, 1,
       new PropertyNode<Object>(runtime, "foo", currentNode)
     );
     Expression<Object> actual = compile("foo[3:]");
@@ -176,7 +176,7 @@ public class ParserTest {
 
   @Test
   public void sliceWithoutStartExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 0, 4, 1,
+    Expression<Object> expected = new SliceNode<Object>(runtime, null, 4, 1,
       new PropertyNode<Object>(runtime, "foo", currentNode)
     );
     Expression<Object> actual = compile("foo[:4]");
@@ -194,7 +194,7 @@ public class ParserTest {
 
   @Test
   public void sliceWithStepButWithoutStopExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 3, 0, 5,
+    Expression<Object> expected = new SliceNode<Object>(runtime, 3, null, 5,
       new PropertyNode<Object>(runtime, "foo", currentNode)
     );
     Expression<Object> actual = compile("foo[3::5]");
@@ -203,7 +203,7 @@ public class ParserTest {
 
   @Test
   public void sliceWithJustColonExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 0, 0, 1,
+    Expression<Object> expected = new SliceNode<Object>(runtime, null, null, 1,
       new PropertyNode<Object>(runtime, "foo", currentNode)
     );
     Expression<Object> actual = compile("foo[:]");
@@ -212,7 +212,7 @@ public class ParserTest {
 
   @Test
   public void sliceWithJustTwoColonsExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 0, 0, 1,
+    Expression<Object> expected = new SliceNode<Object>(runtime, null, null, 1,
       new PropertyNode<Object>(runtime, "foo", currentNode)
     );
     Expression<Object> actual = compile("foo[::]");

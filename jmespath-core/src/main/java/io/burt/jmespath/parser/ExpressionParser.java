@@ -266,9 +266,9 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitBracketSlice(JmesPathParser.BracketSliceContext ctx) {
-    int start = 0;
-    int stop = 0;
-    int step = 1;
+    Integer start = null;
+    Integer stop = null;
+    Integer step = 1;
     JmesPathParser.SliceContext sliceCtx = ctx.slice();
     if (sliceCtx.start != null) {
       start = Integer.parseInt(sliceCtx.start.getText());

@@ -342,6 +342,22 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void negativeStepSliceReversesOrderAndSlices() {
+    T result1 = search("@[3:1:-1]", parse("[0, 1, 2, 3, 4]"));
+    T result2 = search("@[3:0:-1]", parse("[0, 1, 2, 3, 4]"));
+    T result3 = search("@[3::-1]", parse("[0, 1, 2, 3, 4]"));
+    assertThat(result1, is(parse("[3, 2]")));
+    assertThat(result2, is(parse("[3, 2, 1]")));
+    assertThat(result3, is(parse("[3, 2, 1, 0]")));
+  }
+
+  @Test
+  public void negativeStepSliceReversesOrderAndSlicesAndHandlesOverflow() {
+    T result = search("@[10:1:-1]", parse("[0, 1, 2, 3, 4]"));
+    assertThat(result, is(parse("[4, 3, 2]")));
+  }
+
+  @Test
   public void negativeStepSliceReversesOrderAndSkips() {
     T result = search("Records[0].userIdentity.* | [::-2]", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("Alice", "EXAMPLE_KEY_ID_ALICE", "EX_PRINCIPAL_ID")));

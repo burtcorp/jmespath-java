@@ -2,15 +2,16 @@ package io.burt.jmespath.node;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Collections;
 
 import io.burt.jmespath.Adapter;
 
 public class SliceNode<T> extends Node<T> {
-  private final int start;
-  private final int stop;
-  private final int step;
+  private final Integer start;
+  private final Integer stop;
+  private final Integer step;
 
-  public SliceNode(Adapter<T> runtime, int start, int stop, int step, Node<T> source) {
+  public SliceNode(Adapter<T> runtime, Integer start, Integer stop, Integer step, Node<T> source) {
     super(runtime, source);
     this.start = start;
     this.stop = stop;
@@ -21,30 +22,44 @@ public class SliceNode<T> extends Node<T> {
   public T searchOne(T projectionElement) {
     List<T> elements = runtime.toList(projectionElement);
     List<T> output = new LinkedList<>();
-    int i = start < 0 ? elements.size() + start : start;
-    int n = stop <= 0 ? elements.size() + stop : Math.min(elements.size(), stop);
+    int i;
+    int n;
+    if (start == null) {
+      i = step > 0 ? 0 : elements.size();
+    } else if (start < 0) {
+      i = elements.size() + start;
+    } else {
+      i = start;
+    }
+    if (stop == null) {
+      n = step > 0 ? elements.size() : -1;
+    } else if (stop < 0) {
+      n = elements.size() + stop;
+    } else {
+      n = Math.min(elements.size(), stop);
+    }
     if (step > 0) {
       for ( ; i < n; i += step) {
         output.add(elements.get(i));
       }
     } else {
-      n = Math.min(elements.size() - 1, n);
-      for ( ; n >= i; n += step) {
-        output.add(elements.get(n));
+      i = Math.min(i, elements.size() - 1);
+      for ( ; i > n; i += step) {
+        output.add(elements.get(i));
       }
     }
     return runtime.createArray(output);
   }
 
-  protected int start() {
+  protected Integer start() {
     return start;
   }
 
-  protected int stop() {
+  protected Integer stop() {
     return stop;
   }
 
-  protected int step() {
+  protected Integer step() {
     return step;
   }
 
