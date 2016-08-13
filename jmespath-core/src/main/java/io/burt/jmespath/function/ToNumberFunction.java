@@ -18,7 +18,12 @@ public class ToNumberFunction extends BaseFunction {
       return subject;
     } else if (subjectType == JmesPathType.STRING) {
       try {
-        return runtime.createNumber(Double.parseDouble(runtime.toString(subject)));
+        double d = Double.parseDouble(runtime.toString(subject));
+        if (d == Math.rint(d)) {
+          return runtime.createNumber((long) d);
+        } else {
+          return runtime.createNumber(d);
+        }
       } catch (NumberFormatException nfe) {
         return runtime.createNull();
       }
