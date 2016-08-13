@@ -2,8 +2,8 @@ package io.burt.jmespath.node;
 
 import io.burt.jmespath.Adapter;
 
-public class JoinNode<T> extends Node<T> {
-  public JoinNode(Adapter<T> runtime, Node<T> source) {
+public class StopProjectionNode<T> extends Node<T> {
+  public StopProjectionNode(Adapter<T> runtime, Node<T> source) {
     super(runtime, source);
   }
 

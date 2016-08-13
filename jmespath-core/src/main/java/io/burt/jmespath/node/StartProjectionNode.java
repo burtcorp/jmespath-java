@@ -3,8 +3,8 @@ package io.burt.jmespath.node;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
-public class ForkNode<T> extends Node<T> {
-  public ForkNode(Adapter<T> runtime, Node<T> source) {
+public class StartProjectionNode<T> extends Node<T> {
+  public StartProjectionNode(Adapter<T> runtime, Node<T> source) {
     super(runtime, source);
   }
 

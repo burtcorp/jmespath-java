@@ -25,11 +25,11 @@ import io.burt.jmespath.node.CurrentNode;
 import io.burt.jmespath.node.ExpressionReferenceNode;
 import io.burt.jmespath.node.FlattenArrayNode;
 import io.burt.jmespath.node.FlattenObjectNode;
-import io.burt.jmespath.node.ForkNode;
+import io.burt.jmespath.node.StartProjectionNode;
 import io.burt.jmespath.node.FunctionCallNode;
 import io.burt.jmespath.node.IndexNode;
 import io.burt.jmespath.node.Node;
-import io.burt.jmespath.node.JoinNode;
+import io.burt.jmespath.node.StopProjectionNode;
 import io.burt.jmespath.node.JsonLiteralNode;
 import io.burt.jmespath.node.NegateNode;
 import io.burt.jmespath.node.OrNode;
@@ -144,7 +144,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitPipeExpression(JmesPathParser.PipeExpressionContext ctx) {
-    currentSource.push(new JoinNode<T>(runtime, visit(ctx.expression(0))));
+    currentSource.push(new StopProjectionNode<T>(runtime, visit(ctx.expression(0))));
     Node<T> result = visit(ctx.expression(1));
     currentSource.pop();
     return result;
@@ -223,7 +223,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitWildcard(JmesPathParser.WildcardContext ctx) {
-    return new ForkNode<T>(runtime, new FlattenObjectNode<T>(runtime, currentSource.peek()));
+    return new StartProjectionNode<T>(runtime, new FlattenObjectNode<T>(runtime, currentSource.peek()));
   }
 
   @Override
@@ -261,7 +261,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitBracketStar(JmesPathParser.BracketStarContext ctx) {
-    return new ForkNode<T>(runtime, currentSource.peek());
+    return new StartProjectionNode<T>(runtime, currentSource.peek());
   }
 
   @Override
@@ -279,12 +279,12 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     if (sliceCtx.step != null) {
       step = Integer.parseInt(sliceCtx.step.getText());
     }
-    return new ForkNode<T>(runtime, new SliceNode<T>(runtime, start, stop, step, currentSource.peek()));
+    return new StartProjectionNode<T>(runtime, new SliceNode<T>(runtime, start, stop, step, currentSource.peek()));
   }
 
   @Override
   public Node<T> visitBracketFlatten(JmesPathParser.BracketFlattenContext ctx) {
-    return new ForkNode<T>(runtime, new FlattenArrayNode<T>(runtime, currentSource.peek()));
+    return new StartProjectionNode<T>(runtime, new FlattenArrayNode<T>(runtime, currentSource.peek()));
   }
 
   @Override
@@ -292,7 +292,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     currentSource.push(new CurrentNode<T>(runtime));
     Node<T> test = visit(ctx.expression());
     currentSource.pop();
-    return new ForkNode<T>(runtime, new SelectionNode<T>(runtime, test, currentSource.peek()));
+    return new StartProjectionNode<T>(runtime, new SelectionNode<T>(runtime, test, currentSource.peek()));
   }
 
   @Override
