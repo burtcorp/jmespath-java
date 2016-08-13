@@ -2,10 +2,22 @@ package io.burt.jmespath.util;
 
 import java.util.Arrays;
 
-public class StringEscapes {
-  public static final char NO_REPLACEMENT = 0xffff;
+public class StringEscapeHelper {
+  private static final char NO_REPLACEMENT = 0xffff;
 
-  public static char[] createReplacements(char... pairs) {
+  private final char[] replacements;
+  private final boolean unescapeUnicodeEscapes;
+
+  public StringEscapeHelper(char... replacementPairs) {
+    this(false, replacementPairs);
+  }
+
+  public StringEscapeHelper(boolean unescapeUnicodeEscapes, char... replacementPairs) {
+    this.unescapeUnicodeEscapes = unescapeUnicodeEscapes;
+    this.replacements = createReplacements(replacementPairs);
+  }
+
+  private static char[] createReplacements(char... pairs) {
     if (pairs.length % 2 == 1) {
       throw new IllegalArgumentException("Replacements must be even pairs");
     }
@@ -24,7 +36,7 @@ public class StringEscapes {
     return replacementsMap;
   }
 
-  public static String unescape(char[] replacements, String str, boolean unescapeUnicodeEscapes) {
+  public String unescape(String str) {
     int slashIndex = str.indexOf('\\');
     if (slashIndex > -1) {
       int offset = 0;

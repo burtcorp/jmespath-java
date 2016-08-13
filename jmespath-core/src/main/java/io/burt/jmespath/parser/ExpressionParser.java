@@ -15,7 +15,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.util.StringEscapes;
+import io.burt.jmespath.util.StringEscapeHelper;
 import io.burt.jmespath.function.Function;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
@@ -39,7 +39,8 @@ import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
 public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
-  private static final char[] IDENTIFIER_REPLACEMENTS = StringEscapes.createReplacements(
+  private static final StringEscapeHelper identifierEscapeHelper = new StringEscapeHelper(
+    true,
     '"', '"',
     '/', '/',
     '\\', '\\',
@@ -50,7 +51,8 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     't', '\t'
   );
 
-  private static final char[] RAW_STRING_REPLACEMENTS = StringEscapes.createReplacements(
+  private static final StringEscapeHelper rawStringEscapeHelper = new StringEscapeHelper(
+    false,
     '\'', '\'',
     '\\', '\\'
   );
@@ -109,17 +111,9 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private String identifierToString(JmesPathParser.IdentifierContext ctx) {
     String id = ctx.getText();
     if (ctx.STRING() != null) {
-      id = unescapeIdentifier(id.substring(1, id.length() - 1));
+      id = identifierEscapeHelper.unescape(id.substring(1, id.length() - 1));
     }
     return id;
-  }
-
-  private String unescapeIdentifier(String str) {
-    return StringEscapes.unescape(IDENTIFIER_REPLACEMENTS, str, true);
-  }
-
-  private String unescapeRawString(String str) {
-    return StringEscapes.unescape(RAW_STRING_REPLACEMENTS, str, false);
   }
 
   private void checkForUnescapedBackticks(Token token) {
@@ -169,7 +163,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   @Override
   public Node<T> visitRawStringExpression(JmesPathParser.RawStringExpressionContext ctx) {
     String quotedString = ctx.RAW_STRING().getText();
-    String unquotedString = unescapeRawString(quotedString.substring(1, quotedString.length() - 1));
+    String unquotedString = rawStringEscapeHelper.unescape(quotedString.substring(1, quotedString.length() - 1));
     return new StringNode<T>(runtime, unquotedString);
   }
 

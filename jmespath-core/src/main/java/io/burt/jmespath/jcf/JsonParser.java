@@ -13,7 +13,7 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.util.StringEscapes;
+import io.burt.jmespath.util.StringEscapeHelper;
 import io.burt.jmespath.parser.ParseErrorAccumulator;
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.parser.JmesPathBaseVisitor;
@@ -21,7 +21,8 @@ import io.burt.jmespath.parser.JmesPathParser;
 import io.burt.jmespath.parser.JmesPathLexer;
 
 public class JsonParser extends JmesPathBaseVisitor<Object> {
-  private static final char[] JSON_REPLACEMENTS = StringEscapes.createReplacements(
+  private static final StringEscapeHelper jsonEscapeHelper = new StringEscapeHelper(
+    true,
     '"', '"',
     '/', '/',
     '\\', '\\',
@@ -80,15 +81,11 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
     return quotedString.substring(1, quotedString.length() - 1);
   }
 
-  private String unescape(String str) {
-    return StringEscapes.unescape(JSON_REPLACEMENTS, str, true);
-  }
-
   @Override
   public Object visitJsonObject(JmesPathParser.JsonObjectContext ctx) {
     Map<Object, Object> object = new LinkedHashMap<>(ctx.jsonObjectPair().size());
     for (final JmesPathParser.JsonObjectPairContext pair : ctx.jsonObjectPair()) {
-      String key = unescape(unquote(pair.STRING().getText()));
+      String key = jsonEscapeHelper.unescape(unquote(pair.STRING().getText()));
       Object value = visit(pair.jsonValue());
       object.put(key, value);
     }
@@ -106,7 +103,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonStringValue(JmesPathParser.JsonStringValueContext ctx) {
-    return runtime.createString(unescape(unquote(ctx.getText())));
+    return runtime.createString(jsonEscapeHelper.unescape(unquote(ctx.getText())));
   }
 
   @Override

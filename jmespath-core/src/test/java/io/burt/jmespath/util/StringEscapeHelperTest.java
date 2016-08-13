@@ -9,36 +9,36 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
 
-public class StringEscapesTest {
-  private static final char[] NO_REPLACEMENTS = new char[0];
-
+public class StringEscapeHelperTest {
   @Test
   public void nothingIsUnescapedByDefault() {
-    String unescaped = StringEscapes.unescape(NO_REPLACEMENTS, "hello\\u0020world\\n", false);
+    StringEscapeHelper escapeHelper = new StringEscapeHelper(false);
+    String unescaped = escapeHelper.unescape("hello\\u0020world\\n");
     assertThat(unescaped, is("hello\\u0020world\\n"));
   }
 
   @Test
   public void unicodeEscapesCanBeUnescaped() {
-    String unescaped = StringEscapes.unescape(NO_REPLACEMENTS, "hello\\u0020world\\u000a", true);
+    StringEscapeHelper escapeHelper = new StringEscapeHelper(true);
+    String unescaped = escapeHelper.unescape("hello\\u0020world\\u000a");
     assertThat(unescaped, is("hello world\n"));
   }
 
   @Test
   public void escapesAreReplacedByTheirReplacements() {
-    char[] replacements = StringEscapes.createReplacements(
+    StringEscapeHelper escapeHelper = new StringEscapeHelper(
       'n', '\n',
       't', '\t',
       'x', '!'
     );
-    String unescaped = StringEscapes.unescape(replacements, "\\thello\\nworld\\x", true);
+    String unescaped = escapeHelper.unescape("\\thello\\nworld\\x");
     assertThat(unescaped, is("\thello\nworld!"));
   }
 
   @Test
   public void replacementsMustBePairs() {
     try {
-      StringEscapes.createReplacements('x', 'x', 'y');
+      new StringEscapeHelper('x', 'x', 'y');
       fail("Expected IllegalArgumentException to be thrown");
     } catch (IllegalArgumentException iae) {
       assertThat(iae.getMessage(), is("Replacements must be even pairs"));
