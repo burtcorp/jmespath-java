@@ -364,6 +364,12 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void sliceStartsProjection() {
+    T result = search("[:2].a", parse("[{\"a\":1},{\"a\":2},{\"a\":3}]"));
+    assertThat(result, is(parse("[1, 2]")));
+  }
+
+  @Test
   public void currentNodeReturnsInput() {
     T result = search("@", cloudtrail);
     assertThat(runtime().toList(runtime().getProperty(result, "Records")), hasSize(3));

@@ -158,8 +158,10 @@ public class ParserTest {
 
   @Test
   public void sliceExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 3, 4, 1,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, 3, 4, 1,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
+      )
     );
     Expression<Object> actual = compile("foo[3:4]");
     assertThat(actual, is(expected));
@@ -167,8 +169,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithoutStopExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 3, null, 1,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, 3, null, 1,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
+      )
     );
     Expression<Object> actual = compile("foo[3:]");
     assertThat(actual, is(expected));
@@ -176,8 +180,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithoutStartExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, null, 4, 1,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, null, 4, 1,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
+      )
     );
     Expression<Object> actual = compile("foo[:4]");
     assertThat(actual, is(expected));
@@ -185,8 +191,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithStepExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 3, 4, 5,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, 3, 4, 5,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
+      )
     );
     Expression<Object> actual = compile("foo[3:4:5]");
     assertThat(actual, is(expected));
@@ -194,8 +202,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithStepButWithoutStopExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 3, null, 5,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, 3, null, 5,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
+      )
     );
     Expression<Object> actual = compile("foo[3::5]");
     assertThat(actual, is(expected));
@@ -203,8 +213,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithJustColonExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, null, null, 1,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, null, null, 1,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
+      )
     );
     Expression<Object> actual = compile("foo[:]");
     assertThat(actual, is(expected));
@@ -212,8 +224,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithJustTwoColonsExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, null, null, 1,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, null, null, 1,
+        new PropertyNode<Object>(runtime, "foo", currentNode)
+      )
     );
     Expression<Object> actual = compile("foo[::]");
     assertThat(actual, is(expected));
@@ -221,7 +235,9 @@ public class ParserTest {
 
   @Test
   public void bareSliceExpression() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 0, 1, 2, currentNode);
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, 0, 1, 2, currentNode)
+    );
     Expression<Object> actual = compile("[0:1:2]");
     assertThat(actual, is(expected));
   }
@@ -506,9 +522,11 @@ public class ParserTest {
 
   @Test
   public void sliceAfterPipe() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 1, 2, 1,
-      new JoinNode<Object>(runtime,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, 1, 2, 1,
+        new JoinNode<Object>(runtime,
+          new PropertyNode<Object>(runtime, "foo", currentNode)
+        )
       )
     );
     Expression<Object> actual = compile("foo | [1:2]");
@@ -591,13 +609,15 @@ public class ParserTest {
 
   @Test
   public void chainPipeIndexSliceCombination() {
-    Expression<Object> expected = new SliceNode<Object>(runtime, 2, 3, 1,
-      new PropertyNode<Object>(runtime, "qux",
-        new PropertyNode<Object>(runtime, "baz",
-          new JoinNode<Object>(runtime,
-            new PropertyNode<Object>(runtime, "bar",
-              new IndexNode<Object>(runtime, 3,
-                new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = new ForkNode<Object>(runtime,
+      new SliceNode<Object>(runtime, 2, 3, 1,
+        new PropertyNode<Object>(runtime, "qux",
+          new PropertyNode<Object>(runtime, "baz",
+            new JoinNode<Object>(runtime,
+              new PropertyNode<Object>(runtime, "bar",
+                new IndexNode<Object>(runtime, 3,
+                  new PropertyNode<Object>(runtime, "foo", currentNode)
+                )
               )
             )
           )

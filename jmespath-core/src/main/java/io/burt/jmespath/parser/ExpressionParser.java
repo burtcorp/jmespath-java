@@ -279,7 +279,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     if (sliceCtx.step != null) {
       step = Integer.parseInt(sliceCtx.step.getText());
     }
-    return new SliceNode<T>(runtime, start, stop, step, currentSource.peek());
+    return new ForkNode<T>(runtime, new SliceNode<T>(runtime, start, stop, step, currentSource.peek()));
   }
 
   @Override
