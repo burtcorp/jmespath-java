@@ -5,7 +5,8 @@ import java.util.Arrays;
 public class StringEscapeHelper {
   private static final char NO_REPLACEMENT = 0xffff;
 
-  private final char[] replacements;
+  private final char[] unescapeMap;
+  private final char[] escapeMap;
   private final boolean unescapeUnicodeEscapes;
 
   public StringEscapeHelper(char... replacementPairs) {
@@ -13,14 +14,15 @@ public class StringEscapeHelper {
   }
 
   public StringEscapeHelper(boolean unescapeUnicodeEscapes, char... replacementPairs) {
-    this.unescapeUnicodeEscapes = unescapeUnicodeEscapes;
-    this.replacements = createReplacements(replacementPairs);
-  }
-
-  private static char[] createReplacements(char... pairs) {
-    if (pairs.length % 2 == 1) {
+    if (replacementPairs.length % 2 == 1) {
       throw new IllegalArgumentException("Replacements must be even pairs");
     }
+    this.unescapeUnicodeEscapes = unescapeUnicodeEscapes;
+    this.unescapeMap = createUnescapeMap(replacementPairs);
+    this.escapeMap = createEscapeMap(replacementPairs);
+  }
+
+  private static char[] createUnescapeMap(char[] pairs) {
     char max = 0;
     int i;
     for (i = 0; i < pairs.length; i += 2) {
@@ -36,6 +38,22 @@ public class StringEscapeHelper {
     return replacementsMap;
   }
 
+  private static char[] createEscapeMap(char[] pairs) {
+    char max = 0;
+    int i;
+    for (i = 0; i < pairs.length; i += 2) {
+      if (pairs[i + 1] > max) {
+        max = pairs[i + 1];
+      }
+    }
+    char[] replacementsMap = new char[max + 1];
+    Arrays.fill(replacementsMap, NO_REPLACEMENT);
+    for (i = 0; i < pairs.length; i += 2) {
+      replacementsMap[pairs[i + 1]] = pairs[i];
+    }
+    return replacementsMap;
+  }
+
   public String unescape(String str) {
     int slashIndex = str.indexOf('\\');
     if (slashIndex > -1) {
@@ -43,7 +61,7 @@ public class StringEscapeHelper {
       StringBuilder unescaped = new StringBuilder();
       while (slashIndex > -1) {
         char c = str.charAt(slashIndex + 1);
-        char r = (c < replacements.length) ? replacements[c] : NO_REPLACEMENT;
+        char r = (c < unescapeMap.length) ? unescapeMap[c] : NO_REPLACEMENT;
         if (r != NO_REPLACEMENT) {
           unescaped.append(str.substring(offset, slashIndex));
           unescaped.append(r);
@@ -62,5 +80,24 @@ public class StringEscapeHelper {
     } else {
       return str;
     }
+  }
+
+  public String escape(String str) {
+    StringBuilder escaped = new StringBuilder();
+    int offset = 0;
+    for (int i = 0; i < str.length(); i++) {
+      char c = str.charAt(i);
+      char r = (c < escapeMap.length) ? escapeMap[c] : NO_REPLACEMENT;
+      if (r != NO_REPLACEMENT) {
+        escaped.append(str.substring(offset, i));
+        escaped.append('\\');
+        escaped.append(r);
+        offset = i + 1;
+      }
+    }
+    if (offset < str.length()) {
+      escaped.append(str.substring(offset, str.length()));
+    }
+    return escaped.toString();
   }
 }

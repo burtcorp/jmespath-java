@@ -44,4 +44,15 @@ public class StringEscapeHelperTest {
       assertThat(iae.getMessage(), is("Replacements must be even pairs"));
     }
   }
+
+  @Test
+  public void specialCharsAreEscaped() {
+    StringEscapeHelper escapeHelper = new StringEscapeHelper(
+      'n', '\n',
+      't', '\t',
+      'x', '!'
+    );
+    String escaped = escapeHelper.escape("\thello\nworld!");
+    assertThat(escaped, is("\\thello\\nworld\\x"));
+  }
 }
