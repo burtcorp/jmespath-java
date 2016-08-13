@@ -92,7 +92,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
       case BOOLEAN:
         return value == Boolean.TRUE;
       case ARRAY:
-        return !((List<Object>) value).isEmpty();
+        return !((Collection<Object>) value).isEmpty();
       case OBJECT:
         return !((Map<Object,Object>) value).isEmpty();
       case STRING:
@@ -134,7 +134,11 @@ public class JcfRuntime extends BaseRuntime<Object> {
 
   @Override
   public Object createArray(Collection<Object> elements) {
-    return elements;
+    if (elements instanceof List) {
+      return elements;
+    } else {
+      return new ArrayList<>(elements);
+    }
   }
 
   @Override

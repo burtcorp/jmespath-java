@@ -1092,6 +1092,7 @@ public abstract class JmesPathRuntimeTest<T> {
   public void keysReturnsAnEmptyArrayWhenGivenAnEmptyObject() {
     T result = search("keys(@)", parse("{}"));
     assertThat(runtime().toList(result), is(empty()));
+    assertThat(result, is(parse("[]")));
   }
 
   @Test(expected = ArgumentTypeException.class)
@@ -1107,6 +1108,12 @@ public abstract class JmesPathRuntimeTest<T> {
   @Test(expected = ArgumentTypeException.class)
   public void keysRequiresAValue() {
     search("keys(&foo)", parse("{}"));
+  }
+
+  @Test
+  public void keysCanBeUsedInComparisons() {
+    T result = search("keys(@) == `[\"foo\",\"bar\"]`", parse("{\"foo\":3,\"bar\":2}"));
+    assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test
