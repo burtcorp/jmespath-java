@@ -126,6 +126,9 @@ public abstract class JmesPathComplianceTest<T> {
       T caseDescriptions = runtime().getProperty(suiteDescription, "cases");
       for (T caseDescription : runtime().toList(caseDescriptions)) {
         String testComment = valueAsStringOrNull(caseDescription, "comment");
+        if (testComment == null) {
+          testComment = valueAsStringOrNull(caseDescription, "description");
+        }
         String expression = valueAsStringOrNull(caseDescription, "expression");
         T expectedResult = runtime().getProperty(caseDescription, "result");
         String expectedError = valueAsStringOrNull(caseDescription, "error");
