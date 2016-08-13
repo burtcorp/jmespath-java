@@ -170,8 +170,10 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     Iterator<T> keys = getPropertyNames(object).iterator();
     while (keys.hasNext()) {
       T key = keys.next();
-      str.append("\"").append(escapeString(toString(key))).append("\"");
-      str.append(":").append(unparse(getProperty(object, key)));
+      T value = getProperty(object, key);
+      str.append(unparseString(key));
+      str.append(":");
+      str.append(unparse(value));
       if (keys.hasNext()) {
         str.append(",");
       }
