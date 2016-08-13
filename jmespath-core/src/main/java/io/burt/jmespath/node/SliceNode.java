@@ -29,7 +29,7 @@ public class SliceNode<T> extends Node<T> {
       }
     } else {
       n = Math.min(elements.size() - 1, n);
-      for ( ; n > i; n += step) {
+      for ( ; n >= i; n += step) {
         output.add(elements.get(n));
       }
     }
