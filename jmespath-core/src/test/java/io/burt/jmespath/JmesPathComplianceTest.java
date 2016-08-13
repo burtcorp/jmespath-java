@@ -51,7 +51,19 @@ public abstract class JmesPathComplianceTest<T> {
     }
 
     public String name() {
-      return String.format("%s<\"%s\">", featureName, expression);
+      StringBuilder name = new StringBuilder();
+      name.append(featureName);
+      name.append(": ");
+      if (suiteComment != null) {
+        name.append(suiteComment);
+        name.append(" ");
+      }
+      if (testComment != null) {
+        name.append(testComment);
+      } else {
+        name.append(expression);
+      }
+      return name.toString();
     }
 
     public void run() {
@@ -126,6 +138,9 @@ public abstract class JmesPathComplianceTest<T> {
       T caseDescriptions = runtime().getProperty(suiteDescription, "cases");
       for (T caseDescription : runtime().toList(caseDescriptions)) {
         String testComment = valueAsStringOrNull(caseDescription, "comment");
+        if (testComment == null) {
+          testComment = valueAsStringOrNull(caseDescription, "description");
+        }
         String expression = valueAsStringOrNull(caseDescription, "expression");
         T expectedResult = runtime().getProperty(caseDescription, "result");
         String expectedError = valueAsStringOrNull(caseDescription, "error");
