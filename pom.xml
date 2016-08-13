@@ -70,6 +70,11 @@
           <disableXmlReport>true</disableXmlReport>
           <useFile>false</useFile>
           <trimStackTrace>false</trimStackTrace>
+          <parallel>both</parallel>
+          <threadCount>4</threadCount>
+          <excludes>
+            <exclude>**/*Compliance*.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
