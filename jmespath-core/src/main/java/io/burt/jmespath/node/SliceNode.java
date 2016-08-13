@@ -44,6 +44,7 @@ public class SliceNode<T> extends Node<T> {
       }
     } else {
       i = Math.min(i, elements.size() - 1);
+      n = Math.max(n, -1);
       for ( ; i > n; i += step) {
         output.add(elements.get(i));
       }

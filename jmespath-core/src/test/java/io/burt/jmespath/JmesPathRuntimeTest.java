@@ -364,6 +364,12 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void negativeStepSliceWithOutOfBoundsNegativeStop() {
+    T result = search("@[:-200:-1]", parse("[0, 1, 2, 3, 4]"));
+    assertThat(result, is(parse("[4, 3, 2, 1, 0]")));
+  }
+
+  @Test
   public void sliceStartsProjection() {
     T result = search("[:2].a", parse("[{\"a\":1},{\"a\":2},{\"a\":3}]"));
     assertThat(result, is(parse("[1, 2]")));
