@@ -1134,6 +1134,12 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonNumber(1)));
   }
 
+  @Test
+  public void lengthCanBeUsedInComparisons() {
+    T result = search("length(@) == `3`", parse("[0, 1, 2]"));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
   @Test(expected = ArgumentTypeException.class)
   public void lengthRequiresAStringArrayOrObjectAsArgument() {
     search("length(@)", parse("3"));

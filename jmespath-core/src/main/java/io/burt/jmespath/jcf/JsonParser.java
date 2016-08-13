@@ -108,7 +108,11 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonNumberValue(JmesPathParser.JsonNumberValueContext ctx) {
-    return runtime.createNumber(Double.parseDouble(ctx.getText()));
+    if (ctx.REAL_OR_EXPONENT_NUMBER() != null) {
+      return runtime.createNumber(Double.parseDouble(ctx.getText()));
+    } else {
+      return runtime.createNumber(Long.parseLong(ctx.getText()));
+    }
   }
 
   @Override
