@@ -6,6 +6,7 @@ import java.util.Iterator;
 import io.burt.jmespath.parser.ExpressionParser;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.Function;
+import io.burt.jmespath.util.StringEscapeHelper;
 
 /**
  * This class can be extended instead of implementing {@link Adapter} directly,
@@ -15,6 +16,17 @@ import io.burt.jmespath.function.Function;
  * methods if they have more efficient means to perform the same job.
  */
 public abstract class BaseRuntime<T> implements Adapter<T> {
+  private static final StringEscapeHelper jsonEscapeHelper = new StringEscapeHelper(
+    true,
+    'b', '\b',
+    't', '\t',
+    'n', '\n',
+    'f', '\f',
+    'r', '\r',
+    '\\', '\\',
+    '\"', '\"'
+  );
+
   private final FunctionRegistry functionRegistry;
 
   /**
@@ -146,7 +158,11 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   }
 
   protected String unparseString(T object) {
-    return String.format("\"%s\"", object);
+    return String.format("\"%s\"", escapeString(toString(object)));
+  }
+
+  protected String escapeString(String str) {
+    return jsonEscapeHelper.escape(str);
   }
 
   protected String unparseObject(T object) {
@@ -154,8 +170,10 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     Iterator<T> keys = getPropertyNames(object).iterator();
     while (keys.hasNext()) {
       T key = keys.next();
-      str.append("\"").append(toString(key)).append("\"");
-      str.append(":").append(unparse(getProperty(object, key)));
+      T value = getProperty(object, key);
+      str.append(unparseString(key));
+      str.append(":");
+      str.append(unparse(value));
       if (keys.hasNext()) {
         str.append(",");
       }

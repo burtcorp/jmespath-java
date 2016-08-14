@@ -66,6 +66,13 @@ public class ParserTest {
     assertThat(actual, is(expected));
   }
 
+  @Test()
+  public void quotedIdentifierExpressionsAreUnescapedLikeJsonStrings() {
+    Expression<Object> expected = new PropertyNode<Object>(runtime, "\\foo bar\n", currentNode);
+    Expression<Object> actual = compile("\"\\\\foo\\u0020bar\\n\"");
+    assertThat(actual, is(expected));
+  }
+
   @Test
   public void chainExpression() {
     Expression<Object> expected = new PropertyNode<Object>(runtime, "bar",
@@ -818,7 +825,76 @@ public class ParserTest {
   }
 
   @Test
-  @Ignore
+  public void bareJsonLiteralStringWithEscapedNewline() {
+    Expression<Object> expected = createJsonLiteralNode("\"hello\nworld\"");
+    Expression<Object> actual = compile("`\"hello\\nworld\"`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralStringWithEscapedTab() {
+    Expression<Object> expected = createJsonLiteralNode("\"hello\tworld\"");
+    Expression<Object> actual = compile("`\"hello\\tworld\"`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralStringWithEscapedUnicode() {
+    Expression<Object> expected = createJsonLiteralNode("\"hello\\u0020world\"");
+    Expression<Object> actual = compile("`\"hello world\"`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralStringWithEscapedQuote() {
+    Expression<Object> expected = createJsonLiteralNode("\"hello \\\"world\\\"\"");
+    Expression<Object> actual = compile("`\"hello \\\"world\\\"\"`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralStringWithEscapedBackslash() {
+    Expression<Object> expected = createJsonLiteralNode("\"c:\\\\\\\\windows\\\\path\"");
+    Expression<Object> actual = compile("`\"c:\\\\\\\\windows\\\\path\"`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralObjectWithEscapedNewlineInKey() {
+    Expression<Object> expected = createJsonLiteralNode("{\"hello\nworld\":1}");
+    Expression<Object> actual = compile("`{\"hello\\nworld\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralObjectWithEscapedTabInKey() {
+    Expression<Object> expected = createJsonLiteralNode("{\"hello\tworld\":1}");
+    Expression<Object> actual = compile("`{\"hello\\tworld\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralObjectWithEscapedUnicodeInKey() {
+    Expression<Object> expected = createJsonLiteralNode("{\"hello\\u0020world\":1}");
+    Expression<Object> actual = compile("`{\"hello world\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralObjectWithEscapedQuoteInKey() {
+    Expression<Object> expected = createJsonLiteralNode("{\"hello \\\"world\\\"\":1}");
+    Expression<Object> actual = compile("`{\"hello \\\"world\\\"\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void bareJsonLiteralObjectWithEscapedBackslashInKey() {
+    Expression<Object> expected = createJsonLiteralNode("{\"c:\\\\\\\\windows\\\\path\":1}");
+    Expression<Object> actual = compile("`{\"c:\\\\\\\\windows\\\\path\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
   public void escapedBacktickInJsonString() {
     Expression<Object> expected = createJsonLiteralNode("\"fo`o\"");
     Expression<Object> actual = compile("`\"fo\\`o\"`");
@@ -826,19 +902,18 @@ public class ParserTest {
   }
 
   @Test
-  @Ignore
   public void unEscapedBacktickInJsonString() {
     try {
       compile("`\"fo`o\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
-      assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 5"));
+      assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 4"));
     }
     try {
       compile("`\"`foo\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
-      assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 3"));
+      assertThat(pe.getMessage(), is("Error while parsing \"`\"`foo\"`\": unexpected ` at position 2"));
     }
   }
 
@@ -862,6 +937,27 @@ public class ParserTest {
   public void jsonBuiltinsAsNames() {
     Expression<Object> expected = new PropertyNode<Object>(runtime, "false", currentNode);
     Expression<Object> actual = compile("false");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void escapesInRawStringsArePreserved() {
+    Expression<Object> expected = new StringNode<Object>(runtime, "\\u03a6hello\\nworld\\t");
+    Expression<Object> actual = compile("'\\u03a6hello\\nworld\\t'");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void singleQuotesNeedsToBeEscapedInRawStrings() {
+    Expression<Object> expected = new StringNode<Object>(runtime, "'");
+    Expression<Object> actual = compile("'\\''");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void backslashesMustBeEscapedInRawStrings() {
+    Expression<Object> expected = new StringNode<Object>(runtime, "\\");
+    Expression<Object> actual = compile("'\\\\'");
     assertThat(actual, is(expected));
   }
 }

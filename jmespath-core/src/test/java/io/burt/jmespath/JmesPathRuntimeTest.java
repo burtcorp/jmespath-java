@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collections;
 
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.function.ArityException;
@@ -1663,6 +1664,18 @@ public abstract class JmesPathRuntimeTest<T> {
   public void toStringReturnsTheJsonEncodingOfNull() {
     T result = search("to_string(`null`)", parse("{}"));
     assertThat(runtime().toString(result), is("null"));
+  }
+
+  @Test
+  public void toStringEncodesNewlinesTabsEtc1() {
+    T result = search("to_string(@)", runtime().createArray(Arrays.asList(runtime().createString("\"Hello\"\nwo\r\\ld\t"))));
+    assertThat(runtime().toString(result), is("[\"\\\"Hello\\\"\\nwo\\r\\\\ld\\t\"]"));
+  }
+
+  @Test
+  public void toStringEncodesNewlinesTabsEtc2() {
+    T result = search("to_string(@)", runtime().createObject(Collections.singletonMap(runtime().createString("\"Hello\"\nwo\r\\ld\t"), runtime().createString("\n\r"))));
+    assertThat(runtime().toString(result), is("{\"\\\"Hello\\\"\\nwo\\r\\\\ld\\t\":\"\\n\\r\"}"));
   }
 
   @Test

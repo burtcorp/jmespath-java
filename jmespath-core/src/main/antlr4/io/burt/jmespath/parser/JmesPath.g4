@@ -73,7 +73,7 @@ expressionType : '&' expression ;
 
 RAW_STRING : '\'' (RAW_ESC | ~['\\])* '\'' ;
 
-fragment RAW_ESC : '\\' ['\\] ;
+fragment RAW_ESC : '\\' . ;
 
 literal : '`' jsonValue '`' ;
 
@@ -111,7 +111,7 @@ STRING
   ;
 
 fragment ESC
-  : '\\' (["\\/bfnrt] | UNICODE)
+  : '\\' (["\\/bfnrt`] | UNICODE)
   ;
 
 fragment UNICODE

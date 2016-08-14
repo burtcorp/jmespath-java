@@ -15,6 +15,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.util.StringEscapeHelper;
 import io.burt.jmespath.function.Function;
 import io.burt.jmespath.node.AndNode;
 import io.burt.jmespath.node.ComparisonNode;
@@ -38,6 +39,24 @@ import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
 
 public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
+  private static final StringEscapeHelper identifierEscapeHelper = new StringEscapeHelper(
+    true,
+    '"', '"',
+    '/', '/',
+    '\\', '\\',
+    'b', '\b',
+    'f', '\f',
+    'n', '\n',
+    'r', '\r',
+    't', '\t'
+  );
+
+  private static final StringEscapeHelper rawStringEscapeHelper = new StringEscapeHelper(
+    false,
+    '\'', '\'',
+    '\\', '\\'
+  );
+
   private final ParseTree tree;
   private final Deque<Node<T>> currentSource;
   private final Adapter<T> runtime;
@@ -92,9 +111,27 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private String identifierToString(JmesPathParser.IdentifierContext ctx) {
     String id = ctx.getText();
     if (ctx.STRING() != null) {
-      id = id.substring(1, id.length() - 1);
+      id = identifierEscapeHelper.unescape(id.substring(1, id.length() - 1));
     }
     return id;
+  }
+
+  private void checkForUnescapedBackticks(Token token) {
+    int unescapedBacktickIndex = indexOfUnescapedBacktick(token.getText());
+    if (unescapedBacktickIndex > -1) {
+      errors.parseError("unexpected `", token.getLine(), token.getStartIndex() + unescapedBacktickIndex);
+    }
+  }
+
+  private int indexOfUnescapedBacktick(String str) {
+    int backtickIndex = str.indexOf('`');
+    while (backtickIndex > -1) {
+      if (backtickIndex == 0 || str.charAt(backtickIndex - 1) != '\\') {
+        return backtickIndex;
+      }
+      backtickIndex = str.indexOf('`', backtickIndex + 1);
+    }
+    return -1;
   }
 
   @Override
@@ -126,7 +163,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   @Override
   public Node<T> visitRawStringExpression(JmesPathParser.RawStringExpressionContext ctx) {
     String quotedString = ctx.RAW_STRING().getText();
-    String unquotedString = quotedString.substring(1, quotedString.length() - 1);
+    String unquotedString = rawStringEscapeHelper.unescape(quotedString.substring(1, quotedString.length() - 1));
     return new StringNode<T>(runtime, unquotedString);
   }
 
@@ -292,8 +329,21 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitLiteral(JmesPathParser.LiteralContext ctx) {
+    visit(ctx.jsonValue());
     String string = ctx.jsonValue().getText();
     return new JsonLiteralNode<T>(runtime, string, runtime.parseString(string));
+  }
+
+  @Override
+  public Node<T> visitJsonStringValue(JmesPathParser.JsonStringValueContext ctx) {
+    checkForUnescapedBackticks(ctx.getStart());
+    return super.visitJsonStringValue(ctx);
+  }
+
+  @Override
+  public Node<T> visitJsonObjectPair(JmesPathParser.JsonObjectPairContext ctx) {
+    checkForUnescapedBackticks(ctx.STRING().getSymbol());
+    return super.visitJsonObjectPair(ctx);
   }
 
   @Override

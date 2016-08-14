@@ -1,5 +1,6 @@
 package io.burt.jmespath.jcf;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedHashMap;
@@ -12,6 +13,7 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Adapter;
+import io.burt.jmespath.util.StringEscapeHelper;
 import io.burt.jmespath.parser.ParseErrorAccumulator;
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.parser.JmesPathBaseVisitor;
@@ -19,6 +21,19 @@ import io.burt.jmespath.parser.JmesPathParser;
 import io.burt.jmespath.parser.JmesPathLexer;
 
 public class JsonParser extends JmesPathBaseVisitor<Object> {
+  private static final StringEscapeHelper jsonEscapeHelper = new StringEscapeHelper(
+    true,
+    '"', '"',
+    '/', '/',
+    '\\', '\\',
+    '`', '`',
+    'b', '\b',
+    'f', '\f',
+    'n', '\n',
+    'r', '\r',
+    't', '\t'
+  );
+
   private final ParseTree tree;
   private final Adapter<Object> runtime;
 
@@ -70,7 +85,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
   public Object visitJsonObject(JmesPathParser.JsonObjectContext ctx) {
     Map<Object, Object> object = new LinkedHashMap<>(ctx.jsonObjectPair().size());
     for (final JmesPathParser.JsonObjectPairContext pair : ctx.jsonObjectPair()) {
-      String key = unquote(pair.STRING().getText());
+      String key = jsonEscapeHelper.unescape(unquote(pair.STRING().getText()));
       Object value = visit(pair.jsonValue());
       object.put(key, value);
     }
@@ -88,7 +103,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonStringValue(JmesPathParser.JsonStringValueContext ctx) {
-    return runtime.createString(unquote(ctx.getText()));
+    return runtime.createString(jsonEscapeHelper.unescape(unquote(ctx.getText())));
   }
 
   @Override
