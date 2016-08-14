@@ -18,38 +18,23 @@ public class StringEscapeHelper {
       throw new IllegalArgumentException("Replacements must be even pairs");
     }
     this.unescapeUnicodeEscapes = unescapeUnicodeEscapes;
-    this.unescapeMap = createUnescapeMap(replacementPairs);
-    this.escapeMap = createEscapeMap(replacementPairs);
+    this.unescapeMap = createEscapeMap(replacementPairs, 0, 1);
+    this.escapeMap = createEscapeMap(replacementPairs, 1, 0);
   }
 
-  private static char[] createUnescapeMap(char[] pairs) {
+  private static char[] createEscapeMap(char[] pairs, int keyOffset, int valueOffset) {
     char max = 0;
     int i;
     for (i = 0; i < pairs.length; i += 2) {
-      if (pairs[i] > max) {
-        max = pairs[i];
+      char c = pairs[i + keyOffset];
+      if (c > max) {
+        max = c;
       }
     }
     char[] replacementsMap = new char[max + 1];
     Arrays.fill(replacementsMap, NO_REPLACEMENT);
     for (i = 0; i < pairs.length; i += 2) {
-      replacementsMap[pairs[i]] = pairs[i + 1];
-    }
-    return replacementsMap;
-  }
-
-  private static char[] createEscapeMap(char[] pairs) {
-    char max = 0;
-    int i;
-    for (i = 0; i < pairs.length; i += 2) {
-      if (pairs[i + 1] > max) {
-        max = pairs[i + 1];
-      }
-    }
-    char[] replacementsMap = new char[max + 1];
-    Arrays.fill(replacementsMap, NO_REPLACEMENT);
-    for (i = 0; i < pairs.length; i += 2) {
-      replacementsMap[pairs[i + 1]] = pairs[i];
+      replacementsMap[pairs[i + keyOffset]] = pairs[i + valueOffset];
     }
     return replacementsMap;
   }
