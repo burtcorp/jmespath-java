@@ -14,6 +14,11 @@ public class StartProjectionNode<T> extends Node<T> {
   }
 
   @Override
+  protected int projectionLevel() {
+    return source().projectionLevel() + 1;
+  }
+
+  @Override
   protected T searchWithCurrentValue(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.ARRAY) {
       return super.searchWithCurrentValue(currentValue);

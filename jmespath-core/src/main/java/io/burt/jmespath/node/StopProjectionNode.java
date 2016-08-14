@@ -13,6 +13,11 @@ public class StopProjectionNode<T> extends Node<T> {
   }
 
   @Override
+  protected int projectionLevel() {
+    return 0;
+  }
+
+  @Override
   protected boolean internalEquals(Object o) {
     return true;
   }

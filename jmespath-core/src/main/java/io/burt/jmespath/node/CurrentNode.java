@@ -17,6 +17,11 @@ public class CurrentNode<T> extends Node<T> {
   }
 
   @Override
+  protected int projectionLevel() {
+    return source() == null ? 0 : super.projectionLevel();
+  }
+
+  @Override
   public T search(T input) {
     return source() == null ? input : super.search(input);
   }

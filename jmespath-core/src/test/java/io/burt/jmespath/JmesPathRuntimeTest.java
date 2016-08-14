@@ -233,6 +233,19 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void projectionOnProjection() {
+    T result = search("Records[*].responseElements.instancesSet.items[*].instanceId", cloudtrail);
+    assertThat(result, is(parse("[[\"i-ebeaf9e2\"],[\"i-2e9faebe\"]]")));
+  }
+
+
+  @Test
+  public void pipeStopsNestedProjections() {
+    T result = search("Records[*].*.*.* | [2][0][0][] | [0].creationDate", cloudtrail);
+    assertThat(result, is(jsonString("2014-03-06T15:15:06Z")));
+  }
+
+  @Test
   public void literalString() {
     T result = search("'hello world'", cloudtrail);
     assertThat(result, is(jsonString("hello world")));

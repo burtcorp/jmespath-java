@@ -1,7 +1,7 @@
 package io.burt.jmespath.node;
 
 import java.util.List;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
@@ -24,6 +24,10 @@ public abstract class Node<T> implements Expression<T> {
     return source().isProjection();
   }
 
+  protected int projectionLevel() {
+    return source().projectionLevel();
+  }
+
   public T search(T input) {
     return searchWithCurrentValue(source().search(input));
   }
@@ -33,18 +37,29 @@ public abstract class Node<T> implements Expression<T> {
       if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
         return currentValue;
       } else {
-        List<T> outputs = new LinkedList<>();
-        for (T projectionElement : runtime.toList(currentValue)) {
-          T value = searchOne(projectionElement);
-          if (runtime.typeOf(value) != JmesPathType.NULL) {
-            outputs.add(value);
-          }
-        }
-        return runtime.createArray(outputs);
+        return runtime.createArray(unwrapProjections(currentValue, projectionLevel()));
       }
     } else {
       return searchOne(currentValue);
     }
+  }
+
+  private List<T> unwrapProjections(T currentValue, int level) {
+    List<T> inputs = runtime.toList(currentValue);
+    List<T> outputs = new ArrayList<>(inputs.size());
+    if (level > 1) {
+      for (T input : inputs) {
+        outputs.add(runtime.createArray(unwrapProjections(input, level - 1)));
+      }
+    } else {
+      for (T input : inputs) {
+        T value = searchOne(input);
+        if (runtime.typeOf(value) != JmesPathType.NULL) {
+          outputs.add(value);
+        }
+      }
+    }
+    return outputs;
   }
 
   protected T searchOne(T currentValue) {
