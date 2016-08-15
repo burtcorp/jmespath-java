@@ -1,7 +1,7 @@
 package io.burt.jmespath.node;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedList;
 
 import io.burt.jmespath.Adapter;
 
@@ -9,43 +9,29 @@ public class SliceNode<T> extends Node<T> {
   private final int start;
   private final int stop;
   private final int step;
+  private final int limit;
+  private final int rounding;
 
-  public SliceNode(Adapter<T> runtime, int start, int stop, int step, Node<T> source) {
+  public SliceNode(Adapter<T> runtime, Integer start, Integer stop, Integer step, Node<T> source) {
     super(runtime, source);
-    this.start = start;
-    this.stop = stop;
-    this.step = step;
+    this.step = (step == null) ? 1 : step;
+    this.rounding = (this.step < 0) ? (this.step + 1) : (this.step - 1);
+    this.limit = (this.step < 0) ? -1 : 0;
+    this.start = (start == null) ? this.limit : start;
+    this.stop = (stop == null) ? ((this.step < 0) ? Integer.MIN_VALUE : Integer.MAX_VALUE) : stop;
   }
 
   @Override
   public T searchOne(T projectionElement) {
     List<T> elements = runtime.toList(projectionElement);
-    List<T> output = new LinkedList<>();
-    int i = start < 0 ? elements.size() + start : start;
-    int n = stop <= 0 ? elements.size() + stop : Math.min(elements.size(), stop);
-    if (step > 0) {
-      for ( ; i < n; i += step) {
-        output.add(elements.get(i));
-      }
-    } else {
-      n = Math.min(elements.size() - 1, n);
-      for ( ; n > i; n += step) {
-        output.add(elements.get(n));
-      }
+    int begin = (start < 0) ? Math.max(elements.size() + start, 0) : Math.min(start, elements.size() + limit);
+    int end = (stop < 0) ? Math.max(elements.size() + stop, limit) : Math.min(stop, elements.size());
+    int steps = Math.max(0, (end - begin + rounding) / step);
+    List<T> output = new ArrayList<>(steps);
+    for (int i = 0, offset = begin; i < steps; i++, offset += step) {
+      output.add(elements.get(offset));
     }
     return runtime.createArray(output);
-  }
-
-  protected int start() {
-    return start;
-  }
-
-  protected int stop() {
-    return stop;
-  }
-
-  protected int step() {
-    return step;
   }
 
   @Override
@@ -56,7 +42,7 @@ public class SliceNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     SliceNode other = (SliceNode) o;
-    return start() == other.start() && stop() == other.stop() && step() == other.step();
+    return start == other.start && stop == other.stop && step == other.step;
   }
 
   @Override

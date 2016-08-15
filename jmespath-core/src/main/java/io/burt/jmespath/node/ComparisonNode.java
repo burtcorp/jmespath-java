@@ -64,8 +64,12 @@ public class ComparisonNode<T> extends OperatorNode<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    ComparisonNode other = (ComparisonNode) o;
-    return operator().equals(other.operator());
+    if (super.internalEquals(o)) {
+      ComparisonNode other = (ComparisonNode) o;
+      return operator().equals(other.operator());
+    } else {
+      return false;
+    }
   }
 
   @Override

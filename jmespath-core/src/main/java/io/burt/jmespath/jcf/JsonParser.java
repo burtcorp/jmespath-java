@@ -108,7 +108,11 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonNumberValue(JmesPathParser.JsonNumberValueContext ctx) {
-    return runtime.createNumber(Double.parseDouble(ctx.getText()));
+    if (ctx.REAL_OR_EXPONENT_NUMBER() != null) {
+      return runtime.createNumber(Double.parseDouble(ctx.getText()));
+    } else {
+      return runtime.createNumber(Long.parseLong(ctx.getText()));
+    }
   }
 
   @Override
@@ -123,12 +127,11 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonConstantValue(JmesPathParser.JsonConstantValueContext ctx) {
-    if (ctx.t != null) {
-      return runtime.createBoolean(true);
-    } else if (ctx.f != null) {
-      return runtime.createBoolean(false);
-    } else {
-      return runtime.createNull();
+    switch (ctx.getText().charAt(0)) {
+      case 't': return runtime.createBoolean(true);
+      case 'f': return runtime.createBoolean(false);
+      case 'n': return runtime.createNull();
+      default: throw new IllegalStateException(String.format("Expected true, false or null but encountered %s", ctx.getText()));
     }
   }
 }

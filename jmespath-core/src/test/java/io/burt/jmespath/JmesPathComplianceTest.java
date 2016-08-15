@@ -17,9 +17,8 @@ import io.burt.jmespath.function.ArgumentTypeException;
 import io.burt.jmespath.function.ArityException;
 import io.burt.jmespath.function.FunctionCallException;
 
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.hamcrest.Matchers.is;
 
 @RunWith(ComplianceRunner.class)
 public abstract class JmesPathComplianceTest<T> {
@@ -71,7 +70,10 @@ public abstract class JmesPathComplianceTest<T> {
         Expression<U> compiledExpression = runtime.compile(expression);
         U result = compiledExpression.search(input);
         if (expectedError == null) {
-          assertThat(result, is(expectedResult));
+          assertTrue(
+            String.format("Expected <%s> to be <%s>", result, expectedResult),
+            runtime.compare(expectedResult, result) == 0
+          );
         } else if ("syntax".equals(expectedError)) {
           fail("Expected ParseException to have been raised");
         } else if ("invalid-type".equals(expectedError)) {

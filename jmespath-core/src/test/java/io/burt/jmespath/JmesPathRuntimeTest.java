@@ -233,6 +233,19 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void projectionOnProjection() {
+    T result = search("Records[*].responseElements.instancesSet.items[*].instanceId", cloudtrail);
+    assertThat(result, is(parse("[[\"i-ebeaf9e2\"],[\"i-2e9faebe\"]]")));
+  }
+
+
+  @Test
+  public void pipeStopsNestedProjections() {
+    T result = search("Records[*].*.*.* | [2][0][0][] | [0].creationDate", cloudtrail);
+    assertThat(result, is(jsonString("2014-03-06T15:15:06Z")));
+  }
+
+  @Test
   public void literalString() {
     T result = search("'hello world'", cloudtrail);
     assertThat(result, is(jsonString("hello world")));
@@ -337,8 +350,42 @@ public abstract class JmesPathRuntimeTest<T> {
 
   @Test
   public void negativeStepSliceReversesOrder() {
+    T result = search("@[::-1]", parse("[0, 1, 2, 3, 4]"));
+    assertThat(result, is(parse("[4, 3, 2, 1, 0]")));
+  }
+
+  @Test
+  public void negativeStepSliceReversesOrderAndSlices() {
+    T result1 = search("@[3:1:-1]", parse("[0, 1, 2, 3, 4]"));
+    T result2 = search("@[3:0:-1]", parse("[0, 1, 2, 3, 4]"));
+    T result3 = search("@[3::-1]", parse("[0, 1, 2, 3, 4]"));
+    assertThat(result1, is(parse("[3, 2]")));
+    assertThat(result2, is(parse("[3, 2, 1]")));
+    assertThat(result3, is(parse("[3, 2, 1, 0]")));
+  }
+
+  @Test
+  public void negativeStepSliceReversesOrderAndSlicesAndHandlesOverflow() {
+    T result = search("@[10:1:-1]", parse("[0, 1, 2, 3, 4]"));
+    assertThat(result, is(parse("[4, 3, 2]")));
+  }
+
+  @Test
+  public void negativeStepSliceReversesOrderAndSkips() {
     T result = search("Records[0].userIdentity.* | [::-2]", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("Alice", "EXAMPLE_KEY_ID_ALICE", "EX_PRINCIPAL_ID")));
+  }
+
+  @Test
+  public void negativeStepSliceWithOutOfBoundsNegativeStop() {
+    T result = search("@[:-200:-1]", parse("[0, 1, 2, 3, 4]"));
+    assertThat(result, is(parse("[4, 3, 2, 1, 0]")));
+  }
+
+  @Test
+  public void sliceStartsProjection() {
+    T result = search("[:2].a", parse("[{\"a\":1},{\"a\":2},{\"a\":3}]"));
+    assertThat(result, is(parse("[1, 2]")));
   }
 
   @Test
@@ -1064,6 +1111,7 @@ public abstract class JmesPathRuntimeTest<T> {
   public void keysReturnsAnEmptyArrayWhenGivenAnEmptyObject() {
     T result = search("keys(@)", parse("{}"));
     assertThat(runtime().toList(result), is(empty()));
+    assertThat(result, is(parse("[]")));
   }
 
   @Test(expected = ArgumentTypeException.class)
@@ -1082,6 +1130,12 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void keysCanBeUsedInComparisons() {
+    T result = search("keys(@) == `[\"foo\",\"bar\"]`", parse("{\"foo\":3,\"bar\":2}"));
+    assertThat(result, is(jsonBoolean(true)));
+  }
+
+  @Test
   public void lengthReturnsTheLengthOfAString() {
     T result = search("length(foo)", parse("{\"foo\":\"bar\"}"));
     assertThat(result, is(jsonNumber(3)));
@@ -1097,6 +1151,12 @@ public abstract class JmesPathRuntimeTest<T> {
   public void lengthReturnsTheSizeOfAnObject() {
     T result = search("length(@)", parse("{\"foo\":[0, 1, 2, 3]}"));
     assertThat(result, is(jsonNumber(1)));
+  }
+
+  @Test
+  public void lengthCanBeUsedInComparisons() {
+    T result = search("length(@) == `3`", parse("[0, 1, 2]"));
+    assertThat(result, is(jsonBoolean(true)));
   }
 
   @Test(expected = ArgumentTypeException.class)
@@ -1119,6 +1179,24 @@ public abstract class JmesPathRuntimeTest<T> {
   public void mapReturnsAnEmptyArrayWhenGivenAnEmptyArray() {
     T result = search("map(&foo, @)", parse("[]"));
     assertThat(runtime().toList(result), is(empty()));
+  }
+
+  @Test
+  public void mapAcceptsAnArrayOfObjects() {
+    T result = search("map(&a, @)", parse("[{\"a\":1},{\"a\":2}]"));
+    assertThat(result, is(parse("[1,2]")));
+  }
+
+  @Test
+  public void mapAcceptsAnArrayOfArrays() {
+    T result = search("map(&[], @)", parse("[[1, 2, 3, [4]], [5, 6, 7, [8, 9]]]"));
+    assertThat(result, is(parse("[[1, 2, 3, 4], [5, 6, 7, 8, 9]]")));
+  }
+
+  @Test
+  public void mapAcceptsAnArrayOfNumbers() {
+    T result = search("map(&to_string(@), @)", parse("[1, -2, 3]"));
+    assertThat(result, is(parse("[\"1\", \"-2\", \"3\"]")));
   }
 
   @Test(expected = ArgumentTypeException.class)

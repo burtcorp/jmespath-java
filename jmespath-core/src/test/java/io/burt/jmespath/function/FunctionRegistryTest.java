@@ -51,10 +51,10 @@ public class FunctionRegistryTest {
   public void theDefaultRegistryContainsTheDefaultFunctions() {
     FunctionRegistry registry = FunctionRegistry.defaultRegistry();
     Object result;
-    result = callFunction("to_string", createValueArguments(1));
+    result = callFunction("to_string", createValueArguments(1L));
     assertThat(result, is((Object) "1"));
     result = callFunction("to_number", createValueArguments("1"));
-    assertThat(result, is((Object) 1.0));
+    assertThat(result, is((Object) 1L));
   }
 
   @Test
@@ -63,7 +63,7 @@ public class FunctionRegistryTest {
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING))
     );
     try {
-      callFunction("to_number", createValueArguments(1));
+      callFunction("to_number", createValueArguments(1L));
     } catch (FunctionCallException fce) {
       assertThat(fce.getMessage(), containsString("Unknown function: \"to_number\""));
     }
@@ -79,8 +79,8 @@ public class FunctionRegistryTest {
     Object result;
     result = callFunction("foo", createValueArguments("hello"));
     assertThat(result, is((Object) "hello"));
-    result = callFunction("bar", createValueArguments(42));
-    assertThat(result, is((Object) 42));
+    result = callFunction("bar", createValueArguments(42L));
+    assertThat(result, is((Object) 42L));
   }
 
   @Test
@@ -90,7 +90,7 @@ public class FunctionRegistryTest {
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     );
     runtime = new JcfRuntime(customRegistry);
-    callFunction("foo", createValueArguments(3));
+    callFunction("foo", createValueArguments(3L));
   }
 
   @Test
@@ -103,11 +103,11 @@ public class FunctionRegistryTest {
     runtime = new JcfRuntime(extendedRegistry);
     Object result;
     result = callFunction("to_number", createValueArguments("3"));
-    assertThat(result, is((Object) 3.0));
+    assertThat(result, is((Object) 3L));
     result = callFunction("foo", createValueArguments("hello"));
     assertThat(result, is((Object) "hello"));
-    result = callFunction("bar", createValueArguments(42));
-    assertThat(result, is((Object) 42));
+    result = callFunction("bar", createValueArguments(42L));
+    assertThat(result, is((Object) 42L));
   }
 
   @Test
