@@ -2,12 +2,13 @@ package io.burt.jmespath.node;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.Expression;
 
-public class OperatorNode<T> extends Node<T> {
+public abstract class OperatorNode<T> extends Node<T> {
   private final List<Expression<T>> operands;
 
   @SafeVarargs
@@ -15,6 +16,9 @@ public class OperatorNode<T> extends Node<T> {
     super(runtime);
     this.operands = Arrays.asList(operands);
   }
+
+  @Override
+  public abstract Node<T> copyWithSource(Node<T> source);
 
   protected List<Expression<T>> operands() {
     return operands;

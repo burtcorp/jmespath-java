@@ -14,7 +14,12 @@ public class IndexNode<T> extends Node<T> {
   }
 
   @Override
-  protected T searchOne(T currentValue) {
+  public Node<T> copyWithSource(Node<T> source) {
+    return new IndexNode<T>(runtime, index, source);
+  }
+
+  @Override
+  protected T searchWithCurrentValue(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.ARRAY) {
       List<T> elements = runtime.toList(currentValue);
       int i = index();

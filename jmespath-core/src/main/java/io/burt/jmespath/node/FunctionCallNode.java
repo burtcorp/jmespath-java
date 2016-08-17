@@ -21,7 +21,12 @@ public class FunctionCallNode<T> extends Node<T> {
   }
 
   @Override
-  protected T searchOne(T currentValue) {
+  public Node<T> copyWithSource(Node<T> source) {
+    return new FunctionCallNode<T>(runtime, implementation, args, source);
+  }
+
+  @Override
+  protected T searchWithCurrentValue(T currentValue) {
     List<FunctionArgument<T>> arguments = new ArrayList<>(args.size());
     for (Expression<T> arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {

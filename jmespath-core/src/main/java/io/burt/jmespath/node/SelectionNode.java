@@ -16,7 +16,12 @@ public class SelectionNode<T> extends Node<T> {
   }
 
   @Override
-  public T searchOne(T projectionElement) {
+  public Node<T> copyWithSource(Node<T> source) {
+    return new SelectionNode<T>(runtime, test, source);
+  }
+
+  @Override
+  public T searchWithCurrentValue(T projectionElement) {
     if (runtime.typeOf(projectionElement) == JmesPathType.ARRAY) {
       List<T> selectedElements = new LinkedList<>();
       for (T element : runtime.toList(projectionElement)) {

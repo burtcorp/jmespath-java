@@ -17,12 +17,17 @@ public class CreateArrayNode<T> extends Node<T> {
     this.entries = entries;
   }
 
+  @Override
+  public Node<T> copyWithSource(Node<T> source) {
+    return new CreateArrayNode<T>(runtime, entries, source);
+  }
+
   protected List<Expression<T>> entries() {
     return entries;
   }
 
   @Override
-  protected T searchOne(T currentValue) {
+  protected T searchWithCurrentValue(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {
