@@ -1896,4 +1896,24 @@ public abstract class JmesPathRuntimeTest<T> {
   public void valuesRequiresAValue() {
     search("values(&foo)", parse("{}"));
   }
+
+  @Test
+  public void valuesFromTheInputAreEqualToValuesFromLiterals() {
+    T input = parse("{\"a\":1,\"b\":2.0,\"c\":\"foo\"}");
+    assertThat(search("a == `1`", input), is(jsonBoolean(true)));
+    assertThat(search("b == `2.0`", input), is(jsonBoolean(true)));
+    assertThat(search("c == `\"foo\"`", input), is(jsonBoolean(true)));
+    assertThat(search("c == 'foo'", input), is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void calculatedValuesAreEqualToValuesFromLiterals() {
+    T input = parse("{\"a\":[1],\"b\":-2.0,\"c\":[\"fo\",\"o\"]}");
+    assertThat(search("length(a) == `1`", input), is(jsonBoolean(true)));
+    assertThat(search("[length(a)] == `[1]`", input), is(jsonBoolean(true)));
+    assertThat(search("{size: length(a)} == `{\"size\": 1}`", input), is(jsonBoolean(true)));
+    assertThat(search("abs(b) == `2.0`", input), is(jsonBoolean(true)));
+    assertThat(search("join('', c) == `\"foo\"`", input), is(jsonBoolean(true)));
+    assertThat(search("join('', c) == 'foo'", input), is(jsonBoolean(true)));
+  }
 }
