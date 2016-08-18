@@ -29,7 +29,12 @@ public class SliceNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new SliceNode<>(runtime, absoluteStart ? start : null, absoluteStop ? stop : null, absoluteStep ? step : null, source);
+    return runtime.nodeFactory().createSlice(
+      absoluteStart ? start : null,
+      absoluteStop ? stop : null,
+      absoluteStep ? step : null,
+      source
+    );
   }
 
   @Override

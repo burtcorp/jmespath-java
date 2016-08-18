@@ -8,7 +8,7 @@ public abstract class Node<T> implements Expression<T> {
   private final Node<T> source;
 
   public Node(Adapter<T> runtime) {
-    this(runtime, new CurrentNode<T>(runtime));
+    this(runtime, runtime.nodeFactory().createCurrent());
   }
 
   public Node(Adapter<T> runtime, Node<T> source) {

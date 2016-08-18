@@ -17,7 +17,7 @@ public class FunctionRegistryTest {
   private Adapter<Object> runtime = new JcfRuntime();
 
   private Object callFunction(String name, List<FunctionArgument<Object>> args) {
-    return runtime.getFunction(name).call(runtime, args);
+    return runtime.functionRegistry().getFunction(name).call(runtime, args);
   }
 
   private List<FunctionArgument<Object>> createValueArguments(Object... values) {

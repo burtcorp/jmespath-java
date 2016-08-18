@@ -6,15 +6,16 @@ import java.util.Collection;
 
 import io.burt.jmespath.parser.ExpressionParser;
 import io.burt.jmespath.function.FunctionRegistry;
-import io.burt.jmespath.function.Function;
+import io.burt.jmespath.node.NodeFactory;
+import io.burt.jmespath.node.StandardNodeFactory;
 import io.burt.jmespath.util.StringEscapeHelper;
 
 /**
  * This class can be extended instead of implementing {@link Adapter} directly,
  * in order to not have to implement a few of the methods that have non-specific
- * implementations, like {@link Adapter#getFunction}, {@link Adapter#typeOf} or
- * the {@link Comparable} interface. Subclasses are encouraged to override these
- * methods if they have more efficient means to perform the same job.
+ * implementations, like {@link Adapter#functionRegistry}, {@link Adapter#typeOf}
+ * or the {@link Comparable} interface. Subclasses are encouraged to override
+ * these methods if they have more efficient means to perform the same job.
  */
 public abstract class BaseRuntime<T> implements Adapter<T> {
   private static final StringEscapeHelper jsonEscapeHelper = new StringEscapeHelper(
@@ -29,6 +30,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   );
 
   private final FunctionRegistry functionRegistry;
+  private final NodeFactory<T> nodeFactory;
 
   /**
    * Create a new runtime with a default function registry.
@@ -46,6 +48,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     } else {
       this.functionRegistry = functionRegistry;
     }
+    this.nodeFactory = new StandardNodeFactory<>(this);
   }
 
   @Override
@@ -130,15 +133,14 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     return true;
   }
 
-  /**
-   * Returns the function by the specified name or null if no such function exists.
-   * <p>
-   * Very few runtimes will have any reason to override this method, it only
-   * proxies the call to {@link FunctionRegistry#getFunction}.
-   */
   @Override
-  public Function getFunction(String name) {
-    return functionRegistry.getFunction(name);
+  public FunctionRegistry functionRegistry() {
+    return functionRegistry;
+  }
+
+  @Override
+  public NodeFactory<T> nodeFactory() {
+    return nodeFactory;
   }
 
   /**
