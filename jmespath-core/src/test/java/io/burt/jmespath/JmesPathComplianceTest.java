@@ -4,11 +4,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Enumeration;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.File;
+import java.net.URI;
+import java.net.URLDecoder;
 import java.net.URISyntaxException;
+import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
 
 import org.junit.runner.RunWith;
 
@@ -119,13 +125,28 @@ public abstract class JmesPathComplianceTest<T> {
 
   public Iterable<String> getFeatureNames() {
     try {
-      File testsDir = new File(getClass().getResource(TESTS_PATH).toURI());
       List<String> featureNames = new LinkedList<>();
-      for (File testFile : testsDir.listFiles()) {
-        String fileName = testFile.getName();
-        featureNames.add(fileName.substring(0, fileName.length() - 5));
+      URI uri = getClass().getResource(TESTS_PATH).toURI();
+      if (uri.getScheme().equals("jar")) {
+        String jarPath = uri.toString().substring("jar:file:".length(), uri.toString().indexOf("!"));
+        JarFile jarFile = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+          String fileName = entries.nextElement().getName();
+          if (fileName.startsWith(TESTS_PATH)) {
+            featureNames.add(fileName.substring(0, fileName.length() - 5));
+          }
+        }
+      } else {
+        File testsDir = new File(uri);
+        for (File testFile : testsDir.listFiles()) {
+          String fileName = testFile.getName();
+          featureNames.add(fileName.substring(0, fileName.length() - 5));
+        }
       }
       return featureNames;
+    } catch (IOException ioe) {
+      throw new RuntimeException("Could not load compliance feature names", ioe);
     } catch (URISyntaxException use) {
       throw new RuntimeException("Could not load compliance feature names", use);
     }
