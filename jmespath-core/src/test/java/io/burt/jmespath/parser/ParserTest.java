@@ -36,46 +36,112 @@ import static org.hamcrest.Matchers.is;
 
 public class ParserTest {
   private Adapter<Object> runtime = new JcfRuntime();
-  private CurrentNode<Object> currentNode = new CurrentNode<Object>(runtime);
 
   private Expression<Object> compile(String str) {
     return runtime.compile(str);
   }
 
-  private JsonLiteralNode<Object> createJsonLiteralNode(String json) {
-    return new JsonLiteralNode<Object>(runtime, json, runtime.parseString(json));
+  private Node<Object> createCurrent() {
+    return new CurrentNode<Object>(runtime);
   }
 
-  @SafeVarargs
-  private final List<Expression<Object>> asExpressionList(Expression<Object>... expressions) {
-    return Arrays.asList(expressions);
+  private Node<Object> createCurrent(Node<Object> source) {
+    return new CurrentNode<Object>(runtime, source);
+  }
+
+  private Node<Object> createProperty(String name, Node<Object> source) {
+    return new PropertyNode<Object>(runtime, name, source);
+  }
+
+  private Node<Object> createIndex(int index, Node<Object> source) {
+    return new IndexNode<Object>(runtime, index, source);
+  }
+
+  private Node<Object> createSlice(Integer start, Integer stop, Integer step, Node<Object> source) {
+    return new SliceNode<Object>(runtime, start, stop, step, source);
+  }
+
+  private Node<Object> createProjection(Expression<Object> expression, Node<Object> source) {
+    return new ProjectionNode<Object>(runtime, expression, source);
+  }
+
+  private Node<Object> createFlattenArray(Node<Object> source) {
+    return new FlattenArrayNode<Object>(runtime, source);
+  }
+
+  private Node<Object> createFlattenObject(Node<Object> source) {
+    return new FlattenObjectNode<Object>(runtime, source);
+  }
+
+  private Node<Object> createSelection(Expression<Object> test, Node<Object> source) {
+    return new SelectionNode<Object>(runtime, test, source);
+  }
+
+  private Node<Object> createComparison(String operator, Expression<Object> left, Expression<Object> right) {
+    return new ComparisonNode<Object>(runtime, operator, left, right);
+  }
+
+  private Node<Object> createOr(Expression<Object> left, Expression<Object> right) {
+    return new OrNode<Object>(runtime, left, right);
+  }
+
+  private Node<Object> createAnd(Expression<Object> left, Expression<Object> right) {
+    return new AndNode<Object>(runtime, left, right);
+  }
+
+  private Node<Object> createFunctionCall(String functionName, List<? extends Expression<Object>> args, Node<Object> source) {
+    return new FunctionCallNode<Object>(runtime, runtime.getFunction(functionName), args, source);
+  }
+
+  private Node<Object> createExpressionReference(Expression<Object> expression) {
+    return new ExpressionReferenceNode<Object>(runtime, expression);
+  }
+
+  private Node<Object> createString(String str) {
+    return new StringNode<Object>(runtime, str);
+  }
+
+  private Node<Object> createNegate(Node<Object> source) {
+    return new NegateNode<Object>(runtime, source);
+  }
+
+  private Node<Object> createObject(List<CreateObjectNode.Entry<Object>> entries, Node<Object> source) {
+    return new CreateObjectNode<Object>(runtime, entries, source);
+  }
+
+  private Node<Object> createArray(List<? extends Expression<Object>> entries, Node<Object> source) {
+    return new CreateArrayNode<Object>(runtime, entries, source);
+  }
+
+  private Node<Object> createJsonLiteral(String json) {
+    return new JsonLiteralNode<Object>(runtime, json, runtime.parseString(json));
   }
 
   @Test
   public void identifierExpression() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "foo", currentNode);
+    Expression<Object> expected = createProperty("foo", createCurrent());
     Expression<Object> actual = compile("foo");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void quotedIdentifierExpression() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "foo-bar", currentNode);
+    Expression<Object> expected = createProperty("foo-bar", createCurrent());
     Expression<Object> actual = compile("\"foo-bar\"");
     assertThat(actual, is(expected));
   }
 
   @Test()
   public void quotedIdentifierExpressionsAreUnescapedLikeJsonStrings() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "\\foo bar\n", currentNode);
+    Expression<Object> expected = createProperty("\\foo bar\n", createCurrent());
     Expression<Object> actual = compile("\"\\\\foo\\u0020bar\\n\"");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void chainExpression() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "bar",
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProperty("bar",
+      createProperty("foo", createCurrent())
     );
     Expression<Object> actual = compile("foo.bar");
     assertThat(actual, is(expected));
@@ -83,10 +149,10 @@ public class ParserTest {
 
   @Test
   public void longChainExpression() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "qux",
-      new PropertyNode<Object>(runtime, "baz",
-        new PropertyNode<Object>(runtime, "bar",
-          new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProperty("qux",
+      createProperty("baz",
+        createProperty("bar",
+          createProperty("foo", createCurrent())
         )
       )
     );
@@ -96,8 +162,8 @@ public class ParserTest {
 
   @Test
   public void pipeExpressionWithoutProjection() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "bar",
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProperty("bar",
+      createProperty("foo", createCurrent())
     );
     Expression<Object> actual = compile("foo | bar");
     assertThat(actual, is(expected));
@@ -105,10 +171,10 @@ public class ParserTest {
 
   @Test
   public void longPipeExpressionWithoutProjection() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "qux",
-      new PropertyNode<Object>(runtime, "baz",
-        new PropertyNode<Object>(runtime, "bar",
-          new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProperty("qux",
+      createProperty("baz",
+        createProperty("bar",
+          createProperty("foo", createCurrent())
         )
       )
     );
@@ -118,10 +184,10 @@ public class ParserTest {
 
   @Test
   public void pipesAndChains() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "qux",
-      new PropertyNode<Object>(runtime, "baz",
-        new PropertyNode<Object>(runtime, "bar",
-          new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProperty("qux",
+      createProperty("baz",
+        createProperty("bar",
+          createProperty("foo", createCurrent())
         )
       )
     );
@@ -131,8 +197,8 @@ public class ParserTest {
 
   @Test
   public void indexExpression() {
-    Expression<Object> expected = new IndexNode<Object>(runtime, 3,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createIndex(3,
+      createProperty("foo", createCurrent())
     );
     Expression<Object> actual = compile("foo[3]");
     assertThat(actual, is(expected));
@@ -140,17 +206,17 @@ public class ParserTest {
 
   @Test
   public void bareIndexExpression() {
-    Expression<Object> expected = new IndexNode<Object>(runtime, 3, currentNode);
+    Expression<Object> expected = createIndex(3, createCurrent());
     Expression<Object> actual = compile("[3]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void sliceExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, 3, 4, 1,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(3, 4, 1,
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[3:4]");
@@ -159,10 +225,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithoutStopExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, 3, null, 1,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(3, null, 1,
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[3:]");
@@ -171,10 +237,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithoutStartExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, null, 4, 1,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(null, 4, 1,
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[:4]");
@@ -183,10 +249,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithStepExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, 3, 4, 5,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(3, 4, 5,
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[3:4:5]");
@@ -195,10 +261,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithStepButWithoutStopExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, 3, null, 5,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(3, null, 5,
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[3::5]");
@@ -207,10 +273,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithJustColonExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, null, null, 1,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(null, null, 1,
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[:]");
@@ -219,10 +285,10 @@ public class ParserTest {
 
   @Test
   public void sliceWithJustTwoColonsExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, null, null, 1,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(null, null, 1,
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[::]");
@@ -231,9 +297,9 @@ public class ParserTest {
 
   @Test
   public void bareSliceExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, 0, 1, 2, currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(0, 1, 2, createCurrent())
     );
     Expression<Object> actual = compile("[0:1:2]");
     assertThat(actual, is(expected));
@@ -247,10 +313,10 @@ public class ParserTest {
 
   @Test
   public void flattenExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new FlattenArrayNode<Object>(runtime,
-          new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createFlattenArray(
+          createProperty("foo", createCurrent())
         )
       );
     Expression<Object> actual = compile("foo[]");
@@ -259,9 +325,9 @@ public class ParserTest {
 
   @Test
   public void bareFlattenExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new FlattenArrayNode<Object>(runtime, currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createFlattenArray( createCurrent())
     );
     Expression<Object> actual = compile("[]");
     assertThat(actual, is(expected));
@@ -269,9 +335,9 @@ public class ParserTest {
 
   @Test
   public void listWildcardExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createProperty("foo", createCurrent())
     );
     Expression<Object> actual = compile("foo[*]");
     assertThat(actual, is(expected));
@@ -279,17 +345,17 @@ public class ParserTest {
 
   @Test
   public void bareListWildcardExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime, currentNode, currentNode);
+    Expression<Object> expected = createProjection(createCurrent(), createCurrent());
     Expression<Object> actual = compile("[*]");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void hashWildcardExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new FlattenObjectNode<Object>(runtime,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createFlattenObject(
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo.*");
@@ -298,9 +364,9 @@ public class ParserTest {
 
   @Test
   public void bareHashWildcardExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new FlattenObjectNode<Object>(runtime, currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createFlattenObject( createCurrent())
     );
     Expression<Object> actual = compile("*");
     assertThat(actual, is(expected));
@@ -308,17 +374,17 @@ public class ParserTest {
 
   @Test
   public void currentNodeExpression() {
-    Expression<Object> expected = currentNode;
+    Expression<Object> expected = createCurrent();
     Expression<Object> actual = compile("@");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void currentNodeInPipes() {
-    Expression<Object> expected = new CurrentNode<Object>(runtime,
-      new PropertyNode<Object>(runtime, "bar",
-        new CurrentNode<Object>(runtime,
-          new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createCurrent(
+      createProperty("bar",
+        createCurrent(
+          createProperty("foo", createCurrent())
         )
       )
     );
@@ -328,11 +394,11 @@ public class ParserTest {
 
   @Test
   public void selectionExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SelectionNode<Object>(runtime,
-        new PropertyNode<Object>(runtime, "bar", currentNode),
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSelection(
+        createProperty("bar", createCurrent()),
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[?bar]");
@@ -341,14 +407,14 @@ public class ParserTest {
 
   @Test
   public void selectionWithConditionExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SelectionNode<Object>(runtime,
-        new ComparisonNode<Object>(runtime, "==",
-          new PropertyNode<Object>(runtime, "bar", currentNode),
-          new PropertyNode<Object>(runtime, "baz", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSelection(
+        createComparison("==",
+          createProperty("bar", createCurrent()),
+          createProperty("baz", createCurrent())
         ),
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[?bar == baz]");
@@ -357,11 +423,11 @@ public class ParserTest {
 
   @Test
   public void bareSelection() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SelectionNode<Object>(runtime,
-        new PropertyNode<Object>(runtime, "bar", currentNode),
-        currentNode
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSelection(
+        createProperty("bar", createCurrent()),
+        createCurrent()
       )
     );
     Expression<Object> actual = compile("[?bar]");
@@ -369,72 +435,60 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void simpleFunctionCallExpression() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
-      runtime.getFunction("sort"),
-      Arrays.asList(currentNode),
-      currentNode
+    Expression<Object> expected = createFunctionCall("sort",
+      Arrays.asList(createCurrent()),
+      createCurrent()
     );
     Expression<Object> actual = compile("sort(@)");
     assertThat(actual, is(expected));
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void functionCallWithArgumentExpression() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
-      runtime.getFunction("sort"),
-      Arrays.asList(
-        new PropertyNode<Object>(runtime, "bar", currentNode)
-      ),
-      currentNode
+    Expression<Object> expected = createFunctionCall("sort",
+      Arrays.asList(createProperty("bar", createCurrent())),
+      createCurrent()
     );
     Expression<Object> actual = compile("sort(bar)");
     assertThat(actual, is(expected));
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void functionCallWithMultipleArgumentsExpression() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
-      runtime.getFunction("merge"),
+    Expression<Object> expected = createFunctionCall("merge",
       Arrays.asList(
-        new PropertyNode<Object>(runtime, "bar", currentNode),
-        new PropertyNode<Object>(runtime, "baz", currentNode),
-        currentNode
+        createProperty("bar", createCurrent()),
+        createProperty("baz", createCurrent()),
+        createCurrent()
       ),
-      currentNode
+      createCurrent()
     );
     Expression<Object> actual = compile("merge(bar, baz, @)");
     assertThat(actual, is(expected));
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void chainedFunctionCallExpression() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
-      runtime.getFunction("to_string"),
-      Arrays.asList(currentNode),
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createFunctionCall("to_string",
+      Arrays.asList(createCurrent()),
+      createProperty("foo", createCurrent())
     );
     Expression<Object> actual = compile("foo.to_string(@)");
     assertThat(actual, is(expected));
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void functionCallWithExpressionReference() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
-      runtime.getFunction("sort"),
+    Expression<Object> expected = createFunctionCall("sort",
       Arrays.asList(
-        new ExpressionReferenceNode<Object>(runtime,
-          new PropertyNode<Object>(runtime, "bar",
-            new PropertyNode<Object>(runtime, "bar", currentNode)
+        createExpressionReference(
+          createProperty("bar",
+            createProperty("bar", createCurrent())
           )
         )
       ),
-      currentNode
+      createCurrent()
     );
     Expression<Object> actual = compile("sort(&bar.bar)");
     assertThat(actual, is(expected));
@@ -453,21 +507,21 @@ public class ParserTest {
 
   @Test
   public void bareRawStringExpression() {
-    Expression<Object> expected = new StringNode<Object>(runtime, "foo");
+    Expression<Object> expected = createString("foo");
     Expression<Object> actual = compile("'foo'");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void rawStringComparisonExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SelectionNode<Object>(runtime,
-        new ComparisonNode<Object>(runtime, "!=",
-          new PropertyNode<Object>(runtime, "bar", currentNode),
-          new StringNode<Object>(runtime, "baz")
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSelection(
+        createComparison("!=",
+          createProperty("bar", createCurrent()),
+          createString("baz")
         ),
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[?bar != 'baz']");
@@ -476,9 +530,9 @@ public class ParserTest {
 
   @Test
   public void andExpression() {
-    Expression<Object> expected = new AndNode<Object>(runtime,
-      new PropertyNode<Object>(runtime, "foo", currentNode),
-      new PropertyNode<Object>(runtime, "bar", currentNode)
+    Expression<Object> expected = createAnd(
+      createProperty("foo", createCurrent()),
+      createProperty("bar", createCurrent())
     );
     Expression<Object> actual = compile("foo && bar");
     assertThat(actual, is(expected));
@@ -486,9 +540,9 @@ public class ParserTest {
 
   @Test
   public void orExpression() {
-    Expression<Object> expected = new OrNode<Object>(runtime,
-      new PropertyNode<Object>(runtime, "foo", currentNode),
-      new PropertyNode<Object>(runtime, "bar", currentNode)
+    Expression<Object> expected = createOr(
+      createProperty("foo", createCurrent()),
+      createProperty("bar", createCurrent())
     );
     Expression<Object> actual = compile("foo || bar");
     assertThat(actual, is(expected));
@@ -496,9 +550,9 @@ public class ParserTest {
 
   @Test
   public void wildcardAfterPipe() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createProperty("foo", createCurrent())
     );
     Expression<Object> actual = compile("foo | [*]");
     assertThat(actual, is(expected));
@@ -506,8 +560,8 @@ public class ParserTest {
 
   @Test
   public void indexAfterPipe() {
-    Expression<Object> expected = new IndexNode<Object>(runtime, 1,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createIndex(1,
+      createProperty("foo", createCurrent())
     );
     Expression<Object> actual = compile("foo | [1]");
     assertThat(actual, is(expected));
@@ -515,10 +569,10 @@ public class ParserTest {
 
   @Test
   public void sliceAfterPipe() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, 1, 2, 1,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(1, 2, 1,
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo | [1:2]");
@@ -527,10 +581,10 @@ public class ParserTest {
 
   @Test
   public void flattenAfterPipe() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new FlattenArrayNode<Object>(runtime,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createFlattenArray(
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo | []");
@@ -539,11 +593,11 @@ public class ParserTest {
 
   @Test
   public void selectionAfterPipe() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SelectionNode<Object>(runtime,
-        new PropertyNode<Object>(runtime, "bar", currentNode),
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSelection(
+        createProperty("bar", createCurrent()),
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo | [?bar]");
@@ -552,26 +606,26 @@ public class ParserTest {
 
   @Test
   public void booleanComparisonExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SelectionNode<Object>(runtime,
-        new OrNode<Object>(runtime,
-          new AndNode<Object>(runtime,
-            new ComparisonNode<Object>(runtime, "!=",
-              new PropertyNode<Object>(runtime, "bar", currentNode),
-              new StringNode<Object>(runtime, "baz")
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSelection(
+        createOr(
+          createAnd(
+            createComparison("!=",
+              createProperty("bar", createCurrent()),
+              createString("baz")
             ),
-            new ComparisonNode<Object>(runtime, "==",
-              new PropertyNode<Object>(runtime, "qux", currentNode),
-              new StringNode<Object>(runtime, "fux")
+            createComparison("==",
+              createProperty("qux", createCurrent()),
+              createString("fux")
             )
           ),
-          new ComparisonNode<Object>(runtime, ">",
-            new PropertyNode<Object>(runtime, "mux", currentNode),
-            new StringNode<Object>(runtime, "lux")
+          createComparison(">",
+            createProperty("mux", createCurrent()),
+            createString("lux")
           )
         ),
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[?bar != 'baz' && qux == 'fux' || mux > 'lux']");
@@ -579,16 +633,14 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void chainPipeFunctionCallCombination() {
-    Expression<Object> expected = new FunctionCallNode<Object>(runtime,
-      runtime.getFunction("sort"),
-      Arrays.asList(currentNode),
-      new ProjectionNode<Object>(runtime,
-        currentNode,
-        new FlattenArrayNode<Object>(runtime,
-          new PropertyNode<Object>(runtime, "bar",
-            new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createFunctionCall("sort",
+      Arrays.asList(createCurrent()),
+      createProjection(
+        createCurrent(),
+        createFlattenArray(
+          createProperty("bar",
+            createProperty("foo", createCurrent())
           )
         )
       )
@@ -599,14 +651,14 @@ public class ParserTest {
 
   @Test
   public void chainPipeIndexSliceCombination() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SliceNode<Object>(runtime, 2, 3, 1,
-        new PropertyNode<Object>(runtime, "qux",
-          new PropertyNode<Object>(runtime, "baz",
-            new PropertyNode<Object>(runtime, "bar",
-              new IndexNode<Object>(runtime, 3,
-                new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSlice(2, 3, 1,
+        createProperty("qux",
+          createProperty("baz",
+            createProperty("bar",
+              createIndex(3,
+                createProperty("foo", createCurrent())
               )
             )
           )
@@ -620,12 +672,12 @@ public class ParserTest {
   @Test
   @SuppressWarnings("unchecked")
   public void bareMultiSelectHashExpression() {
-    Expression<Object> expected = new CreateObjectNode<Object>(runtime,
+    Expression<Object> expected = createObject(
       Arrays.asList(
-        new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
-        new CreateObjectNode.Entry<Object>("baz", currentNode)
+        new CreateObjectNode.Entry<Object>("foo", createString("bar")),
+        new CreateObjectNode.Entry<Object>("baz", createCurrent())
       ),
-      currentNode
+      createCurrent()
     );
     Expression<Object> actual = compile("{foo: 'bar', baz: @}");
     assertThat(actual, is(expected));
@@ -634,13 +686,13 @@ public class ParserTest {
   @Test
   @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashExpression() {
-    Expression<Object> expected = new CreateObjectNode<Object>(runtime,
+    Expression<Object> expected = createObject(
       Arrays.asList(
-        new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
-        new CreateObjectNode.Entry<Object>("baz", currentNode)
+        new CreateObjectNode.Entry<Object>("foo", createString("bar")),
+        new CreateObjectNode.Entry<Object>("baz", createCurrent())
       ),
-      new PropertyNode<Object>(runtime, "world",
-        new PropertyNode<Object>(runtime, "hello", currentNode)
+      createProperty("world",
+        createProperty("hello", createCurrent())
       )
     );
     Expression<Object> actual = compile("hello | world.{foo: 'bar', baz: @}");
@@ -650,44 +702,41 @@ public class ParserTest {
   @Test
   @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashWithQuotedKeys() {
-    Expression<Object> expected = new CreateObjectNode<Object>(runtime,
+    Expression<Object> expected = createObject(
       Arrays.asList(
-        new CreateObjectNode.Entry<Object>("foo", new StringNode<Object>(runtime, "bar")),
-        new CreateObjectNode.Entry<Object>("baz", currentNode)
+        new CreateObjectNode.Entry<Object>("foo", createString("bar")),
+        new CreateObjectNode.Entry<Object>("baz", createCurrent())
       ),
-      currentNode
+      createCurrent()
     );
     Expression<Object> actual = compile("{\"foo\": 'bar', \"baz\": @}");
     assertThat(actual, is(expected));
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void jmesPathSiteExampleExpression() {
-    Expression<Object> expected = new CreateObjectNode<Object>(runtime,
+    Expression<Object> expected = createObject(
       Arrays.asList(
         new CreateObjectNode.Entry<Object>("WashingtonCities",
-          new FunctionCallNode<Object>(runtime,
-            runtime.getFunction("join"),
+          createFunctionCall("join",
             Arrays.asList(
-              new StringNode<Object>(runtime, ", "),
-              currentNode
+              createString(", "),
+              createCurrent()
             ),
-            currentNode
+            createCurrent()
           )
         )
       ),
-      new FunctionCallNode<Object>(runtime,
-        runtime.getFunction("sort"),
-        Arrays.asList(currentNode),
-        new ProjectionNode<Object>(runtime,
-          new PropertyNode<Object>(runtime, "name", currentNode),
-          new SelectionNode<Object>(runtime,
-            new ComparisonNode<Object>(runtime, "==",
-              new PropertyNode<Object>(runtime, "state", currentNode),
-              new StringNode<Object>(runtime, "WA")
+      createFunctionCall("sort",
+        Arrays.asList(createCurrent()),
+        createProjection(
+          createProperty("name", createCurrent()),
+          createSelection(
+            createComparison("==",
+              createProperty("state", createCurrent()),
+              createString("WA")
             ),
-            new PropertyNode<Object>(runtime, "locations", currentNode)
+            createProperty("locations", createCurrent())
           )
         )
       )
@@ -697,29 +746,27 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void bareMultiSelectListExpression() {
-    Expression<Object> expected = new CreateArrayNode<Object>(runtime,
-      asExpressionList(
-        new StringNode<Object>(runtime, "bar"),
-        currentNode
+    Expression<Object> expected = createArray(
+      Arrays.asList(
+        createString("bar"),
+        createCurrent()
       ),
-      currentNode
+      createCurrent()
     );
     Expression<Object> actual = compile("['bar', @]");
     assertThat(actual, is(expected));
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void chainedMultiSelectListExpression() {
-    Expression<Object> expected = new CreateArrayNode<Object>(runtime,
-      asExpressionList(
-        new StringNode<Object>(runtime, "bar"),
-        currentNode
+    Expression<Object> expected = createArray(
+      Arrays.asList(
+        createString("bar"),
+        createCurrent()
       ),
-      new PropertyNode<Object>(runtime, "world",
-        new PropertyNode<Object>(runtime, "hello", currentNode)
+      createProperty("world",
+        createProperty("hello", createCurrent())
       )
     );
     Expression<Object> actual = compile("hello | world.['bar', @]");
@@ -728,9 +775,9 @@ public class ParserTest {
 
   @Test
   public void parenthesizedPipeExpression() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "baz",
-      new PropertyNode<Object>(runtime, "bar",
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProperty("baz",
+      createProperty("bar",
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo | (bar | baz)");
@@ -739,26 +786,26 @@ public class ParserTest {
 
   @Test
   public void parenthesizedComparisonExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SelectionNode<Object>(runtime,
-        new AndNode<Object>(runtime,
-          new ComparisonNode<Object>(runtime, "==",
-            new PropertyNode<Object>(runtime, "bar", currentNode),
-            new StringNode<Object>(runtime, "baz")
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSelection(
+        createAnd(
+          createComparison("==",
+            createProperty("bar", createCurrent()),
+            createString("baz")
           ),
-          new OrNode<Object>(runtime,
-            new ComparisonNode<Object>(runtime, "==",
-              new PropertyNode<Object>(runtime, "qux", currentNode),
-              new StringNode<Object>(runtime, "fux")
+          createOr(
+            createComparison("==",
+              createProperty("qux", createCurrent()),
+              createString("fux")
             ),
-            new ComparisonNode<Object>(runtime, "==",
-              new PropertyNode<Object>(runtime, "mux", currentNode),
-              new StringNode<Object>(runtime, "lux")
+            createComparison("==",
+              createProperty("mux", createCurrent()),
+              createString("lux")
             )
           )
         ),
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[?bar == 'baz' && (qux == 'fux' || mux == 'lux')]");
@@ -767,8 +814,8 @@ public class ParserTest {
 
   @Test
   public void bareNegatedExpression() {
-    Expression<Object> expected = new NegateNode<Object>(runtime,
-      new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createNegate(
+      createProperty("foo", createCurrent())
     );
     Expression<Object> actual = compile("!foo");
     assertThat(actual, is(expected));
@@ -776,11 +823,11 @@ public class ParserTest {
 
   @Test
   public void negatedSelectionExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SelectionNode<Object>(runtime,
-        new NegateNode<Object>(runtime, new PropertyNode<Object>(runtime, "bar", currentNode)),
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSelection(
+        createNegate(createProperty("bar", createCurrent())),
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[?!bar]");
@@ -789,112 +836,112 @@ public class ParserTest {
 
   @Test
   public void bareJsonLiteralExpression() {
-    Expression<Object> expected = createJsonLiteralNode("{}");
+    Expression<Object> expected = createJsonLiteral("{}");
     Expression<Object> actual = compile("`{}`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralArray() {
-    Expression<Object> expected = createJsonLiteralNode("[]");
+    Expression<Object> expected = createJsonLiteral("[]");
     Expression<Object> actual = compile("`[]`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralNumber() {
-    Expression<Object> expected = createJsonLiteralNode("3.14");
+    Expression<Object> expected = createJsonLiteral("3.14");
     Expression<Object> actual = compile("`3.14`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralString() {
-    Expression<Object> expected = createJsonLiteralNode("\"foo\"");
+    Expression<Object> expected = createJsonLiteral("\"foo\"");
     Expression<Object> actual = compile("`\"foo\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralConstant() {
-    Expression<Object> expected = createJsonLiteralNode("false");
+    Expression<Object> expected = createJsonLiteral("false");
     Expression<Object> actual = compile("`false`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralStringWithEscapedNewline() {
-    Expression<Object> expected = createJsonLiteralNode("\"hello\nworld\"");
+    Expression<Object> expected = createJsonLiteral("\"hello\nworld\"");
     Expression<Object> actual = compile("`\"hello\\nworld\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralStringWithEscapedTab() {
-    Expression<Object> expected = createJsonLiteralNode("\"hello\tworld\"");
+    Expression<Object> expected = createJsonLiteral("\"hello\tworld\"");
     Expression<Object> actual = compile("`\"hello\\tworld\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralStringWithEscapedUnicode() {
-    Expression<Object> expected = createJsonLiteralNode("\"hello\\u0020world\"");
+    Expression<Object> expected = createJsonLiteral("\"hello\\u0020world\"");
     Expression<Object> actual = compile("`\"hello world\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralStringWithEscapedQuote() {
-    Expression<Object> expected = createJsonLiteralNode("\"hello \\\"world\\\"\"");
+    Expression<Object> expected = createJsonLiteral("\"hello \\\"world\\\"\"");
     Expression<Object> actual = compile("`\"hello \\\"world\\\"\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralStringWithEscapedBackslash() {
-    Expression<Object> expected = createJsonLiteralNode("\"c:\\\\\\\\windows\\\\path\"");
+    Expression<Object> expected = createJsonLiteral("\"c:\\\\\\\\windows\\\\path\"");
     Expression<Object> actual = compile("`\"c:\\\\\\\\windows\\\\path\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralObjectWithEscapedNewlineInKey() {
-    Expression<Object> expected = createJsonLiteralNode("{\"hello\nworld\":1}");
+    Expression<Object> expected = createJsonLiteral("{\"hello\nworld\":1}");
     Expression<Object> actual = compile("`{\"hello\\nworld\":1}`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralObjectWithEscapedTabInKey() {
-    Expression<Object> expected = createJsonLiteralNode("{\"hello\tworld\":1}");
+    Expression<Object> expected = createJsonLiteral("{\"hello\tworld\":1}");
     Expression<Object> actual = compile("`{\"hello\\tworld\":1}`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralObjectWithEscapedUnicodeInKey() {
-    Expression<Object> expected = createJsonLiteralNode("{\"hello\\u0020world\":1}");
+    Expression<Object> expected = createJsonLiteral("{\"hello\\u0020world\":1}");
     Expression<Object> actual = compile("`{\"hello world\":1}`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralObjectWithEscapedQuoteInKey() {
-    Expression<Object> expected = createJsonLiteralNode("{\"hello \\\"world\\\"\":1}");
+    Expression<Object> expected = createJsonLiteral("{\"hello \\\"world\\\"\":1}");
     Expression<Object> actual = compile("`{\"hello \\\"world\\\"\":1}`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void bareJsonLiteralObjectWithEscapedBackslashInKey() {
-    Expression<Object> expected = createJsonLiteralNode("{\"c:\\\\\\\\windows\\\\path\":1}");
+    Expression<Object> expected = createJsonLiteral("{\"c:\\\\\\\\windows\\\\path\":1}");
     Expression<Object> actual = compile("`{\"c:\\\\\\\\windows\\\\path\":1}`");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void escapedBacktickInJsonString() {
-    Expression<Object> expected = createJsonLiteralNode("\"fo`o\"");
+    Expression<Object> expected = createJsonLiteral("\"fo`o\"");
     Expression<Object> actual = compile("`\"fo\\`o\"`");
     assertThat(actual, is(expected));
   }
@@ -917,14 +964,14 @@ public class ParserTest {
 
   @Test
   public void comparisonWithJsonLiteralExpression() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      currentNode,
-      new SelectionNode<Object>(runtime,
-        new ComparisonNode<Object>(runtime, "==",
-          new PropertyNode<Object>(runtime, "bar", currentNode),
-          createJsonLiteralNode("{\"foo\":\"bar\"}")
+    Expression<Object> expected = createProjection(
+      createCurrent(),
+      createSelection(
+        createComparison("==",
+          createProperty("bar", createCurrent()),
+          createJsonLiteral("{\"foo\":\"bar\"}")
         ),
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo[?bar == `{\"foo\": \"bar\"}`]");
@@ -933,9 +980,9 @@ public class ParserTest {
 
   @Test
   public void jsonBuiltinsAsNames() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "true",
-      new PropertyNode<Object>(runtime, "null",
-        new PropertyNode<Object>(runtime, "false", currentNode)
+    Expression<Object> expected = createProperty("true",
+      createProperty("null",
+        createProperty("false", createCurrent())
       )
     );
     Expression<Object> actual = compile("false.null.true");
@@ -944,31 +991,31 @@ public class ParserTest {
 
   @Test
   public void escapesInRawStringsArePreserved() {
-    Expression<Object> expected = new StringNode<Object>(runtime, "\\u03a6hello\\nworld\\t");
+    Expression<Object> expected = createString("\\u03a6hello\\nworld\\t");
     Expression<Object> actual = compile("'\\u03a6hello\\nworld\\t'");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void singleQuotesNeedsToBeEscapedInRawStrings() {
-    Expression<Object> expected = new StringNode<Object>(runtime, "'");
+    Expression<Object> expected = createString("'");
     Expression<Object> actual = compile("'\\''");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void backslashesMustBeEscapedInRawStrings() {
-    Expression<Object> expected = new StringNode<Object>(runtime, "\\");
+    Expression<Object> expected = createString("\\");
     Expression<Object> actual = compile("'\\\\'");
     assertThat(actual, is(expected));
   }
 
   @Test
   public void singleLevelProjection() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      new PropertyNode<Object>(runtime, "bar", currentNode),
-      new FlattenObjectNode<Object>(runtime,
-        new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProjection(
+      createProperty("bar", createCurrent()),
+      createFlattenObject(
+        createProperty("foo", createCurrent())
       )
     );
     Expression<Object> actual = compile("foo.*.bar");
@@ -977,11 +1024,11 @@ public class ParserTest {
 
   @Test
   public void singleLevelProjectionWithPipe() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "baz",
-      new ProjectionNode<Object>(runtime,
-        new PropertyNode<Object>(runtime, "bar", currentNode),
-        new FlattenObjectNode<Object>(runtime,
-          new PropertyNode<Object>(runtime, "foo", currentNode)
+    Expression<Object> expected = createProperty("baz",
+      createProjection(
+        createProperty("bar", createCurrent()),
+        createFlattenObject(
+          createProperty("foo", createCurrent())
         )
       )
     );
@@ -991,14 +1038,14 @@ public class ParserTest {
 
   @Test
   public void multipleLevelsOfProjections() {
-    Expression<Object> expected = new PropertyNode<Object>(runtime, "baz",
-      new ProjectionNode<Object>(runtime,
-        new ProjectionNode<Object>(runtime,
-          new PropertyNode<Object>(runtime, "bar", currentNode),
-          new FlattenObjectNode<Object>(runtime, currentNode)
+    Expression<Object> expected = createProperty("baz",
+      createProjection(
+        createProjection(
+          createProperty("bar", createCurrent()),
+          createFlattenObject( createCurrent())
         ),
-        new SliceNode<Object>(runtime, null, null, null,
-          new PropertyNode<Object>(runtime, "foo", currentNode)
+        createSlice(null, null, null,
+          createProperty("foo", createCurrent())
         )
       )
     );
@@ -1008,19 +1055,19 @@ public class ParserTest {
 
   @Test
   public void projectionAsFirstOperation1() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      new CreateArrayNode<Object>(runtime,
-        asExpressionList(
-          new PropertyNode<Object>(runtime, "userName", currentNode),
-          new PropertyNode<Object>(runtime, "mfaAuthenticated",
-            new PropertyNode<Object>(runtime, "attributes",
-              new PropertyNode<Object>(runtime, "sessionContext", currentNode)
+    Expression<Object> expected = createProjection(
+      createArray(
+        Arrays.asList(
+          createProperty("userName", createCurrent()),
+          createProperty("mfaAuthenticated",
+            createProperty("attributes",
+              createProperty("sessionContext", createCurrent())
             )
           )
         ),
-        new PropertyNode<Object>(runtime, "userIdentity", currentNode)
+        createProperty("userIdentity", createCurrent())
       ),
-      new PropertyNode<Object>(runtime, "Records", currentNode)
+      createProperty("Records", createCurrent())
     );
     Expression<Object> actual = compile("Records[*].userIdentity.[userName, sessionContext.attributes.mfaAuthenticated]");
     assertThat(actual, is(expected));
@@ -1028,11 +1075,11 @@ public class ParserTest {
 
   @Test
   public void projectionAsFirstOperation2() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      new PropertyNode<Object>(runtime, "keyName",
-        new PropertyNode<Object>(runtime, "requestParameters", currentNode)
+    Expression<Object> expected = createProjection(
+      createProperty("keyName",
+        createProperty("requestParameters", createCurrent())
       ),
-      new PropertyNode<Object>(runtime, "Records", currentNode)
+      createProperty("Records", createCurrent())
     );
     Expression<Object> actual = compile("Records[*].requestParameters.keyName");
     assertThat(actual, is(expected));
@@ -1040,15 +1087,15 @@ public class ParserTest {
 
   @Test
   public void projectionAndFlatten() {
-    Expression<Object> expected = new ProjectionNode<Object>(runtime,
-      new PropertyNode<Object>(runtime, "instanceId", currentNode),
-      new FlattenArrayNode<Object>(runtime,
-        new ProjectionNode<Object>(runtime,
-          new PropertyNode<Object>(runtime, "items", currentNode),
-          new FlattenObjectNode<Object>(runtime,
-            new PropertyNode<Object>(runtime, "responseElements",
-              new IndexNode<Object>(runtime, 0,
-                new PropertyNode<Object>(runtime, "Records", currentNode)
+    Expression<Object> expected = createProjection(
+      createProperty("instanceId", createCurrent()),
+      createFlattenArray(
+        createProjection(
+          createProperty("items", createCurrent()),
+          createFlattenObject(
+            createProperty("responseElements",
+              createIndex(0,
+                createProperty("Records", createCurrent())
               )
             )
           )
@@ -1061,13 +1108,13 @@ public class ParserTest {
 
   @Test
   public void operationsAfterPipeAfterProjection() {
-    Expression<Object> expected = new NegateNode<Object>(runtime,
-      new CurrentNode<Object>(runtime,
-        new ProjectionNode<Object>(runtime,
-          currentNode,
-          new SelectionNode<Object>(runtime,
-            new StringNode<Object>(runtime, ""),
-            new PropertyNode<Object>(runtime, "Records", currentNode)
+    Expression<Object> expected = createNegate(
+      createCurrent(
+        createProjection(
+          createCurrent(),
+          createSelection(
+            createString(""),
+            createProperty("Records", createCurrent())
           )
         )
       )
