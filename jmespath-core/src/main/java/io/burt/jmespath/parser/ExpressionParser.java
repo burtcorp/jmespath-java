@@ -56,6 +56,11 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     '\\', '\\'
   );
 
+  private static final StringEscapeHelper jsonLiteralEscapeHelper = new StringEscapeHelper(
+    false,
+    '`', '`'
+  );
+
   private static class StartProjectionNode<T> extends Node<T> {
     public StartProjectionNode(Adapter<T> runtime, Node<T> source) {
       super(runtime, source);
@@ -424,7 +429,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   @Override
   public Node<T> visitLiteral(JmesPathParser.LiteralContext ctx) {
     visit(ctx.jsonValue());
-    String string = ctx.jsonValue().getText();
+    String string = jsonLiteralEscapeHelper.unescape(ctx.jsonValue().getText());
     return new JsonLiteralNode<T>(runtime, string, runtime.parseString(string));
   }
 

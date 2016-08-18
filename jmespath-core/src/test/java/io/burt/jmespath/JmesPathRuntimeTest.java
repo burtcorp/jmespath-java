@@ -737,6 +737,12 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void jsonLiteralStringWithEscapedBacktick() {
+    T result = search("`\"fo\\`o\"`", parse("{}"));
+    assertThat(result, is(jsonString("fo`o")));
+  }
+
+  @Test
   public void jsonLiteralBoolean() {
     T result = search("`true`", parse("{}"));
     assertThat(result, is(jsonBoolean(true)));
