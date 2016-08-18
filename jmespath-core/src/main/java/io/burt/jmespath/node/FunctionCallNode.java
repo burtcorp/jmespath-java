@@ -48,7 +48,11 @@ public class FunctionCallNode<T> extends Node<T> {
 
   @Override
   protected String internalToString() {
-    StringBuilder str = new StringBuilder(implementation().name()).append(", [");
+    StringBuilder str = new StringBuilder();
+    if (implementation() != null) {
+      str.append(implementation().name());
+    }
+    str.append(", [");
     Iterator<? extends Expression<T>> argIterator = args.iterator();
     while (argIterator.hasNext()) {
       Expression<T> arg = argIterator.next();
