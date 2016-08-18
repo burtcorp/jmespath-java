@@ -5,10 +5,12 @@
 
   <groupId>io.burt</groupId>
   <artifactId>jmespath</artifactId>
-  <name>JMESPath</name>
-  <description>A JMESPath implementation for Java</description>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+
+  <name>JMESPath</name>
+  <description>A JMESPath implementation for Java</description>
+  <url>https://github.com/burtcorp/jmespath-java</url>
 
   <properties>
     <junit.version>4.12</junit.version>
