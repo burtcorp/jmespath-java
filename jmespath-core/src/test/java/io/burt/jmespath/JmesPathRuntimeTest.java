@@ -309,7 +309,6 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
-  @Ignore("How can the result in the first assertion be the basis for the result in the second?")
   public void multipleFlattenObjectWithFollowingProjection() {
     T nestedObject = parse("{\"a\":{\"aa\":{\"inner\":1}},\"b\":{\"bb\":{\"inner\":2}}}");
     T result1 = search("*.*.inner", nestedObject);
