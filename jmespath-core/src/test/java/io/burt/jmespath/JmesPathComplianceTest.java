@@ -147,7 +147,7 @@ public abstract class JmesPathComplianceTest<T> {
         T expectedResult = runtime().getProperty(caseDescription, "result");
         String expectedError = valueAsStringOrNull(caseDescription, "error");
         String benchmark = valueAsStringOrNull(caseDescription, "benchmark");
-        if (expectedResult != null) {
+        if (runtime().typeOf(expectedResult) != JmesPathType.NULL) {
           tests.add(new ComplianceTest<T>(runtime(), featureName, expression, input, expectedResult, expectedError, suiteComment, testComment, benchmark));
         }
       }
@@ -157,7 +157,7 @@ public abstract class JmesPathComplianceTest<T> {
 
   private String valueAsStringOrNull(T object, String key) {
     T value = runtime().getProperty(object, key);
-    return value == null ? null : runtime().toString(value);
+    return runtime().typeOf(value) == JmesPathType.NULL ? null : runtime().toString(value);
   }
 
   public Collection<ComplianceTest<T>> getAllTests() {
