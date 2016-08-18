@@ -28,8 +28,10 @@
 
   <developers>
     <developer>
-      <name>Burt AB</name>
-      <url>http://burtcorp.com/</url>
+      <name>Theo Hultberg</name>
+      <email>theo@burtcorp.com</email>
+      <organization>Burt</organization>
+      <organizationUrl>http://burtcorp.com/</organizationUrl>
     </developer>
   </developers>
 
