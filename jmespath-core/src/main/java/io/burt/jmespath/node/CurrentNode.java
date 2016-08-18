@@ -22,6 +22,15 @@ public class CurrentNode<T> extends Node<T> {
   }
 
   @Override
+  public String toString() {
+    if (source() == null) {
+      return "Current()";
+    } else {
+      return super.toString();
+    }
+  }
+
+  @Override
   public boolean internalEquals(Object o) {
     return true;
   }
