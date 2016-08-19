@@ -90,7 +90,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
       case NUMBER:
         return true;
       case BOOLEAN:
-        return value == Boolean.TRUE;
+        return ((Boolean)value).booleanValue();
       case ARRAY:
         return !((Collection<Object>) value).isEmpty();
       case OBJECT:
@@ -148,7 +148,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
 
   @Override
   public Object createBoolean(boolean b) {
-    return b;
+    return Boolean.valueOf(b);
   }
 
   @Override
