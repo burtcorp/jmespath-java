@@ -13,7 +13,7 @@ public class FlattenArrayNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new FlattenArrayNode<>(runtime, source);
+    return runtime.nodeFactory().createFlattenArray(source);
   }
 
   @Override

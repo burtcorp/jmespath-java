@@ -17,7 +17,7 @@ public class ProjectionNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new ProjectionNode<>(runtime, projection, source);
+    return runtime.nodeFactory().createProjection(projection, source);
   }
 
   @Override

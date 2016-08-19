@@ -5,7 +5,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Collection;
 
-import io.burt.jmespath.function.Function;
+import io.burt.jmespath.function.FunctionRegistry;
+import io.burt.jmespath.node.NodeFactory;
 
 /**
  * An adapter helps the JMESPath parser and interpreter work with a JSON-like
@@ -130,7 +131,14 @@ public interface Adapter<T> extends JmesPath<T>, Comparator<T> {
   T createNumber(long n);
 
   /**
-   * Returns the function by the specified name or null if no such function exists.
+   * Returns a function registry that can be used by the expression compiler
+   * to look up functions.
    */
-  Function getFunction(String name);
+  FunctionRegistry functionRegistry();
+
+  /**
+   * Returns a node factory that can be used by the expression compiler to build
+   * the interpreter AST.
+   */
+  NodeFactory<T> nodeFactory();
 }

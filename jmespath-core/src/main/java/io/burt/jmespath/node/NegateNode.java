@@ -9,7 +9,7 @@ public class NegateNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new NegateNode<>(runtime, source);
+    return runtime.nodeFactory().createNegate(source);
   }
 
   @Override

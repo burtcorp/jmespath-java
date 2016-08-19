@@ -21,7 +21,7 @@ public class FunctionCallNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new FunctionCallNode<>(runtime, implementation, args, source);
+    return runtime.nodeFactory().createFunctionCall(implementation, args, source);
   }
 
   @Override

@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
@@ -11,22 +12,17 @@ import io.burt.jmespath.jcf.JcfRuntime;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 
 public class FunctionRegistryTest {
-  private Adapter<Object> runtime = new JcfRuntime();
+  private static final List<String> DEFAULT_FUNCTION_NAMES = Arrays.asList(
+    "abs", "avg", "contains", "ceil", "ends_with", "floor", "join", "keys",
+    "length", "map", "max", "max_by", "merge", "min", "min_by", "not_null",
+    "reverse", "sort", "sort_by", "starts_with", "sum", "to_array", "to_string",
+    "to_number", "type", "values"
+  );
 
-  private Object callFunction(String name, List<FunctionArgument<Object>> args) {
-    return runtime.getFunction(name).call(runtime, args);
-  }
-
-  private List<FunctionArgument<Object>> createValueArguments(Object... values) {
-    List<FunctionArgument<Object>> arguments = new ArrayList<>();
-    for (Object value : values) {
-      arguments.add(FunctionArgument.of(value));
-    }
-    return arguments;
-  }
+  private final Adapter<Object> runtime = new JcfRuntime();
 
   private static class TestFunction extends BaseFunction {
     public TestFunction(String name, ArgumentConstraint argumentConstraints) {
@@ -39,13 +35,20 @@ public class FunctionRegistryTest {
     }
   }
 
+  private List<FunctionArgument<Object>> createValueArguments(Object... values) {
+    List<FunctionArgument<Object>> arguments = new ArrayList<>();
+    for (Object value : values) {
+      arguments.add(FunctionArgument.of(value));
+    }
+    return arguments;
+  }
+
   @Test
   public void theDefaultRegistryContainsTheDefaultFunctions() {
-    Object result;
-    result = callFunction("to_string", createValueArguments(1L));
-    assertThat(result, is((Object) "1"));
-    result = callFunction("to_number", createValueArguments("1"));
-    assertThat(result, is((Object) 1L));
+    FunctionRegistry defaultRegistry = FunctionRegistry.defaultRegistry();
+    for (String functionName : DEFAULT_FUNCTION_NAMES) {
+      assertThat(defaultRegistry.getFunction(functionName).name(), is(functionName));
+    }
   }
 
   @Test
@@ -53,7 +56,9 @@ public class FunctionRegistryTest {
     FunctionRegistry customRegistry = new FunctionRegistry(
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING))
     );
-    assertThat(customRegistry.getFunction("to_number"), is(equalTo(null)));
+    for (String functionName : DEFAULT_FUNCTION_NAMES) {
+      assertThat(customRegistry.getFunction(functionName), is(nullValue()));
+    }
   }
 
   @Test
@@ -62,12 +67,8 @@ public class FunctionRegistryTest {
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING)),
       new TestFunction("bar", ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     );
-    runtime = new JcfRuntime(customRegistry);
-    Object result;
-    result = callFunction("foo", createValueArguments("hello"));
-    assertThat(result, is((Object) "hello"));
-    result = callFunction("bar", createValueArguments(42L));
-    assertThat(result, is((Object) 42L));
+    assertThat(customRegistry.getFunction("foo").name(), is("foo"));
+    assertThat(customRegistry.getFunction("bar").name(), is("bar"));
   }
 
   @Test
@@ -76,8 +77,9 @@ public class FunctionRegistryTest {
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING)),
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     );
-    runtime = new JcfRuntime(customRegistry);
-    callFunction("foo", createValueArguments(3L));
+    Function function = customRegistry.getFunction("foo");
+    Object result = function.call(runtime, createValueArguments(3L));
+    assertThat(result, is((Object) 3L));
   }
 
   @Test
@@ -87,14 +89,11 @@ public class FunctionRegistryTest {
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING)),
       new TestFunction("bar", ArgumentConstraints.typeOf(JmesPathType.NUMBER))
     );
-    runtime = new JcfRuntime(extendedRegistry);
-    Object result;
-    result = callFunction("to_number", createValueArguments("3"));
-    assertThat(result, is((Object) 3L));
-    result = callFunction("foo", createValueArguments("hello"));
-    assertThat(result, is((Object) "hello"));
-    result = callFunction("bar", createValueArguments(42L));
-    assertThat(result, is((Object) 42L));
+    for (String functionName : DEFAULT_FUNCTION_NAMES) {
+      assertThat(extendedRegistry.getFunction(functionName).name(), is(functionName));
+    }
+    assertThat(extendedRegistry.getFunction("foo").name(), is("foo"));
+    assertThat(extendedRegistry.getFunction("bar").name(), is("bar"));
   }
 
   @Test
@@ -103,8 +102,8 @@ public class FunctionRegistryTest {
     FunctionRegistry extendedRegistry = defaultRegistry.extend(
       new TestFunction("to_number", ArgumentConstraints.typeOf(JmesPathType.STRING))
     );
-    runtime = new JcfRuntime(extendedRegistry);
-    Object result = callFunction("to_number", createValueArguments("hello"));
-    assertThat(result, is((Object) "hello"));
+    Function function = extendedRegistry.getFunction("to_number");
+    Object result = function.call(runtime, createValueArguments("notanumber"));
+    assertThat(result, is((Object) "notanumber"));
   }
 }
