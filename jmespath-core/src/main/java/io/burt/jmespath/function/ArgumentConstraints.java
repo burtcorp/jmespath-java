@@ -99,6 +99,8 @@ public final class ArgumentConstraints {
     return new Expression();
   }
 
+  private ArgumentConstraints() {}
+
   @SuppressWarnings("serial")
   static class InternalArgumentTypeException extends FunctionCallException {
     private final String expectedType;
