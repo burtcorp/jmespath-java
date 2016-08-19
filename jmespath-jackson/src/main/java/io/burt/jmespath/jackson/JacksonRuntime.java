@@ -35,7 +35,7 @@ public class JacksonRuntime extends BaseRuntime<JsonNode> {
     try {
       return jsonParser.readTree(string);
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw new IllegalStateException(ioe);
     }
   }
 
