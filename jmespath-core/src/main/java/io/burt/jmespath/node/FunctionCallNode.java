@@ -12,16 +12,21 @@ import io.burt.jmespath.function.FunctionArgument;
 
 public class FunctionCallNode<T> extends Node<T> {
   private final Function implementation;
-  private final List<? extends Expression<T>> args;
+  private final List<Expression<T>> args;
 
   public FunctionCallNode(Adapter<T> runtime, Function implementation, List<? extends Expression<T>> args, Node<T> source) {
     super(runtime, source);
     this.implementation = implementation;
-    this.args = args;
+    this.args = new ArrayList<>(args);
   }
 
   @Override
-  protected T searchOne(T currentValue) {
+  public Node<T> copyWithSource(Node<T> source) {
+    return new FunctionCallNode<T>(runtime, implementation, args, source);
+  }
+
+  @Override
+  protected T searchWithCurrentValue(T currentValue) {
     List<FunctionArgument<T>> arguments = new ArrayList<>(args.size());
     for (Expression<T> arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {
@@ -37,14 +42,18 @@ public class FunctionCallNode<T> extends Node<T> {
     return implementation;
   }
 
-  protected List<? extends Expression<T>> args() {
+  protected List<Expression<T>> args() {
     return args;
   }
 
   @Override
   protected String internalToString() {
-    StringBuilder str = new StringBuilder(implementation().name()).append(", [");
-    Iterator<? extends Expression<T>> argIterator = args.iterator();
+    StringBuilder str = new StringBuilder();
+    if (implementation() != null) {
+      str.append(implementation().name());
+    }
+    str.append(", [");
+    Iterator<Expression<T>> argIterator = args.iterator();
     while (argIterator.hasNext()) {
       Expression<T> arg = argIterator.next();
       str.append(arg);

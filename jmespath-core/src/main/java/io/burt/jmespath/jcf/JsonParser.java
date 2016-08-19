@@ -26,7 +26,6 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
     '"', '"',
     '/', '/',
     '\\', '\\',
-    '`', '`',
     'b', '\b',
     'f', '\f',
     'n', '\n',

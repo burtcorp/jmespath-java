@@ -9,7 +9,12 @@ public class FlattenObjectNode<T> extends Node<T> {
   }
 
   @Override
-  protected T searchOne(T currentValue) {
+  public Node<T> copyWithSource(Node<T> source) {
+    return new FlattenObjectNode<T>(runtime, source);
+  }
+
+  @Override
+  protected T searchWithCurrentValue(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.OBJECT) {
       return runtime.createArray(runtime.toList(currentValue));
     } else {

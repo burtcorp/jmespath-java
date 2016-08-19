@@ -6,6 +6,9 @@ import java.util.List;
 import io.burt.jmespath.Adapter;
 
 public class SliceNode<T> extends Node<T> {
+  private final boolean absoluteStart;
+  private final boolean absoluteStop;
+  private final boolean absoluteStep;
   private final int start;
   private final int stop;
   private final int step;
@@ -14,6 +17,9 @@ public class SliceNode<T> extends Node<T> {
 
   public SliceNode(Adapter<T> runtime, Integer start, Integer stop, Integer step, Node<T> source) {
     super(runtime, source);
+    this.absoluteStart = (start != null);
+    this.absoluteStop = (stop != null);
+    this.absoluteStep = (step != null);
     this.step = (step == null) ? 1 : step;
     this.rounding = (this.step < 0) ? (this.step + 1) : (this.step - 1);
     this.limit = (this.step < 0) ? -1 : 0;
@@ -22,7 +28,12 @@ public class SliceNode<T> extends Node<T> {
   }
 
   @Override
-  public T searchOne(T projectionElement) {
+  public Node<T> copyWithSource(Node<T> source) {
+    return new SliceNode<T>(runtime, absoluteStart ? start : null, absoluteStop ? stop : null, absoluteStep ? step : null, source);
+  }
+
+  @Override
+  public T searchWithCurrentValue(T projectionElement) {
     List<T> elements = runtime.toList(projectionElement);
     int begin = (start < 0) ? Math.max(elements.size() + start, 0) : Math.min(start, elements.size() + limit);
     int end = (stop < 0) ? Math.max(elements.size() + stop, limit) : Math.min(stop, elements.size());
@@ -36,7 +47,7 @@ public class SliceNode<T> extends Node<T> {
 
   @Override
   protected String internalToString() {
-    return String.format("%d, %d, %d", start, stop, step);
+    return String.format("%s, %s, %s", absoluteStart ? start : null, absoluteStop ? stop : null, absoluteStep ? step : null);
   }
 
   @Override

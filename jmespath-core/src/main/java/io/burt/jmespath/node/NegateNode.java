@@ -8,7 +8,12 @@ public class NegateNode<T> extends Node<T> {
   }
 
   @Override
-  protected T searchOne(T currentValue) {
+  public Node<T> copyWithSource(Node<T> source) {
+    return new NegateNode<T>(runtime, source);
+  }
+
+  @Override
+  protected T searchWithCurrentValue(T currentValue) {
     return runtime.createBoolean(!runtime.isTruthy(currentValue));
   }
 

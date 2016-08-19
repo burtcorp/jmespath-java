@@ -11,8 +11,13 @@ public class PropertyNode<T> extends Node<T> {
   }
 
   @Override
-  public T searchOne(T projectionElement) {
-    return runtime.getProperty(projectionElement, propertyName());
+  public Node<T> copyWithSource(Node<T> source) {
+    return new PropertyNode<T>(runtime, propertyName, source);
+  }
+
+  @Override
+  public T searchWithCurrentValue(T currentValue) {
+    return runtime.getProperty(currentValue, propertyName());
   }
 
   protected String propertyName() {

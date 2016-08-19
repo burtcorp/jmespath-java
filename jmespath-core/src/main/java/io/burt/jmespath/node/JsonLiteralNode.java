@@ -13,6 +13,11 @@ public class JsonLiteralNode<T> extends Node<T> {
   }
 
   @Override
+  public Node<T> copyWithSource(Node<T> source) {
+    return this;
+  }
+
+  @Override
   public T search(T input) {
     return tree();
   }

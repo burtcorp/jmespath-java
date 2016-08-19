@@ -57,7 +57,12 @@ public class CreateObjectNode<T> extends Node<T> {
   }
 
   @Override
-  public T searchOne(T currentValue) {
+  public Node<T> copyWithSource(Node<T> source) {
+    return new CreateObjectNode<T>(runtime, entries, source);
+  }
+
+  @Override
+  public T searchWithCurrentValue(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {

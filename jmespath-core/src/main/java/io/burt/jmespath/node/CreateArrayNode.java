@@ -12,9 +12,14 @@ import io.burt.jmespath.JmesPathType;
 public class CreateArrayNode<T> extends Node<T> {
   private final List<Expression<T>> entries;
 
-  public CreateArrayNode(Adapter<T> runtime, List<Expression<T>> entries, Node<T> source) {
+  public CreateArrayNode(Adapter<T> runtime, List<? extends Expression<T>> entries, Node<T> source) {
     super(runtime, source);
-    this.entries = entries;
+    this.entries = new ArrayList<>(entries);
+  }
+
+  @Override
+  public Node<T> copyWithSource(Node<T> source) {
+    return new CreateArrayNode<T>(runtime, entries, source);
   }
 
   protected List<Expression<T>> entries() {
@@ -22,7 +27,7 @@ public class CreateArrayNode<T> extends Node<T> {
   }
 
   @Override
-  protected T searchOne(T currentValue) {
+  protected T searchWithCurrentValue(T currentValue) {
     if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
       return currentValue;
     } else {

@@ -12,18 +12,22 @@ public class CurrentNode<T> extends Node<T> {
   }
 
   @Override
-  protected boolean isProjection() {
-    return source() == null ? false : super.isProjection();
-  }
-
-  @Override
-  protected int projectionLevel() {
-    return source() == null ? 0 : super.projectionLevel();
+  public Node<T> copyWithSource(Node<T> source) {
+    return new CurrentNode<T>(runtime, source);
   }
 
   @Override
   public T search(T input) {
     return source() == null ? input : super.search(input);
+  }
+
+  @Override
+  public String toString() {
+    if (source() == null) {
+      return "Current()";
+    } else {
+      return super.toString();
+    }
   }
 
   @Override

@@ -2,6 +2,7 @@ package io.burt.jmespath;
 
 import java.util.List;
 import java.util.Iterator;
+import java.util.Collection;
 
 import io.burt.jmespath.parser.ExpressionParser;
 import io.burt.jmespath.function.FunctionRegistry;
@@ -89,14 +90,44 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
           String s2 = toString(value2);
           return s1.compareTo(s2);
         case ARRAY:
+          return deepEqualsArray(value1, value2) ? 0 : -1;
         case OBJECT:
-          return value1.equals(value2) ? 0 : -1;
+          return deepEqualsObject(value1, value2) ? 0 : -1;
         default:
           throw new IllegalStateException(String.format("Unknown node type encountered: %s", value1.getClass().getName()));
       }
     } else {
       return -1;
     }
+  }
+
+  private boolean deepEqualsArray(T value1, T value2) {
+    List<T> values1 = toList(value1);
+    List<T> values2 = toList(value2);
+    int size = values1.size();
+    if (size != values2.size()) {
+      return false;
+    }
+    for (int i = 0; i < size; i++) {
+      if (compare(values1.get(i), values2.get(i)) != 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean deepEqualsObject(T value1, T value2) {
+    Collection<T> keys1 = getPropertyNames(value1);
+    Collection<T> keys2 = getPropertyNames(value2);
+    if (!keys1.containsAll(keys2) || !keys2.containsAll(keys1)) {
+      return false;
+    }
+    for (T key : keys1) {
+      if (compare(getProperty(value1, key), getProperty(value2, key)) != 0) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

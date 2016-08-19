@@ -12,15 +12,13 @@ public class FlattenArrayNode<T> extends Node<T> {
   }
 
   @Override
-  protected int projectionLevel() {
-    return source().projectionLevel() - 1;
+  public Node<T> copyWithSource(Node<T> source) {
+    return new FlattenArrayNode<T>(runtime, source);
   }
 
   @Override
   protected T searchWithCurrentValue(T currentValue) {
-    if (!isProjection() && runtime.typeOf(currentValue) != JmesPathType.ARRAY) {
-      return runtime.createNull();
-    } else {
+    if (runtime.typeOf(currentValue) == JmesPathType.ARRAY) {
       List<T> elements = runtime.toList(currentValue);
       List<T> flattened = new LinkedList<>();
       for (T element : elements) {
@@ -31,6 +29,8 @@ public class FlattenArrayNode<T> extends Node<T> {
         }
       }
       return runtime.createArray(flattened);
+    } else {
+      return runtime.createNull();
     }
   }
 

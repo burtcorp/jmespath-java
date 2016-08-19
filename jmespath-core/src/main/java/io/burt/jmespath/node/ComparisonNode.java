@@ -13,7 +13,12 @@ public class ComparisonNode<T> extends OperatorNode<T> {
   }
 
   @Override
-  protected T searchOne(T currentValue) {
+  public Node<T> copyWithSource(Node<T> source) {
+    return this;
+  }
+
+  @Override
+  protected T searchWithCurrentValue(T currentValue) {
     T leftResult = operand(0).search(currentValue);
     T rightResult = operand(1).search(currentValue);
     JmesPathType leftType = runtime.typeOf(leftResult);

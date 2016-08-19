@@ -6,13 +6,3 @@ cache:
     - $HOME/.m2
 before_install:
   - git submodule update --init --recursive
-env:
-  matrix:
-    - MAVEN_OPTS=''
-    - MAVEN_OPTS='-DfailIfNoTests=false -Dtest=JcfComplianceTest'
-    - MAVEN_OPTS='-DfailIfNoTests=false -Dtest=JacksonComplianceTest'
-matrix:
-  allow_failures:
-    - env: MAVEN_OPTS='-DfailIfNoTests=false -Dtest=JcfComplianceTest'
-    - env: MAVEN_OPTS='-DfailIfNoTests=false -Dtest=JacksonComplianceTest'
-script: 'mvn test $MAVEN_OPTS'

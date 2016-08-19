@@ -20,53 +20,17 @@ public abstract class Node<T> implements Expression<T> {
     this.source = source;
   }
 
-  protected boolean isProjection() {
-    return source().isProjection();
-  }
-
-  protected int projectionLevel() {
-    return source().projectionLevel();
-  }
+  public abstract Node<T> copyWithSource(Node<T> source);
 
   public T search(T input) {
     return searchWithCurrentValue(source().search(input));
   }
 
   protected T searchWithCurrentValue(T currentValue) {
-    if (isProjection()) {
-      if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
-        return currentValue;
-      } else {
-        return runtime.createArray(unwrapProjections(currentValue, projectionLevel()));
-      }
-    } else {
-      return searchOne(currentValue);
-    }
-  }
-
-  private List<T> unwrapProjections(T currentValue, int level) {
-    List<T> inputs = runtime.toList(currentValue);
-    List<T> outputs = new ArrayList<>(inputs.size());
-    if (level > 1) {
-      for (T input : inputs) {
-        outputs.add(runtime.createArray(unwrapProjections(input, level - 1)));
-      }
-    } else {
-      for (T input : inputs) {
-        T value = searchOne(input);
-        if (runtime.typeOf(value) != JmesPathType.NULL) {
-          outputs.add(value);
-        }
-      }
-    }
-    return outputs;
-  }
-
-  protected T searchOne(T currentValue) {
     return currentValue;
   }
 
-  protected Node<T> source() {
+  public Node<T> source() {
     return source;
   }
 
