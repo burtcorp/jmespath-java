@@ -66,7 +66,7 @@ public abstract class Node<T> implements Expression<T> {
     return internalEquals(o) && (source() == other.source() || (source() != null && other.source() != null && source().equals(other.source())));
   }
 
-  abstract protected boolean internalEquals(Object o);
+  protected abstract boolean internalEquals(Object o);
 
   @Override
   public int hashCode() {
@@ -76,5 +76,5 @@ public abstract class Node<T> implements Expression<T> {
     return h;
   }
 
-  abstract protected int internalHashCode();
+  protected abstract int internalHashCode();
 }
