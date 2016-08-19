@@ -52,7 +52,7 @@ public class SliceNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    SliceNode other = (SliceNode) o;
+    SliceNode<?> other = (SliceNode<?>) o;
     return start == other.start && stop == other.stop && step == other.step;
   }
 

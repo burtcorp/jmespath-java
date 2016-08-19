@@ -1,7 +1,6 @@
 package io.burt.jmespath.parser;
 
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -495,7 +494,6 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void functionCallWithUnknownFunction() {
     try {
       compile("to_unicorn(@)");
@@ -670,7 +668,6 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void bareMultiSelectHashExpression() {
     Expression<Object> expected = Object(
       Arrays.asList(
@@ -684,7 +681,6 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashExpression() {
     Expression<Object> expected = Object(
       Arrays.asList(
@@ -700,7 +696,6 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashWithQuotedKeys() {
     Expression<Object> expected = Object(
       Arrays.asList(

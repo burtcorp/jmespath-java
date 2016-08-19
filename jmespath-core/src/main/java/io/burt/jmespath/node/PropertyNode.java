@@ -31,7 +31,7 @@ public class PropertyNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    PropertyNode other = (PropertyNode) o;
+    PropertyNode<?> other = (PropertyNode<?>) o;
     return propertyName().equals(other.propertyName());
   }
 

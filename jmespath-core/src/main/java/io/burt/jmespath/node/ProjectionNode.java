@@ -45,7 +45,7 @@ public class ProjectionNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    ProjectionNode other = (ProjectionNode) o;
+    ProjectionNode<?> other = (ProjectionNode<?>) o;
     return projection.equals(other.projection);
   }
 

@@ -1,6 +1,5 @@
 package io.burt.jmespath.node;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,7 +37,7 @@ public class CreateObjectNode<T> extends Node<T> {
       if (!(o instanceof Entry)) {
         return false;
       }
-      Entry other = (Entry) o;
+      Entry<?> other = (Entry<?>) o;
       return key().equals(other.key()) && value().equals(other.value());
     }
 
@@ -95,7 +94,7 @@ public class CreateObjectNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    CreateObjectNode other = (CreateObjectNode) o;
+    CreateObjectNode<?> other = (CreateObjectNode<?>) o;
     return entries().equals(other.entries());
   }
 

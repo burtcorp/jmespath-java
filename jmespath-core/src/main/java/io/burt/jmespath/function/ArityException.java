@@ -1,5 +1,6 @@
 package io.burt.jmespath.function;
 
+@SuppressWarnings("serial")
 public class ArityException extends FunctionCallException {
   public ArityException(String functionName, int minArity, int maxArity, int numArguments) {
     super(createMessage(functionName, minArity, maxArity, numArguments));

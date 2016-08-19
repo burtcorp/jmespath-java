@@ -1,5 +1,6 @@
 package io.burt.jmespath;
 
+@SuppressWarnings("serial")
 public class JmesPathException extends RuntimeException {
   public JmesPathException(String message) {
     super(message);

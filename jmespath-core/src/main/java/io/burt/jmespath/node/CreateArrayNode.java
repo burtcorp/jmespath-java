@@ -1,6 +1,5 @@
 package io.burt.jmespath.node;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,7 +55,7 @@ public class CreateArrayNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    CreateArrayNode other = (CreateArrayNode) o;
+    CreateArrayNode<?> other = (CreateArrayNode<?>) o;
     return entries().equals(other.entries());
   }
 

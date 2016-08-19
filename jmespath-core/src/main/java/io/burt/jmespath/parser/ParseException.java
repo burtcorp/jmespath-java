@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import io.burt.jmespath.JmesPathException;
 
+@SuppressWarnings("serial")
 public class ParseException extends JmesPathException implements Iterable<ParseError> {
   private final Iterable<ParseError> errors;
 

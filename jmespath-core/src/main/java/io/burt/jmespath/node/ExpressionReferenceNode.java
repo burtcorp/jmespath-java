@@ -32,7 +32,7 @@ public class ExpressionReferenceNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    ExpressionReferenceNode other = (ExpressionReferenceNode) o;
+    ExpressionReferenceNode<?> other = (ExpressionReferenceNode<?>) o;
     return expression().equals(other.expression());
   }
 

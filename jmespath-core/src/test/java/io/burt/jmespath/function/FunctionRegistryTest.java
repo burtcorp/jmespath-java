@@ -1,23 +1,15 @@
 package io.burt.jmespath.function;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.node.ExpressionReferenceNode;
-import io.burt.jmespath.node.PropertyNode;
-import io.burt.jmespath.node.CurrentNode;
 import io.burt.jmespath.jcf.JcfRuntime;
 
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.equalTo;
 

@@ -1,6 +1,5 @@
 package io.burt.jmespath;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.LinkedList;
@@ -8,7 +7,6 @@ import java.util.Enumeration;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.io.File;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -41,8 +39,7 @@ public abstract class JmesPathComplianceTest<T> {
     private final String expectedError;
     private final String suiteComment;
     private final String testComment;
-    private final String benchmark;
-
+    
     public ComplianceTest(Adapter<U> runtime, String featureName, String expression, U input, U expectedResult, String expectedError, String suiteComment, String testComment, String benchmark) {
       this.runtime = runtime;
       this.featureName = featureName;
@@ -52,7 +49,6 @@ public abstract class JmesPathComplianceTest<T> {
       this.expectedError = expectedError;
       this.suiteComment = suiteComment;
       this.testComment = testComment;
-      this.benchmark = benchmark;
     }
 
     public String name() {
@@ -129,13 +125,14 @@ public abstract class JmesPathComplianceTest<T> {
       URI uri = getClass().getResource(TESTS_PATH).toURI();
       if (uri.getScheme().equals("jar")) {
         String jarPath = uri.toString().substring("jar:file:".length(), uri.toString().indexOf("!"));
-        JarFile jarFile = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
-        Enumeration<JarEntry> entries = jarFile.entries();
-        while (entries.hasMoreElements()) {
-          String fileName = entries.nextElement().getName();
-          if (fileName.startsWith(TESTS_PATH)) {
-            featureNames.add(fileName.substring(0, fileName.length() - 5));
-          }
+        try(JarFile jarFile = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))) {
+	        Enumeration<JarEntry> entries = jarFile.entries();
+	        while (entries.hasMoreElements()) {
+	          String fileName = entries.nextElement().getName();
+	          if (fileName.startsWith(TESTS_PATH)) {
+	            featureNames.add(fileName.substring(0, fileName.length() - 5));
+	          }
+	        }
         }
       } else {
         File testsDir = new File(uri);

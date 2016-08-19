@@ -1,10 +1,6 @@
 package io.burt.jmespath.node;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.Expression;
 
 public abstract class Node<T> implements Expression<T> {
@@ -65,7 +61,7 @@ public abstract class Node<T> implements Expression<T> {
     if (!getClass().isInstance(o)) {
       return false;
     }
-    Node other = (Node) o;
+    Node<?> other = (Node<?>) o;
     return internalEquals(o) && (source() == other.source() || (source() != null && other.source() != null && source().equals(other.source())));
   }
 

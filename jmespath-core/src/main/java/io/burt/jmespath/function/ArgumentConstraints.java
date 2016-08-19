@@ -99,6 +99,7 @@ public final class ArgumentConstraints {
     return new Expression();
   }
 
+  @SuppressWarnings("serial")
   static class InternalArgumentTypeException extends FunctionCallException {
     private final String expectedType;
     private final String actualType;
@@ -114,6 +115,7 @@ public final class ArgumentConstraints {
     public String actualType() { return actualType; }
   }
 
+  @SuppressWarnings("serial")
   static class InternalArityException extends FunctionCallException {
     public InternalArityException() {
       super("");
