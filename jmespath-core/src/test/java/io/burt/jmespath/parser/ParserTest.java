@@ -305,7 +305,6 @@ public class ParserTest {
   }
 
   @Test
-  @Ignore("Should raise a parse error")
   public void sliceWithZeroStepSize() {
     compile("[0:1:0]");
   }

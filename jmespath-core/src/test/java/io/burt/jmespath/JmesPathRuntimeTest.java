@@ -1473,7 +1473,6 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test(expected = ArgumentTypeException.class)
-  @Ignore("Not sure if this should be an error or not")
   public void notNullRequiresAValueForArgumentsThatAreNotInspected() {
     search("not_null('foo', &foo)", parse("{}"));
   }
