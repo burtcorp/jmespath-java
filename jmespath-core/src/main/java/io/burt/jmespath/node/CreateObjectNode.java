@@ -57,7 +57,7 @@ public class CreateObjectNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new CreateObjectNode<T>(runtime, entries, source);
+    return new CreateObjectNode<>(runtime, entries, source);
   }
 
   @Override

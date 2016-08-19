@@ -12,7 +12,7 @@ public class PropertyNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new PropertyNode<T>(runtime, propertyName, source);
+    return new PropertyNode<>(runtime, propertyName, source);
   }
 
   @Override

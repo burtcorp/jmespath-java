@@ -34,11 +34,11 @@ public class JcfRuntime extends BaseRuntime<Object> {
         if (value instanceof List) {
           return (List<Object>) value;
         } else {
-          return new ArrayList<Object>((Collection<Object>) value);
+          return new ArrayList<>((Collection<Object>) value);
         }
       case OBJECT:
         Map<Object, Object> object = (Map<Object, Object>) value;
-        return new ArrayList<Object>(object.values());
+        return new ArrayList<>(object.values());
       default:
         return Collections.emptyList();
     }

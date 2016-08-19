@@ -92,7 +92,7 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   @Override
   public Object visitJsonArray(JmesPathParser.JsonArrayContext ctx) {
-    List<Object> array = new ArrayList<Object>(ctx.jsonValue().size());
+    List<Object> array = new ArrayList<>(ctx.jsonValue().size());
     for (final JmesPathParser.JsonValueContext entry : ctx.jsonValue()) {
       array.add(visit(entry));
     }

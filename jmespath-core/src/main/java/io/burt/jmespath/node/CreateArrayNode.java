@@ -18,7 +18,7 @@ public class CreateArrayNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new CreateArrayNode<T>(runtime, entries, source);
+    return new CreateArrayNode<>(runtime, entries, source);
   }
 
   protected List<Expression<T>> entries() {

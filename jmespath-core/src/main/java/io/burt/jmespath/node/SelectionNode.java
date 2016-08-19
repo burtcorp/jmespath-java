@@ -17,7 +17,7 @@ public class SelectionNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new SelectionNode<T>(runtime, test, source);
+    return new SelectionNode<>(runtime, test, source);
   }
 
   @Override

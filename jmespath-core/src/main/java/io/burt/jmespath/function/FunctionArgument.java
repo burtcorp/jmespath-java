@@ -41,14 +41,14 @@ public abstract class FunctionArgument<T> {
    * Creates a new function argument that contains a value.
    */
   public static <U> FunctionArgument<U> of(U value) {
-    return new V<U>(value);
+    return new V<>(value);
   }
 
   /**
    * Creates a new function argument that contains an expression.
    */
   public static <U> FunctionArgument<U> of(Expression<U> expression) {
-    return new E<U>(expression);
+    return new E<>(expression);
   }
 
   private FunctionArgument() { }

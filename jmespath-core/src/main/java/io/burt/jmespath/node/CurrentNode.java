@@ -13,7 +13,7 @@ public class CurrentNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new CurrentNode<T>(runtime, source);
+    return new CurrentNode<>(runtime, source);
   }
 
   @Override
