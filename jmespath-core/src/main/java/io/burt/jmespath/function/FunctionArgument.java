@@ -57,7 +57,7 @@ public abstract class FunctionArgument<T> {
    * Returns the expression contained in this argument, or null if this argument
    * is not an expression argument.
    */
-  public Expression<T> expression() { return null; };
+  public Expression<T> expression() { return null; }
 
   /**
    * Returns the value contained in this argument, or null if this argument is
