@@ -10,11 +10,11 @@ import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
 
 public class CreateArrayNode<T> extends Node<T> {
-  private final List<? extends Expression<T>> entries;
+  private final List<Expression<T>> entries;
 
   public CreateArrayNode(Adapter<T> runtime, List<? extends Expression<T>> entries, Node<T> source) {
     super(runtime, source);
-    this.entries = entries;
+    this.entries = new ArrayList<>(entries);
   }
 
   @Override
@@ -22,7 +22,7 @@ public class CreateArrayNode<T> extends Node<T> {
     return new CreateArrayNode<T>(runtime, entries, source);
   }
 
-  protected List<? extends Expression<T>> entries() {
+  protected List<Expression<T>> entries() {
     return entries;
   }
 
@@ -42,7 +42,7 @@ public class CreateArrayNode<T> extends Node<T> {
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder("[");
-    Iterator<? extends Expression<T>> entryIterator = entries.iterator();
+    Iterator<Expression<T>> entryIterator = entries.iterator();
     while (entryIterator.hasNext()) {
       Expression<T> entry = entryIterator.next();
       str.append(entry);

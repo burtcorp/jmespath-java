@@ -12,12 +12,12 @@ import io.burt.jmespath.function.FunctionArgument;
 
 public class FunctionCallNode<T> extends Node<T> {
   private final Function implementation;
-  private final List<? extends Expression<T>> args;
+  private final List<Expression<T>> args;
 
   public FunctionCallNode(Adapter<T> runtime, Function implementation, List<? extends Expression<T>> args, Node<T> source) {
     super(runtime, source);
     this.implementation = implementation;
-    this.args = args;
+    this.args = new ArrayList<>(args);
   }
 
   @Override
@@ -42,7 +42,7 @@ public class FunctionCallNode<T> extends Node<T> {
     return implementation;
   }
 
-  protected List<? extends Expression<T>> args() {
+  protected List<Expression<T>> args() {
     return args;
   }
 
@@ -53,7 +53,7 @@ public class FunctionCallNode<T> extends Node<T> {
       str.append(implementation().name());
     }
     str.append(", [");
-    Iterator<? extends Expression<T>> argIterator = args.iterator();
+    Iterator<Expression<T>> argIterator = args.iterator();
     while (argIterator.hasNext()) {
       Expression<T> arg = argIterator.next();
       str.append(arg);
