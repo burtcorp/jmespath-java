@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.File;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
@@ -107,7 +108,7 @@ public abstract class JmesPathComplianceTest<T> {
 
   protected T loadFeatureDescription(String featureName) {
     String path = String.format("%s%s.json", TESTS_PATH, featureName);
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(JmesPathComplianceTest.class.getResourceAsStream(path), Charset.forName("UTF-8")))) {
       StringBuilder buffer = new StringBuilder();
       String line;
       while ((line = reader.readLine()) != null) {

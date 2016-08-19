@@ -11,6 +11,7 @@ import org.hamcrest.Description;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
@@ -33,7 +34,7 @@ public abstract class JmesPathRuntimeTest<T> {
   protected abstract Adapter<T> runtime();
 
   protected T loadExample(String path) {
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(JmesPathRuntimeTest.class.getResourceAsStream(path), Charset.forName("UTF-8")))) {
       StringBuilder buffer = new StringBuilder();
       String line;
       while ((line = reader.readLine()) != null) {
