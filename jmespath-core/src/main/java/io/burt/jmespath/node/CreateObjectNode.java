@@ -83,12 +83,12 @@ public class CreateObjectNode<T> extends Node<T> {
     Iterator<Entry<T>> entryIterator = entries.iterator();
     while (entryIterator.hasNext()) {
       Entry<T> entry = entryIterator.next();
-      str.append(entry.key()).append("=").append(entry.value());
+      str.append(entry.key()).append('=').append(entry.value());
       if (entryIterator.hasNext()) {
         str.append(", ");
       }
     }
-    str.append("}");
+    str.append('}');
     return str.toString();
   }
 

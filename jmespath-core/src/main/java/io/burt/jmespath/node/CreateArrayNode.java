@@ -49,7 +49,7 @@ public class CreateArrayNode<T> extends Node<T> {
         str.append(", ");
       }
     }
-    str.append("]");
+    str.append(']');
     return str.toString();
   }
 

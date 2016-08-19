@@ -69,10 +69,10 @@ public abstract class BaseFunction implements Function {
 
   private String classNameToFunctionName() {
     String n = getClass().getName();
-    if (n.indexOf("$") > -1) {
-      n = n.substring(n.lastIndexOf("$") + 1);
+    if (n.indexOf('$') > -1) {
+      n = n.substring(n.lastIndexOf('$') + 1);
     } else {
-      n = n.substring(n.lastIndexOf(".") + 1);
+      n = n.substring(n.lastIndexOf('.') + 1);
     }
     if (!n.endsWith("Function")) {
       throw new FunctionConfigurationException(String.format("The function defined by %s must either pass a name to the Function constructor or the class name must end with \"Function\"", getClass().getName()));
@@ -86,7 +86,7 @@ public abstract class BaseFunction implements Function {
         break;
       }
       snakeCaseName.append(piece);
-      snakeCaseName.append("_");
+      snakeCaseName.append('_');
       offset = m.end();
     }
     snakeCaseName.deleteCharAt(snakeCaseName.length() - 1);

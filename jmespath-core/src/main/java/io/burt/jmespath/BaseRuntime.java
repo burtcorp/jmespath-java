@@ -208,13 +208,13 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
       T key = keys.next();
       T value = getProperty(object, key);
       str.append(unparseString(key));
-      str.append(":");
+      str.append(':');
       str.append(unparse(value));
       if (keys.hasNext()) {
-        str.append(",");
+        str.append(',');
       }
     }
-    str.append("}");
+    str.append('}');
     return str.toString();
   }
 
@@ -224,10 +224,10 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     while (elements.hasNext()) {
       str.append(unparse(elements.next()));
       if (elements.hasNext()) {
-        str.append(",");
+        str.append(',');
       }
     }
-    str.append("]");
+    str.append(']');
     return str.toString();
   }
 }

@@ -35,9 +35,9 @@ public abstract class Node<T> implements Expression<T> {
     String extraArgs = internalToString();
     StringBuilder str = new StringBuilder();
     String name = getClass().getName();
-    str.append(name.substring(name.lastIndexOf(".") + 1));
+    str.append(name.substring(name.lastIndexOf('.') + 1));
     str.delete(str.length() - 4, str.length());
-    str.append("(");
+    str.append('(');
     if (extraArgs != null) {
       str.append(extraArgs);
       if (extraArgs.length() > 0 && !extraArgs.endsWith(", ")) {
@@ -45,7 +45,7 @@ public abstract class Node<T> implements Expression<T> {
       }
     }
     str.append(source());
-    str.append(")");
+    str.append(')');
     return str.toString();
   }
 
