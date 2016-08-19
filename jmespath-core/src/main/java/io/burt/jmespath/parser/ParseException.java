@@ -22,5 +22,6 @@ public class ParseException extends JmesPathException implements Iterable<ParseE
     return s.toString();
   }
 
+  @Override
   public Iterator<ParseError> iterator() { return errors.iterator(); }
 }

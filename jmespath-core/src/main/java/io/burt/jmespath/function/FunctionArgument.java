@@ -16,8 +16,10 @@ public abstract class FunctionArgument<T> {
       this.value = value;
     }
 
+    @Override
     public U value() { return value; }
 
+    @Override
     public boolean isValue() { return true; }
   }
 
@@ -28,8 +30,10 @@ public abstract class FunctionArgument<T> {
       this.expression = expression;
     }
 
+    @Override
     public Expression<U> expression() { return expression; }
 
+    @Override
     public boolean isExpression() { return true; }
   }
 

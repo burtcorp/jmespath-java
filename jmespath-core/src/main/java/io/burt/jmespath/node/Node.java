@@ -18,6 +18,7 @@ public abstract class Node<T> implements Expression<T> {
 
   public abstract Node<T> copyWithSource(Node<T> source);
 
+  @Override
   public T search(T input) {
     return searchWithCurrentValue(source().search(input));
   }
