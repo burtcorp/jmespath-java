@@ -33,6 +33,12 @@
       <organization>Burt</organization>
       <organizationUrl>http://burtcorp.com/</organizationUrl>
     </developer>
+    <developer>
+      <name>Gustav Munkby</name>
+      <email>munkby@burtcorp.com</email>
+      <organization>Burt</organization>
+      <organizationUrl>http://burtcorp.com/</organizationUrl>
+    </developer>
   </developers>
 
   <inceptionYear>2016</inceptionYear>
