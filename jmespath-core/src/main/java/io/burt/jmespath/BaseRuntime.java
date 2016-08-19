@@ -150,6 +150,11 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     return getClass().isInstance(o);
   }
 
+  @Override
+  public int hashCode() {
+    return 31;
+  }
+
   /**
    * Helper method to render a value as JSON.
    *
