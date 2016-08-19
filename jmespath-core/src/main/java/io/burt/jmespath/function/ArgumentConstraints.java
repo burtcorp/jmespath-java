@@ -31,6 +31,8 @@ import io.burt.jmespath.JmesPathType;
  * interface.
  */
 public final class ArgumentConstraints {
+  private static final String EXPRESSION_TYPE = "expression";
+
   /**
    * Describes a heterogenous list of arguments. Each argument is checked against
    * the corresponding constraint. An {@link ArityException} will be thrown when
@@ -245,7 +247,7 @@ public final class ArgumentConstraints {
     @Override
     protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
-        throw new InternalArgumentTypeException("any value", "expression");
+        throw new InternalArgumentTypeException("any value", EXPRESSION_TYPE);
       }
     }
 
@@ -265,7 +267,7 @@ public final class ArgumentConstraints {
     @Override
     protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
-        throw new InternalArgumentTypeException(expectedType.toString(), "expression");
+        throw new InternalArgumentTypeException(expectedType.toString(), EXPRESSION_TYPE);
       } else {
         JmesPathType actualType = runtime.typeOf(argument.value());
         if (actualType != expectedType) {
@@ -305,7 +307,7 @@ public final class ArgumentConstraints {
     @Override
     protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
-        throw new InternalArgumentTypeException(expectedTypeString, "expression");
+        throw new InternalArgumentTypeException(expectedTypeString, EXPRESSION_TYPE);
       } else {
         JmesPathType actualType = runtime.typeOf(argument.value());
         for (int i = 0; i < expectedTypes.length; i++) {
@@ -327,7 +329,7 @@ public final class ArgumentConstraints {
     @Override
     protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (!argument.isExpression()) {
-        throw new InternalArgumentTypeException("expression", runtime.typeOf(argument.value()).toString());
+        throw new InternalArgumentTypeException(EXPRESSION_TYPE, runtime.typeOf(argument.value()).toString());
       }
     }
 
@@ -343,7 +345,7 @@ public final class ArgumentConstraints {
 
     @Override
     public String expectedType() {
-      return "expression";
+      return EXPRESSION_TYPE;
     }
   }
 
@@ -359,7 +361,7 @@ public final class ArgumentConstraints {
       if (arguments.hasNext()) {
         FunctionArgument<T> argument = arguments.next();
         if (argument.isExpression()) {
-          throw new InternalArgumentTypeException(expectedType(), "expression");
+          throw new InternalArgumentTypeException(expectedType(), EXPRESSION_TYPE);
         } else {
           T value = argument.value();
           JmesPathType type = runtime.typeOf(value);
