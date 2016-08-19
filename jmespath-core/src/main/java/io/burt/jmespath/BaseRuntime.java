@@ -82,9 +82,9 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
         case BOOLEAN:
           return isTruthy(value1) == isTruthy(value2) ? 0 : -1;
         case NUMBER:
-          Double d1 = toNumber(value1).doubleValue();
-          Double d2 = toNumber(value2).doubleValue();
-          return d1.compareTo(d2);
+          double d1 = toNumber(value1).doubleValue();
+          double d2 = toNumber(value2).doubleValue();
+          return Double.compare(d1, d2);
         case STRING:
           String s1 = toString(value1);
           String s2 = toString(value2);
