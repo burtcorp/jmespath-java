@@ -173,10 +173,8 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   }
 
   private Node<T> reSource(Node<T> root, Node<T> node, Node<T> replacement) {
-    Node<T> newSource = null;
-    if (root.source() == node) {
-      newSource = replacement;
-    } else {
+    Node<T> newSource = replacement;
+    if (root.source() != node) {
       newSource = reSource(root.source(), node, replacement);
     }
     return root.copyWithSource(newSource);
