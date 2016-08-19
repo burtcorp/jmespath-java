@@ -1,25 +1,17 @@
 package io.burt.jmespath.function;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.node.ExpressionReferenceNode;
-import io.burt.jmespath.node.PropertyNode;
-import io.burt.jmespath.node.CurrentNode;
 import io.burt.jmespath.jcf.JcfRuntime;
 
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
 public class FunctionRegistryTest {
   private Adapter<Object> runtime = new JcfRuntime();
@@ -49,7 +41,6 @@ public class FunctionRegistryTest {
 
   @Test
   public void theDefaultRegistryContainsTheDefaultFunctions() {
-    FunctionRegistry registry = FunctionRegistry.defaultRegistry();
     Object result;
     result = callFunction("to_string", createValueArguments(1L));
     assertThat(result, is((Object) "1"));
@@ -59,14 +50,10 @@ public class FunctionRegistryTest {
 
   @Test
   public void aCustomRegistryDoesNotContainTheDefaultFunctions() {
-    FunctionRegistry registry = new FunctionRegistry(
+    FunctionRegistry customRegistry = new FunctionRegistry(
       new TestFunction("foo", ArgumentConstraints.typeOf(JmesPathType.STRING))
     );
-    try {
-      callFunction("to_number", createValueArguments(1L));
-    } catch (FunctionCallException fce) {
-      assertThat(fce.getMessage(), containsString("Unknown function: \"to_number\""));
-    }
+    assertThat(customRegistry.getFunction("to_number"), is(equalTo(null)));
   }
 
   @Test

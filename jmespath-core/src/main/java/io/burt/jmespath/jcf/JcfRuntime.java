@@ -34,11 +34,11 @@ public class JcfRuntime extends BaseRuntime<Object> {
         if (value instanceof List) {
           return (List<Object>) value;
         } else {
-          return new ArrayList<Object>((Collection<Object>) value);
+          return new ArrayList<>((Collection<Object>) value);
         }
       case OBJECT:
         Map<Object, Object> object = (Map<Object, Object>) value;
-        return new ArrayList<Object>(object.values());
+        return new ArrayList<>(object.values());
       default:
         return Collections.emptyList();
     }
@@ -90,7 +90,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
       case NUMBER:
         return true;
       case BOOLEAN:
-        return value == Boolean.TRUE;
+        return ((Boolean)value).booleanValue();
       case ARRAY:
         return !((Collection<Object>) value).isEmpty();
       case OBJECT:
@@ -148,7 +148,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
 
   @Override
   public Object createBoolean(boolean b) {
-    return b;
+    return Boolean.valueOf(b);
   }
 
   @Override

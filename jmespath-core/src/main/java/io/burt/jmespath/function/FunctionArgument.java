@@ -16,8 +16,10 @@ public abstract class FunctionArgument<T> {
       this.value = value;
     }
 
+    @Override
     public U value() { return value; }
 
+    @Override
     public boolean isValue() { return true; }
   }
 
@@ -28,8 +30,10 @@ public abstract class FunctionArgument<T> {
       this.expression = expression;
     }
 
+    @Override
     public Expression<U> expression() { return expression; }
 
+    @Override
     public boolean isExpression() { return true; }
   }
 
@@ -37,14 +41,14 @@ public abstract class FunctionArgument<T> {
    * Creates a new function argument that contains a value.
    */
   public static <U> FunctionArgument<U> of(U value) {
-    return new V<U>(value);
+    return new V<>(value);
   }
 
   /**
    * Creates a new function argument that contains an expression.
    */
   public static <U> FunctionArgument<U> of(Expression<U> expression) {
-    return new E<U>(expression);
+    return new E<>(expression);
   }
 
   private FunctionArgument() { }
@@ -53,7 +57,7 @@ public abstract class FunctionArgument<T> {
    * Returns the expression contained in this argument, or null if this argument
    * is not an expression argument.
    */
-  public Expression<T> expression() { return null; };
+  public Expression<T> expression() { return null; }
 
   /**
    * Returns the value contained in this argument, or null if this argument is

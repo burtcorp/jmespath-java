@@ -63,8 +63,8 @@ public class SortByFunction extends BaseFunction {
   }
 
   private static class Pair<U> {
-    public U transformedElement;
-    public U element;
+    public final U transformedElement;
+    public final U element;
 
     public Pair(U transformedElement, U element) {
       this.transformedElement = transformedElement;

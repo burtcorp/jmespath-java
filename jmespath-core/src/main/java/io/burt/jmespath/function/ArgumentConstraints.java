@@ -99,12 +99,19 @@ public final class ArgumentConstraints {
     return new Expression();
   }
 
+  private ArgumentConstraints() {}
+
+  @SuppressWarnings("serial")
   static class InternalArgumentTypeException extends FunctionCallException {
     private final String expectedType;
     private final String actualType;
 
     public InternalArgumentTypeException(String expectedType, String actualType) {
-      super("");
+      this(expectedType, actualType, null);
+    }
+
+    public InternalArgumentTypeException(String expectedType, String actualType, Throwable cause) {
+      super("", cause);
       this.expectedType = expectedType;
       this.actualType = actualType;
     }
@@ -114,6 +121,7 @@ public final class ArgumentConstraints {
     public String actualType() { return actualType; }
   }
 
+  @SuppressWarnings("serial")
   static class InternalArityException extends FunctionCallException {
     public InternalArityException() {
       super("");
@@ -383,7 +391,7 @@ public final class ArgumentConstraints {
           try {
             subConstraint.check(runtime, wrappedElementsIterator);
           } catch (InternalArgumentTypeException iate) {
-            throw new InternalArgumentTypeException(expectedType(), String.format("array containing %s", iate.actualType()));
+            throw new InternalArgumentTypeException(expectedType(), String.format("array containing %s", iate.actualType()), iate);
           }
         }
       }

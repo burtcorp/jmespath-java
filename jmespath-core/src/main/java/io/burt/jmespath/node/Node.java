@@ -1,10 +1,6 @@
 package io.burt.jmespath.node;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.Expression;
 
 public abstract class Node<T> implements Expression<T> {
@@ -22,6 +18,7 @@ public abstract class Node<T> implements Expression<T> {
 
   public abstract Node<T> copyWithSource(Node<T> source);
 
+  @Override
   public T search(T input) {
     return searchWithCurrentValue(source().search(input));
   }
@@ -39,9 +36,9 @@ public abstract class Node<T> implements Expression<T> {
     String extraArgs = internalToString();
     StringBuilder str = new StringBuilder();
     String name = getClass().getName();
-    str.append(name.substring(name.lastIndexOf(".") + 1));
+    str.append(name.substring(name.lastIndexOf('.') + 1));
     str.delete(str.length() - 4, str.length());
-    str.append("(");
+    str.append('(');
     if (extraArgs != null) {
       str.append(extraArgs);
       if (extraArgs.length() > 0 && !extraArgs.endsWith(", ")) {
@@ -49,7 +46,7 @@ public abstract class Node<T> implements Expression<T> {
       }
     }
     str.append(source());
-    str.append(")");
+    str.append(')');
     return str.toString();
   }
 
@@ -65,7 +62,7 @@ public abstract class Node<T> implements Expression<T> {
     if (!getClass().isInstance(o)) {
       return false;
     }
-    Node other = (Node) o;
+    Node<?> other = (Node<?>) o;
     return internalEquals(o) && (source() == other.source() || (source() != null && other.source() != null && source().equals(other.source())));
   }
 

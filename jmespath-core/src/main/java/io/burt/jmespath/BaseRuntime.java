@@ -82,9 +82,9 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
         case BOOLEAN:
           return isTruthy(value1) == isTruthy(value2) ? 0 : -1;
         case NUMBER:
-          Double d1 = toNumber(value1).doubleValue();
-          Double d2 = toNumber(value2).doubleValue();
-          return d1.compareTo(d2);
+          double d1 = toNumber(value1).doubleValue();
+          double d2 = toNumber(value2).doubleValue();
+          return Double.compare(d1, d2);
         case STRING:
           String s1 = toString(value1);
           String s2 = toString(value2);
@@ -150,6 +150,11 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     return getClass().isInstance(o);
   }
 
+  @Override
+  public int hashCode() {
+    return 31;
+  }
+
   /**
    * Helper method to render a value as JSON.
    *
@@ -203,13 +208,13 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
       T key = keys.next();
       T value = getProperty(object, key);
       str.append(unparseString(key));
-      str.append(":");
+      str.append(':');
       str.append(unparse(value));
       if (keys.hasNext()) {
-        str.append(",");
+        str.append(',');
       }
     }
-    str.append("}");
+    str.append('}');
     return str.toString();
   }
 
@@ -219,10 +224,10 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     while (elements.hasNext()) {
       str.append(unparse(elements.next()));
       if (elements.hasNext()) {
-        str.append(",");
+        str.append(',');
       }
     }
-    str.append("]");
+    str.append(']');
     return str.toString();
   }
 }

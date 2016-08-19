@@ -29,7 +29,7 @@ public class SliceNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new SliceNode<T>(runtime, absoluteStart ? start : null, absoluteStop ? stop : null, absoluteStep ? step : null, source);
+    return new SliceNode<>(runtime, absoluteStart ? start : null, absoluteStop ? stop : null, absoluteStep ? step : null, source);
   }
 
   @Override
@@ -52,7 +52,7 @@ public class SliceNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    SliceNode other = (SliceNode) o;
+    SliceNode<?> other = (SliceNode<?>) o;
     return start == other.start && stop == other.stop && step == other.step;
   }
 

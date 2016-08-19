@@ -15,7 +15,7 @@ public class IndexNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new IndexNode<T>(runtime, index, source);
+    return new IndexNode<>(runtime, index, source);
   }
 
   @Override
@@ -44,7 +44,7 @@ public class IndexNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    IndexNode other = (IndexNode) o;
+    IndexNode<?> other = (IndexNode<?>) o;
     return index() == other.index();
   }
 

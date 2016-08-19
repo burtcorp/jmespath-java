@@ -1,6 +1,5 @@
 package io.burt.jmespath.node;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,7 +21,7 @@ public class FunctionCallNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new FunctionCallNode<T>(runtime, implementation, args, source);
+    return new FunctionCallNode<>(runtime, implementation, args, source);
   }
 
   @Override
@@ -61,13 +60,13 @@ public class FunctionCallNode<T> extends Node<T> {
         str.append(", ");
       }
     }
-    str.append("]");
+    str.append(']');
     return str.toString();
   }
 
   @Override
   protected boolean internalEquals(Object o) {
-    FunctionCallNode other = (FunctionCallNode) o;
+    FunctionCallNode<?> other = (FunctionCallNode<?>) o;
     return implementation.name().equals(other.implementation().name()) && args().equals(other.args());
   }
 

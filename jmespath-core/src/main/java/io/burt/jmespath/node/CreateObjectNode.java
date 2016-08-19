@@ -1,6 +1,5 @@
 package io.burt.jmespath.node;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,7 +37,7 @@ public class CreateObjectNode<T> extends Node<T> {
       if (!(o instanceof Entry)) {
         return false;
       }
-      Entry other = (Entry) o;
+      Entry<?> other = (Entry<?>) o;
       return key().equals(other.key()) && value().equals(other.value());
     }
 
@@ -58,7 +57,7 @@ public class CreateObjectNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new CreateObjectNode<T>(runtime, entries, source);
+    return new CreateObjectNode<>(runtime, entries, source);
   }
 
   @Override
@@ -84,18 +83,18 @@ public class CreateObjectNode<T> extends Node<T> {
     Iterator<Entry<T>> entryIterator = entries.iterator();
     while (entryIterator.hasNext()) {
       Entry<T> entry = entryIterator.next();
-      str.append(entry.key()).append("=").append(entry.value());
+      str.append(entry.key()).append('=').append(entry.value());
       if (entryIterator.hasNext()) {
         str.append(", ");
       }
     }
-    str.append("}");
+    str.append('}');
     return str.toString();
   }
 
   @Override
   protected boolean internalEquals(Object o) {
-    CreateObjectNode other = (CreateObjectNode) o;
+    CreateObjectNode<?> other = (CreateObjectNode<?>) o;
     return entries().equals(other.entries());
   }
 
