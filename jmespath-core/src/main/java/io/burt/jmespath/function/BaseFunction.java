@@ -128,9 +128,9 @@ public abstract class BaseFunction implements Function {
         throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), arguments.size());
       }
     } catch (ArgumentConstraints.InternalArityException e) {
-      throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), arguments.size());
+      throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), arguments.size(), e);
     } catch (ArgumentConstraints.InternalArgumentTypeException e) {
-      throw new ArgumentTypeException(name(), e.expectedType(), e.actualType());
+      throw new ArgumentTypeException(name(), e.expectedType(), e.actualType(), e);
     }
   }
 

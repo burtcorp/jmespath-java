@@ -105,7 +105,11 @@ public final class ArgumentConstraints {
     private final String actualType;
 
     public InternalArgumentTypeException(String expectedType, String actualType) {
-      super("");
+      this(expectedType, actualType, null);
+    }
+
+    public InternalArgumentTypeException(String expectedType, String actualType, Throwable cause) {
+      super("", cause);
       this.expectedType = expectedType;
       this.actualType = actualType;
     }
@@ -385,7 +389,7 @@ public final class ArgumentConstraints {
           try {
             subConstraint.check(runtime, wrappedElementsIterator);
           } catch (InternalArgumentTypeException iate) {
-            throw new InternalArgumentTypeException(expectedType(), String.format("array containing %s", iate.actualType()));
+            throw new InternalArgumentTypeException(expectedType(), String.format("array containing %s", iate.actualType()), iate);
           }
         }
       }
