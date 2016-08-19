@@ -136,10 +136,12 @@ public abstract class JmesPathComplianceTest<T> {
 	        }
         }
       } else {
-        File testsDir = new File(uri);
-        for (File testFile : testsDir.listFiles()) {
-          String fileName = testFile.getName();
-          featureNames.add(fileName.substring(0, fileName.length() - 5));
+        File[] testFiles = new File(uri).listFiles();
+        if (testFiles != null) {
+          for (File testFile : testFiles) {
+            String fileName = testFile.getName();
+            featureNames.add(fileName.substring(0, fileName.length() - 5));
+          }
         }
       }
       return featureNames;
