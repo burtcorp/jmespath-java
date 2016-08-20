@@ -18,6 +18,7 @@ import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.CreateObjectNode.Entry;
 import io.burt.jmespath.node.ProjectionNode;
 import io.burt.jmespath.node.CurrentNode;
+import io.burt.jmespath.node.Operator;
 
 public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private static final StringEscapeHelper identifierEscapeHelper = new StringEscapeHelper(
@@ -241,7 +242,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitComparisonExpression(JmesPathParser.ComparisonExpressionContext ctx) {
-    String operator = ctx.COMPARATOR().getText();
+    Operator operator = Operator.fromString(ctx.COMPARATOR().getText());
     Node<T> left = rewriteProjections(visit(ctx.expression(0)));
     Node<T> right = rewriteProjections(visit(ctx.expression(1)));
     return nodeFactory.createComparison(operator, left, right);
