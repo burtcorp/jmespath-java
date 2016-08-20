@@ -4,8 +4,6 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
 
-import static io.burt.jmespath.node.Operator.*;
-
 public abstract class ComparisonNode<T> extends OperatorNode<T> {
   public static class EqualsNode<T> extends ComparisonNode<T> {
     public EqualsNode(Adapter<T> runtime, Expression<T> left, Expression<T> right) {

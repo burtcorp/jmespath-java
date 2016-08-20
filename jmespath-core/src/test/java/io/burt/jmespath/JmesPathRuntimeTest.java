@@ -2,7 +2,6 @@ package io.burt.jmespath;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.BaseMatcher;

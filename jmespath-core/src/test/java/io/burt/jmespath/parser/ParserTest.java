@@ -4,30 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-import org.junit.Ignore;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.jcf.JcfRuntime;
-import io.burt.jmespath.node.AndNode;
-import io.burt.jmespath.node.ComparisonNode;
-import io.burt.jmespath.node.CreateArrayNode;
 import io.burt.jmespath.node.CreateObjectNode;
-import io.burt.jmespath.node.CurrentNode;
-import io.burt.jmespath.node.ExpressionReferenceNode;
-import io.burt.jmespath.node.FlattenArrayNode;
-import io.burt.jmespath.node.FlattenObjectNode;
-import io.burt.jmespath.node.ProjectionNode;
-import io.burt.jmespath.node.FunctionCallNode;
-import io.burt.jmespath.node.IndexNode;
 import io.burt.jmespath.node.Node;
-import io.burt.jmespath.node.JsonLiteralNode;
-import io.burt.jmespath.node.NegateNode;
-import io.burt.jmespath.node.OrNode;
-import io.burt.jmespath.node.PropertyNode;
-import io.burt.jmespath.node.SelectionNode;
-import io.burt.jmespath.node.SliceNode;
-import io.burt.jmespath.node.StringNode;
 import io.burt.jmespath.node.Operator;
 
 import static org.junit.Assert.assertThat;
