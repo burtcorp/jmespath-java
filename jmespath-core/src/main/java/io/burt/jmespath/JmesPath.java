@@ -10,7 +10,7 @@ public interface JmesPath<T> {
    * The expression objects should be stateless and thread safe, but the exact
    * details are up to the concrete implementations.
    *
-   * @throws ParseException when the string is not a valid JMESPath expression
+   * @throws io.burt.jmespath.parser.ParseException when the string is not a valid JMESPath expression
    */
   public Expression<T> compile(String expression);
 }

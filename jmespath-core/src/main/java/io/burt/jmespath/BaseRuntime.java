@@ -64,13 +64,13 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
    * using {@link Adapter#isTruthy}, {@link Adapter#toNumber},
    * {@link Adapter#toString}, etc.
    * <p>
-   * This only implements {@link Comparator#compare} fully for <code>null</code>,
-   * <code>number</code> and <code>string</code>, for <code>boolean</code>
-   * <code>array</code> and <code>object</code> it only does equality –
-   * specifically this means that it will return 0 for equal booleans, objects
-   * or arrays, and -1 otherwise. The reason is that JMESPath doesn't have any
-   * mechanisms for comparing objects or arrays, and doesn't define how objects
-   * and arrays should be compared.
+   * This only implements {@link java.util.Comparator#compare} fully for
+   * <code>null</code>, <code>number</code> and <code>string</code>, for
+   * <code>boolean</code> <code>array</code> and <code>object</code> it only
+   * does equality – specifically this means that it will return 0 for equal
+   * booleans, objects or arrays, and -1 otherwise. The reason is that JMESPath
+   * doesn't have any mechanisms for comparing objects or arrays, and doesn't
+   * define how objects and arrays should be compared.
    * <p>
    * When the arguments are not of the same type -1 is returned.
    */
@@ -144,8 +144,8 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   }
 
   /**
-   * Required method from the {@link Comparator} interface, returns true when
-   * the argument is of the same class, or a subclass of, the receiver.
+   * Required method from the {@link java.util.Comparator} interface, returns
+   * true when the argument is of the same class, or a subclass of, the receiver.
    */
   @Override
   public boolean equals(Object o) {
