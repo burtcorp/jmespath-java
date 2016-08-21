@@ -135,14 +135,9 @@ public abstract class ComparisonNode<T> extends OperatorNode<T> {
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return this;
-  }
-
-  @Override
-  protected T searchWithCurrentValue(T currentValue) {
-    T leftResult = operand(0).search(currentValue);
-    T rightResult = operand(1).search(currentValue);
+  public T search(T input) {
+    T leftResult = operand(0).search(input);
+    T rightResult = operand(1).search(input);
     JmesPathType leftType = runtime.typeOf(leftResult);
     JmesPathType rightType = runtime.typeOf(rightResult);
     if (leftType == JmesPathType.NUMBER && rightType == JmesPathType.NUMBER) {

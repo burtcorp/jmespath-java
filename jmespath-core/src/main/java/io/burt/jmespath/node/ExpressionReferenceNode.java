@@ -7,18 +7,13 @@ public class ExpressionReferenceNode<T> extends Node<T> {
   private final Expression<T> expression;
 
   public ExpressionReferenceNode(Adapter<T> runtime, Expression<T> expression) {
-    super(runtime, runtime.nodeFactory().createCurrent());
+    super(runtime);
     this.expression = expression;
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return this;
-  }
-
-  @Override
-  protected T searchWithCurrentValue(T currentValue) {
-    return expression().search(currentValue);
+  public T search(T input) {
+    return expression().search(input);
   }
 
   protected Expression<T> expression() {

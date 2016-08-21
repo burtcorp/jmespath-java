@@ -22,43 +22,43 @@ public class StandardNodeFactory<T> implements NodeFactory<T> {
   }
 
   @Override
-  public Node<T> createCurrent(Node<T> source) {
-    return new CurrentNode<>(runtime, source);
+  public Node<T> createSequence(List<Node<T>> nodes) {
+    return new SequenceNode<>(runtime, nodes);
   }
 
   @Override
-  public Node<T> createProperty(String name, Node<T> source) {
-    return new PropertyNode<>(runtime, name, source);
+  public Node<T> createProperty(String name) {
+    return new PropertyNode<>(runtime, name);
   }
 
   @Override
-  public Node<T> createIndex(int index, Node<T> source) {
-    return new IndexNode<>(runtime, index, source);
+  public Node<T> createIndex(int index) {
+    return new IndexNode<>(runtime, index);
   }
 
   @Override
-  public Node<T> createSlice(Integer start, Integer stop, Integer step, Node<T> source) {
-    return new SliceNode<>(runtime, start, stop, step, source);
+  public Node<T> createSlice(Integer start, Integer stop, Integer step) {
+    return new SliceNode<>(runtime, start, stop, step);
   }
 
   @Override
-  public Node<T> createProjection(Expression<T> expression, Node<T> source) {
-    return new ProjectionNode<>(runtime, expression, source);
+  public Node<T> createProjection(Expression<T> expression) {
+    return new ProjectionNode<>(runtime, expression);
   }
 
   @Override
-  public Node<T> createFlattenArray(Node<T> source) {
-    return new FlattenArrayNode<>(runtime, source);
+  public Node<T> createFlattenArray() {
+    return new FlattenArrayNode<>(runtime);
   }
 
   @Override
-  public Node<T> createFlattenObject(Node<T> source) {
-    return new FlattenObjectNode<>(runtime, source);
+  public Node<T> createFlattenObject() {
+    return new FlattenObjectNode<>(runtime);
   }
 
   @Override
-  public Node<T> createSelection(Expression<T> test, Node<T> source) {
-    return new SelectionNode<>(runtime, test, source);
+  public Node<T> createSelection(Expression<T> test) {
+    return new SelectionNode<>(runtime, test);
   }
 
   @Override
@@ -77,13 +77,13 @@ public class StandardNodeFactory<T> implements NodeFactory<T> {
   }
 
   @Override
-  public Node<T> createFunctionCall(String functionName, List<? extends Expression<T>> args, Node<T> source) {
-    return new FunctionCallNode<>(runtime, runtime.functionRegistry().getFunction(functionName), args, source);
+  public Node<T> createFunctionCall(String functionName, List<? extends Expression<T>> args) {
+    return new FunctionCallNode<>(runtime, runtime.functionRegistry().getFunction(functionName), args);
   }
 
   @Override
-  public Node<T> createFunctionCall(Function function, List<? extends Expression<T>> args, Node<T> source) {
-    return new FunctionCallNode<>(runtime, function, args, source);
+  public Node<T> createFunctionCall(Function function, List<? extends Expression<T>> args) {
+    return new FunctionCallNode<>(runtime, function, args);
   }
 
   @Override
@@ -97,18 +97,18 @@ public class StandardNodeFactory<T> implements NodeFactory<T> {
   }
 
   @Override
-  public Node<T> createNegate(Node<T> source) {
-    return new NegateNode<>(runtime, source);
+  public Node<T> createNegate(Expression<T> negated) {
+    return new NegateNode<>(runtime, negated);
   }
 
   @Override
-  public Node<T> createCreateObject(List<CreateObjectNode.Entry<T>> entries, Node<T> source) {
-    return new CreateObjectNode<>(runtime, entries, source);
+  public Node<T> createCreateObject(List<CreateObjectNode.Entry<T>> entries) {
+    return new CreateObjectNode<>(runtime, entries);
   }
 
   @Override
-  public Node<T> createCreateArray(List<? extends Expression<T>> entries, Node<T> source) {
-    return new CreateArrayNode<>(runtime, entries, source);
+  public Node<T> createCreateArray(List<? extends Expression<T>> entries) {
+    return new CreateArrayNode<>(runtime, entries);
   }
 
   @Override

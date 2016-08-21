@@ -7,19 +7,14 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class FlattenArrayNode<T> extends Node<T> {
-  public FlattenArrayNode(Adapter<T> runtime, Node<T> source) {
-    super(runtime, source);
+  public FlattenArrayNode(Adapter<T> runtime) {
+    super(runtime);
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return runtime.nodeFactory().createFlattenArray(source);
-  }
-
-  @Override
-  protected T searchWithCurrentValue(T currentValue) {
-    if (runtime.typeOf(currentValue) == JmesPathType.ARRAY) {
-      List<T> elements = runtime.toList(currentValue);
+  public T search(T input) {
+    if (runtime.typeOf(input) == JmesPathType.ARRAY) {
+      List<T> elements = runtime.toList(input);
       List<T> flattened = new LinkedList<>();
       for (T element : elements) {
         if (runtime.typeOf(element) == JmesPathType.ARRAY) {

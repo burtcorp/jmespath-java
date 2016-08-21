@@ -10,23 +10,18 @@ import io.burt.jmespath.JmesPathType;
 public class ProjectionNode<T> extends Node<T> {
   private final Expression<T> projection;
 
-  public ProjectionNode(Adapter<T> runtime, Expression<T> projection, Node<T> source) {
-    super(runtime, source);
+  public ProjectionNode(Adapter<T> runtime, Expression<T> projection) {
+    super(runtime);
     this.projection = projection;
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return runtime.nodeFactory().createProjection(projection, source);
-  }
-
-  @Override
-  public T searchWithCurrentValue(T currentValue) {
-    if (runtime.typeOf(currentValue) == JmesPathType.ARRAY) {
-      List<T> inputs = runtime.toList(currentValue);
-      List<T> results = new ArrayList<>(inputs.size());
-      for (T input : inputs) {
-        T result = projection.search(input);
+  public T search(T input) {
+    if (runtime.typeOf(input) == JmesPathType.ARRAY) {
+      List<T> inputList = runtime.toList(input);
+      List<T> results = new ArrayList<>(inputList.size());
+      for (T inputItem : inputList) {
+        T result = projection.search(inputItem);
         JmesPathType type = runtime.typeOf(result);
         if (type != JmesPathType.NULL) {
           results.add(result);

@@ -5,19 +5,14 @@ import io.burt.jmespath.Adapter;
 public class PropertyNode<T> extends Node<T> {
   private final String propertyName;
 
-  public PropertyNode(Adapter<T> runtime, String propertyName, Node<T> source) {
-    super(runtime, source);
+  public PropertyNode(Adapter<T> runtime, String propertyName) {
+    super(runtime);
     this.propertyName = propertyName;
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return runtime.nodeFactory().createProperty(propertyName, source);
-  }
-
-  @Override
-  public T searchWithCurrentValue(T currentValue) {
-    return runtime.getProperty(currentValue, propertyName());
+  public T search(T input) {
+    return runtime.getProperty(input, propertyName());
   }
 
   protected String propertyName() {

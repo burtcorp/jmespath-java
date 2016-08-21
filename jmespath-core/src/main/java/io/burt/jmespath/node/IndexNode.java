@@ -8,20 +8,15 @@ import io.burt.jmespath.JmesPathType;
 public class IndexNode<T> extends Node<T> {
   private final int index;
 
-  public IndexNode(Adapter<T> runtime, int index, Node<T> source) {
-    super(runtime, source);
+  public IndexNode(Adapter<T> runtime, int index) {
+    super(runtime);
     this.index = index;
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return runtime.nodeFactory().createIndex(index, source);
-  }
-
-  @Override
-  protected T searchWithCurrentValue(T currentValue) {
-    if (runtime.typeOf(currentValue) == JmesPathType.ARRAY) {
-      List<T> elements = runtime.toList(currentValue);
+  public T search(T input) {
+    if (runtime.typeOf(input) == JmesPathType.ARRAY) {
+      List<T> elements = runtime.toList(input);
       int i = index();
       if (i < 0) {
         i = elements.size() + i;

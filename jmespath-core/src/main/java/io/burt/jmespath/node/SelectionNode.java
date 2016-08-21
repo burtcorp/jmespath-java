@@ -10,21 +10,16 @@ import io.burt.jmespath.JmesPathType;
 public class SelectionNode<T> extends Node<T> {
   private final Expression<T> test;
 
-  public SelectionNode(Adapter<T> runtime, Expression<T> test, Node<T> source) {
-    super(runtime, source);
+  public SelectionNode(Adapter<T> runtime, Expression<T> test) {
+    super(runtime);
     this.test = test;
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return runtime.nodeFactory().createSelection(test, source);
-  }
-
-  @Override
-  public T searchWithCurrentValue(T projectionElement) {
-    if (runtime.typeOf(projectionElement) == JmesPathType.ARRAY) {
+  public T search(T input) {
+    if (runtime.typeOf(input) == JmesPathType.ARRAY) {
       List<T> selectedElements = new LinkedList<>();
-      for (T element : runtime.toList(projectionElement)) {
+      for (T element : runtime.toList(input)) {
         T testResult = test().search(element);
         if (runtime.isTruthy(testResult)) {
           selectedElements.add(element);

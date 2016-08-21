@@ -46,7 +46,8 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   protected T search(String query, T input) {
-    return runtime().compile(query).search(input);
+    Expression<T> expression = runtime().compile(query);
+    return expression.search(input);
   }
 
   protected T parse(String json) {

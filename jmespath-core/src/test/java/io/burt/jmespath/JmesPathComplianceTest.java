@@ -74,7 +74,7 @@ public abstract class JmesPathComplianceTest<T> {
         U result = compiledExpression.search(input);
         if (expectedError == null) {
           assertTrue(
-            String.format("Expected <%s> to be <%s>", result, expectedResult),
+            String.format("Expected <%s> to be <%s>, expression <%s> compiled expression <%s>", result, expectedResult, expression, compiledExpression),
             runtime.compare(expectedResult, result) == 0
           );
         } else if ("syntax".equals(expectedError)) {

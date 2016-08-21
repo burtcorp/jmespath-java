@@ -4,19 +4,14 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 
 public class FlattenObjectNode<T> extends Node<T> {
-  public FlattenObjectNode(Adapter<T> runtime, Node<T> source) {
-    super(runtime, source);
+  public FlattenObjectNode(Adapter<T> runtime) {
+    super(runtime);
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return runtime.nodeFactory().createFlattenObject(source);
-  }
-
-  @Override
-  protected T searchWithCurrentValue(T currentValue) {
-    if (runtime.typeOf(currentValue) == JmesPathType.OBJECT) {
-      return runtime.createArray(runtime.toList(currentValue));
+  public T search(T input) {
+    if (runtime.typeOf(input) == JmesPathType.OBJECT) {
+      return runtime.createArray(runtime.toList(input));
     } else {
       return runtime.createNull();
     }
