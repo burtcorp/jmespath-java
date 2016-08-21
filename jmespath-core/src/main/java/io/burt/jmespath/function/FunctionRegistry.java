@@ -8,7 +8,7 @@ import java.util.HashMap;
  * during parsing and compilation.
  */
 public class FunctionRegistry {
-  private final static FunctionRegistry defaultRegistry = new FunctionRegistry(
+  private static final FunctionRegistry defaultRegistry = new FunctionRegistry(
     new AbsFunction(),
     new AvgFunction(),
     new ContainsFunction(),

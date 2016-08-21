@@ -31,21 +31,11 @@ public abstract class CompareByFunction extends BaseFunction {
     if (elements.hasNext()) {
       T result = elements.next();
       T resultValue = expression.search(result);
-      boolean expectNumbers = true;
-      if (runtime.typeOf(resultValue) == JmesPathType.STRING) {
-        expectNumbers = false;
-      } else if (runtime.typeOf(resultValue) != JmesPathType.NUMBER) {
-        throw new ArgumentTypeException(name(), "number or string", runtime.typeOf(resultValue).toString());
-      }
+      boolean expectNumbers = expectNumbers(runtime, resultValue);
       while (elements.hasNext()) {
         T candidate = elements.next();
         T candidateValue = expression.search(candidate);
-        JmesPathType candidateType = runtime.typeOf(candidateValue);
-        if (expectNumbers && candidateType != JmesPathType.NUMBER) {
-          throw new ArgumentTypeException(name(), "number", candidateType.toString());
-        } else if (!expectNumbers && candidateType != JmesPathType.STRING) {
-          throw new ArgumentTypeException(name(), "string", candidateType.toString());
-        }
+        checkType(runtime, candidateValue, expectNumbers);
         if (sortsBefore(runtime.compare(candidateValue, resultValue))) {
           result = candidate;
           resultValue = candidateValue;
@@ -54,6 +44,24 @@ public abstract class CompareByFunction extends BaseFunction {
       return result;
     } else {
       return runtime.createNull();
+    }
+  }
+
+  private <T> boolean expectNumbers(Adapter<T> runtime, T resultValue) {
+    if (runtime.typeOf(resultValue) == JmesPathType.STRING) {
+      return false;
+    } else if (runtime.typeOf(resultValue) != JmesPathType.NUMBER) {
+      throw new ArgumentTypeException(name(), "number or string", runtime.typeOf(resultValue).toString());
+    }
+    return true;
+  }
+
+  private <T> void checkType(Adapter<T> runtime, T candidateValue, boolean expectNumbers) {
+    JmesPathType candidateType = runtime.typeOf(candidateValue);
+    if (expectNumbers && candidateType != JmesPathType.NUMBER) {
+      throw new ArgumentTypeException(name(), "number", candidateType.toString());
+    } else if (!expectNumbers && candidateType != JmesPathType.STRING) {
+      throw new ArgumentTypeException(name(), "string", candidateType.toString());
     }
   }
 }

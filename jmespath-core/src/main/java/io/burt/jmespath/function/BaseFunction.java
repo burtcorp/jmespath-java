@@ -28,7 +28,7 @@ public abstract class BaseFunction implements Function {
   private final ArgumentConstraint argumentConstraints;
   private final String name;
 
-  private static Pattern CAMEL_CASE_COMPONENT_RE = Pattern.compile("[A-Z][^A-Z]+");
+  private static final Pattern CAMEL_CASE_COMPONENT_RE = Pattern.compile("[A-Z][^A-Z]+");
 
   /**
    * Constructor used by subclasses whose name ends with "Function" and that

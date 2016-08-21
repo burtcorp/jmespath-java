@@ -62,8 +62,8 @@ public class StandardNodeFactory<T> implements NodeFactory<T> {
   }
 
   @Override
-  public Node<T> createComparison(String operator, Expression<T> left, Expression<T> right) {
-    return new ComparisonNode<>(runtime, operator, left, right);
+  public Node<T> createComparison(Operator operator, Expression<T> left, Expression<T> right) {
+    return ComparisonNode.create(runtime, operator, left, right);
   }
 
   @Override

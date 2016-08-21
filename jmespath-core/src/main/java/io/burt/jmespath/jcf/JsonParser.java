@@ -5,19 +5,15 @@ import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.util.StringEscapeHelper;
+import io.burt.jmespath.util.AntlrHelper;
 import io.burt.jmespath.parser.ParseErrorAccumulator;
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.parser.JmesPathBaseVisitor;
 import io.burt.jmespath.parser.JmesPathParser;
-import io.burt.jmespath.parser.JmesPathLexer;
 
 public class JsonParser extends JmesPathBaseVisitor<Object> {
   private static final StringEscapeHelper jsonEscapeHelper = new StringEscapeHelper(
@@ -37,33 +33,13 @@ public class JsonParser extends JmesPathBaseVisitor<Object> {
 
   public static Object fromString(String json, Adapter<Object> runtime) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
-    JmesPathParser parser = createParser(createLexer(createInput(json), errors), errors);
+    JmesPathParser parser = AntlrHelper.createParser(json, errors);
     ParseTree tree = parser.jsonValue();
     if (errors.isEmpty()) {
       return new JsonParser(tree, runtime).object();
     } else {
       throw new ParseException(json, errors);
     }
-  }
-
-  private static ANTLRInputStream createInput(String query) {
-    return new ANTLRInputStream(query);
-  }
-
-  private static JmesPathLexer createLexer(ANTLRInputStream input, ANTLRErrorListener errorListener) {
-    JmesPathLexer lexer = new JmesPathLexer(input);
-    lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
-    lexer.addErrorListener(errorListener);
-    return lexer;
-  }
-
-  private static JmesPathParser createParser(JmesPathLexer lexer, ANTLRErrorListener errorListener) {
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    JmesPathParser parser = new JmesPathParser(tokens);
-    parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-    parser.addErrorListener(errorListener);
-    parser.setBuildParseTree(true);
-    return parser;
   }
 
   private JsonParser(ParseTree tree, Adapter<Object> runtime) {

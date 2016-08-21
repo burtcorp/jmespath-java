@@ -27,7 +27,7 @@ public interface NodeFactory<T> {
 
   public Node<T> createSelection(Expression<T> test, Node<T> source);
 
-  public Node<T> createComparison(String operator, Expression<T> left, Expression<T> right);
+  public Node<T> createComparison(Operator operator, Expression<T> left, Expression<T> right);
 
   public Node<T> createOr(Expression<T> left, Expression<T> right);
 

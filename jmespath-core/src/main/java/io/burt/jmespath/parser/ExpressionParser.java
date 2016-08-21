@@ -5,10 +5,6 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.ArrayList;
 
-import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -16,11 +12,13 @@ import io.burt.jmespath.Expression;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.function.Function;
 import io.burt.jmespath.util.StringEscapeHelper;
+import io.burt.jmespath.util.AntlrHelper;
 import io.burt.jmespath.node.NodeFactory;
 import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.CreateObjectNode.Entry;
 import io.burt.jmespath.node.ProjectionNode;
 import io.burt.jmespath.node.CurrentNode;
+import io.burt.jmespath.node.Operator;
 
 public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private static final StringEscapeHelper identifierEscapeHelper = new StringEscapeHelper(
@@ -96,7 +94,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   public static <U> Expression<U> fromString(Adapter<U> runtime, String rawExpression) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
-    JmesPathParser parser = createParser(createLexer(createInput(rawExpression), errors), errors);
+    JmesPathParser parser = AntlrHelper.createParser(rawExpression, errors);
     ParseTree tree = parser.jmesPathExpression();
     Expression<U> expression = null;
     if (errors.isEmpty()) {
@@ -107,26 +105,6 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
       throw new ParseException(rawExpression, errors);
     }
     return expression;
-  }
-
-  private static ANTLRInputStream createInput(String expression) {
-    return new ANTLRInputStream(expression);
-  }
-
-  private static JmesPathLexer createLexer(ANTLRInputStream input, ANTLRErrorListener errorListener) {
-    JmesPathLexer lexer = new JmesPathLexer(input);
-    lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
-    lexer.addErrorListener(errorListener);
-    return lexer;
-  }
-
-  private static JmesPathParser createParser(JmesPathLexer lexer, ANTLRErrorListener errorListener) {
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    JmesPathParser parser = new JmesPathParser(tokens);
-    parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-    parser.addErrorListener(errorListener);
-    parser.setBuildParseTree(true);
-    return parser;
   }
 
   private ExpressionParser(Adapter<T> runtime, ParseTree tree, ParseErrorAccumulator errors) {
@@ -196,10 +174,8 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   }
 
   private Node<T> reSource(Node<T> root, Node<T> node, Node<T> replacement) {
-    Node<T> newSource = null;
-    if (root.source() == node) {
-      newSource = replacement;
-    } else {
+    Node<T> newSource = replacement;
+    if (root.source() != node) {
       newSource = reSource(root.source(), node, replacement);
     }
     return root.copyWithSource(newSource);
@@ -266,7 +242,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitComparisonExpression(JmesPathParser.ComparisonExpressionContext ctx) {
-    String operator = ctx.COMPARATOR().getText();
+    Operator operator = Operator.fromString(ctx.COMPARATOR().getText());
     Node<T> left = rewriteProjections(visit(ctx.expression(0)));
     Node<T> right = rewriteProjections(visit(ctx.expression(1)));
     return nodeFactory.createComparison(operator, left, right);

@@ -28,6 +28,7 @@ import io.burt.jmespath.node.PropertyNode;
 import io.burt.jmespath.node.SelectionNode;
 import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
+import io.burt.jmespath.node.Operator;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -77,7 +78,7 @@ public class ParserTest {
   }
 
   private Node<Object> Comparison(String operator, Expression<Object> left, Expression<Object> right) {
-    return runtime.nodeFactory().createComparison(operator, left, right);
+    return runtime.nodeFactory().createComparison(Operator.fromString(operator), left, right);
   }
 
   private Node<Object> Or(Expression<Object> left, Expression<Object> right) {
