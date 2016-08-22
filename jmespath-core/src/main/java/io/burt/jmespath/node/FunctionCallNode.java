@@ -13,25 +13,20 @@ public class FunctionCallNode<T> extends Node<T> {
   private final Function implementation;
   private final List<Expression<T>> args;
 
-  public FunctionCallNode(Adapter<T> runtime, Function implementation, List<? extends Expression<T>> args, Node<T> source) {
-    super(runtime, source);
+  public FunctionCallNode(Adapter<T> runtime, Function implementation, List<? extends Expression<T>> args) {
+    super(runtime);
     this.implementation = implementation;
     this.args = new ArrayList<>(args);
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return runtime.nodeFactory().createFunctionCall(implementation, args, source);
-  }
-
-  @Override
-  protected T searchWithCurrentValue(T currentValue) {
+  public T search(T input) {
     List<FunctionArgument<T>> arguments = new ArrayList<>(args.size());
     for (Expression<T> arg : args()) {
       if (arg instanceof ExpressionReferenceNode) {
         arguments.add(FunctionArgument.of(arg));
       } else {
-        arguments.add(FunctionArgument.of(arg.search(currentValue)));
+        arguments.add(FunctionArgument.of(arg.search(input)));
       }
     }
     return implementation.call(runtime, arguments);

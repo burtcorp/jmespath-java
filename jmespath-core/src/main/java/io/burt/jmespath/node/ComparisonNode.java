@@ -4,8 +4,6 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.JmesPathType;
 
-import static io.burt.jmespath.node.Operator.*;
-
 public abstract class ComparisonNode<T> extends OperatorNode<T> {
   public static class EqualsNode<T> extends ComparisonNode<T> {
     public EqualsNode(Adapter<T> runtime, Expression<T> left, Expression<T> right) {
@@ -137,14 +135,9 @@ public abstract class ComparisonNode<T> extends OperatorNode<T> {
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return this;
-  }
-
-  @Override
-  protected T searchWithCurrentValue(T currentValue) {
-    T leftResult = operand(0).search(currentValue);
-    T rightResult = operand(1).search(currentValue);
+  public T search(T input) {
+    T leftResult = operand(0).search(input);
+    T rightResult = operand(1).search(input);
     JmesPathType leftType = runtime.typeOf(leftResult);
     JmesPathType rightType = runtime.typeOf(rightResult);
     if (leftType == JmesPathType.NUMBER && rightType == JmesPathType.NUMBER) {

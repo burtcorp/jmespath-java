@@ -10,7 +10,6 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.node.ExpressionReferenceNode;
 import io.burt.jmespath.node.PropertyNode;
-import io.burt.jmespath.node.CurrentNode;
 import io.burt.jmespath.jcf.JcfRuntime;
 
 import static org.junit.Assert.assertThat;
@@ -23,7 +22,7 @@ public class FunctionTest {
 
   private final FunctionArgument<Object> expressionReference = FunctionArgument.of(
     new ExpressionReferenceNode<Object>(runtime,
-      new PropertyNode<Object>(runtime, "foo", new CurrentNode<Object>(runtime))
+      new PropertyNode<Object>(runtime, "foo")
     )
   );
 

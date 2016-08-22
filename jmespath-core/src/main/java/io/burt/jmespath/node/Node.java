@@ -5,31 +5,13 @@ import io.burt.jmespath.Expression;
 
 public abstract class Node<T> implements Expression<T> {
   protected final Adapter<T> runtime;
-  private final Node<T> source;
 
   public Node(Adapter<T> runtime) {
-    this(runtime, runtime.nodeFactory().createCurrent());
-  }
-
-  public Node(Adapter<T> runtime, Node<T> source) {
     this.runtime = runtime;
-    this.source = source;
   }
-
-  public abstract Node<T> copyWithSource(Node<T> source);
 
   @Override
-  public T search(T input) {
-    return searchWithCurrentValue(source().search(input));
-  }
-
-  protected T searchWithCurrentValue(T currentValue) {
-    return currentValue;
-  }
-
-  public Node<T> source() {
-    return source;
-  }
+  public abstract T search(T input);
 
   @Override
   public String toString() {
@@ -41,11 +23,7 @@ public abstract class Node<T> implements Expression<T> {
     str.append('(');
     if (extraArgs != null) {
       str.append(extraArgs);
-      if (extraArgs.length() > 0 && !extraArgs.endsWith(", ")) {
-        str.append(", ");
-      }
     }
-    str.append(source());
     str.append(')');
     return str.toString();
   }
@@ -62,18 +40,14 @@ public abstract class Node<T> implements Expression<T> {
     if (!getClass().isInstance(o)) {
       return false;
     }
-    Node<?> other = (Node<?>) o;
-    return internalEquals(o) && (source() == other.source() || (source() != null && other.source() != null && source().equals(other.source())));
+    return internalEquals(o);
   }
 
   protected abstract boolean internalEquals(Object o);
 
   @Override
   public int hashCode() {
-    int h = 1;
-    h = h * 31 + internalHashCode();
-    h = h * 31 + (source() == null ? 0 : source().hashCode());
-    return h;
+    return internalHashCode();
   }
 
   protected abstract int internalHashCode();

@@ -9,17 +9,12 @@ public class OrNode<T> extends OperatorNode<T> {
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return this;
-  }
-
-  @Override
-  protected T searchWithCurrentValue(T currentValue) {
-    T leftResult = operand(0).search(currentValue);
+  public T search(T input) {
+    T leftResult = operand(0).search(input);
     if (runtime.isTruthy(leftResult)) {
       return leftResult;
     } else {
-      return operand(1).search(currentValue);
+      return operand(1).search(input);
     }
   }
 }

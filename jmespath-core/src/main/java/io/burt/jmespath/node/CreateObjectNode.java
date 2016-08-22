@@ -50,24 +50,19 @@ public class CreateObjectNode<T> extends Node<T> {
     }
   }
 
-  public CreateObjectNode(Adapter<T> runtime, List<Entry<T>> entries, Node<T> source) {
-    super(runtime, source);
+  public CreateObjectNode(Adapter<T> runtime, List<Entry<T>> entries) {
+    super(runtime);
     this.entries = entries;
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return runtime.nodeFactory().createCreateObject(entries, source);
-  }
-
-  @Override
-  public T searchWithCurrentValue(T currentValue) {
-    if (runtime.typeOf(currentValue) == JmesPathType.NULL) {
-      return currentValue;
+  public T search(T input) {
+    if (runtime.typeOf(input) == JmesPathType.NULL) {
+      return input;
     } else {
       Map<T, T> object = new LinkedHashMap<>();
       for (Entry<T> entry : entries()) {
-        object.put(runtime.createString(entry.key()), entry.value().search(currentValue));
+        object.put(runtime.createString(entry.key()), entry.value().search(input));
       }
       return runtime.createObject(object);
     }

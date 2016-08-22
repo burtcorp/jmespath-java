@@ -16,9 +16,6 @@ public abstract class OperatorNode<T> extends Node<T> {
     this.operands = Arrays.asList(operands);
   }
 
-  @Override
-  public abstract Node<T> copyWithSource(Node<T> source);
-
   protected List<Expression<T>> operands() {
     return operands;
   }

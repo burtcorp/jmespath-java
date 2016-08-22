@@ -15,8 +15,8 @@ public class SliceNode<T> extends Node<T> {
   private final int limit;
   private final int rounding;
 
-  public SliceNode(Adapter<T> runtime, Integer start, Integer stop, Integer step, Node<T> source) {
-    super(runtime, source);
+  public SliceNode(Adapter<T> runtime, Integer start, Integer stop, Integer step) {
+    super(runtime);
     this.absoluteStart = (start != null);
     this.absoluteStop = (stop != null);
     this.absoluteStep = (step != null);
@@ -28,18 +28,8 @@ public class SliceNode<T> extends Node<T> {
   }
 
   @Override
-  public Node<T> copyWithSource(Node<T> source) {
-    return runtime.nodeFactory().createSlice(
-      absoluteStart ? start : null,
-      absoluteStop ? stop : null,
-      absoluteStep ? step : null,
-      source
-    );
-  }
-
-  @Override
-  public T searchWithCurrentValue(T projectionElement) {
-    List<T> elements = runtime.toList(projectionElement);
+  public T search(T input) {
+    List<T> elements = runtime.toList(input);
     int begin = (start < 0) ? Math.max(elements.size() + start, 0) : Math.min(start, elements.size() + limit);
     int end = (stop < 0) ? Math.max(elements.size() + stop, limit) : Math.min(stop, elements.size());
     int steps = Math.max(0, (end - begin + rounding) / step);
