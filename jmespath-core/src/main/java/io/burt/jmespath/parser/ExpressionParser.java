@@ -116,6 +116,14 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     return node;
   }
 
+  private Node<T> nonChainingVisit(ParseTree tree) {
+    Node<T> stashedNextNode = chainedNode;
+    chainedNode = null;
+    Node<T> result = createSequenceIfChained(visit(tree));
+    chainedNode = stashedNextNode;
+    return result;
+  }
+
   @Override
   public Node<T> visitJmesPathExpression(JmesPathParser.JmesPathExpressionContext ctx) {
     return createSequenceIfChained(visit(ctx.expression()));
@@ -148,11 +156,8 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   @Override
   public Node<T> visitComparisonExpression(JmesPathParser.ComparisonExpressionContext ctx) {
     Operator operator = Operator.fromString(ctx.COMPARATOR().getText());
-    Node<T> oldChainedNode = chainedNode;
-    chainedNode = null;
-    Node<T> right = createSequenceIfChained(visit(ctx.expression(1)));
-    Node<T> left = createSequenceIfChained(visit(ctx.expression(0)));
-    chainedNode = oldChainedNode;
+    Node<T> right = nonChainingVisit(ctx.expression(1));
+    Node<T> left = nonChainingVisit(ctx.expression(0));
     return createSequenceIfChained(nodeFactory.createComparison(operator, left, right));
   }
 
@@ -173,11 +178,8 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitOrExpression(JmesPathParser.OrExpressionContext ctx) {
-    Node<T> oldChainedNode = chainedNode;
-    chainedNode = null;
-    Node<T> left = createSequenceIfChained(visit(ctx.expression(0)));
-    Node<T> right = createSequenceIfChained(visit(ctx.expression(1)));
-    chainedNode = oldChainedNode;
+    Node<T> left = nonChainingVisit(ctx.expression(0));
+    Node<T> right = nonChainingVisit(ctx.expression(1));
     return createSequenceIfChained(nodeFactory.createOr(left, right));
   }
 
@@ -189,11 +191,8 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitAndExpression(JmesPathParser.AndExpressionContext ctx) {
-    Node<T> oldChainedNode = chainedNode;
-    chainedNode = null;
-    Node<T> left = createSequenceIfChained(visit(ctx.expression(0)));
-    Node<T> right = createSequenceIfChained(visit(ctx.expression(1)));
-    chainedNode = oldChainedNode;
+    Node<T> left = nonChainingVisit(ctx.expression(0));
+    Node<T> right = nonChainingVisit(ctx.expression(1));
     return createSequenceIfChained(nodeFactory.createAnd(left, right));
   }
 
@@ -223,30 +222,24 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitMultiSelectList(JmesPathParser.MultiSelectListContext ctx) {
-    Node<T> oldChainedNode = chainedNode;
-    chainedNode = null;
     int n = ctx.expression().size();
     List<Expression<T>> entries = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
-      entries.add(createSequenceIfChained(visit(ctx.expression(i))));
+      entries.add(nonChainingVisit(ctx.expression(i)));
     }
-    chainedNode = oldChainedNode;
     return createSequenceIfChained(nodeFactory.createCreateArray(entries));
   }
 
   @Override
   public Node<T> visitMultiSelectHash(JmesPathParser.MultiSelectHashContext ctx) {
-    Node<T> oldChainedNode = chainedNode;
-    chainedNode = null;
     int n = ctx.keyvalExpr().size();
     List<Entry<T>> entries = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       JmesPathParser.KeyvalExprContext kvCtx = ctx.keyvalExpr(i);
       String key = identifierToString(kvCtx.identifier());
-      Node<T> value = createSequenceIfChained(visit(kvCtx.expression()));
+      Node<T> value = nonChainingVisit(kvCtx.expression());
       entries.add(new Entry<>(key, value));
     }
-    chainedNode = oldChainedNode;
     return createSequenceIfChained(nodeFactory.createCreateObject(entries));
   }
 
@@ -290,25 +283,18 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitSelect(JmesPathParser.SelectContext ctx) {
-    Node<T> oldChainedNode = chainedNode;
-    chainedNode = null;
-    Node<T> test = createSequenceIfChained(visit(ctx.expression()));
-    chainedNode = oldChainedNode;
-    chainedNode = createProjectionIfChained(nodeFactory.createSelection(test));
+    chainedNode = createProjectionIfChained(nodeFactory.createSelection(nonChainingVisit(ctx.expression())));
     return null;
   }
 
   @Override
   public Node<T> visitFunctionExpression(JmesPathParser.FunctionExpressionContext ctx) {
-    Node<T> oldChainedNode = chainedNode;
-    chainedNode = null;
     String name = ctx.NAME().getText();
     int n = ctx.functionArg().size();
     List<Expression<T>> args = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
-      args.add(visit(ctx.functionArg(i)));
+      args.add(nonChainingVisit(ctx.functionArg(i)));
     }
-    chainedNode = oldChainedNode;
     Function implementation = runtime.functionRegistry().getFunction(name);
     if (implementation == null) {
       Token token = ctx.NAME().getSymbol();
