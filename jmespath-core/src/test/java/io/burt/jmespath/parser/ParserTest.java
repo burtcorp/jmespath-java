@@ -1127,4 +1127,17 @@ public class ParserTest {
     Expression<Object> actual = compile("Records[?''] | !@");
     assertThat(actual, is(expected));
   }
+
+  @Test
+  public void chainedParenthesis() {
+    Expression<Object> expected = Sequence(
+      Sequence(
+        Property("foo"),
+        FlattenArray()
+      ),
+      Property("bar")
+    );
+    Expression<Object> actual = compile("(foo[]).bar");
+    assertThat(actual, is(expected));
+  }
 }

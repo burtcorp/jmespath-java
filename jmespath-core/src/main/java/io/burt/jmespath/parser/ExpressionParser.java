@@ -163,7 +163,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitParenExpression(JmesPathParser.ParenExpressionContext ctx) {
-    return createSequenceIfChained(visit(ctx.expression()));
+    return createSequenceIfChained(nonChainingVisit(ctx.expression()));
   }
 
   @Override
