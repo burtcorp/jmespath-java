@@ -16,6 +16,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
 
 import org.junit.runner.RunWith;
+import org.hamcrest.Matcher;
 
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.function.ArgumentTypeException;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.allOf;
 
 @RunWith(ComplianceRunner.class)
 public abstract class JmesPathComplianceTest<T> {
@@ -86,19 +87,13 @@ public abstract class JmesPathComplianceTest<T> {
       } catch (Exception e) {
         if (expectedError == null) {
           throw e;
-        } else if (expectedError.contains("-")) {
-          assertThat(
-            e.getMessage(),
-            anyOf(
-              containsString(expectedError),
-              containsString(expectedError.replaceAll("-", " "))
-            )
-          );
         } else {
-          assertThat(
-            e.getMessage(),
-            containsString(expectedError)
-          );
+          String[] pieces = expectedError.split("-");
+          Matcher<String> matcher = containsString(pieces[0]);
+          for (int i = 1; i < pieces.length; i++) {
+            matcher = allOf(matcher, containsString(pieces[i]));
+          }
+          assertThat(e.getMessage().toLowerCase(), matcher);
         }
       }
     }
