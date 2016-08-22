@@ -27,44 +27,56 @@ public class SortByFunction extends BaseFunction {
       List<Pair<T>> pairs = new ArrayList<>(elementsList.size());
       T element = elements.next();
       T transformedElement = expression.search(element);
-      boolean expectNumbers = true;
-      JmesPathType elementType = runtime.typeOf(transformedElement);
-      if (elementType == JmesPathType.STRING) {
-        expectNumbers = false;
-      } else if (elementType != JmesPathType.NUMBER) {
-        throw new ArgumentTypeException(name(), "number or string", elementType.toString());
-      }
+      boolean expectNumbers = expectNumbers(runtime, transformedElement );
       pairs.add(new Pair<T>(transformedElement, element));
       while (elements.hasNext()) {
         element = elements.next();
         transformedElement = expression.search(element);
-        elementType = runtime.typeOf(transformedElement);
-        if (expectNumbers && elementType != JmesPathType.NUMBER) {
-          throw new ArgumentTypeException(name(), "number", elementType.toString());
-        } else if (!expectNumbers && elementType != JmesPathType.STRING) {
-          throw new ArgumentTypeException(name(), "string", elementType.toString());
-        }
+        checkType(runtime, transformedElement, expectNumbers);
         pairs.add(new Pair<T>(transformedElement, element));
       }
-      Collections.sort(pairs, new Comparator<Pair<T>>() {
-        @Override
-        public int compare(Pair<T> a, Pair<T> b) {
-          return runtime.compare(a.transformedElement, b.transformedElement);
-        }
-      });
-      List<T> sorted = new ArrayList<>(pairs.size());
-      for (Pair<T> pair : pairs) {
-        sorted.add(pair.element);
-      }
-      return runtime.createArray(sorted);
+      return runtime.createArray(sortAndFlatten(runtime, pairs));
     } else {
       return runtime.createArray(new ArrayList<T>());
     }
   }
 
+  private <T> boolean expectNumbers(Adapter<T> runtime, T transformedElement) {
+    JmesPathType elementType = runtime.typeOf(transformedElement);
+    if (elementType == JmesPathType.STRING) {
+      return false;
+    } else if (elementType != JmesPathType.NUMBER) {
+      throw new ArgumentTypeException(name(), "number or string", elementType.toString());
+    }
+    return true;
+  }
+
+  private <T> void checkType(Adapter<T> runtime, T transformedElement, boolean expectNumbers) {
+    JmesPathType elementType = runtime.typeOf(transformedElement);
+    if (expectNumbers && elementType != JmesPathType.NUMBER) {
+      throw new ArgumentTypeException(name(), "number", elementType.toString());
+    } else if (!expectNumbers && elementType != JmesPathType.STRING) {
+      throw new ArgumentTypeException(name(), "string", elementType.toString());
+    }
+  }
+
+  private <T> List<T> sortAndFlatten(final Adapter<T> runtime, List<Pair<T>> pairs) {
+    Collections.sort(pairs, new Comparator<Pair<T>>() {
+      @Override
+      public int compare(Pair<T> a, Pair<T> b) {
+        return runtime.compare(a.transformedElement, b.transformedElement);
+      }
+    });
+    List<T> sorted = new ArrayList<>(pairs.size());
+    for (Pair<T> pair : pairs) {
+      sorted.add(pair.element);
+    }
+    return sorted;
+  }
+
   private static class Pair<U> {
-    public U transformedElement;
-    public U element;
+    public final U transformedElement;
+    public final U element;
 
     public Pair(U transformedElement, U element) {
       this.transformedElement = transformedElement;

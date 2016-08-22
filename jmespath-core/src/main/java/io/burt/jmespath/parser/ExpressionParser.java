@@ -4,38 +4,21 @@ import java.util.Deque;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.util.StringEscapeHelper;
 import io.burt.jmespath.function.Function;
-import io.burt.jmespath.node.AndNode;
-import io.burt.jmespath.node.ComparisonNode;
-import io.burt.jmespath.node.CreateArrayNode;
-import io.burt.jmespath.node.CreateObjectNode;
-import io.burt.jmespath.node.CurrentNode;
-import io.burt.jmespath.node.ExpressionReferenceNode;
-import io.burt.jmespath.node.FlattenArrayNode;
-import io.burt.jmespath.node.FlattenObjectNode;
-import io.burt.jmespath.node.FunctionCallNode;
-import io.burt.jmespath.node.IndexNode;
+import io.burt.jmespath.util.StringEscapeHelper;
+import io.burt.jmespath.util.AntlrHelper;
+import io.burt.jmespath.node.NodeFactory;
 import io.burt.jmespath.node.Node;
-import io.burt.jmespath.node.JsonLiteralNode;
-import io.burt.jmespath.node.NegateNode;
-import io.burt.jmespath.node.OrNode;
-import io.burt.jmespath.node.PropertyNode;
-import io.burt.jmespath.node.SelectionNode;
-import io.burt.jmespath.node.SliceNode;
-import io.burt.jmespath.node.StringNode;
+import io.burt.jmespath.node.CreateObjectNode.Entry;
 import io.burt.jmespath.node.ProjectionNode;
+import io.burt.jmespath.node.CurrentNode;
+import io.burt.jmespath.node.Operator;
 
 public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private static final StringEscapeHelper identifierEscapeHelper = new StringEscapeHelper(
@@ -68,7 +51,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
     @Override
     public Node<T> copyWithSource(Node<T> source) {
-      return new StartProjectionNode<T>(runtime, source);
+      return new StartProjectionNode<>(runtime, source);
     }
 
     @Override
@@ -89,7 +72,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
     @Override
     public Node<T> copyWithSource(Node<T> source) {
-      return new StopProjectionsNode<T>(runtime, source);
+      return new StopProjectionsNode<>(runtime, source);
     }
 
     @Override
@@ -106,15 +89,16 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private final ParseTree tree;
   private final Deque<Node<T>> currentSource;
   private final Adapter<T> runtime;
+  private final NodeFactory<T> nodeFactory;
   private final ParseErrorAccumulator errors;
 
   public static <U> Expression<U> fromString(Adapter<U> runtime, String rawExpression) {
     ParseErrorAccumulator errors = new ParseErrorAccumulator();
-    JmesPathParser parser = createParser(createLexer(createInput(rawExpression), errors), errors);
+    JmesPathParser parser = AntlrHelper.createParser(rawExpression, errors);
     ParseTree tree = parser.jmesPathExpression();
     Expression<U> expression = null;
     if (errors.isEmpty()) {
-      ExpressionParser<U> visitor = new ExpressionParser<U>(runtime, tree, errors);
+      ExpressionParser<U> visitor = new ExpressionParser<>(runtime, tree, errors);
       expression = visitor.expression();
     }
     if (!errors.isEmpty()) {
@@ -123,28 +107,9 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     return expression;
   }
 
-  private static ANTLRInputStream createInput(String expression) {
-    return new ANTLRInputStream(expression);
-  }
-
-  private static JmesPathLexer createLexer(ANTLRInputStream input, ANTLRErrorListener errorListener) {
-    JmesPathLexer lexer = new JmesPathLexer(input);
-    lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
-    lexer.addErrorListener(errorListener);
-    return lexer;
-  }
-
-  private static JmesPathParser createParser(JmesPathLexer lexer, ANTLRErrorListener errorListener) {
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    JmesPathParser parser = new JmesPathParser(tokens);
-    parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-    parser.addErrorListener(errorListener);
-    parser.setBuildParseTree(true);
-    return parser;
-  }
-
   private ExpressionParser(Adapter<T> runtime, ParseTree tree, ParseErrorAccumulator errors) {
     this.runtime = runtime;
+    this.nodeFactory = runtime.nodeFactory();
     this.tree = tree;
     this.errors = errors;
     this.currentSource = new LinkedList<>();
@@ -155,7 +120,19 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   }
 
   private Node<T> createCurrent() {
-    return new CurrentNode<T>(runtime);
+    return nodeFactory.createCurrent();
+  }
+
+  private Node<T> createProjection(Expression<T> expression, Node<T> source) {
+    return nodeFactory.createProjection(expression, source);
+  }
+
+  private Node<T> startProjection(Node<T> source) {
+    return new StartProjectionNode<>(runtime, source);
+  }
+
+  private Node<T> stopProjections(Node<T> source) {
+    return new StopProjectionsNode<>(runtime, source);
   }
 
   private Node<T> rewriteProjections(Node<T> node) {
@@ -168,13 +145,13 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
       return node;
     } else if (node instanceof StartProjectionNode) {
       Node<T> rearrangedSource = rewriteProjections(source, source);
-      return new ProjectionNode<T>(runtime, createCurrent(), rearrangedSource);
+      return createProjection(createCurrent(), rearrangedSource);
     } else if (source instanceof StopProjectionsNode) {
       Node<T> rearrangedSource = rewriteProjections(source, source);
       return node.copyWithSource(rearrangedSource);
     } else if (source instanceof StartProjectionNode) {
       Node<T> projectionExpression = removeStopProjections(reSource(root, source, createCurrent()));
-      Node<T> projection = new ProjectionNode<T>(runtime, projectionExpression, source.source());
+      Node<T> projection = createProjection(projectionExpression, source.source());
       return rewriteProjections(projection, projection);
     } else {
       Node<T> rearrangedSource = rewriteProjections(source, root);
@@ -197,10 +174,8 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   }
 
   private Node<T> reSource(Node<T> root, Node<T> node, Node<T> replacement) {
-    Node<T> newSource = null;
-    if (root.source() == node) {
-      newSource = replacement;
-    } else {
+    Node<T> newSource = replacement;
+    if (root.source() != node) {
       newSource = reSource(root.source(), node, replacement);
     }
     return root.copyWithSource(newSource);
@@ -242,7 +217,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitPipeExpression(JmesPathParser.PipeExpressionContext ctx) {
-    currentSource.push(new StopProjectionsNode<T>(runtime, visit(ctx.expression(0))));
+    currentSource.push(stopProjections(visit(ctx.expression(0))));
     Node<T> result = visit(ctx.expression(1));
     currentSource.pop();
     return result;
@@ -255,22 +230,22 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitNotExpression(JmesPathParser.NotExpressionContext ctx) {
-    return new NegateNode<T>(runtime, visit(ctx.expression()));
+    return nodeFactory.createNegate(visit(ctx.expression()));
   }
 
   @Override
   public Node<T> visitRawStringExpression(JmesPathParser.RawStringExpressionContext ctx) {
     String quotedString = ctx.RAW_STRING().getText();
     String unquotedString = rawStringEscapeHelper.unescape(quotedString.substring(1, quotedString.length() - 1));
-    return new StringNode<T>(runtime, unquotedString);
+    return nodeFactory.createString(unquotedString);
   }
 
   @Override
   public Node<T> visitComparisonExpression(JmesPathParser.ComparisonExpressionContext ctx) {
-    String operator = ctx.COMPARATOR().getText();
+    Operator operator = Operator.fromString(ctx.COMPARATOR().getText());
     Node<T> left = rewriteProjections(visit(ctx.expression(0)));
     Node<T> right = rewriteProjections(visit(ctx.expression(1)));
-    return new ComparisonNode<T>(runtime, operator, left, right);
+    return nodeFactory.createComparison(operator, left, right);
   }
 
   @Override
@@ -287,8 +262,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   public Node<T> visitOrExpression(JmesPathParser.OrExpressionContext ctx) {
     Node<T> left = rewriteProjections(visit(ctx.expression(0)));
     Node<T> right = rewriteProjections(visit(ctx.expression(1)));
-    return new OrNode<T>(runtime, left, right);
-
+    return nodeFactory.createOr(left, right);
   }
 
   @Override
@@ -303,7 +277,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   public Node<T> visitAndExpression(JmesPathParser.AndExpressionContext ctx) {
     Node<T> left = rewriteProjections(visit(ctx.expression(0)));
     Node<T> right = rewriteProjections(visit(ctx.expression(1)));
-    return new AndNode<T>(runtime, left, right);
+    return nodeFactory.createAnd(left, right);
   }
 
   @Override
@@ -321,7 +295,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitWildcard(JmesPathParser.WildcardContext ctx) {
-    return new StartProjectionNode<T>(runtime, new FlattenObjectNode<T>(runtime, currentSource.peek()));
+    return startProjection(nodeFactory.createFlattenObject(currentSource.peek()));
   }
 
   @Override
@@ -333,33 +307,33 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
       entries.add(rewriteProjections(visit(ctx.expression(i))));
     }
     currentSource.pop();
-    return new CreateArrayNode<T>(runtime, entries, currentSource.peek());
+    return nodeFactory.createCreateArray(entries, currentSource.peek());
   }
 
   @Override
   public Node<T> visitMultiSelectHash(JmesPathParser.MultiSelectHashContext ctx) {
     currentSource.push(createCurrent());
     int n = ctx.keyvalExpr().size();
-    List<CreateObjectNode.Entry<T>> entries = new ArrayList<>(n);
+    List<Entry<T>> entries = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       JmesPathParser.KeyvalExprContext kvCtx = ctx.keyvalExpr(i);
       String key = identifierToString(kvCtx.identifier());
       Node<T> value = rewriteProjections(visit(kvCtx.expression()));
-      entries.add(new CreateObjectNode.Entry<T>(key, value));
+      entries.add(new Entry<>(key, value));
     }
     currentSource.pop();
-    return new CreateObjectNode<T>(runtime, entries, currentSource.peek());
+    return nodeFactory.createCreateObject(entries, currentSource.peek());
   }
 
   @Override
   public Node<T> visitBracketIndex(JmesPathParser.BracketIndexContext ctx) {
     int index = Integer.parseInt(ctx.SIGNED_INT().getText());
-    return new IndexNode<T>(runtime, index, currentSource.peek());
+    return nodeFactory.createIndex(index, currentSource.peek());
   }
 
   @Override
   public Node<T> visitBracketStar(JmesPathParser.BracketStarContext ctx) {
-    return new StartProjectionNode<T>(runtime, currentSource.peek());
+    return startProjection(currentSource.peek());
   }
 
   @Override
@@ -377,12 +351,12 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     if (sliceCtx.step != null) {
       step = Integer.parseInt(sliceCtx.step.getText());
     }
-    return new StartProjectionNode<T>(runtime, new SliceNode<T>(runtime, start, stop, step, currentSource.peek()));
+    return startProjection(nodeFactory.createSlice(start, stop, step, currentSource.peek()));
   }
 
   @Override
   public Node<T> visitBracketFlatten(JmesPathParser.BracketFlattenContext ctx) {
-    return new StartProjectionNode<T>(runtime, new FlattenArrayNode<T>(runtime, new StopProjectionsNode<T>(runtime, currentSource.peek())));
+    return startProjection(nodeFactory.createFlattenArray(stopProjections(currentSource.peek())));
   }
 
   @Override
@@ -390,7 +364,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     currentSource.push(createCurrent());
     Node<T> test = rewriteProjections(visit(ctx.expression()));
     currentSource.pop();
-    return new StartProjectionNode<T>(runtime, new SelectionNode<T>(runtime, test, currentSource.peek()));
+    return startProjection(nodeFactory.createSelection(test, currentSource.peek()));
   }
 
   @Override
@@ -403,12 +377,12 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
       args.add(rewriteProjections(visit(ctx.functionArg(i))));
     }
     currentSource.pop();
-    Function implementation = runtime.getFunction(name);
+    Function implementation = runtime.functionRegistry().getFunction(name);
     if (implementation == null) {
       Token token = ctx.NAME().getSymbol();
       errors.parseError(String.format("unknown function \"%s\"", name), token.getLine(), token.getStartIndex());
     }
-    return new FunctionCallNode<T>(runtime, implementation, args, currentSource.peek());
+    return nodeFactory.createFunctionCall(implementation, args, currentSource.peek());
   }
 
   @Override
@@ -416,21 +390,21 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     if (currentSource.peek() instanceof CurrentNode) {
       return currentSource.peek();
     } else {
-      return new CurrentNode<T>(runtime, currentSource.peek());
+      return nodeFactory.createCurrent(currentSource.peek());
     }
   }
 
   @Override
   public Node<T> visitExpressionType(JmesPathParser.ExpressionTypeContext ctx) {
     Node<T> expression = rewriteProjections(visit(ctx.expression()));
-    return new ExpressionReferenceNode<T>(runtime, expression);
+    return nodeFactory.createExpressionReference(expression);
   }
 
   @Override
   public Node<T> visitLiteral(JmesPathParser.LiteralContext ctx) {
     visit(ctx.jsonValue());
     String string = jsonLiteralEscapeHelper.unescape(ctx.jsonValue().getText());
-    return new JsonLiteralNode<T>(runtime, string, runtime.parseString(string));
+    return nodeFactory.createJsonLiteral(string);
   }
 
   @Override
@@ -447,6 +421,6 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitIdentifier(JmesPathParser.IdentifierContext ctx) {
-    return new PropertyNode<T>(runtime, identifierToString(ctx), currentSource.peek());
+    return nodeFactory.createProperty(identifierToString(ctx), currentSource.peek());
   }
 }

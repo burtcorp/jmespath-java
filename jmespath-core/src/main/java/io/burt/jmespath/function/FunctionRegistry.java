@@ -2,16 +2,13 @@ package io.burt.jmespath.function;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
-
-import io.burt.jmespath.Adapter;
 
 /**
  * A collection of functions, used by the runtimes to look up functions by name
  * during parsing and compilation.
  */
 public class FunctionRegistry {
-  private final static FunctionRegistry defaultRegistry = new FunctionRegistry(
+  private static final FunctionRegistry defaultRegistry = new FunctionRegistry(
     new AbsFunction(),
     new AvgFunction(),
     new ContainsFunction(),

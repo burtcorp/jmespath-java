@@ -17,7 +17,7 @@ public class ProjectionNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new ProjectionNode<T>(runtime, projection, source);
+    return runtime.nodeFactory().createProjection(projection, source);
   }
 
   @Override
@@ -45,7 +45,7 @@ public class ProjectionNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    ProjectionNode other = (ProjectionNode) o;
+    ProjectionNode<?> other = (ProjectionNode<?>) o;
     return projection.equals(other.projection);
   }
 

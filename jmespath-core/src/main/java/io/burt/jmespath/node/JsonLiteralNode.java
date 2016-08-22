@@ -33,7 +33,7 @@ public class JsonLiteralNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    JsonLiteralNode other = (JsonLiteralNode) o;
+    JsonLiteralNode<?> other = (JsonLiteralNode<?>) o;
     return tree().equals(other.tree());
   }
 

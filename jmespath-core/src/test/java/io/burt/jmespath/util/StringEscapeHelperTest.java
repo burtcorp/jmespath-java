@@ -1,9 +1,6 @@
 package io.burt.jmespath.util;
 
-import java.util.Arrays;
-
 import org.junit.Test;
-import org.junit.Ignore;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;

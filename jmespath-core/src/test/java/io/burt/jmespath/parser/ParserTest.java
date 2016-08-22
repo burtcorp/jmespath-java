@@ -1,7 +1,6 @@
 package io.burt.jmespath.parser;
 
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -29,6 +28,7 @@ import io.burt.jmespath.node.PropertyNode;
 import io.burt.jmespath.node.SelectionNode;
 import io.burt.jmespath.node.SliceNode;
 import io.burt.jmespath.node.StringNode;
+import io.burt.jmespath.node.Operator;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -42,79 +42,79 @@ public class ParserTest {
   }
 
   private Node<Object> Current() {
-    return new CurrentNode<Object>(runtime);
+    return runtime.nodeFactory().createCurrent();
   }
 
   private Node<Object> Current(Node<Object> source) {
-    return new CurrentNode<Object>(runtime, source);
+    return runtime.nodeFactory().createCurrent(source);
   }
 
   private Node<Object> Property(String name, Node<Object> source) {
-    return new PropertyNode<Object>(runtime, name, source);
+    return runtime.nodeFactory().createProperty(name, source);
   }
 
   private Node<Object> Index(int index, Node<Object> source) {
-    return new IndexNode<Object>(runtime, index, source);
+    return runtime.nodeFactory().createIndex(index, source);
   }
 
   private Node<Object> Slice(Integer start, Integer stop, Integer step, Node<Object> source) {
-    return new SliceNode<Object>(runtime, start, stop, step, source);
+    return runtime.nodeFactory().createSlice(start, stop, step, source);
   }
 
   private Node<Object> Projection(Expression<Object> expression, Node<Object> source) {
-    return new ProjectionNode<Object>(runtime, expression, source);
+    return runtime.nodeFactory().createProjection(expression, source);
   }
 
   private Node<Object> FlattenArray(Node<Object> source) {
-    return new FlattenArrayNode<Object>(runtime, source);
+    return runtime.nodeFactory().createFlattenArray(source);
   }
 
   private Node<Object> FlattenObject(Node<Object> source) {
-    return new FlattenObjectNode<Object>(runtime, source);
+    return runtime.nodeFactory().createFlattenObject(source);
   }
 
   private Node<Object> Selection(Expression<Object> test, Node<Object> source) {
-    return new SelectionNode<Object>(runtime, test, source);
+    return runtime.nodeFactory().createSelection(test, source);
   }
 
   private Node<Object> Comparison(String operator, Expression<Object> left, Expression<Object> right) {
-    return new ComparisonNode<Object>(runtime, operator, left, right);
+    return runtime.nodeFactory().createComparison(Operator.fromString(operator), left, right);
   }
 
   private Node<Object> Or(Expression<Object> left, Expression<Object> right) {
-    return new OrNode<Object>(runtime, left, right);
+    return runtime.nodeFactory().createOr(left, right);
   }
 
   private Node<Object> And(Expression<Object> left, Expression<Object> right) {
-    return new AndNode<Object>(runtime, left, right);
+    return runtime.nodeFactory().createAnd(left, right);
   }
 
   private Node<Object> FunctionCall(String functionName, List<? extends Expression<Object>> args, Node<Object> source) {
-    return new FunctionCallNode<Object>(runtime, runtime.getFunction(functionName), args, source);
+    return runtime.nodeFactory().createFunctionCall(functionName, args, source);
   }
 
   private Node<Object> ExpressionReference(Expression<Object> expression) {
-    return new ExpressionReferenceNode<Object>(runtime, expression);
+    return runtime.nodeFactory().createExpressionReference(expression);
   }
 
   private Node<Object> String(String str) {
-    return new StringNode<Object>(runtime, str);
+    return runtime.nodeFactory().createString(str);
   }
 
   private Node<Object> Negate(Node<Object> source) {
-    return new NegateNode<Object>(runtime, source);
+    return runtime.nodeFactory().createNegate(source);
   }
 
   private Node<Object> Object(List<CreateObjectNode.Entry<Object>> entries, Node<Object> source) {
-    return new CreateObjectNode<Object>(runtime, entries, source);
+    return runtime.nodeFactory().createCreateObject(entries, source);
   }
 
   private Node<Object> Array(List<? extends Expression<Object>> entries, Node<Object> source) {
-    return new CreateArrayNode<Object>(runtime, entries, source);
+    return runtime.nodeFactory().createCreateArray(entries, source);
   }
 
   private Node<Object> JsonLiteral(String json) {
-    return new JsonLiteralNode<Object>(runtime, json, runtime.parseString(json));
+    return runtime.nodeFactory().createJsonLiteral(json);
   }
 
   @Test
@@ -306,7 +306,6 @@ public class ParserTest {
   }
 
   @Test
-  @Ignore("Should raise a parse error")
   public void sliceWithZeroStepSize() {
     compile("[0:1:0]");
   }
@@ -495,7 +494,6 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void functionCallWithUnknownFunction() {
     try {
       compile("to_unicorn(@)");
@@ -670,7 +668,6 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void bareMultiSelectHashExpression() {
     Expression<Object> expected = Object(
       Arrays.asList(
@@ -684,7 +681,6 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashExpression() {
     Expression<Object> expected = Object(
       Arrays.asList(
@@ -700,7 +696,6 @@ public class ParserTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void chainedMultiSelectHashWithQuotedKeys() {
     Expression<Object> expected = Object(
       Arrays.asList(

@@ -12,7 +12,7 @@ public class PropertyNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new PropertyNode<T>(runtime, propertyName, source);
+    return runtime.nodeFactory().createProperty(propertyName, source);
   }
 
   @Override
@@ -31,7 +31,7 @@ public class PropertyNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    PropertyNode other = (PropertyNode) o;
+    PropertyNode<?> other = (PropertyNode<?>) o;
     return propertyName().equals(other.propertyName());
   }
 

@@ -11,6 +11,7 @@ public enum JmesPathType {
   OBJECT,
   NULL;
 
+  @Override
   public String toString() {
     return name().toLowerCase();
   }

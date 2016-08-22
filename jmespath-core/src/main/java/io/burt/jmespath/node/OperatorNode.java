@@ -2,7 +2,6 @@ package io.burt.jmespath.node;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
@@ -44,7 +43,7 @@ public abstract class OperatorNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    OperatorNode other = (OperatorNode) o;
+    OperatorNode<?> other = (OperatorNode<?>) o;
     return operands().equals(other.operands());
   }
 

@@ -17,7 +17,7 @@ public class SelectionNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new SelectionNode<T>(runtime, test, source);
+    return runtime.nodeFactory().createSelection(test, source);
   }
 
   @Override
@@ -47,7 +47,7 @@ public class SelectionNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    SelectionNode other = (SelectionNode) o;
+    SelectionNode<?> other = (SelectionNode<?>) o;
     return test().equals(other.test());
   }
 

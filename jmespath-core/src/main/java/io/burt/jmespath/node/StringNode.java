@@ -31,7 +31,7 @@ public class StringNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    StringNode other = (StringNode) o;
+    StringNode<?> other = (StringNode<?>) o;
     return string().equals(other.string());
   }
 

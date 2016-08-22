@@ -17,7 +17,7 @@ public class ReverseFunction extends BaseFunction {
     T subject = arguments.get(0).value();
     JmesPathType subjectType = runtime.typeOf(subject);
     if (subjectType == JmesPathType.ARRAY) {
-      List<T> elements = new ArrayList<T>(runtime.toList(subject));
+      List<T> elements = new ArrayList<>(runtime.toList(subject));
       Collections.reverse(elements);
       return runtime.createArray(elements);
     } else {

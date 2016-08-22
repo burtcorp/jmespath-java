@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.Expression;
-import io.burt.jmespath.JmesPathType;
 
 public class MapFunction extends BaseFunction {
   public MapFunction() {

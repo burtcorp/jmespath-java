@@ -10,7 +10,7 @@ public class FlattenObjectNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new FlattenObjectNode<T>(runtime, source);
+    return runtime.nodeFactory().createFlattenObject(source);
   }
 
   @Override

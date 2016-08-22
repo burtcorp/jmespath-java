@@ -1,6 +1,5 @@
 package io.burt.jmespath.node;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,7 +18,7 @@ public class CreateArrayNode<T> extends Node<T> {
 
   @Override
   public Node<T> copyWithSource(Node<T> source) {
-    return new CreateArrayNode<T>(runtime, entries, source);
+    return runtime.nodeFactory().createCreateArray(entries, source);
   }
 
   protected List<Expression<T>> entries() {
@@ -50,13 +49,13 @@ public class CreateArrayNode<T> extends Node<T> {
         str.append(", ");
       }
     }
-    str.append("]");
+    str.append(']');
     return str.toString();
   }
 
   @Override
   protected boolean internalEquals(Object o) {
-    CreateArrayNode other = (CreateArrayNode) o;
+    CreateArrayNode<?> other = (CreateArrayNode<?>) o;
     return entries().equals(other.entries());
   }
 

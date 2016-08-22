@@ -7,7 +7,7 @@ public class ExpressionReferenceNode<T> extends Node<T> {
   private final Expression<T> expression;
 
   public ExpressionReferenceNode(Adapter<T> runtime, Expression<T> expression) {
-    super(runtime, new CurrentNode<T>(runtime));
+    super(runtime, runtime.nodeFactory().createCurrent());
     this.expression = expression;
   }
 
@@ -32,7 +32,7 @@ public class ExpressionReferenceNode<T> extends Node<T> {
 
   @Override
   protected boolean internalEquals(Object o) {
-    ExpressionReferenceNode other = (ExpressionReferenceNode) o;
+    ExpressionReferenceNode<?> other = (ExpressionReferenceNode<?>) o;
     return expression().equals(other.expression());
   }
 

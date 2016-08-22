@@ -6,15 +6,16 @@ import java.util.Collection;
 
 import io.burt.jmespath.parser.ExpressionParser;
 import io.burt.jmespath.function.FunctionRegistry;
-import io.burt.jmespath.function.Function;
+import io.burt.jmespath.node.NodeFactory;
+import io.burt.jmespath.node.StandardNodeFactory;
 import io.burt.jmespath.util.StringEscapeHelper;
 
 /**
  * This class can be extended instead of implementing {@link Adapter} directly,
  * in order to not have to implement a few of the methods that have non-specific
- * implementations, like {@link Adapter#getFunction}, {@link Adapter#typeOf} or
- * the {@link Comparable} interface. Subclasses are encouraged to override these
- * methods if they have more efficient means to perform the same job.
+ * implementations, like {@link Adapter#functionRegistry}, {@link Adapter#typeOf}
+ * or the {@link Comparable} interface. Subclasses are encouraged to override
+ * these methods if they have more efficient means to perform the same job.
  */
 public abstract class BaseRuntime<T> implements Adapter<T> {
   private static final StringEscapeHelper jsonEscapeHelper = new StringEscapeHelper(
@@ -29,6 +30,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   );
 
   private final FunctionRegistry functionRegistry;
+  private final NodeFactory<T> nodeFactory;
 
   /**
    * Create a new runtime with a default function registry.
@@ -46,6 +48,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     } else {
       this.functionRegistry = functionRegistry;
     }
+    this.nodeFactory = new StandardNodeFactory<>(this);
   }
 
   @Override
@@ -61,13 +64,13 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
    * using {@link Adapter#isTruthy}, {@link Adapter#toNumber},
    * {@link Adapter#toString}, etc.
    * <p>
-   * This only implements {@link Comparator#compare} fully for <code>null</code>,
-   * <code>number</code> and <code>string</code>, for <code>boolean</code>
-   * <code>array</code> and <code>object</code> it only does equality –
-   * specifically this means that it will return 0 for equal booleans, objects
-   * or arrays, and -1 otherwise. The reason is that JMESPath doesn't have any
-   * mechanisms for comparing objects or arrays, and doesn't define how objects
-   * and arrays should be compared.
+   * This only implements {@link java.util.Comparator#compare} fully for
+   * <code>null</code>, <code>number</code> and <code>string</code>, for
+   * <code>boolean</code> <code>array</code> and <code>object</code> it only
+   * does equality – specifically this means that it will return 0 for equal
+   * booleans, objects or arrays, and -1 otherwise. The reason is that JMESPath
+   * doesn't have any mechanisms for comparing objects or arrays, and doesn't
+   * define how objects and arrays should be compared.
    * <p>
    * When the arguments are not of the same type -1 is returned.
    */
@@ -82,9 +85,9 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
         case BOOLEAN:
           return isTruthy(value1) == isTruthy(value2) ? 0 : -1;
         case NUMBER:
-          Double d1 = toNumber(value1).doubleValue();
-          Double d2 = toNumber(value2).doubleValue();
-          return d1.compareTo(d2);
+          double d1 = toNumber(value1).doubleValue();
+          double d2 = toNumber(value2).doubleValue();
+          return Double.compare(d1, d2);
         case STRING:
           String s1 = toString(value1);
           String s2 = toString(value2);
@@ -130,24 +133,28 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     return true;
   }
 
-  /**
-   * Returns the function by the specified name or null if no such function exists.
-   * <p>
-   * Very few runtimes will have any reason to override this method, it only
-   * proxies the call to {@link FunctionRegistry#getFunction}.
-   */
   @Override
-  public Function getFunction(String name) {
-    return functionRegistry.getFunction(name);
+  public FunctionRegistry functionRegistry() {
+    return functionRegistry;
+  }
+
+  @Override
+  public NodeFactory<T> nodeFactory() {
+    return nodeFactory;
   }
 
   /**
-   * Required method from the {@link Comparator} interface, returns true when
-   * the argument is of the same class, or a subclass of, the receiver.
+   * Required method from the {@link java.util.Comparator} interface, returns
+   * true when the argument is of the same class, or a subclass of, the receiver.
    */
   @Override
   public boolean equals(Object o) {
     return getClass().isInstance(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return 31;
   }
 
   /**
@@ -203,13 +210,13 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
       T key = keys.next();
       T value = getProperty(object, key);
       str.append(unparseString(key));
-      str.append(":");
+      str.append(':');
       str.append(unparse(value));
       if (keys.hasNext()) {
-        str.append(",");
+        str.append(',');
       }
     }
-    str.append("}");
+    str.append('}');
     return str.toString();
   }
 
@@ -219,10 +226,10 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     while (elements.hasNext()) {
       str.append(unparse(elements.next()));
       if (elements.hasNext()) {
-        str.append(",");
+        str.append(',');
       }
     }
-    str.append("]");
+    str.append(']');
     return str.toString();
   }
 }
