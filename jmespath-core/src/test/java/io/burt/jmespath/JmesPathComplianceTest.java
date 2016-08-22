@@ -23,7 +23,10 @@ import io.burt.jmespath.function.ArityException;
 import io.burt.jmespath.function.FunctionCallException;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.anyOf;
 
 @RunWith(ComplianceRunner.class)
 public abstract class JmesPathComplianceTest<T> {
@@ -40,7 +43,7 @@ public abstract class JmesPathComplianceTest<T> {
     private final String expectedError;
     private final String suiteComment;
     private final String testComment;
-    
+
     public ComplianceTest(Adapter<U> runtime, String featureName, String expression, U input, U expectedResult, String expectedError, String suiteComment, String testComment, String benchmark) {
       this.runtime = runtime;
       this.featureName = featureName;
@@ -77,30 +80,25 @@ public abstract class JmesPathComplianceTest<T> {
             String.format("Expected <%s> to be <%s>, expression <%s> compiled expression <%s>", result, expectedResult, expression, compiledExpression),
             runtime.compare(expectedResult, result) == 0
           );
-        } else if ("syntax".equals(expectedError)) {
-          fail("Expected ParseException to have been raised");
-        } else if ("invalid-type".equals(expectedError)) {
-          fail("Expected ArgumentTypeException to have been raised");
-        } else if ("invalid-arity".equals(expectedError)) {
-          fail("Expected ArityException to have been raised");
-        } else if ("unknown-function".equals(expectedError)) {
-          fail("Expected FunctionCallException to have been raised");
+        } else {
+          fail(String.format("Expected \"%s\" error", expectedError));
         }
-      } catch (ParseException pe) {
-        if (!"syntax".equals(expectedError)) {
-          throw pe;
-        }
-      } catch (ArgumentTypeException ate) {
-        if (!"invalid-type".equals(expectedError)) {
-          throw ate;
-        }
-      } catch (ArityException ae) {
-        if (!"invalid-arity".equals(expectedError)) {
-          throw ae;
-        }
-      } catch (FunctionCallException fce) {
-        if (!"unknown-function".equals(expectedError)) {
-          throw fce;
+      } catch (Exception e) {
+        if (expectedError == null) {
+          throw e;
+        } else if (expectedError.contains("-")) {
+          assertThat(
+            e.getMessage(),
+            anyOf(
+              containsString(expectedError),
+              containsString(expectedError.replaceAll("-", " "))
+            )
+          );
+        } else {
+          assertThat(
+            e.getMessage(),
+            containsString(expectedError)
+          );
         }
       }
     }
