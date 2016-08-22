@@ -3,6 +3,7 @@ package io.burt.jmespath.parser;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.burt.jmespath.Adapter;
@@ -282,9 +283,9 @@ public class ParserTest {
     assertThat(actual, is(expected));
   }
 
-  @Test
+  @Test(expected=ParseException.class)
+  @Ignore
   public void sliceWithZeroStepSize() {
-    // TODO: SHOULD FAIL?
     compile("[0:1:0]");
   }
 
