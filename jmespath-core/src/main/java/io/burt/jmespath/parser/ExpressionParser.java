@@ -203,17 +203,11 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
 
   @Override
   public Node<T> visitBracketedExpression(JmesPathParser.BracketedExpressionContext ctx) {
-    Node<T> bracket = visit(ctx.bracketSpecifier());
-    if (bracket == null) {
-      return createSequenceIfChained(visit(ctx.expression()));
-    } else {
-      Node<T> expression = visit(ctx.expression());
-      chainedNode = bracket;
-      return createSequenceIfChained(expression);
-    }
+    Node<T> chainAfterExpression = visit(ctx.bracketSpecifier());
+    Node<T> expression = createSequenceIfChained(visit(ctx.expression()));
+    chainedNode = chainAfterExpression;
+    return createSequenceIfChained(expression);
   }
-  
-  
 
   @Override
   public Node<T> visitWildcard(JmesPathParser.WildcardContext ctx) {
