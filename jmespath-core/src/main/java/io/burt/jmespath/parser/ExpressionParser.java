@@ -85,7 +85,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private void checkForUnescapedBackticks(Token token) {
     int unescapedBacktickIndex = indexOfUnescapedBacktick(token.getText());
     if (unescapedBacktickIndex > -1) {
-      errors.parseError("unexpected `", token.getLine(), token.getStartIndex() + unescapedBacktickIndex);
+      errors.parseError("syntax error unexpected `", token.getLine(), token.getStartIndex() + unescapedBacktickIndex);
     }
   }
 
@@ -255,7 +255,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   public Node<T> visitBracketSlice(JmesPathParser.BracketSliceContext ctx) {
     Integer start = null;
     Integer stop = null;
-    Integer step = 1;
+    Integer step = null;
     JmesPathParser.SliceContext sliceCtx = ctx.slice();
     if (sliceCtx.start != null) {
       start = Integer.parseInt(sliceCtx.start.getText());
@@ -265,6 +265,9 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     }
     if (sliceCtx.step != null) {
       step = Integer.parseInt(sliceCtx.step.getText());
+      if (step == 0) {
+        errors.parseError(String.format("invalid value %d for step size", step), sliceCtx.step.getLine(), sliceCtx.step.getStartIndex());
+      }
     }
     chainedNode = createProjectionIfChained(nodeFactory.createSlice(start, stop, step));
     return null;

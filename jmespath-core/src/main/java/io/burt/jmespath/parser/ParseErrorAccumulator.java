@@ -26,7 +26,7 @@ public class ParseErrorAccumulator extends BaseErrorListener implements Iterable
 
   @Override
   public void syntaxError(Recognizer<?,?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-    errors.add(new ParseError(msg, line, charPositionInLine));
+    errors.add(new ParseError(String.format("syntax error %s", msg), line, charPositionInLine));
   }
 
   public void parseError(String msg, int line, int charPositionInLine) {

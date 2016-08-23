@@ -104,7 +104,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), is("Wrong type of argument calling heterogenous_list: expected string but was number"));
+      assertThat(ate.getMessage(), is("Invalid argument type calling \"heterogenous_list\": expected string but was number"));
     }
   }
 
@@ -117,7 +117,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), is("Wrong number of arguments calling heterogenous_list: expected 3 but was 2"));
+      assertThat(ae.getMessage(), is("Invalid arity calling \"heterogenous_list\": expected 3 but was 2"));
     }
   }
 
@@ -132,7 +132,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), is("Wrong number of arguments calling heterogenous_list: expected 3 but was 4"));
+      assertThat(ae.getMessage(), is("Invalid arity calling \"heterogenous_list\": expected 3 but was 4"));
     }
   }
 
@@ -152,7 +152,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), containsString("Wrong type of argument calling type_of: expected number but was string"));
+      assertThat(ate.getMessage(), containsString("Invalid argument type calling \"type_of\": expected number but was string"));
     }
   }
 
@@ -162,7 +162,7 @@ public class FunctionTest {
       typeOfFunction.call(runtime, Arrays.asList(expressionReference));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), containsString("Wrong type of argument calling type_of: expected number but was expression"));
+      assertThat(ate.getMessage(), containsString("Invalid argument type calling \"type_of\": expected number but was expression"));
     }
   }
 
@@ -172,7 +172,7 @@ public class FunctionTest {
       typeOfFunction.call(runtime, createValueArguments());
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Wrong number of arguments calling type_of: expected 1 but was 0"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"type_of\": expected 1 but was 0"));
     }
     try {
       typeOfFunction.call(runtime, createValueArguments(
@@ -181,7 +181,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Wrong number of arguments calling type_of: expected 1 but was 2"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"type_of\": expected 1 but was 2"));
     }
   }
 
@@ -198,7 +198,7 @@ public class FunctionTest {
       wantsStringBooleanOrNumberFunction.call(runtime, createValueArguments(runtime.createNull()));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), containsString("Wrong type of argument calling wants_string_boolean_or_number: expected string, boolean or number but was null"));
+      assertThat(ate.getMessage(), containsString("Invalid argument type calling \"wants_string_boolean_or_number\": expected string, boolean or number but was null"));
     }
   }
 
@@ -223,7 +223,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), is("Wrong type of argument calling array_of: expected array of string but was number"));
+      assertThat(ate.getMessage(), is("Invalid argument type calling \"array_of\": expected array of string but was number"));
     }
   }
 
@@ -243,7 +243,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), is("Wrong type of argument calling array_of: expected array of string but was array containing number"));
+      assertThat(ate.getMessage(), is("Invalid argument type calling \"array_of\": expected array of string but was array containing number"));
     }
     try {
       arrayOfFunction.call(runtime, createValueArguments(
@@ -255,7 +255,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), is("Wrong type of argument calling array_of: expected array of string but was array containing string, boolean and number"));
+      assertThat(ate.getMessage(), is("Invalid argument type calling \"array_of\": expected array of string but was array containing string, boolean and number"));
     }
   }
 
@@ -265,7 +265,7 @@ public class FunctionTest {
       arrayOfFunction.call(runtime, Arrays.asList(expressionReference));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), is("Wrong type of argument calling array_of: expected array of string but was expression"));
+      assertThat(ate.getMessage(), is("Invalid argument type calling \"array_of\": expected array of string but was expression"));
     }
   }
 
@@ -297,7 +297,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), containsString("Wrong type of argument calling wants_string_or_number_array: expected array of string or number but was array containing number and string"));
+      assertThat(ate.getMessage(), containsString("Invalid argument type calling \"wants_string_or_number_array\": expected array of string or number but was array containing number and string"));
     }
     try {
       wantsStringOrNumberArrayFunction.call(runtime, createValueArguments(
@@ -310,7 +310,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), containsString("Wrong type of argument calling wants_string_or_number_array: expected array of string or number but was array containing number, string and null"));
+      assertThat(ate.getMessage(), containsString("Invalid argument type calling \"wants_string_or_number_array\": expected array of string or number but was array containing number, string and null"));
     }
   }
 
@@ -320,7 +320,7 @@ public class FunctionTest {
       arrayOfFunction.call(runtime, createValueArguments());
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Wrong number of arguments calling array_of: expected 1 but was 0"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"array_of\": expected 1 but was 0"));
     }
     try {
       arrayOfFunction.call(runtime, createValueArguments(
@@ -329,7 +329,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Wrong number of arguments calling array_of: expected 1 but was 2"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"array_of\": expected 1 but was 2"));
     }
   }
 
@@ -356,7 +356,7 @@ public class FunctionTest {
       doesNotAcceptExpression.call(runtime, Arrays.asList(expressionReference));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), containsString("Wrong type of argument calling does_not_accept_expression: expected any value but was expression"));
+      assertThat(ate.getMessage(), containsString("Invalid argument type calling \"does_not_accept_expression\": expected any value but was expression"));
     }
   }
 
@@ -395,7 +395,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), containsString("Wrong type of argument calling accepts_numbers: expected number but was string"));
+      assertThat(ate.getMessage(), containsString("Invalid argument type calling \"accepts_numbers\": expected number but was string"));
     }
   }
 
@@ -413,7 +413,7 @@ public class FunctionTest {
       doesNotAcceptExpression.call(runtime, arguments);
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), containsString("Wrong type of argument calling hello: expected any value but was expression"));
+      assertThat(ate.getMessage(), containsString("Invalid argument type calling \"hello\": expected any value but was expression"));
     }
   }
 
@@ -427,7 +427,7 @@ public class FunctionTest {
       acceptsBetweenThreeAndTenValues.call(runtime, createValueArguments(runtime.createNull()));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Wrong number of arguments calling hello: expected at least 3 but was 1"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"hello\": expected at least 3 but was 1"));
     }
   }
 
@@ -441,7 +441,7 @@ public class FunctionTest {
       acceptsBetweenThreeAndTenValues.call(runtime, createValueArguments(runtime.createNull(), runtime.createNull(), runtime.createNull(), runtime.createNull()));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Wrong number of arguments calling hello: expected at most 3 but was 4"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"hello\": expected at most 3 but was 4"));
     }
   }
 
@@ -470,7 +470,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArgumentTypeException ate) {
-      assertThat(ate.getMessage(), containsString("Wrong type of argument calling gief_expression: expected expression but was number"));
+      assertThat(ate.getMessage(), containsString("Invalid argument type calling \"gief_expression\": expected expression but was number"));
     }
   }
 }
