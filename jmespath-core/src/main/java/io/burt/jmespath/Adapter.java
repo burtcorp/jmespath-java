@@ -65,7 +65,7 @@ public interface Adapter<T> extends JmesPath<T>, Comparator<T> {
   JmesPathType typeOf(T value);
 
   /**
-   * Returns a property from an object.
+   * Returns the value of a property of an object.
    *
    * The first argument must be an object and the second argument may be
    * the name of a property on that object. When the property does not exist
@@ -84,7 +84,7 @@ public interface Adapter<T> extends JmesPath<T>, Comparator<T> {
   T getProperty(T value, T name);
 
   /**
-   * Returns all the property names of the given object, or an empty list
+   * Returns all the property names of the given object, or an empty collection
    * when the given value does not represent an object.
    *
    * The property names are always string values.
