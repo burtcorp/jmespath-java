@@ -85,7 +85,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private void checkForUnescapedBackticks(Token token) {
     int unescapedBacktickIndex = indexOfUnescapedBacktick(token.getText());
     if (unescapedBacktickIndex > -1) {
-      errors.parseError("syntax error unexpected `", token.getLine(), token.getStartIndex() + unescapedBacktickIndex);
+      errors.parseError("syntax error unexpected `", token.getStartIndex() + unescapedBacktickIndex);
     }
   }
 
@@ -266,7 +266,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     if (sliceCtx.step != null) {
       step = Integer.parseInt(sliceCtx.step.getText());
       if (step == 0) {
-        errors.parseError(String.format("invalid value %d for step size", step), sliceCtx.step.getLine(), sliceCtx.step.getStartIndex());
+        errors.parseError(String.format("invalid value %d for step size", step), sliceCtx.step.getStartIndex());
       }
     }
     chainedNode = createProjectionIfChained(nodeFactory.createSlice(start, stop, step));
@@ -295,7 +295,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     Function implementation = runtime.functionRegistry().getFunction(name);
     if (implementation == null) {
       Token token = ctx.NAME().getSymbol();
-      errors.parseError(String.format("unknown function \"%s\"", name), token.getLine(), token.getStartIndex());
+      errors.parseError(String.format("unknown function \"%s\"", name), token.getStartIndex());
     }
     return createSequenceIfChained(nodeFactory.createFunctionCall(implementation, args));
   }
