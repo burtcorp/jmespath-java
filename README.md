@@ -1,6 +1,10 @@
 # jmespath-java
 
-An implementation of [JMESPath](http://jmespath.org/) for Java. It supports searching JSON documents (via Jackson) and structures containing basic Java objects (`Map`, `List`, `String`, etc.).
+[![Build Status](https://travis-ci.org/burtcorp/jmespath-java.png?branch=master)](https://travis-ci.org/burtcorp/jmespath-java)
+
+_If you're reading this on GitHub, please note that this is the readme for the development version and that some features described here might not yet have been released. You can find the readme for a specific version via the release tags ([here is an example](https://github.com/burtcorp/jmespath-java/tree/0.1.0))._
+
+An implementation of [JMESPath](http://jmespath.org/) for Java. It supports searching JSON documents (via Jackson) and structures containing basic Java objects (`Map`, `List`, `String`, etc.) – but can also be extended to work with any JSON-like structure.
 
 ## Basic usage
 
@@ -13,11 +17,29 @@ import io.burt.jmespath.jackson.JacksonRuntime;
 
 // …
 
+// The first thing you need is a runtime. These objects can compile expressions
+// and they are specific to the kind of structure you want to search in.
+// For most purposes you want the Jackson runtime, it can search in JsonNode
+// structures created by Jackson.
 JmesPath<JsonNode> jmespath = new JacksonRuntime();
+// Expressions need to be compiled before you can search. Compiled expressions
+// are reusable and thread safe. Compile your expressions once, just like database
+// prepared statements.
 Expression<JsonNode> expression = jmespath.compile("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}");
+// This you have to fill in yourself, you're probably using Jackson's ObjectMapper
+// to load JSON data, and that should fit right in here.
 JsonNode input = …;
+// Finally this is how you search a structure. There's really not much more to it.
 JsonNode result = expression.search(input);
 ```
+
+## Description
+
+`jmespath-java` comes in two parts: `jmespath-core` and `jmespath-jackson`. The former contains the expression parser, core runtime, default functions and a simple runtime adapter that can search structures made up from numbers, strings, booleans, `List` and `Map` available as `io.burt.jmespath.jcf.JcfRuntime` (for "Java Collections Framework"). The latter contains the Jackson runtime adapter, and is what you should be using most of the time. The JCF runtime is just for internal development and testing. It primarily exists to test that there's nothing runtime-specific in the implementation.
+
+## Extensions
+
+`jmespath-java` is designed to be extensible. You can extend it in two ways: by adding new functions, and by creating different runtime adapters. These are not mutually exclusive, if you write your custom functions the right way you can use them with any runtime, and vice-versa.
 
 ### Adding custom functions
 
@@ -84,11 +106,22 @@ You can provide a name for your function, but the default is that the name will 
 
 Your function class needs to tell the runtime about what arguments it accepts. The function in the example above specifies that it accepts a single number as argument. Have a look at the existing functions and the documentation for the `ArgumentConstraints` DSL to see what is possible.
 
+### Creating a runtime adapter
+
+Creating a runtime adapter is a bit more work than adding a function, but not extremely so. What you need to do is to implement the `io.burt.jmespath.Adapter` interface. The easiest is to start by extending `io.burt.jmespath.BaseRuntime`, that way you don't need to implement some of the things that are common to most runtimes, like comparing values.
+
+Most of the work a runtime does is converting back and forth between Java types. The core runtime can't know about all of the types of structures you want to search, but it knows that they will be JSON-like, so it uses the runtime adapters to help translate. The Jackson runtime adapter, for example, translates the world of `JsonNode`s into Java types like `List` and `String` when asked by the core runtime.
+
+Runtime adapters can wrap libraries like [Gson](https://github.com/google/gson), but can also make it possible to search Java beans with JMESPath. A runtime adapter could translate "get property X" to a `getX()` method call via reflection, for example. The structure to search doesn't have to be JSON, it just has to be JSON-_like_.
+
+A good starting point for writing a new runtime adapter is reading the code of the existing adapters and the docs for `Adapter` and `BaseAdapter`. There are also JUnit tests in `JmesPathRuntimeTest` and `JmesPathComplianceTest` that can be subclassed and run against any runtime.
+
 ## How to build and run the tests
 
 The best place to see how to build and run the tests is to look at the `.travis.yml` file, but if you just want to get going run:
 
 ```
+$ git submodule update --init --recursive
 $ mvn test
 ```
 
