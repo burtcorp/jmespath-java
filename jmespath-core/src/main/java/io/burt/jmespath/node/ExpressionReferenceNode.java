@@ -13,11 +13,7 @@ public class ExpressionReferenceNode<T> extends Node<T> {
 
   @Override
   public T search(T input) {
-    return expression().search(input);
-  }
-
-  protected Expression<T> expression() {
-    return expression;
+    return expression.search(input);
   }
 
   @Override
@@ -28,7 +24,7 @@ public class ExpressionReferenceNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     ExpressionReferenceNode<?> other = (ExpressionReferenceNode<?>) o;
-    return expression().equals(other.expression());
+    return expression.equals(other.expression);
   }
 
   @Override

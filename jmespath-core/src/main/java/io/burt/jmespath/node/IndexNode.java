@@ -17,7 +17,7 @@ public class IndexNode<T> extends Node<T> {
   public T search(T input) {
     if (runtime.typeOf(input) == JmesPathType.ARRAY) {
       List<T> elements = runtime.toList(input);
-      int i = index();
+      int i = index;
       if (i < 0) {
         i = elements.size() + i;
       }
@@ -28,10 +28,6 @@ public class IndexNode<T> extends Node<T> {
     return runtime.createNull();
   }
 
-  protected int index() {
-    return index;
-  }
-
   @Override
   protected String internalToString() {
     return String.valueOf(index);
@@ -40,7 +36,7 @@ public class IndexNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     IndexNode<?> other = (IndexNode<?>) o;
-    return index() == other.index();
+    return index == other.index;
   }
 
   @Override

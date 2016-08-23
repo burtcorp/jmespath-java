@@ -98,10 +98,6 @@ public abstract class BaseFunction implements Function {
     return name;
   }
 
-  protected ArgumentConstraint argumentConstraints() {
-    return argumentConstraints;
-  }
-
   /**
    * Call this function with a list of arguments.
    *

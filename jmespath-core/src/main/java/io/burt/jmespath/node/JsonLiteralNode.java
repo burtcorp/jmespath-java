@@ -14,10 +14,6 @@ public class JsonLiteralNode<T> extends Node<T> {
 
   @Override
   public T search(T input) {
-    return tree();
-  }
-
-  protected T tree() {
     return tree;
   }
 
@@ -29,13 +25,13 @@ public class JsonLiteralNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     JsonLiteralNode<?> other = (JsonLiteralNode<?>) o;
-    return tree().equals(other.tree());
+    return tree.equals(other.tree);
   }
 
   @Override
   protected int internalHashCode() {
     int h = 1;
-    h = h * 31 + tree().hashCode();
+    h = h * 31 + tree.hashCode();
     return h;
   }
 }

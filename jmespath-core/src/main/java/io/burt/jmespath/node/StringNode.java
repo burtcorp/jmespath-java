@@ -12,11 +12,7 @@ public class StringNode<T> extends Node<T> {
 
   @Override
   public T search(T input) {
-    return runtime.createString(string());
-  }
-
-  protected String string() {
-    return string;
+    return runtime.createString(string);
   }
 
   @Override
@@ -27,7 +23,7 @@ public class StringNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     StringNode<?> other = (StringNode<?>) o;
-    return string().equals(other.string());
+    return string.equals(other.string);
   }
 
   @Override

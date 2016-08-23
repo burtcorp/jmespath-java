@@ -22,7 +22,7 @@ public class FunctionCallNode<T> extends Node<T> {
   @Override
   public T search(T input) {
     List<FunctionArgument<T>> arguments = new ArrayList<>(args.size());
-    for (Expression<T> arg : args()) {
+    for (Expression<T> arg : args) {
       if (arg instanceof ExpressionReferenceNode) {
         arguments.add(FunctionArgument.of(arg));
       } else {
@@ -32,19 +32,11 @@ public class FunctionCallNode<T> extends Node<T> {
     return implementation.call(runtime, arguments);
   }
 
-  protected Function implementation() {
-    return implementation;
-  }
-
-  protected List<Expression<T>> args() {
-    return args;
-  }
-
   @Override
   protected String internalToString() {
     StringBuilder str = new StringBuilder();
-    if (implementation() != null) {
-      str.append(implementation().name());
+    if (implementation != null) {
+      str.append(implementation.name());
     }
     str.append(", [");
     Iterator<Expression<T>> argIterator = args.iterator();
@@ -62,13 +54,13 @@ public class FunctionCallNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     FunctionCallNode<?> other = (FunctionCallNode<?>) o;
-    return implementation.name().equals(other.implementation().name()) && args().equals(other.args());
+    return implementation.name().equals(other.implementation.name()) && args.equals(other.args);
   }
 
   @Override
   protected int internalHashCode() {
     int h = 1;
-    h = h * 31 + implementation().name().hashCode();
+    h = h * 31 + implementation.name().hashCode();
     for (Expression<T> node : args) {
       h = h * 31 + node.hashCode();
     }

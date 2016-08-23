@@ -61,15 +61,11 @@ public class CreateObjectNode<T> extends Node<T> {
       return input;
     } else {
       Map<T, T> object = new LinkedHashMap<>();
-      for (Entry<T> entry : entries()) {
+      for (Entry<T> entry : entries) {
         object.put(runtime.createString(entry.key()), entry.value().search(input));
       }
       return runtime.createObject(object);
     }
-  }
-
-  protected List<Entry<T>> entries() {
-    return entries;
   }
 
   @Override
@@ -90,7 +86,7 @@ public class CreateObjectNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     CreateObjectNode<?> other = (CreateObjectNode<?>) o;
-    return entries().equals(other.entries());
+    return entries.equals(other.entries);
   }
 
   @Override

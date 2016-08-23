@@ -16,10 +16,6 @@ public class CreateArrayNode<T> extends Node<T> {
     this.entries = new ArrayList<>(entries);
   }
 
-  protected List<Expression<T>> entries() {
-    return entries;
-  }
-
   @Override
   public T search(T input) {
     if (runtime.typeOf(input) == JmesPathType.NULL) {
@@ -51,7 +47,7 @@ public class CreateArrayNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     CreateArrayNode<?> other = (CreateArrayNode<?>) o;
-    return entries().equals(other.entries());
+    return entries.equals(other.entries);
   }
 
   @Override

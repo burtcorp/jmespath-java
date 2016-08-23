@@ -12,11 +12,7 @@ public class PropertyNode<T> extends Node<T> {
 
   @Override
   public T search(T input) {
-    return runtime.getProperty(input, propertyName());
-  }
-
-  protected String propertyName() {
-    return propertyName;
+    return runtime.getProperty(input, propertyName);
   }
 
   @Override
@@ -27,11 +23,11 @@ public class PropertyNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     PropertyNode<?> other = (PropertyNode<?>) o;
-    return propertyName().equals(other.propertyName());
+    return propertyName.equals(other.propertyName);
   }
 
   @Override
   protected int internalHashCode() {
-    return propertyName().hashCode();
+    return propertyName.hashCode();
   }
 }

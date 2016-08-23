@@ -16,10 +16,6 @@ public abstract class OperatorNode<T> extends Node<T> {
     this.operands = Arrays.asList(operands);
   }
 
-  protected List<Expression<T>> operands() {
-    return operands;
-  }
-
   protected Expression<T> operand(int index) {
     return operands.get(index);
   }
@@ -41,7 +37,7 @@ public abstract class OperatorNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     OperatorNode<?> other = (OperatorNode<?>) o;
-    return operands().equals(other.operands());
+    return operands.equals(other.operands);
   }
 
   @Override

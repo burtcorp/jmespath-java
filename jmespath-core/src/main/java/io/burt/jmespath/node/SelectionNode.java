@@ -20,7 +20,7 @@ public class SelectionNode<T> extends Node<T> {
     if (runtime.typeOf(input) == JmesPathType.ARRAY) {
       List<T> selectedElements = new LinkedList<>();
       for (T element : runtime.toList(input)) {
-        T testResult = test().search(element);
+        T testResult = test.search(element);
         if (runtime.isTruthy(testResult)) {
           selectedElements.add(element);
         }
@@ -31,10 +31,6 @@ public class SelectionNode<T> extends Node<T> {
     }
   }
 
-  protected Expression<T> test() {
-    return test;
-  }
-
   @Override
   protected String internalToString() {
     return test.toString();
@@ -43,11 +39,11 @@ public class SelectionNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     SelectionNode<?> other = (SelectionNode<?>) o;
-    return test().equals(other.test());
+    return test.equals(other.test);
   }
 
   @Override
   protected int internalHashCode() {
-    return test().hashCode();
+    return test.hashCode();
   }
 }
