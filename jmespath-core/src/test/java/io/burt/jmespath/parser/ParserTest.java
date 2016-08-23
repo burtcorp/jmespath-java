@@ -283,10 +283,14 @@ public class ParserTest {
     assertThat(actual, is(expected));
   }
 
-  @Test(expected=ParseException.class)
-  @Ignore
+  @Test
   public void sliceWithZeroStepSize() {
-    compile("[0:1:0]");
+    try {
+      compile("[0:1:0]");
+      fail("Expected ParseException to be thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), is("Unable to compile expression \"[0:1:0]\": invalid value 0 for step size at position 5"));
+    }
   }
 
   @Test
@@ -467,7 +471,7 @@ public class ParserTest {
       compile("to_unicorn(@)");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
-      assertThat(pe.getMessage(), is("Error while parsing \"to_unicorn(@)\": unknown function \"to_unicorn\" at position 0"));
+      assertThat(pe.getMessage(), is("Unable to compile expression \"to_unicorn(@)\": unknown function \"to_unicorn\" at position 0"));
     }
   }
 
@@ -926,13 +930,13 @@ public class ParserTest {
       compile("`\"fo`o\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
-      assertThat(pe.getMessage(), is("Error while parsing \"`\"fo`o\"`\": unexpected ` at position 4"));
+      assertThat(pe.getMessage(), is("Unable to compile expression \"`\"fo`o\"`\": syntax error unexpected ` at position 4"));
     }
     try {
       compile("`\"`foo\"`");
       fail("Expected ParseException to be thrown");
     } catch (ParseException pe) {
-      assertThat(pe.getMessage(), is("Error while parsing \"`\"`foo\"`\": unexpected ` at position 2"));
+      assertThat(pe.getMessage(), is("Unable to compile expression \"`\"`foo\"`\": syntax error unexpected ` at position 2"));
     }
   }
 

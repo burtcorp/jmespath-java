@@ -9,7 +9,7 @@ public class ParseException extends JmesPathException implements Iterable<ParseE
   private final Iterable<ParseError> errors;
 
   public ParseException(String query, Iterable<ParseError> errors) {
-    super(String.format("Error while parsing \"%s\": %s", query, joinMessages(errors)));
+    super(String.format("Unable to compile expression \"%s\": %s", query, joinMessages(errors)));
     this.errors = errors;
   }
 
