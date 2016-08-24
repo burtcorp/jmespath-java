@@ -22,7 +22,7 @@ public enum Operator {
     } else if ("<=".equals(str)) {
       return LESS_THAN_OR_EQUALS;
     } else {
-      return null;
+      throw new IllegalArgumentException(String.format("No such operator %s", str));
     }
   }
 }
