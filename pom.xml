@@ -47,7 +47,7 @@
     <connection>scm:git:ssh://git@github.com/burtcorp/jmespath-java.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/burtcorp/jmespath-java.git</developerConnection>
     <url>https://github.com/burtcorp/jmespath-java.git</url>
-    <tag>v${project.version}</tag>
+    <tag>jmespath-${project.version}</tag>
   </scm>
 
   <modules>
