@@ -20,6 +20,8 @@ Using Maven you can add this to your dependencies:
 
 Check the [releases page](https://github.com/burtcorp/jmespath-java/releases) for the value of `${jmespath.version}`.
 
+If you don't want the Jackson implementation you can change the `artifactId` to `jmespath-core`, and if you specifically want to depend only on the Jackson implementation (if we release other implementations in the future) you can change it to `jmespath-jackson`.
+
 ## Basic usage
 
 ```java
