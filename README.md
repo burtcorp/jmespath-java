@@ -6,6 +6,20 @@ _If you're reading this on GitHub, please note that this is the readme for the d
 
 An implementation of [JMESPath](http://jmespath.org/) for Java. It supports searching JSON documents (via Jackson) and structures containing basic Java objects (`Map`, `List`, `String`, etc.) – but can also be extended to work with any JSON-like structure.
 
+## Installation
+
+Using Maven you can add this to your dependencies:
+
+```xml
+<dependency>
+  <groupId>io.burt</groupId>
+  <artifactId>jmespath</artifactId>
+  <version>${jmespath.version}</version>
+</dependency>
+```
+
+Check the [releases page](https://github.com/burtcorp/jmespath-java/releases) for the value of `${jmespath.version}`.
+
 ## Basic usage
 
 ```java
