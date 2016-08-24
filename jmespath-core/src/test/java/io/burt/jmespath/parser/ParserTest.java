@@ -1144,4 +1144,18 @@ public class ParserTest {
     Expression<Object> actual = compile("(foo[]).bar");
     assertThat(actual, is(expected));
   }
+
+  @Test
+  public void parseExceptionsCanBeIterated() {
+    try {
+      compile("foo`bar ^ hello");
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      int errorCount = 0;
+      for (ParseError e : pe) {
+        errorCount++;
+      }
+      assertThat(errorCount, is(2));
+    }
+  }
 }

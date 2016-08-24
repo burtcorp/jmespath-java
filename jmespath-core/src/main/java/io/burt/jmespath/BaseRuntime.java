@@ -192,7 +192,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   }
 
   protected String unparseNull(T object) {
-    return object.toString();
+    return "null";
   }
 
   protected String unparseString(T object) {
