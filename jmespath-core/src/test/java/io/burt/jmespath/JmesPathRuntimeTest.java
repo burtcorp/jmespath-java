@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collection;
 import java.util.Collections;
 
 import io.burt.jmespath.parser.ParseException;
@@ -21,9 +22,13 @@ import io.burt.jmespath.function.ArgumentTypeException;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 
 public abstract class JmesPathRuntimeTest<T> {
@@ -1738,7 +1743,7 @@ public abstract class JmesPathRuntimeTest<T> {
 
   @Test
   public void toStringReturnsTheJsonEncodingOfTheArgument() {
-    T input = parse("{\"foo\": [1, 2, [\"bar\"]]}");
+    T input = parse("{\"foo\": [1, 2, [\"bar\"], false], \"bar\": null}");
     T result = search("to_string(@)", input);
     assertThat(runtime().toString(result), both(containsString("\"foo\"")).and(is(runtime().toString(input))));
   }
@@ -1915,5 +1920,56 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(search("abs(b) == `2.0`", input), is(jsonBoolean(true)));
     assertThat(search("join('', c) == `\"foo\"`", input), is(jsonBoolean(true)));
     assertThat(search("join('', c) == 'foo'", input), is(jsonBoolean(true)));
+  }
+
+  @Test
+  public void toListReturnsAListWhenGivenAnArray() {
+    List<T> list = runtime().toList(parse("[1, 2, 3]"));
+    assertThat(list, is(Arrays.asList(parse("1"), parse("2"), parse("3"))));
+  }
+
+  @Test
+  public void toListReturnsTheValuesOfAnObjectInOrder() {
+    List<T> list = runtime().toList(parse("{\"one\":1,\"two\":2,\"three\":3}"));
+    assertThat(list, is(Arrays.asList(parse("1"), parse("2"), parse("3"))));
+  }
+
+  @Test
+  public void toListReturnsAnEmptyListWhenGivenSomethingThatIsNotArrayOrObject() {
+    List<T> list = runtime().toList(parse("3"));
+    assertThat(list, is(empty()));
+  }
+
+  @Test
+  public void toNumberReturnsANullValueWhenGivenANonNumber() {
+    Number n = runtime().toNumber(parse("[]"));
+    assertThat(n, is(equalTo(null)));
+  }
+
+  @Test
+  public void getPropertyNamesReturnsAnEmptyListWhenGivenANonObject() {
+    Collection<T> properties = runtime().getPropertyNames(parse("[]"));
+    assertThat(properties, is(empty()));
+  }
+
+  @Test(expected = Exception.class)
+  public void parseStringThrowsImplementationSpecificExceptionWhenGivenBadJson() {
+    parse("{");
+  }
+
+  @Test
+  public void compareReturnsMinusOneWhenTwoArraysAreNotEqual() {
+    int result1 = runtime().compare(parse("[1]"), parse("[1,2]"));
+    int result2 = runtime().compare(parse("[1,3]"), parse("[1,2]"));
+    assertThat(result1, is(-1));
+    assertThat(result2, is(-1));
+  }
+
+  @Test
+  public void compareReturnsMinusOneWhenTwoObjectsAreNotEqual() {
+    int result1 = runtime().compare(parse("{\"one\":1}"), parse("{\"one\":1,\"two\":2}"));
+    int result2 = runtime().compare(parse("{\"one\":1,\"two\":2,\"three\":3}"), parse("{\"one\":1,\"two\":2}"));
+    assertThat(result1, is(-1));
+    assertThat(result2, is(-1));
   }
 }
