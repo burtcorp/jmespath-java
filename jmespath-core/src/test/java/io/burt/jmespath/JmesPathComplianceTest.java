@@ -116,7 +116,7 @@ public abstract class JmesPathComplianceTest<T> {
   public Iterable<String> getFeatureNames() {
     try {
       List<String> featureNames = new LinkedList<>();
-      URI uri = getClass().getResource(TESTS_PATH).toURI();
+      URI uri = JmesPathComplianceTest.class.getResource(TESTS_PATH).toURI();
       if (uri.getScheme().equals("jar")) {
         String jarPath = uri.toString().substring("jar:file:".length(), uri.toString().indexOf("!"));
         try(JarFile jarFile = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))) {
