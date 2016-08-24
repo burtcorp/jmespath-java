@@ -1335,7 +1335,7 @@ public abstract class JmesPathRuntimeTest<T> {
   @Test
   public void mergeReturnsTheArgumentWhenOnlyGivenOne() {
     T result = search("merge(foo)", parse("{\"foo\": {\"a\": 1, \"b\": 1}, \"bar\": {\"b\": 2}}"));
-    assertThat(result, is(parse("{\"a\": 1, \"b\": 1}}")));
+    assertThat(result, is(parse("{\"a\": 1, \"b\": 1}")));
   }
 
   @Test
