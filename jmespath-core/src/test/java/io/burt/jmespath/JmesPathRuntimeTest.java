@@ -22,6 +22,7 @@ import io.burt.jmespath.function.ArgumentTypeException;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -1958,18 +1959,18 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
-  public void compareReturnsMinusOneWhenTwoArraysAreNotEqual() {
+  public void compareReturnsNonZeroWhenTwoArraysAreNotEqual() {
     int result1 = runtime().compare(parse("[1]"), parse("[1,2]"));
     int result2 = runtime().compare(parse("[1,3]"), parse("[1,2]"));
-    assertThat(result1, is(-1));
-    assertThat(result2, is(-1));
+    assertThat(result1, is(not(0)));
+    assertThat(result2, is(not(0)));
   }
 
   @Test
-  public void compareReturnsMinusOneWhenTwoObjectsAreNotEqual() {
+  public void compareReturnsNonZeroWhenTwoObjectsAreNotEqual() {
     int result1 = runtime().compare(parse("{\"one\":1}"), parse("{\"one\":1,\"two\":2}"));
     int result2 = runtime().compare(parse("{\"one\":1,\"two\":2,\"three\":3}"), parse("{\"one\":1,\"two\":2}"));
-    assertThat(result1, is(-1));
-    assertThat(result2, is(-1));
+    assertThat(result1, is(not(0)));
+    assertThat(result2, is(not(0)));
   }
 }
