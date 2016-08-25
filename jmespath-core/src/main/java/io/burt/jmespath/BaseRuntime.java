@@ -122,7 +122,10 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   private boolean deepEqualsObject(T value1, T value2) {
     Collection<T> keys1 = getPropertyNames(value1);
     Collection<T> keys2 = getPropertyNames(value2);
-    if (!keys1.containsAll(keys2) || !keys2.containsAll(keys1)) {
+    if (keys1.size() != keys2.size()) {
+      return false;
+    }
+    if (!keys1.containsAll(keys2)) {
       return false;
     }
     for (T key : keys1) {
