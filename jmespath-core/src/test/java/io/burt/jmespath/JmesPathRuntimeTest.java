@@ -396,7 +396,7 @@ public abstract class JmesPathRuntimeTest<T> {
   @Test
   public void currentNodeReturnsInput() {
     T result = search("@", cloudtrail);
-    assertThat(runtime().toList(runtime().getProperty(result, "Records")), hasSize(3));
+    assertThat(runtime().toList(runtime().getProperty(result, runtime().createString("Records"))), hasSize(3));
   }
 
   @Test
@@ -473,7 +473,7 @@ public abstract class JmesPathRuntimeTest<T> {
     List<T> elements = runtime().toList(result);
     assertThat(runtime().typeOf(result), is(JmesPathType.ARRAY));
     assertThat(elements, hasSize(1));
-    assertThat(runtime().getProperty(elements.get(0), "keyName"), is(jsonString("mykeypair")));
+    assertThat(runtime().getProperty(elements.get(0), runtime().createString("keyName")), is(jsonString("mykeypair")));
   }
 
   @Test
@@ -654,8 +654,8 @@ public abstract class JmesPathRuntimeTest<T> {
   @Test
   public void createObject() {
     T result = search("{userNames: Records[*].userIdentity.userName, keyName: Records[2].responseElements.keyName}", cloudtrail);
-    T userNames = runtime().getProperty(result, "userNames");
-    T keyName = runtime().getProperty(result, "keyName");
+    T userNames = runtime().getProperty(result, runtime().createString("userNames"));
+    T keyName = runtime().getProperty(result, runtime().createString("keyName"));
     assertThat(userNames, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(keyName, is(jsonString("mykeypair")));
   }
@@ -663,8 +663,8 @@ public abstract class JmesPathRuntimeTest<T> {
   @Test
   public void createObjectInPipe() {
     T result = search("Records[*].userIdentity | {userNames: [*].userName, anyUsedMfa: ([?sessionContext.attributes.mfaAuthenticated] | !!@)}", cloudtrail);
-    T userNames = runtime().getProperty(result, "userNames");
-    T anyUsedMfa = runtime().getProperty(result, "anyUsedMfa");
+    T userNames = runtime().getProperty(result, runtime().createString("userNames"));
+    T anyUsedMfa = runtime().getProperty(result, runtime().createString("anyUsedMfa"));
     assertThat(userNames, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
     assertThat(anyUsedMfa, is(jsonBoolean(true)));
   }
@@ -673,15 +673,15 @@ public abstract class JmesPathRuntimeTest<T> {
   public void createObjectInProjection() {
     T result = search("Records[*].userIdentity.{userName: userName, usedMfa: sessionContext.attributes.mfaAuthenticated}", cloudtrail);
     List<T> elements = runtime().toList(result);
-    assertThat(runtime().getProperty(elements.get(0), "usedMfa"), is(jsonNull()));
-    assertThat(runtime().getProperty(elements.get(1), "usedMfa"), is(jsonNull()));
-    assertThat(runtime().getProperty(elements.get(2), "usedMfa"), is(jsonBoolean(true)));
+    assertThat(runtime().getProperty(elements.get(0), runtime().createString("usedMfa")), is(jsonNull()));
+    assertThat(runtime().getProperty(elements.get(1), runtime().createString("usedMfa")), is(jsonNull()));
+    assertThat(runtime().getProperty(elements.get(2), runtime().createString("usedMfa")), is(jsonBoolean(true)));
   }
 
   @Test
   public void nestedCreateObject() {
     T result = search("Records[*].userIdentity | {users: {names: [*].userName}}", cloudtrail);
-    T names = runtime().getProperty(runtime().getProperty(result, "users"), "names");
+    T names = runtime().getProperty(runtime().getProperty(result, runtime().createString("users")), "names");
     assertThat(names, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 

@@ -3,11 +3,13 @@ package io.burt.jmespath.node;
 import io.burt.jmespath.Adapter;
 
 public class PropertyNode<T> extends Node<T> {
-  private final String propertyName;
+  private final String rawPropertyName;
+  private final T propertyName;
 
-  public PropertyNode(Adapter<T> runtime, String propertyName) {
+  public PropertyNode(Adapter<T> runtime, String rawPropertyName) {
     super(runtime);
-    this.propertyName = propertyName;
+    this.rawPropertyName = rawPropertyName;
+    this.propertyName = runtime.createString(rawPropertyName);
   }
 
   @Override
@@ -17,17 +19,17 @@ public class PropertyNode<T> extends Node<T> {
 
   @Override
   protected String internalToString() {
-    return propertyName;
+    return rawPropertyName;
   }
 
   @Override
   protected boolean internalEquals(Object o) {
     PropertyNode<?> other = (PropertyNode<?>) o;
-    return propertyName.equals(other.propertyName);
+    return rawPropertyName.equals(other.rawPropertyName);
   }
 
   @Override
   protected int internalHashCode() {
-    return propertyName.hashCode();
+    return rawPropertyName.hashCode();
   }
 }
