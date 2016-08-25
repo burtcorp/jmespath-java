@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.allOf;
 
 @RunWith(ComplianceRunner.class)
 public abstract class JmesPathComplianceTest<T> {
-  private static final String TESTS_PATH = "/jmespath.test/tests/";
+  private static final String TESTS_PATH = "jmespath.test/tests/";
 
   protected abstract Adapter<T> runtime();
 
@@ -100,7 +100,7 @@ public abstract class JmesPathComplianceTest<T> {
   }
 
   protected T loadFeatureDescription(String featureName) {
-    String path = String.format("%s%s.json", TESTS_PATH, featureName);
+    String path = String.format("/%s%s.json", TESTS_PATH, featureName);
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(JmesPathComplianceTest.class.getResourceAsStream(path), Charset.forName("UTF-8")))) {
       StringBuilder buffer = new StringBuilder();
       String line;
@@ -116,15 +116,18 @@ public abstract class JmesPathComplianceTest<T> {
   public Iterable<String> getFeatureNames() {
     try {
       List<String> featureNames = new LinkedList<>();
-      URI uri = JmesPathComplianceTest.class.getResource(TESTS_PATH).toURI();
+      URI uri = JmesPathComplianceTest.class.getResource(String.format("/%s", TESTS_PATH)).toURI();
       if (uri.getScheme().equals("jar")) {
         String jarPath = uri.toString().substring("jar:file:".length(), uri.toString().indexOf("!"));
-        try(JarFile jarFile = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))) {
+        try (JarFile jarFile = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))) {
 	        Enumeration<JarEntry> entries = jarFile.entries();
 	        while (entries.hasMoreElements()) {
 	          String fileName = entries.nextElement().getName();
-	          if (fileName.startsWith(TESTS_PATH)) {
-	            featureNames.add(fileName.substring(0, fileName.length() - 5));
+	          if (fileName.startsWith(TESTS_PATH) && fileName.length() > TESTS_PATH.length()) {
+              int lastSlashIndex = fileName.lastIndexOf("/");
+              int lastPeriodIndex = fileName.lastIndexOf(".");
+              String featureName = fileName.substring(lastSlashIndex + 1, lastPeriodIndex);
+	            featureNames.add(featureName);
 	          }
 	        }
         }
