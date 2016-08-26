@@ -18,8 +18,8 @@ public class StringNode<T> extends Node<T> {
   }
 
   @Override
-  public String toString() {
-    return String.format("String(%s)", rawString);
+  protected String internalToString() {
+    return rawString;
   }
 
   @Override

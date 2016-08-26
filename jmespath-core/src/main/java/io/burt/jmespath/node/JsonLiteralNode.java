@@ -19,7 +19,7 @@ public class JsonLiteralNode<T> extends Node<T> {
 
   @Override
   protected String internalToString() {
-    return String.format("%s", rawJson);
+    return rawJson;
   }
 
   @Override
