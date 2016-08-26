@@ -112,13 +112,8 @@ public class JacksonRuntime extends BaseRuntime<JsonNode> {
   }
 
   @Override
-  public JsonNode getProperty(JsonNode value, String name) {
-    return nodeOrNullNode(value.get(name));
-  }
-
-  @Override
   public JsonNode getProperty(JsonNode value, JsonNode name) {
-    return getProperty(value, name.textValue());
+    return nodeOrNullNode(value.get(name.textValue()));
   }
 
   @Override

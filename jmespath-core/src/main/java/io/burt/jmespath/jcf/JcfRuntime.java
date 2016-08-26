@@ -103,18 +103,12 @@ public class JcfRuntime extends BaseRuntime<Object> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public Object getProperty(Object value, String name) {
+  public Object getProperty(Object value, Object name) {
     if (typeOf(value) == OBJECT) {
-      return ((Map<String, Object>) value).get(name);
+      return ((Map<Object, Object>) value).get(name);
     } else {
       return null;
     }
-  }
-
-  @Override
-  public Object getProperty(Object value, Object name) {
-    return getProperty(value, (String) name);
   }
 
   @Override

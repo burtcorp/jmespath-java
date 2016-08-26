@@ -232,4 +232,10 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     str.append(']');
     return str.toString();
   }
+
+  @Override
+  @Deprecated
+  public T getProperty(T value, String name) {
+    return getProperty(value, createString(name));
+  }
 }
