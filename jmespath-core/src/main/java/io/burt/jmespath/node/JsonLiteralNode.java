@@ -25,11 +25,11 @@ public class JsonLiteralNode<T> extends Node<T> {
   @Override
   protected boolean internalEquals(Object o) {
     JsonLiteralNode<?> other = (JsonLiteralNode<?>) o;
-    return value.equals(other.value);
+    return rawValue.equals(other.rawValue);
   }
 
   @Override
   protected int internalHashCode() {
-    return value.hashCode();
+    return rawValue.hashCode();
   }
 }

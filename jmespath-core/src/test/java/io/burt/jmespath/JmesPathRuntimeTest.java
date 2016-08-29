@@ -750,6 +750,18 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void unicodeEscapesInJsonLiteralsAreUnescaped() {
+    T result = search("`\"foo\\u0020bar\\u0021\"`", parse("{}"));
+    assertThat(result, is(jsonString("foo bar!")));
+  }
+
+  @Test
+  public void newlinesAndOtherRegularEscapesInJsonLiteralsAreUnescaped() {
+    T result = search("`\"foo\\tbar\\n\"`", parse("{}"));
+    assertThat(result, is(jsonString("foo\tbar\n")));
+  }
+
+  @Test
   public void jsonLiteralBoolean() {
     T result = search("`true`", parse("{}"));
     assertThat(result, is(jsonBoolean(true)));
