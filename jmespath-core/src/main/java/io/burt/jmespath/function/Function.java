@@ -17,7 +17,7 @@ public interface Function {
    * The name is either automatically generated from the class name, or
    * explicitly specified in the constructor.
    */
-  public String name();
+  String name();
 
   /**
    * Call this function with a list of arguments.
@@ -28,5 +28,5 @@ public interface Function {
    * @throws ArgumentTypeException when the function is called with arguments of the wrong type
    * @throws ArityException when the function is called with the wrong number of arguments
    */
-  public <T> T call(Adapter<T> runtime, List<FunctionArgument<T>> arguments);
+  <T> T call(Adapter<T> runtime, List<FunctionArgument<T>> arguments);
 }

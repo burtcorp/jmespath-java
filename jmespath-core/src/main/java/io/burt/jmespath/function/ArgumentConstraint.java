@@ -18,21 +18,21 @@ public interface ArgumentConstraint {
    * @throws ArityException when there are not enough arguments left to satisfy the constraint
    * @throws ArgumentTypeException when an argument does not satisfy the constraint
    */
-  public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments);
+  <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments);
 
   /**
    * @return the minimum number of arguments required.
    */
-  public int minArity();
+  int minArity();
 
   /**
    * @return the maximum number of arguments accepted.
    */
-  public int maxArity();
+  int maxArity();
 
   /**
    * @return a string representation of the types accepted. Used to construct
    *   user friendly error messages.
    */
-  public String expectedType();
+  String expectedType();
 }
