@@ -71,6 +71,7 @@ public interface Adapter<T> extends JmesPath<T>, Comparator<T> {
    * the name of a property on that object. When the property does not exist
    * a null value (<em>not</em> Java <code>null</code>) is returned.
    */
+  @Deprecated
   T getProperty(T value, String name);
 
   /**

@@ -3,35 +3,33 @@ package io.burt.jmespath.node;
 import io.burt.jmespath.Adapter;
 
 public class JsonLiteralNode<T> extends Node<T> {
-  private final String raw;
-  private final T tree;
+  private final String rawValue;
+  private final T value;
 
-  public JsonLiteralNode(Adapter<T> runtime, String raw, T tree) {
+  public JsonLiteralNode(Adapter<T> runtime, String rawValue) {
     super(runtime);
-    this.raw = raw;
-    this.tree = tree;
+    this.rawValue = rawValue;
+    this.value = runtime.parseString(rawValue);
   }
 
   @Override
   public T search(T input) {
-    return tree;
+    return value;
   }
 
   @Override
   protected String internalToString() {
-    return String.format("%s", raw);
+    return rawValue;
   }
 
   @Override
   protected boolean internalEquals(Object o) {
     JsonLiteralNode<?> other = (JsonLiteralNode<?>) o;
-    return tree.equals(other.tree);
+    return rawValue.equals(other.rawValue);
   }
 
   @Override
   protected int internalHashCode() {
-    int h = 1;
-    h = h * 31 + tree.hashCode();
-    return h;
+    return rawValue.hashCode();
   }
 }

@@ -113,6 +113,6 @@ public class StandardNodeFactory<T> implements NodeFactory<T> {
 
   @Override
   public Node<T> createJsonLiteral(String json) {
-    return new JsonLiteralNode<>(runtime, json, runtime.parseString(json));
+    return new JsonLiteralNode<>(runtime, json);
   }
 }

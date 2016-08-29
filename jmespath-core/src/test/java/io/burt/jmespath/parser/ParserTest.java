@@ -848,84 +848,91 @@ public class ParserTest {
   }
 
   @Test
-  public void bareJsonLiteralStringWithEscapedNewline() {
-    Expression<Object> expected = JsonLiteral("\"hello\nworld\"");
+  public void jsonLiteralStringsWithEscapedNewlineAreAllowed() {
+    Expression<Object> expected = JsonLiteral("\"hello\\nworld\"");
     Expression<Object> actual = compile("`\"hello\\nworld\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void bareJsonLiteralStringWithEscapedTab() {
-    Expression<Object> expected = JsonLiteral("\"hello\tworld\"");
+  public void jsonLiteralStringsWithEscapedTabsAreAllowed() {
+    Expression<Object> expected = JsonLiteral("\"hello\\tworld\"");
     Expression<Object> actual = compile("`\"hello\\tworld\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void bareJsonLiteralStringWithEscapedUnicode() {
+  public void jsonLiteralStringsWithEscapedUnicodeCharsAreAllowed() {
     Expression<Object> expected = JsonLiteral("\"hello\\u0020world\"");
-    Expression<Object> actual = compile("`\"hello world\"`");
+    Expression<Object> actual = compile("`\"hello\\u0020world\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void bareJsonLiteralStringWithEscapedQuote() {
+  public void jsonLiteralStringsWithEscapedQuotesAreAllowed() {
     Expression<Object> expected = JsonLiteral("\"hello \\\"world\\\"\"");
     Expression<Object> actual = compile("`\"hello \\\"world\\\"\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void bareJsonLiteralStringWithEscapedBackslash() {
+  public void jsonLiteralStringsWithEscapedBackslashesAreAllowed() {
     Expression<Object> expected = JsonLiteral("\"c:\\\\\\\\windows\\\\path\"");
     Expression<Object> actual = compile("`\"c:\\\\\\\\windows\\\\path\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void bareJsonLiteralObjectWithEscapedNewlineInKey() {
-    Expression<Object> expected = JsonLiteral("{\"hello\nworld\":1}");
-    Expression<Object> actual = compile("`{\"hello\\nworld\":1}`");
-    assertThat(actual, is(expected));
-  }
-
-  @Test
-  public void bareJsonLiteralObjectWithEscapedTabInKey() {
-    Expression<Object> expected = JsonLiteral("{\"hello\tworld\":1}");
-    Expression<Object> actual = compile("`{\"hello\\tworld\":1}`");
-    assertThat(actual, is(expected));
-  }
-
-  @Test
-  public void bareJsonLiteralObjectWithEscapedUnicodeInKey() {
-    Expression<Object> expected = JsonLiteral("{\"hello\\u0020world\":1}");
-    Expression<Object> actual = compile("`{\"hello world\":1}`");
-    assertThat(actual, is(expected));
-  }
-
-  @Test
-  public void bareJsonLiteralObjectWithEscapedQuoteInKey() {
-    Expression<Object> expected = JsonLiteral("{\"hello \\\"world\\\"\":1}");
-    Expression<Object> actual = compile("`{\"hello \\\"world\\\"\":1}`");
-    assertThat(actual, is(expected));
-  }
-
-  @Test
-  public void bareJsonLiteralObjectWithEscapedBackslashInKey() {
-    Expression<Object> expected = JsonLiteral("{\"c:\\\\\\\\windows\\\\path\":1}");
-    Expression<Object> actual = compile("`{\"c:\\\\\\\\windows\\\\path\":1}`");
-    assertThat(actual, is(expected));
-  }
-
-  @Test
-  public void escapedBacktickInJsonString() {
+  public void jsonLiteralStringsWithEscapedBackticksAreAllowed() {
     Expression<Object> expected = JsonLiteral("\"fo`o\"");
     Expression<Object> actual = compile("`\"fo\\`o\"`");
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void unEscapedBacktickInJsonString() {
+  public void jsonLiteralObjectKeysWithEscapedNewlinesAreAllowed() {
+    Expression<Object> expected = JsonLiteral("{\"hello\\nworld\":1}");
+    Expression<Object> actual = compile("`{\"hello\\nworld\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void jsonLiteralObjectKeysWithEscapedTabsAreAllowed() {
+    Expression<Object> expected = JsonLiteral("{\"hello\\tworld\":1}");
+    Expression<Object> actual = compile("`{\"hello\\tworld\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void jsonLiteralObjectKeysWithEscapedUnicodeCharsAreAllowed() {
+    Expression<Object> expected = JsonLiteral("{\"hello\\u0020world\":1}");
+    Expression<Object> actual = compile("`{\"hello\\u0020world\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void jsonLiteralObjectKeysWithEscapedQuotesAreAllowed() {
+    Expression<Object> expected = JsonLiteral("{\"hello \\\"world\\\"\":1}");
+    Expression<Object> actual = compile("`{\"hello \\\"world\\\"\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void jsonLiteralObjectKeysWithEscapedBackslashesAreAllowed() {
+    Expression<Object> expected = JsonLiteral("{\"c:\\\\\\\\windows\\\\path\":1}");
+    Expression<Object> actual = compile("`{\"c:\\\\\\\\windows\\\\path\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void jsonLiteralObjectKeysWithEscapedBackticksAreAllowed() {
+    Expression<Object> expected = JsonLiteral("{\"fo`o\":1}");
+    Expression<Object> actual = compile("`{\"fo\\`o\":1}`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void jsonLiteralStringsWithNonEscapedBackticksAreNotAllowed() {
     try {
       compile("`\"fo`o\"`");
       fail("Expected ParseException to be thrown");

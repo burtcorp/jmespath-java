@@ -3,31 +3,33 @@ package io.burt.jmespath.node;
 import io.burt.jmespath.Adapter;
 
 public class StringNode<T> extends Node<T> {
-  private final String string;
+  private final String rawString;
+  private final T string;
 
-  public StringNode(Adapter<T> runtime, String string) {
+  public StringNode(Adapter<T> runtime, String rawString) {
     super(runtime);
-    this.string = string;
+    this.rawString = rawString;
+    this.string = runtime.createString(rawString);
   }
 
   @Override
   public T search(T input) {
-    return runtime.createString(string);
+    return string;
   }
 
   @Override
-  public String toString() {
-    return String.format("String(%s)", string);
+  protected String internalToString() {
+    return rawString;
   }
 
   @Override
   protected boolean internalEquals(Object o) {
     StringNode<?> other = (StringNode<?>) o;
-    return string.equals(other.string);
+    return rawString.equals(other.rawString);
   }
 
   @Override
   protected int internalHashCode() {
-    return string.hashCode();
+    return rawString.hashCode();
   }
 }

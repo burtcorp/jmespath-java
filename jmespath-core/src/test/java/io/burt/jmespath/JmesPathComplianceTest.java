@@ -153,15 +153,15 @@ public abstract class JmesPathComplianceTest<T> {
     T featureDescription = loadFeatureDescription(featureName);
     for (T suiteDescription : runtime().toList(featureDescription)) {
       String suiteComment = valueAsStringOrNull(suiteDescription, "comment");
-      T input = runtime().getProperty(suiteDescription, "given");
-      T caseDescriptions = runtime().getProperty(suiteDescription, "cases");
+      T input = runtime().getProperty(suiteDescription, runtime().createString("given"));
+      T caseDescriptions = runtime().getProperty(suiteDescription, runtime().createString("cases"));
       for (T caseDescription : runtime().toList(caseDescriptions)) {
         String testComment = valueAsStringOrNull(caseDescription, "comment");
         if (testComment == null) {
           testComment = valueAsStringOrNull(caseDescription, "description");
         }
         String expression = valueAsStringOrNull(caseDescription, "expression");
-        T expectedResult = runtime().getProperty(caseDescription, "result");
+        T expectedResult = runtime().getProperty(caseDescription, runtime().createString("result"));
         String expectedError = valueAsStringOrNull(caseDescription, "error");
         String benchmark = valueAsStringOrNull(caseDescription, "benchmark");
         if (runtime().typeOf(expectedResult) != JmesPathType.NULL || expectedError != null) {
@@ -173,7 +173,7 @@ public abstract class JmesPathComplianceTest<T> {
   }
 
   private String valueAsStringOrNull(T object, String key) {
-    T value = runtime().getProperty(object, key);
+    T value = runtime().getProperty(object, runtime().createString(key));
     return runtime().typeOf(value) == JmesPathType.NULL ? null : runtime().toString(value);
   }
 
