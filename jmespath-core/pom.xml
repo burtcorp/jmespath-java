@@ -74,6 +74,32 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>com.github.wvengen</groupId>
+        <artifactId>proguard-maven-plugin</artifactId>
+        <version>2.0.13</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals><goal>proguard</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <obfuscate>false</obfuscate>
+          <options>
+            <option>-dontnote io.burt.jmespath.antlr.**</option>
+            <option>-dontoptimize</option>
+            <option>-keepparameternames</option>
+            <option>-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod</option>
+            <option>-keep class io.burt.jmespath.** { *; }</option>
+            <option>-keep class !io.burt.jmespath.antlr.** { *; }</option>
+          </options>
+          <outputDirectory>${project.build.directory}</outputDirectory>
+          <libs>
+            <lib>${java.home}/lib/rt.jar</lib>
+          </libs>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
