@@ -682,7 +682,7 @@ public abstract class JmesPathRuntimeTest<T> {
   @Test
   public void nestedCreateObject() {
     T result = search("Records[*].userIdentity | {users: {names: [*].userName}}", cloudtrail);
-    T names = runtime().getProperty(runtime().getProperty(result, runtime().createString("users")), "names");
+    T names = runtime().getProperty(runtime().getProperty(result, runtime().createString("users")), runtime().createString("names"));
     assertThat(names, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
   }
 
