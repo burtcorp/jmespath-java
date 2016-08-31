@@ -122,16 +122,17 @@ public abstract class BaseFunction implements Function {
    * @throws ArityException when there are too few or too many arguments
    */
   protected <T> void checkArguments(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
-    try {
-      Iterator<FunctionArgument<T>> argumentIterator = arguments.iterator();
-      argumentConstraints.check(runtime, argumentIterator);
-      if (argumentIterator.hasNext()) {
+    Iterator<FunctionArgument<T>> argumentIterator = arguments.iterator();
+    ArgumentError error = argumentConstraints.check(runtime, argumentIterator, true);
+    if (error != null) {
+      if (error instanceof ArgumentError.ArityError) {
         throw new ArityException(this, arguments.size());
+      } else if (error instanceof ArgumentError.ArgumentTypeError) {
+        ArgumentError.ArgumentTypeError e = (ArgumentError.ArgumentTypeError) error;
+        throw new ArgumentTypeException(name(), e.expectedType(), e.actualType());
+      } else {
+        throw new IllegalStateException(String.format("Unexpected error while type checking: %s", error.getClass().getName()));
       }
-    } catch (ArgumentConstraints.InternalArityException e) {
-      throw new ArityException(this, arguments.size(), e);
-    } catch (ArgumentConstraints.InternalArgumentTypeException e) {
-      throw new ArgumentTypeException(name(), e.expectedType(), e.actualType(), e);
     }
   }
 
