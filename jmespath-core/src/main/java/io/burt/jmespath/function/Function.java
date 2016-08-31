@@ -20,6 +20,12 @@ public interface Function {
   String name();
 
   /**
+   * Returns the constraints to use when checking the list of arguments before
+   * the function is called.
+   */
+  ArgumentConstraint argumentConstraints();
+
+  /**
    * Call this function with a list of arguments.
    * <p>
    * The arguments can be either values or expressions, and their types will be

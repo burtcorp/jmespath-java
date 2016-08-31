@@ -98,6 +98,11 @@ public abstract class BaseFunction implements Function {
     return name;
   }
 
+  @Override
+  public ArgumentConstraint argumentConstraints() {
+    return argumentConstraints;
+  }
+
   /**
    * Call this function with a list of arguments.
    *
@@ -121,10 +126,10 @@ public abstract class BaseFunction implements Function {
       Iterator<FunctionArgument<T>> argumentIterator = arguments.iterator();
       argumentConstraints.check(runtime, argumentIterator);
       if (argumentIterator.hasNext()) {
-        throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), arguments.size());
+        throw new ArityException(this, arguments.size());
       }
     } catch (ArgumentConstraints.InternalArityException e) {
-      throw new ArityException(name(), argumentConstraints.minArity(), argumentConstraints.maxArity(), arguments.size(), e);
+      throw new ArityException(this, arguments.size(), e);
     } catch (ArgumentConstraints.InternalArgumentTypeException e) {
       throw new ArgumentTypeException(name(), e.expectedType(), e.actualType(), e);
     }

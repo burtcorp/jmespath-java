@@ -17,10 +17,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 import io.burt.jmespath.parser.ParseException;
-import io.burt.jmespath.function.ArityException;
 import io.burt.jmespath.function.ArgumentTypeException;
 
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.instanceOf;
@@ -264,6 +264,7 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonString("hello world")));
   }
 
+  @Test
   public void flattenStartsProjection() {
     T result = search("Records[].userIdentity.userName", cloudtrail);
     assertThat(result, is(jsonArrayOfStrings("Alice", "Bob", "Alice")));
@@ -863,19 +864,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonString("mykeypair")));
   }
 
-  @Test(expected = ParseException.class)
-  public void callNonExistentFunctionThrowsParseException() {
-    search("bork()", parse("{}"));
+  @Test
+  public void callingNonExistentFunctionThrowsParseException() {
+    try {
+      search("bork()", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("unknown function \"bork\""));
+    }
   }
 
-  @Test(expected = ArityException.class)
-  public void callFunctionWithTooFewArgumentsThrowsArityException() {
-    search("type()", parse("{}"));
+  @Test
+  public void callingAFunctionWithTooFewArgumentsIsACompileTimeError() {
+    try {
+      search("type()", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"type\" (expected 1 but was 0)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
-  public void callFunctionWithTooManyArgumentsThrowsArityException() {
-    search("type(@, @, @)", parse("{}"));
+  @Test
+  public void callingAFunctionWithTooManyArgumentsIsACompileTimeError() {
+    try {
+      search("type(@, @, @)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"type\" (expected 1 but was 3)"));
+    }
   }
 
   @Test
@@ -886,19 +902,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result2, is(jsonNumber(1)));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void absRequiresANumberArgument() {
-    search("abs('foo')", parse("{}"));
+    try {
+      search("abs('foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number but was string"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void absRequiresExactlyOneArgument() {
-    search("abs(`1`, `2`)", parse("{}"));
+    try {
+      search("abs(`1`, `2`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"abs\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void absRequiresAValue() {
-    search("abs(&foo)", parse("{}"));
+    try {
+      search("abs(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number but was expression"));
+    }
   }
 
   @Test
@@ -913,19 +944,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonNull()));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void avgRequiresAnArrayOfNumbers() {
-    search("avg('foo')", parse("{}"));
+    try {
+      search("avg('foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number but was string"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void avgRequiresExactlyOneArgument() {
-    search("avg(`[]`, `[]`)", parse("{}"));
+    try {
+      search("avg(`[]`, `[]`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"avg\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void avgRequiresAValue() {
-    search("avg(&foo)", parse("{}"));
+    try {
+      search("avg(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number but was expression"));
+    }
   }
 
   @Test
@@ -952,34 +998,54 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonBoolean(true)));
   }
 
-  @Test(expected = ArityException.class)
-  public void containsRequiresTwoArguments() {
-    search("contains(@)", parse("[]"));
-  }
-
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void containsRequiresAnArrayOrStringAsFirstArgument() {
-    search("contains(@, 'foo')", parse("{}"));
+    try {
+      search("contains(@, 'foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array or string but was object"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void containsRequiresTwoArguments1() {
-    search("contains('foo')", parse("{}"));
+    try {
+      search("contains('foo')", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"contains\" (expected 2 but was 1)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void containsRequiresTwoArguments2() {
-    search("contains('foo', 'bar', 'baz')", parse("{}"));
+    try {
+      search("contains('foo', 'bar', 'baz')", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"contains\" (expected 2 but was 3)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void containsRequiresValues1() {
-    search("contains(@, &foo)", parse("{}"));
+    try {
+      search("contains(@, &foo)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected any value but was expression"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void containsRequiresValues2() {
-    search("contains(&foo, 'bar')", parse("{}"));
+    try {
+      search("contains(&foo, 'bar')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array or string but was expression"));
+    }
   }
 
   @Test
@@ -990,19 +1056,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result2, is(jsonNumber(34)));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void ceilRequiresANumberArgument() {
-    search("ceil('foo')", parse("{}"));
+    try {
+      search("ceil('foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number but was string"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void ceilRequiresExactlyOneArgument() {
-    search("ceil(`1`, `2`)", parse("{}"));
+    try {
+      search("ceil(`1`, `2`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"ceil\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void ceilRequiresAValue() {
-    search("ceil(&foo)", parse("{}"));
+    try {
+      search("ceil(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number but was expression"));
+    }
   }
 
   @Test
@@ -1017,39 +1098,64 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonBoolean(false)));
   }
 
-  @Test(expected = ArityException.class)
-  public void endsWithRequiresTwoArguments() {
-    search("ends_with('')", parse("{}"));
-  }
-
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void endsWithRequiresAStringAsFirstArgument() {
-    search("ends_with(@, 'foo')", parse("{}"));
+    try {
+      search("ends_with(@, 'foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was object"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void endsWithRequiresAStringAsSecondArgument() {
-    search("ends_with('foo', @)", parse("{}"));
+    try {
+      search("ends_with('foo', @)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was object"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void endsWithRequiresTwoArguments1() {
-    search("ends_with('foo')", parse("{}"));
+    try {
+      search("ends_with('foo')", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"ends_with\" (expected 2 but was 1)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void endsWithRequiresTwoArguments2() {
-    search("ends_with('foo', 'bar', @)", parse("{}"));
+    try {
+      search("ends_with('foo', 'bar', @)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"ends_with\" (expected 2 but was 3)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void endsWithRequiresAValue1() {
-    search("ends_with(&foo, 'bar')", parse("{}"));
+    try {
+      search("ends_with(&foo, 'bar')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was expression"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void endsWithRequiresAValue2() {
-    search("ends_with('foo', &bar)", parse("{}"));
+    try {
+      search("ends_with('foo', &bar)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was expression"));
+    }
   }
 
   @Test
@@ -1060,19 +1166,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result2, is(jsonNumber(33)));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void floorRequiresANumberArgument() {
-    search("floor('foo')", parse("{}"));
+    try {
+      search("floor('foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number but was string"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void floorRequiresExactlyOneArgument() {
-    search("floor(`1`, `2`)", parse("{}"));
+    try {
+      search("floor(`1`, `2`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"floor\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void floorRequiresAValue() {
-    search("floor(&foo)", parse("{}"));
+    try {
+      search("floor(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number but was expression"));
+    }
   }
 
   @Test
@@ -1089,24 +1210,44 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonString("foo|foo|foo")));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void joinRequiresAStringAsFirstArgument() {
-    search("join(`3`, @)", parse("[\"foo\", 3, \"bar\", \"baz\"]"));
+    try {
+      search("join(`3`, @)", parse("[\"foo\", 3, \"bar\", \"baz\"]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was number"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void joinRequiresAStringArrayAsSecondArgument() {
-    search("join('|', @)", parse("[\"foo\", 3, \"bar\", \"baz\"]"));
+    try {
+      search("join('|', @)", parse("[\"foo\", 3, \"bar\", \"baz\"]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of string but was array containing string and number"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void joinRequiresTwoArguments1() {
-    search("join('|')", parse("[]"));
+    try {
+      search("join('|')", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"join\" (expected 2 but was 1)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void joinRequiresTwoArguments2() {
-    search("join('|', @, @)", parse("[]"));
+    try {
+      search("join('|', @, @)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"join\" (expected 2 but was 3)"));
+    }
   }
 
   @Test
@@ -1115,14 +1256,24 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonString("")));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void joinRequiresAValue1() {
-    search("join(&foo, @)", parse("{}"));
+    try {
+      search("join(&foo, @)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was expression"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void joinRequiresAValue2() {
-    search("join('foo', &bar)", parse("{}"));
+    try {
+      search("join('foo', &bar)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of string but was expression"));
+    }
   }
 
   @Test
@@ -1138,19 +1289,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(parse("[]")));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void keysRequiresAnObjectAsArgument() {
-    search("keys(@)", parse("[3]"));
+    try {
+      search("keys(@)", parse("[3]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected object but was array"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void keysRequiresASingleArgument() {
-    search("keys(@, @)", parse("{}"));
+    try {
+      search("keys(@, @)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"keys\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void keysRequiresAValue() {
-    search("keys(&foo)", parse("{}"));
+    try {
+      search("keys(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected object but was expression"));
+    }
   }
 
   @Test
@@ -1183,14 +1349,44 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonBoolean(true)));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void lengthRequiresAStringArrayOrObjectAsArgument() {
-    search("length(@)", parse("3"));
+    try {
+      search("length(@)", parse("3"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string, array or object but was number"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void lengthRequiresAValue() {
-    search("length(&foo)", parse("{}"));
+    try {
+      search("length(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string, array or object but was expression"));
+    }
+  }
+
+  @Test
+  public void lengthRequiresAnArgument() {
+    try {
+      search("length()", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"length\" (expected 1 but was 0)"));
+    }
+  }
+
+  @Test
+  public void lengthRequiresExactlyOneArgument() {
+    try {
+      search("length(@, @)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"length\" (expected 1 but was 2)"));
+    }
   }
 
   @Test
@@ -1223,29 +1419,54 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(parse("[\"1\", \"-2\", \"3\"]")));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void mapRequiresAnExpressionAsFirstArgument() {
-    search("map(@, @)", parse("[]"));
+    try {
+      search("map(@, @)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected expression but was array"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void mapRequiresAnArrayAsSecondArgument1() {
-    search("map(&foo, @)", parse("{}"));
+    try {
+      search("map(&foo, @)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of any value but was object"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void mapRequiresAnArrayAsSecondArgument2() {
-    search("map(@, &foo)", parse("[]"));
+    try {
+      search("map(@, &foo)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected expression but was array"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void mapRequiresTwoArguments1() {
-    search("map(&foo.bar)", parse("[]"));
+    try {
+      search("map(&foo.bar)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"map\" (expected 2 but was 1)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void mapRequiresTwoArguments2() {
-    search("map(&foo.bar, @, @)", parse("[]"));
+    try {
+      search("map(&foo.bar, @, @)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"map\" (expected 2 but was 3)"));
+    }
   }
 
   @Test
@@ -1266,24 +1487,44 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonNull()));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void maxRequiresAnArrayOfNumbersOrStrings() {
-    search("max('foo')", parse("{}"));
+    try {
+      search("max('foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number or string but was string"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void maxRequiresTheElementsToBeOfTheSameType() {
-    search("max(`[\"foo\", 1]`)", parse("{}"));
+    try {
+      search("max(`[\"foo\", 1]`)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number or string but was array containing string and number"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void maxRequiresExactlyOneArgument() {
-    search("max(`[]`, `[]`)", parse("{}"));
+    try {
+      search("max(`[]`, `[]`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"max\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void maxRequiresAValue() {
-    search("max(&foo)", parse("{}"));
+    try {
+      search("max(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number or string but was expression"));
+    }
   }
 
   @Test
@@ -1304,39 +1545,74 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonNull()));
   }
 
-  @Test(expected = ArgumentTypeException.class)
-  public void maxByDoesNotAcceptMixedResults() {
-    search("max_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+  @Test
+  public void maxByDoesNotAcceptExpressionsThatResultInMixedResults() {
+    try {
+      search("max_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number but was string"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
-  public void maxByDoesNotAcceptNonStringsOrNumbers() {
-    search("max_by(@, &foo)", parse("[{\"foo\": []}]"));
+  @Test
+  public void maxByDoesNotAcceptExpressionsThatResultInNonStringsOrNumbers() {
+    try {
+      search("max_by(@, &foo)", parse("[{\"foo\": []}]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number or string but was array"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void maxByRequiresAnArrayAsFirstArgument1() {
-    search("max_by(@, &foo)", parse("{}"));
+    try {
+      search("max_by(@, &foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of object but was object"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void maxByRequiresAnArrayAsFirstArgument2() {
-    search("max_by(&foo, @)", parse("[]"));
+    try {
+      search("max_by(&foo, @)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of object but was expression"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void maxByRequiresAnExpressionAsSecondArgument() {
-    search("max_by(@, @)", parse("[]"));
+    try {
+      search("max_by(@, @)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected expression but was array"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void maxByRequiresTwoArguments1() {
-    search("max_by(@)", parse("[]"));
+    try {
+      search("max_by(@)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"max_by\" (expected 2 but was 1)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void maxByRequiresTwoArguments2() {
-    search("max_by(@, &foo, @)", parse("[]"));
+    try {
+      search("max_by(@, &foo, @)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"max_by\" (expected 2 but was 3)"));
+    }
   }
 
   @Test
@@ -1357,24 +1633,44 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(parse("{\"a\": 1, \"b\": 1}")));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void mergeRequiresObjectArguments1() {
-    search("merge('foo', 'bar')", parse("{}"));
+    try {
+      search("merge('foo', 'bar')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected object but was string"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void mergeRequiresObjectArguments2() {
-    search("merge(`{}`, @)", parse("[]"));
+    try {
+      search("merge(`{}`, @)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected object but was array"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void mergeRequiresAtLeastOneArgument() {
-    search("merge()", parse("{}"));
+    try {
+      search("merge()", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"merge\" (expected at least 1 but was 0)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void mergeRequiresAValue() {
-    search("merge(&foo)", parse("{}"));
+    try {
+      search("merge(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected object but was expression"));
+    }
   }
 
   @Test
@@ -1395,24 +1691,44 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonNull()));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void minRequiresAnArrayOfNumbersOrStrings() {
-    search("min('foo')", parse("{}"));
+    try {
+      search("min('foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number or string but was string"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void minRequiresTheElementsToBeOfTheSameType() {
-    search("min(`[\"foo\", 1]`)", parse("{}"));
+    try {
+      search("min(`[\"foo\", 1]`)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number or string but was array containing string and number"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void minRequiresExactlyOneArgument() {
-    search("min(`[]`, `[]`)", parse("{}"));
+    try {
+      search("min(`[]`, `[]`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"min\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void minRequiresAValue() {
-    search("min(&foo)", parse("{}"));
+    try {
+      search("min(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number or string but was expression"));
+    }
   }
 
   @Test
@@ -1433,39 +1749,74 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonNull()));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void minByDoesNotAcceptMixedResults() {
-    search("min_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    try {
+      search("min_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number but was string"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
-  public void minByDoesNotAcceptNonStringsOrNumbers() {
-    search("min_by(@, &foo)", parse("[{\"foo\": []}]"));
+  @Test
+  public void minByDoesNotAcceptExpressionsThatResultInNonStringsOrNumbers() {
+    try {
+      search("min_by(@, &foo)", parse("[{\"foo\": []}]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number or string but was array"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void minByRequiresAnArrayAsFirstArgument1() {
-    search("min_by(@, &foo)", parse("{}"));
+    try {
+      search("min_by(@, &foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of object but was object"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void minByRequiresAnArrayAsFirstArgument2() {
-    search("min_by(&foo, @)", parse("[]"));
+    try {
+      search("min_by(&foo, @)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of object but was expression"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void minByRequiresAnExpressionAsSecondArgument() {
-    search("min_by(@, @)", parse("[]"));
+    try {
+      search("min_by(@, @)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected expression but was array"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void minByRequiresTwoArguments1() {
-    search("min_by(@)", parse("[]"));
+    try {
+      search("min_by(@)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"min_by\" (expected 2 but was 1)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void minByRequiresTwoArguments2() {
-    search("min_by(@, &foo, @)", parse("[]"));
+    try {
+      search("min_by(@, &foo, @)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"min_by\" (expected 2 but was 3)"));
+    }
   }
 
   @Test
@@ -1480,19 +1831,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonNull()));
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void notNullRequiresAtLeastOneArgument() {
-    search("not_null()", parse("{}"));
+    try {
+      search("not_null()", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"not_null\" (expected at least 1 but was 0)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void notNullRequiresAValue() {
-    search("not_null(`null`, &foo)", parse("{}"));
+    try {
+      search("not_null(`null`, &foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected any value but was expression"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void notNullRequiresAValueForArgumentsThatAreNotInspected() {
-    search("not_null('foo', &foo)", parse("{}"));
+    try {
+      search("not_null('foo', &foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected any value but was expression"));
+    }
   }
 
   @Test
@@ -1519,24 +1885,43 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonString("")));
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void reverseRequiresOneArgument1() {
-    search("reverse()", parse("[]"));
+    try {
+      search("reverse()", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"reverse\" (expected 1 but was 0)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void reverseRequiresOneArgument2() {
-    search("reverse(@, @)", parse("[]"));
+    try {
+      search("reverse(@, @)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"reverse\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void reverseRequiresAnArrayAsArgument() {
-    search("reverse(@)", parse("{}"));
+    try {
+      search("reverse(@)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array or string but was object"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void reverseRequiresAValue() {
-    search("reverse(&foo)", parse("{}"));
+    try {
+      search("reverse(&foo)", parse("{}"));
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array or string but was expression"));
+    }
   }
 
   @Test
@@ -1563,29 +1948,54 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(parse("[]")));
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void sortRequiresOneArgument1() {
-    search("sort()", parse("[]"));
+    try {
+      search("sort()", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"sort\" (expected 1 but was 0)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void sortRequiresOneArgument2() {
-    search("sort(@, @)", parse("[]"));
+    try {
+      search("sort(@, @)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"sort\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void sortRequiresAnArrayAsArgument() {
-    search("sort(@)", parse("{}"));
+    try {
+      search("sort(@)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number or string but was object"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void sortDoesNotAcceptMixedInputs() {
-    search("sort(@)", parse("[1, \"foo\"]"));
+    try {
+      search("sort(@)", parse("[1, \"foo\"]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number or string but was array containing number and string"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void sortRequiresAValue() {
-    search("sort(&foo)", parse("{}"));
+    try {
+      search("sort(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number or string but was expression"));
+    }
   }
 
   @Test
@@ -1618,39 +2028,74 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(parse("[]")));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void sortByDoesNotAcceptMixedResults() {
-    search("sort_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    try {
+      search("sort_by(@, &foo)", parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number but was string"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
-  public void sortByDoesNotAcceptNonStringsOrNumbers() {
-    search("sort_by(@, &foo)", parse("[{\"foo\": []}]"));
+  @Test
+  public void sortByDoesNotAcceptExpressionsThatResultInNonStringsOrNumbers() {
+    try {
+      search("sort_by(@, &foo)", parse("[{\"foo\": []}]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected number or string but was array"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void sortByRequiresAnArrayAsFirstArgument1() {
-    search("sort_by(@, &foo)", parse("{}"));
+    try {
+      search("sort_by(@, &foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of object but was object"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void sortByRequiresAnArrayAsFirstArgument2() {
-    search("sort_by(&foo, @)", parse("[]"));
+    try {
+      search("sort_by(&foo, @)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of object but was expression"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void sortByRequiresAnExpressionAsSecondArgument() {
-    search("sort_by(@, @)", parse("[]"));
+    try {
+      search("sort_by(@, @)", parse("[]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected expression but was array"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void sortByRequiresTwoArguments1() {
-    search("sort_by(@)", parse("[]"));
+    try {
+      search("sort_by(@)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"sort_by\" (expected 2 but was 1)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void sortByRequiresTwoArguments2() {
-    search("sort_by(@, &foo, @)", parse("[]"));
+    try {
+      search("sort_by(@, &foo, @)", parse("[]"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"sort_by\" (expected 2 but was 3)"));
+    }
   }
 
   @Test
@@ -1665,39 +2110,60 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonBoolean(false)));
   }
 
-  @Test(expected = ArityException.class)
-  public void startsWithRequiresTwoArguments() {
-    search("starts_with('')", parse("{}"));
-  }
-
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void startsWithRequiresAStringAsFirstArgument() {
-    search("starts_with(@, 'foo')", parse("{}"));
+    try {
+      search("starts_with(@, 'foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was object"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void startsWithRequiresAStringAsSecondArgument() {
-    search("starts_with('foo', @)", parse("{}"));
+    try {
+      search("starts_with('foo', @)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was object"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void startsWithRequiresTwoArguments1() {
-    search("starts_with('foo')", parse("{}"));
+    try {
+      search("starts_with('foo')", parse("{}"));
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"starts_with\" (expected 2 but was 1)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void startsWithRequiresTwoArguments2() {
-    search("starts_with('foo', 'bar', @)", parse("{}"));
+    try {
+      search("starts_with('foo', 'bar', @)", parse("{}"));
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"starts_with\" (expected 2 but was 3)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void startsWithRequiresAValue1() {
-    search("starts_with(&foo, 'bar')", parse("{}"));
+    try {
+      search("starts_with(&foo, 'bar')", parse("{}"));
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was expression"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void startsWithRequiresAValue2() {
-    search("starts_with('foo', &bar)", parse("{}"));
+    try {
+      search("starts_with('foo', &bar)", parse("{}"));
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected string but was expression"));
+    }
   }
 
   @Test
@@ -1712,19 +2178,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonNumber(0)));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void sumRequiresAnArrayOfNumbers() {
-    search("sum('foo')", parse("{}"));
+    try {
+      search("sum('foo')", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number but was string"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void sumRequiresExactlyOneArgument() {
-    search("sum(`[]`, `[]`)", parse("{}"));
+    try {
+      search("sum(`[]`, `[]`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"sum\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void sumRequiresAValue() {
-    search("sum(&foo)", parse("{}"));
+    try {
+      search("sum(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected array of number but was expression"));
+    }
   }
 
   @Test
@@ -1739,19 +2220,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(parse("[0, 1, 2, 3.5, 4]")));
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void toArrayRequiresExactlyOneArgument1() {
-    search("to_array()", parse("{}"));
+    try {
+      search("to_array()", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"to_array\" (expected 1 but was 0)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void toArrayRequiresExactlyOneArgument2() {
-    search("to_array(`1`, `2`)", parse("{}"));
+    try {
+      search("to_array(`1`, `2`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"to_array\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void toArrayRequiresAValue() {
-    search("to_array(&foo)", parse("{}"));
+    try {
+      search("to_array(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected any value but was expression"));
+    }
   }
 
   @Test
@@ -1785,19 +2281,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonString("hello")));
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void toStringRequiresExactlyOneArgument1() {
-    search("to_string()", parse("{}"));
+    try {
+      search("to_string()", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"to_string\" (expected 1 but was 0)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void toStringRequiresExactlyOneArgument2() {
-    search("to_string(`1`, `2`)", parse("{}"));
+    try {
+      search("to_string(`1`, `2`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"to_string\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void toStringRequiresAValue() {
-    search("to_string(&foo)", parse("{}"));
+    try {
+      search("to_string(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected any value but was expression"));
+    }
   }
 
   @Test
@@ -1848,19 +2359,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(result, is(jsonNull()));
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void toNumberRequiresExactlyOneArgument1() {
-    search("to_number()", parse("{}"));
+    try {
+      search("to_number()", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"to_number\" (expected 1 but was 0)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void toNumberRequiresExactlyOneArgument2() {
-    search("to_number(`1`, `2`)", parse("{}"));
+    try {
+      search("to_number(`1`, `2`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"to_number\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void toNumberRequiresAValue() {
-    search("to_number(&foo)", parse("{}"));
+    try {
+      search("to_number(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected any value but was expression"));
+    }
   }
 
   @Test
@@ -1873,19 +2399,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(search("type(@)", parse("1")), is(jsonString("number")));
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void typeRequiresExactlyOneArgument1() {
-    search("type()", parse("{}"));
+    try {
+      search("type()", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"type\" (expected 1 but was 0)"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void typeRequiresExactlyOneArgument2() {
-    search("type(`1`, `2`)", parse("{}"));
+    try {
+      search("type(`1`, `2`)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"type\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void typeRequiresAValue() {
-    search("type(&foo)", parse("{}"));
+    try {
+      search("type(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected any value but was expression"));
+    }
   }
 
   @Test
@@ -1900,19 +2441,34 @@ public abstract class JmesPathRuntimeTest<T> {
     assertThat(runtime().toList(result), is(empty()));
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void valuesRequiresAnObjectAsArgument() {
-    search("values(@)", parse("[3]"));
+    try {
+      search("values(@)", parse("[3]"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected object but was array"));
+    }
   }
 
-  @Test(expected = ArityException.class)
+  @Test
   public void valuesRequiresASingleArgument() {
-    search("values(@, @)", parse("{}"));
+    try {
+      search("values(@, @)", parse("{}"));
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"values\" (expected 1 but was 2)"));
+    }
   }
 
-  @Test(expected = ArgumentTypeException.class)
+  @Test
   public void valuesRequiresAValue() {
-    search("values(&foo)", parse("{}"));
+    try {
+      search("values(&foo)", parse("{}"));
+      fail("Expected ArgumentTypeException to have been thrown");
+    } catch (ArgumentTypeException ate) {
+      assertThat(ate.getMessage(), containsString("expected object but was expression"));
+    }
   }
 
   @Test

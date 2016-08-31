@@ -117,7 +117,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), is("Invalid arity calling \"heterogenous_list\": expected 3 but was 2"));
+      assertThat(ae.getMessage(), is("Invalid arity calling \"heterogenous_list\" (expected 3 but was 2)"));
     }
   }
 
@@ -132,7 +132,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), is("Invalid arity calling \"heterogenous_list\": expected 3 but was 4"));
+      assertThat(ae.getMessage(), is("Invalid arity calling \"heterogenous_list\" (expected 3 but was 4)"));
     }
   }
 
@@ -172,7 +172,7 @@ public class FunctionTest {
       typeOfFunction.call(runtime, createValueArguments());
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Invalid arity calling \"type_of\": expected 1 but was 0"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"type_of\" (expected 1 but was 0)"));
     }
     try {
       typeOfFunction.call(runtime, createValueArguments(
@@ -181,7 +181,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Invalid arity calling \"type_of\": expected 1 but was 2"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"type_of\" (expected 1 but was 2)"));
     }
   }
 
@@ -320,7 +320,7 @@ public class FunctionTest {
       arrayOfFunction.call(runtime, createValueArguments());
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Invalid arity calling \"array_of\": expected 1 but was 0"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"array_of\" (expected 1 but was 0)"));
     }
     try {
       arrayOfFunction.call(runtime, createValueArguments(
@@ -329,7 +329,7 @@ public class FunctionTest {
       ));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Invalid arity calling \"array_of\": expected 1 but was 2"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"array_of\" (expected 1 but was 2)"));
     }
   }
 
@@ -427,7 +427,7 @@ public class FunctionTest {
       acceptsBetweenThreeAndTenValues.call(runtime, createValueArguments(runtime.createNull()));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Invalid arity calling \"hello\": expected at least 3 but was 1"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"hello\" (expected at least 3 but was 1)"));
     }
   }
 
@@ -441,7 +441,7 @@ public class FunctionTest {
       acceptsBetweenThreeAndTenValues.call(runtime, createValueArguments(runtime.createNull(), runtime.createNull(), runtime.createNull(), runtime.createNull()));
       fail("No exception was thrown");
     } catch (ArityException ae) {
-      assertThat(ae.getMessage(), containsString("Invalid arity calling \"hello\": expected at most 3 but was 4"));
+      assertThat(ae.getMessage(), containsString("Invalid arity calling \"hello\" (expected at most 3 but was 4)"));
     }
   }
 

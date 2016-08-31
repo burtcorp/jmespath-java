@@ -12,10 +12,15 @@ import io.burt.jmespath.jcf.JcfRuntime;
 import io.burt.jmespath.node.CreateObjectNode;
 import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.Operator;
+import io.burt.jmespath.function.FunctionRegistry;
+import io.burt.jmespath.function.BaseFunction;
+import io.burt.jmespath.function.ArgumentConstraints;
+import io.burt.jmespath.function.FunctionArgument;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
 
 public class ParserTest {
   private Adapter<Object> runtime = new JcfRuntime();
@@ -1163,6 +1168,51 @@ public class ParserTest {
         errorCount++;
       }
       assertThat(errorCount, is(2));
+    }
+  }
+
+  @Test
+  public void callingAFixedArityFunctionWithTooFewArgumentsThrowsParseException() {
+    try {
+      compile("max()");
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"max\" (expected 1 but was 0)"));
+    }
+  }
+
+  @Test
+  public void callingAFixedArityFunctionWithTooManyArgumentsThrowsParseException() {
+    try {
+      compile("max(@, @)");
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"max\" (expected 1 but was 2)"));
+    }
+  }
+
+  @Test
+  public void callingAVariableArityFunctionWithTooFewArgumentsThrowsParseException() {
+    try {
+      compile("not_null()");
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"not_null\" (expected at least 1 but was 0)"));
+    }
+  }
+
+  @Test
+  public void callingAVariableArityFunctionWithTooManyArgumentsThrowsParseException() {
+    runtime = new JcfRuntime(FunctionRegistry.defaultRegistry().extend(
+      new BaseFunction("foobar", ArgumentConstraints.listOf(1, 3, ArgumentConstraints.anyValue())) {
+        protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) { return runtime.createNull(); }
+      }
+    ));
+    try {
+      compile("foobar(a, b, c, d, e, f, g)");
+      fail("Expected ParseException to have been thrown");
+    } catch (ParseException pe) {
+      assertThat(pe.getMessage(), containsString("invalid arity calling \"foobar\" (expected at most 3 but was 7)"));
     }
   }
 }
