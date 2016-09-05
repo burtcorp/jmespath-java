@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/burtcorp/jmespath-java.png?branch=master)](https://travis-ci.org/burtcorp/jmespath-java)
 
-_If you're reading this on GitHub, please note that this is the readme for the development version and that some features described here might not yet have been released. You can find the readme for a specific version via the release tags ([here is an example](https://github.com/burtcorp/jmespath-java/tree/0.1.0))._
+_If you're reading this on GitHub, please note that this is the readme for the development version and that some features described here might not yet have been released. You can find the readme for a specific version via the release tags ([here is an example](https://github.com/burtcorp/jmespath-java/releases/tag/jmespath-0.1.0))._
 
 An implementation of [JMESPath](http://jmespath.org/) for Java. It supports searching JSON documents (via Jackson) and structures containing basic Java objects (`Map`, `List`, `String`, etc.) – but can also be extended to work with any JSON-like structure.
 
