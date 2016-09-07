@@ -24,7 +24,7 @@ If you don't want the Jackson implementation you can change the `artifactId` to 
 
 ### Dependencies
 
-`jmespath-core` has an ANTLR based parser, but the ANTLR runtime artifact has been shaded into the `io.burt.jmespath` package to avoid conflicts with other artifacts that may depend on ANTLR. This means that `jmespath-core` has external dependencies.
+`jmespath-core` has an ANTLR based parser, but the ANTLR runtime artifact has been shaded into the `io.burt.jmespath` package to avoid conflicts with other artifacts that may depend on ANTLR. This means that `jmespath-core` has no external dependencies.
 
 `jmespath-jackson` obviously depends on Jackson, specifically Jackson DataBind (`com.fasterxml.jackson.core:jackson-databind`), but other than that it only depends on `jmespath-core`.
 
