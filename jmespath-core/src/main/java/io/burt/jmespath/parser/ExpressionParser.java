@@ -10,6 +10,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.function.Function;
+import io.burt.jmespath.function.ArgumentConstraint;
+import io.burt.jmespath.function.ArityException;
 import io.burt.jmespath.util.StringEscapeHelper;
 import io.burt.jmespath.util.AntlrHelper;
 import io.burt.jmespath.node.NodeFactory;
@@ -296,6 +298,13 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
     if (implementation == null) {
       Token token = ctx.NAME().getSymbol();
       errors.parseError(String.format("unknown function \"%s\"", name), token.getStartIndex());
+    } else {
+      ArgumentConstraint argumentConstraints = implementation.argumentConstraints();
+      if (n < argumentConstraints.minArity() || n > argumentConstraints.maxArity()) {
+        Token token = ctx.NAME().getSymbol();
+        String message = ArityException.createMessage(implementation, n, false);
+        errors.parseError(message, token.getStartIndex());
+      }
     }
     return createSequenceIfChained(nodeFactory.createFunctionCall(implementation, args));
   }
