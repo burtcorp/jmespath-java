@@ -51,7 +51,7 @@ public abstract class CompareByFunction extends BaseFunction {
     if (runtime.typeOf(resultValue) == JmesPathType.STRING) {
       return false;
     } else if (runtime.typeOf(resultValue) != JmesPathType.NUMBER) {
-      throw new ArgumentTypeException(name(), "number or string", runtime.typeOf(resultValue).toString());
+      throw new ArgumentTypeException(this, "number or string", runtime.typeOf(resultValue).toString());
     }
     return true;
   }
@@ -59,9 +59,9 @@ public abstract class CompareByFunction extends BaseFunction {
   private <T> void checkType(Adapter<T> runtime, T candidateValue, boolean expectNumbers) {
     JmesPathType candidateType = runtime.typeOf(candidateValue);
     if (expectNumbers && candidateType != JmesPathType.NUMBER) {
-      throw new ArgumentTypeException(name(), "number", candidateType.toString());
+      throw new ArgumentTypeException(this, "number", candidateType.toString());
     } else if (!expectNumbers && candidateType != JmesPathType.STRING) {
-      throw new ArgumentTypeException(name(), "string", candidateType.toString());
+      throw new ArgumentTypeException(this, "string", candidateType.toString());
     }
   }
 }

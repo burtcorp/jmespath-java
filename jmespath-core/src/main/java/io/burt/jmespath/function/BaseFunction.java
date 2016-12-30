@@ -129,7 +129,7 @@ public abstract class BaseFunction implements Function {
         throw new ArityException(this, arguments.size());
       } else if (error instanceof ArgumentError.ArgumentTypeError) {
         ArgumentError.ArgumentTypeError e = (ArgumentError.ArgumentTypeError) error;
-        throw new ArgumentTypeException(name(), e.expectedType(), e.actualType());
+        throw new ArgumentTypeException(this, e.expectedType(), e.actualType());
       } else {
         throw new IllegalStateException(String.format("Unexpected error while type checking: %s", error.getClass().getName()));
       }

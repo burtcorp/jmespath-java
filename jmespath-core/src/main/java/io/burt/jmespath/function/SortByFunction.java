@@ -46,7 +46,7 @@ public class SortByFunction extends BaseFunction {
     if (elementType == JmesPathType.STRING) {
       return false;
     } else if (elementType != JmesPathType.NUMBER) {
-      throw new ArgumentTypeException(name(), "number or string", elementType.toString());
+      throw new ArgumentTypeException(this, "number or string", elementType.toString());
     }
     return true;
   }
@@ -54,9 +54,9 @@ public class SortByFunction extends BaseFunction {
   private <T> void checkType(Adapter<T> runtime, T transformedElement, boolean expectNumbers) {
     JmesPathType elementType = runtime.typeOf(transformedElement);
     if (expectNumbers && elementType != JmesPathType.NUMBER) {
-      throw new ArgumentTypeException(name(), "number", elementType.toString());
+      throw new ArgumentTypeException(this, "number", elementType.toString());
     } else if (!expectNumbers && elementType != JmesPathType.STRING) {
-      throw new ArgumentTypeException(name(), "string", elementType.toString());
+      throw new ArgumentTypeException(this, "string", elementType.toString());
     }
   }
 
