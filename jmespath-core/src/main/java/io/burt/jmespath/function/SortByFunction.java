@@ -27,13 +27,22 @@ public class SortByFunction extends BaseFunction {
       List<Pair<T>> pairs = new ArrayList<>(elementsList.size());
       T element = elements.next();
       T transformedElement = expression.search(element);
-      boolean expectNumbers = expectNumbers(runtime, transformedElement );
+      JmesPathType transformedElementType = runtime.typeOf(transformedElement);
+      boolean expectNumbers = true;
+      if (transformedElementType == JmesPathType.STRING) {
+        expectNumbers = false;
+      } else if (transformedElementType != JmesPathType.NUMBER) {
+        return runtime.handleArgumentTypeError(this, "number or string", transformedElementType.toString());
+      }
       pairs.add(new Pair<T>(transformedElement, element));
       while (elements.hasNext()) {
         element = elements.next();
         transformedElement = expression.search(element);
-        checkType(runtime, transformedElement, expectNumbers);
-        pairs.add(new Pair<T>(transformedElement, element));
+        if (checkType(runtime, transformedElement, expectNumbers)) {
+          pairs.add(new Pair<T>(transformedElement, element));
+        } else {
+          return runtime.handleArgumentTypeError(this, expectNumbers ? "number" : "string", runtime.typeOf(transformedElement).toString());
+        }
       }
       return runtime.createArray(sortAndFlatten(runtime, pairs));
     } else {
@@ -41,23 +50,9 @@ public class SortByFunction extends BaseFunction {
     }
   }
 
-  private <T> boolean expectNumbers(Adapter<T> runtime, T transformedElement) {
+  private <T> boolean checkType(Adapter<T> runtime, T transformedElement, boolean expectNumbers) {
     JmesPathType elementType = runtime.typeOf(transformedElement);
-    if (elementType == JmesPathType.STRING) {
-      return false;
-    } else if (elementType != JmesPathType.NUMBER) {
-      throw new ArgumentTypeException(this, "number or string", elementType.toString());
-    }
-    return true;
-  }
-
-  private <T> void checkType(Adapter<T> runtime, T transformedElement, boolean expectNumbers) {
-    JmesPathType elementType = runtime.typeOf(transformedElement);
-    if (expectNumbers && elementType != JmesPathType.NUMBER) {
-      throw new ArgumentTypeException(this, "number", elementType.toString());
-    } else if (!expectNumbers && elementType != JmesPathType.STRING) {
-      throw new ArgumentTypeException(this, "string", elementType.toString());
-    }
+    return (expectNumbers && elementType == JmesPathType.NUMBER) || (!expectNumbers && elementType == JmesPathType.STRING);
   }
 
   private <T> List<T> sortAndFlatten(final Adapter<T> runtime, List<Pair<T>> pairs) {

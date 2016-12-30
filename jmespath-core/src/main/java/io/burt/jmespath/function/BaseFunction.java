@@ -125,13 +125,13 @@ public abstract class BaseFunction implements Function {
     Iterator<FunctionArgument<T>> argumentIterator = arguments.iterator();
     ArgumentError error = argumentConstraints.check(runtime, argumentIterator, true);
     if (error != null) {
-      if (error instanceof ArgumentError.ArityError) {
-        throw new ArityException(this, arguments.size());
-      } else if (error instanceof ArgumentError.ArgumentTypeError) {
+      if (error instanceof ArgumentError.ArgumentTypeError) {
         ArgumentError.ArgumentTypeError e = (ArgumentError.ArgumentTypeError) error;
-        throw new ArgumentTypeException(this, e.expectedType(), e.actualType());
+        runtime.handleArgumentTypeError(this, e.expectedType(), e.actualType());
+      } else if (error instanceof ArgumentError.ArityError) {
+        throw new IllegalStateException(ArityException.createMessage(this, arguments.size(), true));
       } else {
-        throw new IllegalStateException(String.format("Unexpected error while type checking: %s", error.getClass().getName()));
+        throw new IllegalStateException(String.format("Unexpected error while type checking arguments to \"%s\": %s", name(), error.getClass().getName()));
       }
     }
   }
