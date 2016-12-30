@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Collection;
 import java.util.Collections;
 
+import io.burt.jmespath.RuntimeConfiguration;
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.function.ArgumentTypeException;
 
@@ -33,10 +34,14 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 
 public abstract class JmesPathRuntimeTest<T> {
+  private Adapter<T> runtime = createRuntime(RuntimeConfiguration.defaultConfiguration());
+
   protected T contact;
   protected T cloudtrail;
 
-  protected abstract Adapter<T> runtime();
+  protected Adapter<T> runtime() { return runtime; }
+
+  protected abstract Adapter<T> createRuntime(RuntimeConfiguration configuration);
 
   protected T loadExample(String path) {
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(JmesPathRuntimeTest.class.getResourceAsStream(path), Charset.forName("UTF-8")))) {

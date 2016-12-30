@@ -32,6 +32,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     '\"', '\"'
   );
 
+  private final RuntimeConfiguration configuration;
   private final FunctionRegistry functionRegistry;
   private final NodeFactory<T> nodeFactory;
 
@@ -39,18 +40,15 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
    * Create a new runtime with a default function registry.
    */
   public BaseRuntime() {
-    this(null);
+    this(RuntimeConfiguration.defaultConfiguration());
   }
 
   /**
-   * Create a new runtime with a custom function registry.
+   * Create a new runtime with configuration.
    */
-  public BaseRuntime(FunctionRegistry functionRegistry) {
-    if (functionRegistry == null) {
-      this.functionRegistry = FunctionRegistry.defaultRegistry();
-    } else {
-      this.functionRegistry = functionRegistry;
-    }
+  public BaseRuntime(RuntimeConfiguration configuration) {
+    this.configuration = configuration;
+    this.functionRegistry = configuration.functionRegistry();
     this.nodeFactory = new StandardNodeFactory<>(this);
   }
 
