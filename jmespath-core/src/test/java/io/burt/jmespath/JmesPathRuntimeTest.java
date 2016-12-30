@@ -900,6 +900,22 @@ public abstract class JmesPathRuntimeTest<T> {
   }
 
   @Test
+  public void withSilentTypeErrorsTheWrongTypeOfArgumentMakesFunctionsReturnNull() {
+    Adapter<T> rt = createRuntime(RuntimeConfiguration.builder().withSilentTypeErrors(true).build());
+    T result = rt.compile("abs('foo')").search(parse("{}"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test
+  public void withSilentTypeErrorsTheWrongTypeOfArgumentMakesHigherOrderFunctionsReturnNull() {
+    Adapter<T> rt = createRuntime(RuntimeConfiguration.builder().withSilentTypeErrors(true).build());
+    T result1 = rt.compile("sort_by(@, &foo)").search(parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    T result2 = rt.compile("min_by(@, &foo)").search(parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    assertThat(result1, is(jsonNull()));
+    assertThat(result2, is(jsonNull()));
+  }
+
+  @Test
   public void absReturnsTheAbsoluteValueOfANumber() {
     T result1 = search("abs(`-1`)", parse("{}"));
     T result2 = search("abs(`1`)", parse("{}"));

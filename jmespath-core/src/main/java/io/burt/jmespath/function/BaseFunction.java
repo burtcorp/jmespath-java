@@ -111,23 +111,14 @@ public abstract class BaseFunction implements Function {
    */
   @Override
   public <T> T call(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
-    checkArguments(runtime, arguments);
-    return callFunction(runtime, arguments);
-  }
-
-  /**
-   * Checks the arguments against the argument constraints.
-   *
-   * @throws ArgumentTypeException when an arguments type does not match the constraints
-   * @throws ArityException when there are too few or too many arguments
-   */
-  protected <T> void checkArguments(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     Iterator<FunctionArgument<T>> argumentIterator = arguments.iterator();
     ArgumentError error = argumentConstraints.check(runtime, argumentIterator, true);
-    if (error != null) {
+    if (error == null) {
+      return callFunction(runtime, arguments);
+    } else {
       if (error instanceof ArgumentError.ArgumentTypeError) {
         ArgumentError.ArgumentTypeError e = (ArgumentError.ArgumentTypeError) error;
-        runtime.handleArgumentTypeError(this, e.expectedType(), e.actualType());
+        return runtime.handleArgumentTypeError(this, e.expectedType(), e.actualType());
       } else if (error instanceof ArgumentError.ArityError) {
         throw new IllegalStateException(ArityException.createMessage(this, arguments.size(), true));
       } else {

@@ -137,9 +137,17 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     return true;
   }
 
+  /**
+   * Throws {@link ArgumentTypeException} unless {@link RuntimeConfiguration#silentTypeErrors}
+   * is true, in which case it returns a null value (<em>not</em> Java <code>null</code>).
+   */
   @Override
   public T handleArgumentTypeError(Function function, String expectedType, String actualType) {
-    throw new ArgumentTypeException(function, expectedType, actualType);
+    if (configuration.silentTypeErrors()) {
+      return createNull();
+    } else {
+      throw new ArgumentTypeException(function, expectedType, actualType);
+    }
   }
 
   @Override
