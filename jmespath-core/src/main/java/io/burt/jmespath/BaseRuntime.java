@@ -32,9 +32,9 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
     '\"', '\"'
   );
 
-  private final RuntimeConfiguration configuration;
   private final FunctionRegistry functionRegistry;
   private final NodeFactory<T> nodeFactory;
+  private final boolean silentTypeErrors;
 
   /**
    * Create a new runtime with a default function registry.
@@ -47,7 +47,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
    * Create a new runtime with configuration.
    */
   public BaseRuntime(RuntimeConfiguration configuration) {
-    this.configuration = configuration;
+    this.silentTypeErrors = configuration.silentTypeErrors();
     this.functionRegistry = configuration.functionRegistry();
     this.nodeFactory = new StandardNodeFactory<>(this);
   }
@@ -143,7 +143,7 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
    */
   @Override
   public T handleArgumentTypeError(Function function, String expectedType, String actualType) {
-    if (configuration.silentTypeErrors()) {
+    if (silentTypeErrors) {
       return createNull();
     } else {
       throw new ArgumentTypeException(function, expectedType, actualType);
