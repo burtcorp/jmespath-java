@@ -3,6 +3,7 @@ package io.burt.jmespath.function;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 import java.util.LinkedHashSet;
 
@@ -114,11 +115,11 @@ public final class ArgumentConstraints {
       this.expectedTypeDescription = expectedTypeDescription;
     }
 
-    protected <T> ArgumentError checkNoRemaingArguments(Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
+    protected <T> Iterator<ArgumentError> checkNoRemaingArguments(Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       if (expectNoRemainingArguments && arguments.hasNext()) {
-        return ArgumentError.createArityError();
+        return singletonIterator(ArgumentError.createArityError());
       } else {
-        return null;
+        return emptyIterator();
       }
     }
 
@@ -136,6 +137,14 @@ public final class ArgumentConstraints {
     public String expectedType() {
       return expectedTypeDescription;
     }
+
+    protected <U> Iterator<U> singletonIterator(U obj) {
+      return Collections.singleton(obj).iterator();
+    }
+
+    protected <U> Iterator<U> emptyIterator() {
+      return Collections.emptyIterator();
+    }
   }
 
   private static class HomogenousListOf extends BaseArgumentConstraint {
@@ -147,23 +156,23 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> ArgumentError check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
+    public <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       int i = 0;
       for (; i < minArity(); i++) {
         if (!arguments.hasNext()) {
-          return ArgumentError.createArityError();
+          return singletonIterator(ArgumentError.createArityError());
         } else {
-          ArgumentError error = subConstraint.check(runtime, arguments, false);
-          if (error != null) {
+          Iterator<ArgumentError> error = subConstraint.check(runtime, arguments, false);
+          if (error.hasNext()) {
             return error;
           }
         }
       }
       for (; i < maxArity(); i++) {
         if (arguments.hasNext()) {
-          ArgumentError error = subConstraint.check(runtime, arguments, false);
-          if (error != null) {
-            return error;
+          Iterator<ArgumentError> error = subConstraint.check(runtime, arguments, false);
+          if (error.hasNext()) {
+        	  return error;
           }
         } else {
           break;
@@ -198,15 +207,15 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> ArgumentError check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
+    public <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       for (int i = 0; i < subConstraints.length; i++) {
         if (arguments.hasNext()) {
-          ArgumentError error = subConstraints[i].check(runtime, arguments, false);
-          if (error != null) {
+          Iterator<ArgumentError> error = subConstraints[i].check(runtime, arguments, false);
+          if (error.hasNext()) {
             return error;
           }
         } else {
-          return ArgumentError.createArityError();
+          return singletonIterator(ArgumentError.createArityError());
         }
       }
       return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
@@ -219,20 +228,20 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> ArgumentError check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
+    public <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       if (arguments.hasNext()) {
-        ArgumentError error = checkType(runtime, arguments.next());
-        if (error != null) {
+        Iterator<ArgumentError> error = checkType(runtime, arguments.next());
+        if (error.hasNext()) {
           return error;
         } else {
           return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
         }
       } else {
-        return ArgumentError.createArityError();
+        return singletonIterator(ArgumentError.createArityError());
       }
     }
 
-    protected abstract <T> ArgumentError checkType(Adapter<T> runtime, FunctionArgument<T> argument);
+    protected abstract <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument);
   }
 
   private static class AnyValue extends TypeCheck {
@@ -241,11 +250,11 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> ArgumentError checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
+    protected <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
-        return ArgumentError.createArgumentTypeError("any value", EXPRESSION_TYPE);
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError("any value", EXPRESSION_TYPE));
       } else {
-        return null;
+        return emptyIterator();
       }
     }
   }
@@ -259,16 +268,16 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> ArgumentError checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
+    protected <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
-        return ArgumentError.createArgumentTypeError(expectedType.toString(), EXPRESSION_TYPE);
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType.toString(), EXPRESSION_TYPE));
       } else {
         JmesPathType actualType = runtime.typeOf(argument.value());
         if (actualType != expectedType) {
-          return ArgumentError.createArgumentTypeError(expectedType.toString(), actualType.toString());
+          return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType.toString(), actualType.toString()));
         }
       }
-      return null;
+      return emptyIterator();
     }
   }
 
@@ -294,17 +303,17 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> ArgumentError checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
+    protected <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
-        return ArgumentError.createArgumentTypeError(expectedType(), EXPRESSION_TYPE);
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), EXPRESSION_TYPE));
       } else {
         JmesPathType actualType = runtime.typeOf(argument.value());
         for (int i = 0; i < expectedTypes.length; i++) {
           if (expectedTypes[i] == actualType) {
-            return null;
+            return emptyIterator();
           }
         }
-        return ArgumentError.createArgumentTypeError(expectedType(), actualType.toString());
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), actualType.toString()));
       }
     }
   }
@@ -315,11 +324,11 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> ArgumentError checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
+    protected <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (!argument.isExpression()) {
-        return ArgumentError.createArgumentTypeError(EXPRESSION_TYPE, runtime.typeOf(argument.value()).toString());
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(EXPRESSION_TYPE, runtime.typeOf(argument.value()).toString()));
       } else {
-        return null;
+        return emptyIterator();
       }
     }
   }
@@ -333,30 +342,30 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    public <T> ArgumentError check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
+    public <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       if (arguments.hasNext()) {
         FunctionArgument<T> argument = arguments.next();
         if (argument.isExpression()) {
-          return ArgumentError.createArgumentTypeError(expectedType(), EXPRESSION_TYPE);
+          return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), EXPRESSION_TYPE));
         } else {
           T value = argument.value();
           JmesPathType type = runtime.typeOf(value);
           if (type == JmesPathType.ARRAY) {
-            ArgumentError error = checkElements(runtime, value);
-            if (error != null) {
+            Iterator<ArgumentError> error = checkElements(runtime, value);
+            if (error.hasNext()) {
               return error;
             }
           } else {
-            return ArgumentError.createArgumentTypeError(expectedType(), type.toString());
+            return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), type.toString()));
           }
         }
         return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
       } else {
-        return ArgumentError.createArityError();
+        return singletonIterator(ArgumentError.createArityError());
       }
     }
 
-    private <T> ArgumentError checkElements(Adapter<T> runtime, T value) {
+    private <T> Iterator<ArgumentError> checkElements(Adapter<T> runtime, T value) {
       List<T> elements = runtime.toList(value);
       if (!elements.isEmpty()) {
         List<FunctionArgument<T>> wrappedElements = new ArrayList<>(elements.size());
@@ -366,22 +375,23 @@ public final class ArgumentConstraints {
           types.add(runtime.typeOf(element));
         }
         if (types.size() > 1) {
-          return createMixedTypesError(types);
+          return singletonIterator(createMixedTypesError(types));
         }
         Iterator<FunctionArgument<T>> wrappedElementsIterator = wrappedElements.iterator();
         while (wrappedElementsIterator.hasNext()) {
-          ArgumentError error = subConstraint.check(runtime, wrappedElementsIterator, false);
-          if (error != null) {
-            if (error instanceof ArgumentError.ArgumentTypeError) {
-              ArgumentError.ArgumentTypeError e = (ArgumentError.ArgumentTypeError) error;
-              return ArgumentError.createArgumentTypeError(expectedType(), String.format("array containing %s", e.actualType()));
+          Iterator<ArgumentError> error = subConstraint.check(runtime, wrappedElementsIterator, false);
+          if (error.hasNext()) {
+            ArgumentError e = error.next();
+            if (e instanceof ArgumentError.ArgumentTypeError) {
+              ArgumentError.ArgumentTypeError ee = (ArgumentError.ArgumentTypeError) e;
+              return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), String.format("array containing %s", ee.actualType())));
             } else {
-              return error;
+              return singletonIterator(e);
             }
           }
         }
       }
-      return null;
+      return emptyIterator();
     }
 
     private ArgumentError createMixedTypesError(Set<JmesPathType> types) {

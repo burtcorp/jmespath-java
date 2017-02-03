@@ -15,14 +15,17 @@ public interface ArgumentConstraint {
    * Most constraints will consume one or more elements from the iterator, but
    * constraints that represents optional arguments may choose not to.
    * <p>
-   * At the first error an {@link ArgumentError} is returned. If no errors are
-   * discovered <code>null</code> will be returned.
+   * Any errors found will be returned as an iterator of {@link ArgumentError}.
+   * When this iterator is empty no errors were found. The iterator may or may
+   * not contain all errors that could be found, errors may make the checker
+   * return as soon as they are encountered and not attempt to check the
+   * remaining arguments.
    * <p>
    * When <code>expectNoRemainingArguments</code> is true and there remain
    * elements in the iterator after all checks have been performed an error will
    * be returned.
    */
-  <T> ArgumentError check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments);
+  <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments);
 
   /**
    * @return the minimum number of arguments required.

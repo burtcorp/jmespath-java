@@ -112,10 +112,11 @@ public abstract class BaseFunction implements Function {
   @Override
   public <T> T call(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     Iterator<FunctionArgument<T>> argumentIterator = arguments.iterator();
-    ArgumentError error = argumentConstraints.check(runtime, argumentIterator, true);
-    if (error == null) {
+    Iterator<ArgumentError> maybeError = argumentConstraints.check(runtime, argumentIterator, true);
+    if (!maybeError.hasNext()) {
       return callFunction(runtime, arguments);
     } else {
+      ArgumentError error = maybeError.next();
       if (error instanceof ArgumentError.ArgumentTypeError) {
         ArgumentError.ArgumentTypeError e = (ArgumentError.ArgumentTypeError) error;
         return runtime.handleArgumentTypeError(this, e.expectedType(), e.actualType());
