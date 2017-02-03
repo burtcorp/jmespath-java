@@ -27,12 +27,12 @@ public abstract class CompareByFunction extends ComparingFunction {
 
     public ComparingAggregator(Adapter<V> runtime, V initialElement, V initialValue) {
       super(runtime);
-      this.current = new Pair<V>(initialValue, initialElement);
+      this.current = new Pair<V>(initialElement, initialValue);
     }
 
     protected void aggregate(V candidate, V candidateValue) {
       if (sortsBefore(runtime.compare(candidateValue, current.elementValue))) {
-        current = new Pair<V>(candidateValue, candidate);
+        current = new Pair<V>(candidate, candidateValue);
       }
     }
   
@@ -42,12 +42,12 @@ public abstract class CompareByFunction extends ComparingFunction {
   }
 
   private static class Pair<U> {
-    public final U elementValue;
     public final U element;
+    public final U elementValue;
 
-    public Pair(U elementValue, U element) {
-      this.elementValue = elementValue;
+    public Pair(U element, U elementValue) {
       this.element = element;
+      this.elementValue = elementValue;
     }
   }
 }

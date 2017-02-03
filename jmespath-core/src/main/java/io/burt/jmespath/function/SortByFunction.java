@@ -24,11 +24,11 @@ public class SortByFunction extends ComparingFunction {
     public SortingAggregator(Adapter<V> runtime, V initialElement, V initialValue) {
       super(runtime);
       this.pairs = new ArrayList<>();
-      this.pairs.add(new Pair<V>(initialValue, initialElement));
+      this.pairs.add(new Pair<V>(initialElement, initialValue));
     }
 
     protected void aggregate(V candidate, V candidateValue) {
-      pairs.add(new Pair<V>(candidateValue, candidate));
+      pairs.add(new Pair<V>(candidate, candidateValue));
     }
   
     protected V result() {
@@ -51,12 +51,12 @@ public class SortByFunction extends ComparingFunction {
   }
 
   private static class Pair<U> {
-    public final U elementValue;
     public final U element;
+    public final U elementValue;
 
-    public Pair(U elementValue, U element) {
-      this.elementValue = elementValue;
+    public Pair(U element, U elementValue) {
       this.element = element;
+      this.elementValue = elementValue;
     }
   }
 }
