@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.RuntimeConfiguration;
-import io.burt.jmespath.function.FunctionRegistry;
 
 public class JacksonRuntime extends BaseRuntime<JsonNode> {
   private final ObjectMapper jsonParser;

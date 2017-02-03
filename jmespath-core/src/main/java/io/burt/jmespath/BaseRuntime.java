@@ -7,7 +7,6 @@ import java.util.Collection;
 import io.burt.jmespath.parser.ExpressionParser;
 import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.function.Function;
-import io.burt.jmespath.function.ArityException;
 import io.burt.jmespath.function.ArgumentTypeException;
 import io.burt.jmespath.node.NodeFactory;
 import io.burt.jmespath.node.StandardNodeFactory;
