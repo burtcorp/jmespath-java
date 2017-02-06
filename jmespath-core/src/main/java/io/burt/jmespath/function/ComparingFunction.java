@@ -33,7 +33,7 @@ public abstract class ComparingFunction extends BaseFunction {
       } else if (elementValueType != JmesPathType.NUMBER) {
         return runtime.handleArgumentTypeError(this, "number or string", elementValueType.toString());
       }
-      Aggregator<T> aggregator = createAggregator(runtime, element, elementValue);
+      Aggregator<T> aggregator = createAggregator(runtime, elementsList.size(), element, elementValue);
       while (elements.hasNext()) {
         T candidate = elements.next();
         T candidateValue = expression.search(candidate);
@@ -49,7 +49,7 @@ public abstract class ComparingFunction extends BaseFunction {
     }
   }
 
-  protected abstract <T> Aggregator<T> createAggregator(Adapter<T> runtime, T element, T elementValue);
+  protected abstract <T> Aggregator<T> createAggregator(Adapter<T> runtime, int elementCount, T element, T elementValue);
 
   protected abstract <T> T createNullValue(Adapter<T> runtime);
 

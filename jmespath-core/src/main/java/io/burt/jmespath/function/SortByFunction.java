@@ -9,8 +9,8 @@ import io.burt.jmespath.Adapter;
 
 public class SortByFunction extends ComparingFunction {
   @Override
-  protected <T> ComparingFunction.Aggregator<T> createAggregator(Adapter<T> runtime, T element, T elementValue) {
-    return new SortingAggregator<T>(runtime, element, elementValue);
+  protected <T> ComparingFunction.Aggregator<T> createAggregator(Adapter<T> runtime, int elementCount, T element, T elementValue) {
+    return new SortingAggregator<T>(runtime, elementCount, element, elementValue);
   }
 
   @Override
@@ -21,9 +21,9 @@ public class SortByFunction extends ComparingFunction {
   private class SortingAggregator<V> extends ComparingFunction.Aggregator<V> {
     private List<Pair<V>> pairs;
 
-    public SortingAggregator(Adapter<V> runtime, V initialElement, V initialValue) {
+    public SortingAggregator(Adapter<V> runtime, int elementCount, V initialElement, V initialValue) {
       super(runtime);
-      this.pairs = new ArrayList<>();
+      this.pairs = new ArrayList<>(elementCount);
       this.pairs.add(new Pair<V>(initialElement, initialValue));
     }
 

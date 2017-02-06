@@ -13,7 +13,7 @@ public abstract class CompareByFunction extends ComparingFunction {
   protected abstract boolean sortsBefore(int compareResult);
 
   @Override
-  protected <T> ComparingFunction.Aggregator<T> createAggregator(Adapter<T> runtime, T element, T elementValue) {
+  protected <T> ComparingFunction.Aggregator<T> createAggregator(Adapter<T> runtime, int elementCount, T element, T elementValue) {
     return new ComparingAggregator<T>(runtime, element, elementValue);
   }
 
