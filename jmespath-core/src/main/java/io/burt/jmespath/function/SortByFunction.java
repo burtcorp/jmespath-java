@@ -34,20 +34,20 @@ public class SortByFunction extends ComparingFunction {
     protected V result() {
       return runtime.createArray(sortAndFlatten(runtime, pairs));
     }
-  }
 
-  private <T> List<T> sortAndFlatten(final Adapter<T> runtime, List<Pair<T>> pairs) {
-    Collections.sort(pairs, new Comparator<Pair<T>>() {
-      @Override
-      public int compare(Pair<T> a, Pair<T> b) {
-        return runtime.compare(a.elementValue, b.elementValue);
+    private <T> List<T> sortAndFlatten(final Adapter<T> runtime, List<Pair<T>> pairs) {
+      Collections.sort(pairs, new Comparator<Pair<T>>() {
+        @Override
+        public int compare(Pair<T> a, Pair<T> b) {
+          return runtime.compare(a.elementValue, b.elementValue);
+        }
+      });
+      List<T> sorted = new ArrayList<>(pairs.size());
+      for (Pair<T> pair : pairs) {
+        sorted.add(pair.element);
       }
-    });
-    List<T> sorted = new ArrayList<>(pairs.size());
-    for (Pair<T> pair : pairs) {
-      sorted.add(pair.element);
+      return sorted;
     }
-    return sorted;
   }
 
   private static class Pair<U> {
