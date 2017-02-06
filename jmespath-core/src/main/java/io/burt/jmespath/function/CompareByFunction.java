@@ -5,7 +5,7 @@ import io.burt.jmespath.Adapter;
 /**
  * Helper base class for higher order comparison functions like max_by and min_by.
  */
-public abstract class CompareByFunction extends ComparingFunction {
+public abstract class CompareByFunction extends TransformByFunction {
   /**
    * Subclasses override this method to decide whether the greatest or least
    * element sorts first.
@@ -13,7 +13,7 @@ public abstract class CompareByFunction extends ComparingFunction {
   protected abstract boolean sortsBefore(int compareResult);
 
   @Override
-  protected <T> ComparingFunction.Aggregator<T> createAggregator(Adapter<T> runtime, int elementCount, T element, T elementValue) {
+  protected <T> TransformByFunction.Aggregator<T> createAggregator(Adapter<T> runtime, int elementCount, T element, T elementValue) {
     return new ComparingAggregator<T>(runtime, element, elementValue);
   }
 
@@ -22,7 +22,7 @@ public abstract class CompareByFunction extends ComparingFunction {
     return runtime.createNull();
   }
 
-  private class ComparingAggregator<V> extends ComparingFunction.Aggregator<V> {
+  private class ComparingAggregator<V> extends TransformByFunction.Aggregator<V> {
     private Pair<V> current;
 
     public ComparingAggregator(Adapter<V> runtime, V initialElement, V initialValue) {

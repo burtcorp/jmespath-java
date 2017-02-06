@@ -10,8 +10,8 @@ import io.burt.jmespath.Expression;
 /**
  * Helper base class for higher order comparison functions like sort_by, max_by and min_by.
  */
-public abstract class ComparingFunction extends BaseFunction {
-  public ComparingFunction() {
+public abstract class TransformByFunction extends BaseFunction {
+  public TransformByFunction() {
     super(
       ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.OBJECT)),
       ArgumentConstraints.expression()
