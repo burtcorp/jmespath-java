@@ -185,7 +185,7 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
 
     private JsonElement nodeOrNullNode(JsonElement node) {
         if (node == null) {
-            return new JsonNull();
+            return JsonNull.INSTANCE;
         } else {
             return node;
         }
