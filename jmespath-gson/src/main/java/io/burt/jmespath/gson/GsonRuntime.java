@@ -64,29 +64,22 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
 
     @Override
     public boolean isTruthy(JsonElement value) {
-        if(value.isJsonNull()) {
-            return false;
+        switch (typeOf(value)) {
+            case NULL:
+                return false;
+            case BOOLEAN:
+                return value.getAsBoolean();
+            case STRING:
+                return value.getAsString().length() > 0;
+            case NUMBER:
+                return value.getAsDouble() > 0;
+            case ARRAY:
+                return value.getAsJsonArray().size() > 0;
+            case OBJECT:
+                return value.getAsJsonObject().size() > 0;
         }
 
-        if(value.isJsonArray() || value.isJsonObject()) {
-            return value.getAsJsonArray().size() > 0;
-        }
-
-        if(value.isJsonPrimitive()) {
-            if(value.getAsJsonPrimitive().isString()) {
-                return value.getAsJsonPrimitive().getAsString().length() > 0;
-            }
-
-            if(value.getAsJsonPrimitive().isBoolean()) {
-                return value.getAsJsonPrimitive().getAsBoolean();
-            }
-
-            if(value.getAsJsonPrimitive().isNumber()) {
-                return true;
-            }
-        }
-
-        throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getAsByte()));
+        throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getClass()));
     }
 
     @Override
@@ -117,7 +110,7 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
             return JmesPathType.NULL;
         }
 
-        throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getAsByte()));
+        throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getClass()));
     }
 
     @Override
