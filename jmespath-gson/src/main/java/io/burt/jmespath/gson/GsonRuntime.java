@@ -3,11 +3,21 @@ package io.burt.jmespath.gson;
 import com.google.gson.*;
 import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
+import io.burt.jmespath.function.FunctionRegistry;
 
 import java.util.*;
 
 public class GsonRuntime extends BaseRuntime<JsonElement> {
-    private final JsonParser parser = new JsonParser();
+    private final JsonParser parser;
+
+    public GsonRuntime(FunctionRegistry functionRegistry) {
+        super(functionRegistry);
+        this.parser = new JsonParser();
+    }
+
+    public GsonRuntime() {
+        this(null);
+    }
 
     @Override
     public JsonElement parseString(String str) {
