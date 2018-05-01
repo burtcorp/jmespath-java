@@ -72,7 +72,7 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
             case STRING:
                 return value.getAsString().length() > 0;
             case NUMBER:
-                return value.getAsDouble() > 0;
+                return true;
             case ARRAY:
                 return value.getAsJsonArray().size() > 0;
             case OBJECT:
