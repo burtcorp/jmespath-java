@@ -115,7 +115,9 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
 
     @Override
     public JsonElement getProperty(JsonElement value, JsonElement name) {
-        return nodeOrNullNode(value.getAsJsonObject().get(name.getAsString()));
+        return nodeOrNullNode(
+                value.isJsonObject() ? value.getAsJsonObject().get(name.getAsString()) : null
+        );
     }
 
     @Override
