@@ -59,7 +59,7 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
 
     @Override
     public Number toNumber(JsonElement value) {
-        return value.isJsonPrimitive() ? value.getAsNumber() : null;
+        return (value.isJsonPrimitive() && value.getAsJsonPrimitive().isNumber()) ? value.getAsNumber() : null;
     }
 
     @Override
@@ -137,7 +137,7 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
 
     @Override
     public JsonElement createNull() {
-        return new JsonNull();
+        return JsonNull.INSTANCE;
     }
 
     @Override
