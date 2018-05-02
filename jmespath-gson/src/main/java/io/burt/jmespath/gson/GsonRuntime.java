@@ -1,11 +1,21 @@
 package io.burt.jmespath.gson;
 
-import com.google.gson.*;
-import io.burt.jmespath.BaseRuntime;
-import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.function.FunctionRegistry;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
-import java.util.*;
+import io.burt.jmespath.BaseRuntime;
+import io.burt.jmespath.function.FunctionRegistry;
+import io.burt.jmespath.JmesPathType;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class GsonRuntime extends BaseRuntime<JsonElement> {
     private final JsonParser parser;
