@@ -5,7 +5,7 @@
 
   <groupId>io.burt</groupId>
   <artifactId>jmespath</artifactId>
-  <version>0.2.1</version>
+  <version>0.2.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>JMESPath</name>
@@ -48,7 +48,7 @@
     <connection>scm:git:ssh://git@github.com/burtcorp/jmespath-java.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/burtcorp/jmespath-java.git</developerConnection>
     <url>https://github.com/burtcorp/jmespath-java.git</url>
-    <tag>jmespath-0.2.1</tag>
+    <tag>jmespath-${project.version}</tag>
   </scm>
 
   <modules>
