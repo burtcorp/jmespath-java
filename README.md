@@ -4,7 +4,7 @@
 
 _If you're reading this on GitHub, please note that this is the readme for the development version and that some features described here might not yet have been released. You can find the readme for a specific version via the release tags ([here is an example](https://github.com/burtcorp/jmespath-java/releases/tag/jmespath-0.1.0))._
 
-This is an implementation of [JMESPath](http://jmespath.org/) for Java and it supports searching JSON documents (via Jackson) and structures containing basic Java objects (`Map`, `List`, `String`, etc.) – but can also be extended to work with any JSON-like structure.
+This is an implementation of [JMESPath](http://jmespath.org/) for Java and it supports searching JSON documents (via [Jackson](https://github.com/FasterXML/jackson) or [Gson](https://github.com/google/gson)) and structures containing basic Java objects (`Map`, `List`, `String`, etc.) – but can also be extended to work with any JSON-like structure.
 
 ## Installation
 
@@ -20,13 +20,15 @@ Using Maven you can add this to your dependencies:
 
 Check the [releases page](https://github.com/burtcorp/jmespath-java/releases) for the value of `${jmespath.version}`.
 
-If you don't want the Jackson implementation you can change the `artifactId` to `jmespath-core`, and if you specifically want to depend only on the Jackson implementation (if we release other implementations in the future) you can change it to `jmespath-jackson`.
+If you don't want both the Jackson and Gson implementations you can change it to `jmespath-jackson` or `jmespath-gson`.
 
 ### Dependencies
 
 `jmespath-core` has an ANTLR based parser, but the ANTLR runtime artifact has been shaded into the `io.burt.jmespath` package to avoid conflicts with other artifacts that may depend on ANTLR. This means that `jmespath-core` has no external dependencies.
 
 `jmespath-jackson` obviously depends on Jackson, specifically Jackson DataBind (`com.fasterxml.jackson.core:jackson-databind`), but other than that it only depends on `jmespath-core`.
+
+`jmespath-gson` depends on GSON, specifically `com.google.code.gson:gson`, but other than that only `jmespath-core`.
 
 ## Basic usage
 
@@ -57,7 +59,7 @@ JsonNode result = expression.search(input);
 
 ## Description
 
-`jmespath-java` comes in two parts: `jmespath-core` and `jmespath-jackson`. The former contains the expression parser, core runtime, default functions and a simple runtime adapter that can search structures made up from numbers, strings, booleans, `List` and `Map` available as `io.burt.jmespath.jcf.JcfRuntime` (for "Java Collections Framework"). The latter contains the Jackson runtime adapter, and is what you should be using most of the time. The JCF runtime is just for internal development and testing. It primarily exists to test that there's nothing runtime-specific in the implementation.
+`jmespath-java` comes in three parts: `jmespath-core`, `jmespath-jackson`, and `jmespath-gson`. The former contains the expression parser, core runtime, default functions and a simple runtime adapter that can search structures made up from numbers, strings, booleans, `List` and `Map` available as `io.burt.jmespath.jcf.JcfRuntime` (for "Java Collections Framework"). The latter contains the Jackson and GSON runtime adapters, respectively, and is what you should be using most of the time. The JCF runtime is just for internal development and testing. It primarily exists to test that there's nothing runtime-specific in the implementation.
 
 ## Extensions
 
@@ -134,7 +136,7 @@ Creating a runtime adapter is a bit more work than adding a function, but not ex
 
 Most of the work a runtime does is converting back and forth between Java types. The core runtime can't know about all of the types of structures you want to search, but it knows that they will be JSON-like, so it uses the runtime adapters to help translate. The Jackson runtime adapter, for example, translates the world of `JsonNode`s into Java types like `List` and `String` when asked by the core runtime.
 
-Runtime adapters can wrap libraries like [Gson](https://github.com/google/gson), but can also make it possible, for example, to search Java beans with JMESPath by translating JMESPath operations to reflection calls. The structure to search doesn't have to be JSON, it just has to be JSON-_like_.
+Runtime adapters can wrap libraries like [Jackson](https://github.com/FasterXML/jackson) and [Gson](https://github.com/google/gson), but can also make it possible, for example, to search Java beans with JMESPath by translating JMESPath operations to reflection calls. The structure to search doesn't have to be JSON, it just has to be JSON-_like_.
 
 A good starting point for writing a new runtime adapter is reading the code of the existing adapters and the docs for `Adapter` and `BaseAdapter`. There are also JUnit tests in `JmesPathRuntimeTest` and `JmesPathComplianceTest` that can be subclassed and run against any runtime.
 
