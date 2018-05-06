@@ -162,7 +162,7 @@ Most of the work a runtime does is converting back and forth between Java types.
 
 Runtime adapters can wrap libraries like [Jackson](https://github.com/FasterXML/jackson) and [Gson](https://github.com/google/gson), but can also make it possible, for example, to search Java beans with JMESPath by translating JMESPath operations to reflection calls. The structure to search doesn't have to be JSON, it just has to be JSON-_like_.
 
-A good starting point for writing a new runtime adapter is reading the code of the existing adapters and the docs for `Adapter` and `BaseAdapter`. There are also JUnit tests in `JmesPathRuntimeTest` and `JmesPathComplianceTest` that can be subclassed and run against any runtime.
+A good starting point for writing a new runtime adapter is reading the code of the existing adapters and the docs for `Adapter` and `BaseAdapter`. There are also JUnit tests in `JmesPathRuntimeTest` and `JmesPathComplianceTest` that can be subclassed and run against any runtime, and that will help you know when your runtime is complete.
 
 ## How to build and run the tests
 
