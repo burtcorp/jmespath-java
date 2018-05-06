@@ -3,6 +3,7 @@ package io.burt.jmespath.function;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 import java.util.LinkedHashSet;
 
@@ -103,157 +104,158 @@ public final class ArgumentConstraints {
 
   private ArgumentConstraints() {}
 
-  @SuppressWarnings("serial")
-  static class InternalArgumentTypeException extends FunctionCallException {
-    private final String expectedType;
-    private final String actualType;
-
-    public InternalArgumentTypeException(String expectedType, String actualType) {
-      this(expectedType, actualType, null);
-    }
-
-    public InternalArgumentTypeException(String expectedType, String actualType, Throwable cause) {
-      super("", cause);
-      this.expectedType = expectedType;
-      this.actualType = actualType;
-    }
-
-    public String expectedType() { return expectedType; }
-
-    public String actualType() { return actualType; }
-  }
-
-  @SuppressWarnings("serial")
-  static class InternalArityException extends FunctionCallException {
-    public InternalArityException() {
-      super("");
-    }
-  }
-
-  private static class HomogenousListOf implements ArgumentConstraint {
-    private final ArgumentConstraint subConstraint;
+  private static abstract class BaseArgumentConstraint implements ArgumentConstraint {
     private final int minArity;
     private final int maxArity;
+    private final String expectedTypeDescription;
 
-    public HomogenousListOf(int minArity, int maxArity, ArgumentConstraint subConstraint) {
-      this.subConstraint = subConstraint;
+    public BaseArgumentConstraint(int minArity, int maxArity, String expectedTypeDescription) {
       this.minArity = minArity;
       this.maxArity = maxArity;
+      this.expectedTypeDescription = expectedTypeDescription;
+    }
+
+    protected <T> Iterator<ArgumentError> checkNoRemaingArguments(Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
+      if (expectNoRemainingArguments && arguments.hasNext()) {
+        return singletonIterator(ArgumentError.createArityError());
+      } else {
+        return emptyIterator();
+      }
     }
 
     @Override
-    public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments) {
+    public int minArity() {
+      return minArity;
+    }
+
+    @Override
+    public int maxArity() {
+      return maxArity;
+    }
+
+    @Override
+    public String expectedType() {
+      return expectedTypeDescription;
+    }
+
+    protected <U> Iterator<U> singletonIterator(U obj) {
+      return Collections.singleton(obj).iterator();
+    }
+
+    protected <U> Iterator<U> emptyIterator() {
+      return Collections.emptyIterator();
+    }
+  }
+
+  private static class HomogenousListOf extends BaseArgumentConstraint {
+    private final ArgumentConstraint subConstraint;
+
+    public HomogenousListOf(int minArity, int maxArity, ArgumentConstraint subConstraint) {
+      super(minArity, maxArity, subConstraint.expectedType());
+      this.subConstraint = subConstraint;
+    }
+
+    @Override
+    public <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       int i = 0;
-      for (; i < minArity; i++) {
+      for (; i < minArity(); i++) {
         if (!arguments.hasNext()) {
-          throw new InternalArityException();
+          return singletonIterator(ArgumentError.createArityError());
         } else {
-          subConstraint.check(runtime, arguments);
+          Iterator<ArgumentError> error = subConstraint.check(runtime, arguments, false);
+          if (error.hasNext()) {
+            return error;
+          }
         }
       }
-      for (; i < maxArity; i++) {
+      for (; i < maxArity(); i++) {
         if (arguments.hasNext()) {
-          subConstraint.check(runtime, arguments);
+          Iterator<ArgumentError> error = subConstraint.check(runtime, arguments, false);
+          if (error.hasNext()) {
+        	  return error;
+          }
         } else {
           break;
         }
       }
-    }
-
-    @Override
-    public int minArity() {
-      return minArity;
-    }
-
-    @Override
-    public int maxArity() {
-      return maxArity;
-    }
-
-    @Override
-    public String expectedType() {
-      return subConstraint.expectedType();
+      return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
     }
   }
 
-  private static class HeterogenousListOf implements ArgumentConstraint {
+  private static class HeterogenousListOf extends BaseArgumentConstraint {
     private final ArgumentConstraint[] subConstraints;
-    private final int minArity;
-    private final int maxArity;
 
     public HeterogenousListOf(ArgumentConstraint[] subConstraints) {
+      super(calculateMinArity(subConstraints), calculateMaxArity(subConstraints), null);
       this.subConstraints = subConstraints;
+    }
+
+    private static int calculateMinArity(ArgumentConstraint[] subConstraints) {
       int min = 0;
-      int max = 0;
       for (ArgumentConstraint constraint : subConstraints) {
         min += constraint.minArity();
+      }
+      return min;
+    }
+
+    private static int calculateMaxArity(ArgumentConstraint[] subConstraints) {
+      int max = 0;
+      for (ArgumentConstraint constraint : subConstraints) {
         max += constraint.maxArity();
       }
-      this.minArity = min;
-      this.maxArity = max;
+      return max;
     }
 
     @Override
-    public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments) {
+    public <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       for (int i = 0; i < subConstraints.length; i++) {
         if (arguments.hasNext()) {
-          subConstraints[i].check(runtime, arguments);
+          Iterator<ArgumentError> error = subConstraints[i].check(runtime, arguments, false);
+          if (error.hasNext()) {
+            return error;
+          }
         } else {
-          throw new InternalArityException();
+          return singletonIterator(ArgumentError.createArityError());
         }
       }
-    }
-
-    @Override
-    public int minArity() {
-      return minArity;
-    }
-
-    @Override
-    public int maxArity() {
-      return maxArity;
-    }
-
-    @Override
-    public String expectedType() {
-      throw new IllegalStateException("A heterogenous list constraint does not have an expected type");
+      return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
     }
   }
 
-  private static abstract class TypeCheck implements ArgumentConstraint {
+  private static abstract class TypeCheck extends BaseArgumentConstraint {
+    public TypeCheck(String expectedType) {
+      super(1, 1, expectedType);
+    }
+
     @Override
-    public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments) {
+    public <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       if (arguments.hasNext()) {
-        checkType(runtime, arguments.next());
+        Iterator<ArgumentError> error = checkType(runtime, arguments.next());
+        if (error.hasNext()) {
+          return error;
+        } else {
+          return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
+        }
       } else {
-        throw new InternalArityException();
+        return singletonIterator(ArgumentError.createArityError());
       }
     }
 
-    protected abstract <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument);
-
-    @Override
-    public int minArity() {
-      return 1;
-    }
-
-    @Override
-    public int maxArity() {
-      return 1;
-    }
+    protected abstract <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument);
   }
 
   private static class AnyValue extends TypeCheck {
-    @Override
-    protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
-      if (argument.isExpression()) {
-        throw new InternalArgumentTypeException("any value", EXPRESSION_TYPE);
-      }
+    public AnyValue() {
+      super("any value");
     }
 
     @Override
-    public String expectedType() {
-      return "any value";
+    protected <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
+      if (argument.isExpression()) {
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError("any value", EXPRESSION_TYPE));
+      } else {
+        return emptyIterator();
+      }
     }
   }
 
@@ -261,37 +263,33 @@ public final class ArgumentConstraints {
     private final JmesPathType expectedType;
 
     public TypeOf(JmesPathType expectedType) {
+      super(expectedType.toString());
       this.expectedType = expectedType;
     }
 
     @Override
-    protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
+    protected <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
-        throw new InternalArgumentTypeException(expectedType.toString(), EXPRESSION_TYPE);
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType.toString(), EXPRESSION_TYPE));
       } else {
         JmesPathType actualType = runtime.typeOf(argument.value());
         if (actualType != expectedType) {
-          throw new InternalArgumentTypeException(expectedType.toString(), actualType.toString());
+          return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType.toString(), actualType.toString()));
         }
       }
-    }
-
-    @Override
-    public String expectedType() {
-      return expectedType.toString();
+      return emptyIterator();
     }
   }
 
   private static class TypeOfEither extends TypeCheck {
     private final JmesPathType[] expectedTypes;
-    private final String expectedTypeString;
 
     public TypeOfEither(JmesPathType[] expectedTypes) {
+      super(createExpectedTypeString(expectedTypes));
       this.expectedTypes = expectedTypes;
-      this.expectedTypeString = createExpectedTypeString(expectedTypes);
     }
 
-    private String createExpectedTypeString(JmesPathType[] expectedTypes) {
+    private static String createExpectedTypeString(JmesPathType[] expectedTypes) {
       StringBuilder buffer = new StringBuilder();
       for (int i = 0; i < expectedTypes.length; i++) {
         buffer.append(expectedTypes[i]);
@@ -305,78 +303,69 @@ public final class ArgumentConstraints {
     }
 
     @Override
-    protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
+    protected <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (argument.isExpression()) {
-        throw new InternalArgumentTypeException(expectedTypeString, EXPRESSION_TYPE);
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), EXPRESSION_TYPE));
       } else {
         JmesPathType actualType = runtime.typeOf(argument.value());
         for (int i = 0; i < expectedTypes.length; i++) {
           if (expectedTypes[i] == actualType) {
-            return;
+            return emptyIterator();
           }
         }
-        throw new InternalArgumentTypeException(expectedTypeString, actualType.toString());
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), actualType.toString()));
       }
-    }
-
-    @Override
-    public String expectedType() {
-      return expectedTypeString;
     }
   }
 
   private static class Expression extends TypeCheck {
+    public Expression() {
+      super(EXPRESSION_TYPE);
+    }
+
     @Override
-    protected <T> void checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
+    protected <T> Iterator<ArgumentError> checkType(Adapter<T> runtime, FunctionArgument<T> argument) {
       if (!argument.isExpression()) {
-        throw new InternalArgumentTypeException(EXPRESSION_TYPE, runtime.typeOf(argument.value()).toString());
+        return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(EXPRESSION_TYPE, runtime.typeOf(argument.value()).toString()));
+      } else {
+        return emptyIterator();
       }
-    }
-
-    @Override
-    public int minArity() {
-      return 1;
-    }
-
-    @Override
-    public int maxArity() {
-      return 1;
-    }
-
-    @Override
-    public String expectedType() {
-      return EXPRESSION_TYPE;
     }
   }
 
-  private static class ArrayOf implements ArgumentConstraint {
+  private static class ArrayOf extends BaseArgumentConstraint {
     private ArgumentConstraint subConstraint;
 
     public ArrayOf(ArgumentConstraint subConstraint) {
+      super(1, 1, String.format("array of %s", subConstraint.expectedType()));
       this.subConstraint = subConstraint;
     }
 
     @Override
-    public <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments) {
+    public <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       if (arguments.hasNext()) {
         FunctionArgument<T> argument = arguments.next();
         if (argument.isExpression()) {
-          throw new InternalArgumentTypeException(expectedType(), EXPRESSION_TYPE);
+          return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), EXPRESSION_TYPE));
         } else {
           T value = argument.value();
           JmesPathType type = runtime.typeOf(value);
           if (type == JmesPathType.ARRAY) {
-            checkElements(runtime, value);
+            Iterator<ArgumentError> error = checkElements(runtime, value);
+            if (error.hasNext()) {
+              return error;
+            }
           } else {
-            throw new InternalArgumentTypeException(expectedType(), type.toString());
+            return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), type.toString()));
           }
         }
+        return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
       } else {
-        throw new InternalArityException();
+        return singletonIterator(ArgumentError.createArityError());
       }
     }
 
-    private <T> void checkElements(Adapter<T> runtime, T value) {
+    private <T> Iterator<ArgumentError> checkElements(Adapter<T> runtime, T value) {
       List<T> elements = runtime.toList(value);
       if (!elements.isEmpty()) {
         List<FunctionArgument<T>> wrappedElements = new ArrayList<>(elements.size());
@@ -386,20 +375,26 @@ public final class ArgumentConstraints {
           types.add(runtime.typeOf(element));
         }
         if (types.size() > 1) {
-          handleMixedError(types);
+          return singletonIterator(createMixedTypesError(types));
         }
         Iterator<FunctionArgument<T>> wrappedElementsIterator = wrappedElements.iterator();
         while (wrappedElementsIterator.hasNext()) {
-          try {
-            subConstraint.check(runtime, wrappedElementsIterator);
-          } catch (InternalArgumentTypeException iate) {
-            throw new InternalArgumentTypeException(expectedType(), String.format("array containing %s", iate.actualType()), iate);
+          Iterator<ArgumentError> error = subConstraint.check(runtime, wrappedElementsIterator, false);
+          if (error.hasNext()) {
+            ArgumentError e = error.next();
+            if (e instanceof ArgumentError.ArgumentTypeError) {
+              ArgumentError.ArgumentTypeError ee = (ArgumentError.ArgumentTypeError) e;
+              return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), String.format("array containing %s", ee.actualType())));
+            } else {
+              return singletonIterator(e);
+            }
           }
         }
       }
+      return emptyIterator();
     }
 
-    private void handleMixedError(Set<JmesPathType> types) {
+    private ArgumentError createMixedTypesError(Set<JmesPathType> types) {
       StringBuilder actualTypes = new StringBuilder("array containing ");
       Object[] typesArray = types.toArray();
       for (int i = 0; i < typesArray.length; i++) {
@@ -410,22 +405,7 @@ public final class ArgumentConstraints {
           actualTypes.append(" and ");
         }
       }
-      throw new InternalArgumentTypeException(expectedType(), actualTypes.toString());
-    }
-
-    @Override
-    public int minArity() {
-      return 1;
-    }
-
-    @Override
-    public int maxArity() {
-      return 1;
-    }
-
-    @Override
-    public String expectedType() {
-      return String.format("array of %s", subConstraint.expectedType());
+      return ArgumentError.createArgumentTypeError(expectedType(), actualTypes.toString());
     }
   }
 }

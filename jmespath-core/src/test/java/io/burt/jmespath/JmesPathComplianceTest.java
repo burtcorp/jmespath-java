@@ -18,11 +18,6 @@ import java.util.jar.JarEntry;
 import org.junit.runner.RunWith;
 import org.hamcrest.Matcher;
 
-import io.burt.jmespath.parser.ParseException;
-import io.burt.jmespath.function.ArgumentTypeException;
-import io.burt.jmespath.function.ArityException;
-import io.burt.jmespath.function.FunctionCallException;
-
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;

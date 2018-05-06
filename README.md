@@ -61,6 +61,25 @@ JsonNode result = expression.search(input);
 
 `jmespath-java` comes in three parts: `jmespath-core`, `jmespath-jackson`, and `jmespath-gson`. The former contains the expression parser, core runtime, default functions and a simple runtime adapter that can search structures made up from numbers, strings, booleans, `List` and `Map` available as `io.burt.jmespath.jcf.JcfRuntime` (for "Java Collections Framework"). The latter contains the Jackson and GSON runtime adapters, respectively, and is what you should be using most of the time. The JCF runtime is just for internal development and testing. It primarily exists to test that there's nothing runtime-specific in the implementation.
 
+## Configuration
+
+The runtime can be configured, although there aren't many configuration options yet.
+
+To change the behaviour when a function receives an argument of the wrong type from throwing an exception to returning null you set the `silentTypeErrors` configuration to `true`, for example like this:
+
+```java
+import io.burt.jmespath.RuntimeConfiguration;
+import io.burt.jmespath.jackson.JacksonRuntime;
+
+
+RuntimeConfiguration configuration = new RuntimeConfiguration.Builder()
+                                       .withSilentTypeErrors(true)
+                                       .build();
+JmesPath<JsonNode> jmespath = new JacksonRuntime(configuration);
+```
+
+Many functions don't allow `null` and most of the time you would deal with that by checking for `null` and letting the result be `null`. This configuration makes it possible to skip all those checks and make any type error in a function call behave as if the function call resulted in `null`. It can also be a performance boost by avoiding throwing exceptions when you expect that an expression can sometimes fail with a type error.
+
 ## Extensions
 
 `jmespath-java` is designed to be extensible. You can extend it in two ways: by adding new functions, and by creating different runtime adapters. These are not mutually exclusive, if you write your custom functions the right way you can use them with any runtime, and vice-versa.
@@ -76,6 +95,7 @@ import java.util.List;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
+import io.burt.jmespath.RuntimeConfiguration;
 import io.burt.jmespath.function.BaseFunction;
 import io.burt.jmespath.function.FunctionArgument;
 import io.burt.jmespath.function.ArgumentConstraints;
@@ -120,8 +140,12 @@ import io.burt.jmespath.jackson.JacksonRuntime;
 FunctionRegistry defaultFunctions = FunctionRegistry.defaultRegistry();
 // And we can create a new registry with additional functions by extending it
 FunctionRegistry customFunctions = defaultFunctions.extend(new SinFunction());
-// We need to create a runtime that uses our custom registry
-JmesPath<JsonNode> runtime = new JacksonRuntime(functionRegistry);
+// To configure the runtime with the registry we need to create a configuration
+RuntimeConfiguration configuration = new RuntimeConfiguration.Builder()
+                                       .withFunctionRegistry(customFunctions)
+                                       .build();
+// And then create a runtime with the configuration
+JmesPath<JsonNode> runtime = new JacksonRuntime(configuration);
 // Now the function is available in expressions
 JsonNode result = runtime.compile("sin(measurements.angle)").search(input);
 ```
@@ -138,7 +162,7 @@ Most of the work a runtime does is converting back and forth between Java types.
 
 Runtime adapters can wrap libraries like [Jackson](https://github.com/FasterXML/jackson) and [Gson](https://github.com/google/gson), but can also make it possible, for example, to search Java beans with JMESPath by translating JMESPath operations to reflection calls. The structure to search doesn't have to be JSON, it just has to be JSON-_like_.
 
-A good starting point for writing a new runtime adapter is reading the code of the existing adapters and the docs for `Adapter` and `BaseAdapter`. There are also JUnit tests in `JmesPathRuntimeTest` and `JmesPathComplianceTest` that can be subclassed and run against any runtime.
+A good starting point for writing a new runtime adapter is reading the code of the existing adapters and the docs for `Adapter` and `BaseAdapter`. There are also JUnit tests in `JmesPathRuntimeTest` and `JmesPathComplianceTest` that can be subclassed and run against any runtime, and that will help you know when your runtime is complete.
 
 ## How to build and run the tests
 

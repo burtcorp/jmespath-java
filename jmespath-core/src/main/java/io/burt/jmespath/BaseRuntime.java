@@ -6,6 +6,8 @@ import java.util.Collection;
 
 import io.burt.jmespath.parser.ExpressionParser;
 import io.burt.jmespath.function.FunctionRegistry;
+import io.burt.jmespath.function.Function;
+import io.burt.jmespath.function.ArgumentTypeException;
 import io.burt.jmespath.node.NodeFactory;
 import io.burt.jmespath.node.StandardNodeFactory;
 import io.burt.jmespath.util.StringEscapeHelper;
@@ -31,23 +33,21 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
 
   private final FunctionRegistry functionRegistry;
   private final NodeFactory<T> nodeFactory;
+  private final boolean silentTypeErrors;
 
   /**
    * Create a new runtime with a default function registry.
    */
   public BaseRuntime() {
-    this(null);
+    this(RuntimeConfiguration.defaultConfiguration());
   }
 
   /**
-   * Create a new runtime with a custom function registry.
+   * Create a new runtime with configuration.
    */
-  public BaseRuntime(FunctionRegistry functionRegistry) {
-    if (functionRegistry == null) {
-      this.functionRegistry = FunctionRegistry.defaultRegistry();
-    } else {
-      this.functionRegistry = functionRegistry;
-    }
+  public BaseRuntime(RuntimeConfiguration configuration) {
+    this.silentTypeErrors = configuration.silentTypeErrors();
+    this.functionRegistry = configuration.functionRegistry();
     this.nodeFactory = new StandardNodeFactory<>(this);
   }
 
@@ -134,6 +134,19 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
       }
     }
     return true;
+  }
+
+  /**
+   * Throws {@link ArgumentTypeException} unless {@link RuntimeConfiguration#silentTypeErrors}
+   * is true, in which case it returns a null value (<em>not</em> Java <code>null</code>).
+   */
+  @Override
+  public T handleArgumentTypeError(Function function, String expectedType, String actualType) {
+    if (silentTypeErrors) {
+      return createNull();
+    } else {
+      throw new ArgumentTypeException(function, expectedType, actualType);
+    }
   }
 
   @Override

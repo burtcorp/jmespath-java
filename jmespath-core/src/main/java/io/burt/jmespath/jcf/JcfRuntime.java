@@ -8,7 +8,7 @@ import java.util.Collections;
 
 import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.function.FunctionRegistry;
+import io.burt.jmespath.RuntimeConfiguration;
 
 import static io.burt.jmespath.JmesPathType.*;
 
@@ -17,8 +17,8 @@ public class JcfRuntime extends BaseRuntime<Object> {
     super();
   }
 
-  public JcfRuntime(FunctionRegistry functionRegistry) {
-    super(functionRegistry);
+  public JcfRuntime(RuntimeConfiguration configuration) {
+    super(configuration);
   }
 
   @Override

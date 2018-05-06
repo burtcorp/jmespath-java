@@ -7,16 +7,15 @@ import java.util.Collections;
 import org.junit.Test;
 
 import io.burt.jmespath.JmesPathRuntimeTest;
+import io.burt.jmespath.RuntimeConfiguration;
 import io.burt.jmespath.Adapter;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class JcfTest extends JmesPathRuntimeTest<Object> {
-  private Adapter<Object> runtime = new JcfRuntime();
-
   @Override
-  protected Adapter<Object> runtime() { return runtime; }
+  protected Adapter<Object> createRuntime(RuntimeConfiguration configuration) { return new JcfRuntime(configuration); }
 
   @Test
   public void toListReturnsAListWhenGivenAnotherTypeOfCollection() {

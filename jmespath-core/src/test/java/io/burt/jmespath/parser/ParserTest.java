@@ -3,11 +3,11 @@ package io.burt.jmespath.parser;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.Expression;
+import io.burt.jmespath.RuntimeConfiguration;
 import io.burt.jmespath.jcf.JcfRuntime;
 import io.burt.jmespath.node.CreateObjectNode;
 import io.burt.jmespath.node.Node;
@@ -1203,11 +1203,11 @@ public class ParserTest {
 
   @Test
   public void callingAVariableArityFunctionWithTooManyArgumentsThrowsParseException() {
-    runtime = new JcfRuntime(FunctionRegistry.defaultRegistry().extend(
+    runtime = new JcfRuntime(RuntimeConfiguration.builder().withFunctionRegistry(FunctionRegistry.defaultRegistry().extend(
       new BaseFunction("foobar", ArgumentConstraints.listOf(1, 3, ArgumentConstraints.anyValue())) {
         protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) { return runtime.createNull(); }
       }
-    ));
+    )).build());
     try {
       compile("foobar(a, b, c, d, e, f, g)");
       fail("Expected ParseException to have been thrown");

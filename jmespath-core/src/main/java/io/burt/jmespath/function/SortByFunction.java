@@ -1,86 +1,62 @@
 package io.burt.jmespath.function;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
 
 import io.burt.jmespath.Adapter;
-import io.burt.jmespath.Expression;
-import io.burt.jmespath.JmesPathType;
 
-public class SortByFunction extends BaseFunction {
-  public SortByFunction() {
-    super(
-      ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.OBJECT)),
-      ArgumentConstraints.expression()
-    );
+public class SortByFunction extends TransformByFunction {
+  @Override
+  protected <T> TransformByFunction.Aggregator<T> createAggregator(Adapter<T> runtime, int elementCount, T element, T elementValue) {
+    return new SortingAggregator<T>(runtime, elementCount, element, elementValue);
   }
 
   @Override
-  protected <T> T callFunction(final Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
-    List<T> elementsList = runtime.toList(arguments.get(0).value());
-    Expression<T> expression = arguments.get(1).expression();
-    Iterator<T> elements = elementsList.iterator();
-    if (elements.hasNext()) {
-      List<Pair<T>> pairs = new ArrayList<>(elementsList.size());
-      T element = elements.next();
-      T transformedElement = expression.search(element);
-      boolean expectNumbers = expectNumbers(runtime, transformedElement );
-      pairs.add(new Pair<T>(transformedElement, element));
-      while (elements.hasNext()) {
-        element = elements.next();
-        transformedElement = expression.search(element);
-        checkType(runtime, transformedElement, expectNumbers);
-        pairs.add(new Pair<T>(transformedElement, element));
-      }
+  protected <T> T createNullValue(Adapter<T> runtime) {
+    return runtime.createArray(new ArrayList<T>());
+  }
+
+  private class SortingAggregator<V> extends TransformByFunction.Aggregator<V> {
+    private List<Pair<V>> pairs;
+
+    public SortingAggregator(Adapter<V> runtime, int elementCount, V initialElement, V initialValue) {
+      super(runtime);
+      this.pairs = new ArrayList<>(elementCount);
+      this.pairs.add(new Pair<V>(initialElement, initialValue));
+    }
+
+    protected void aggregate(V candidate, V candidateValue) {
+      pairs.add(new Pair<V>(candidate, candidateValue));
+    }
+  
+    protected V result() {
       return runtime.createArray(sortAndFlatten(runtime, pairs));
-    } else {
-      return runtime.createArray(new ArrayList<T>());
     }
-  }
 
-  private <T> boolean expectNumbers(Adapter<T> runtime, T transformedElement) {
-    JmesPathType elementType = runtime.typeOf(transformedElement);
-    if (elementType == JmesPathType.STRING) {
-      return false;
-    } else if (elementType != JmesPathType.NUMBER) {
-      throw new ArgumentTypeException(name(), "number or string", elementType.toString());
-    }
-    return true;
-  }
-
-  private <T> void checkType(Adapter<T> runtime, T transformedElement, boolean expectNumbers) {
-    JmesPathType elementType = runtime.typeOf(transformedElement);
-    if (expectNumbers && elementType != JmesPathType.NUMBER) {
-      throw new ArgumentTypeException(name(), "number", elementType.toString());
-    } else if (!expectNumbers && elementType != JmesPathType.STRING) {
-      throw new ArgumentTypeException(name(), "string", elementType.toString());
-    }
-  }
-
-  private <T> List<T> sortAndFlatten(final Adapter<T> runtime, List<Pair<T>> pairs) {
-    Collections.sort(pairs, new Comparator<Pair<T>>() {
-      @Override
-      public int compare(Pair<T> a, Pair<T> b) {
-        return runtime.compare(a.transformedElement, b.transformedElement);
+    private <T> List<T> sortAndFlatten(final Adapter<T> runtime, List<Pair<T>> pairs) {
+      Collections.sort(pairs, new Comparator<Pair<T>>() {
+        @Override
+        public int compare(Pair<T> a, Pair<T> b) {
+          return runtime.compare(a.elementValue, b.elementValue);
+        }
+      });
+      List<T> sorted = new ArrayList<>(pairs.size());
+      for (Pair<T> pair : pairs) {
+        sorted.add(pair.element);
       }
-    });
-    List<T> sorted = new ArrayList<>(pairs.size());
-    for (Pair<T> pair : pairs) {
-      sorted.add(pair.element);
+      return sorted;
     }
-    return sorted;
   }
 
   private static class Pair<U> {
-    public final U transformedElement;
     public final U element;
+    public final U elementValue;
 
-    public Pair(U transformedElement, U element) {
-      this.transformedElement = transformedElement;
+    public Pair(U element, U elementValue) {
       this.element = element;
+      this.elementValue = elementValue;
     }
   }
 }

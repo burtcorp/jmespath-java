@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Collection;
 
 import io.burt.jmespath.function.FunctionRegistry;
+import io.burt.jmespath.function.Function;
 import io.burt.jmespath.node.NodeFactory;
 
 /**
@@ -130,6 +131,12 @@ public interface Adapter<T> extends JmesPath<T>, Comparator<T> {
    * Returns a number value containing the specified integer.
    */
   T createNumber(long n);
+
+  /**
+   * Throws an exception or returns a fallback value when a type check fails
+   * during a function call evaluation.
+   */
+  T handleArgumentTypeError(Function function, String expectedType, String actualType);
 
   /**
    * Returns a function registry that can be used by the expression compiler

@@ -111,27 +111,20 @@ public abstract class BaseFunction implements Function {
    */
   @Override
   public <T> T call(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
-    checkArguments(runtime, arguments);
-    return callFunction(runtime, arguments);
-  }
-
-  /**
-   * Checks the arguments against the argument constraints.
-   *
-   * @throws ArgumentTypeException when an arguments type does not match the constraints
-   * @throws ArityException when there are too few or too many arguments
-   */
-  protected <T> void checkArguments(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
-    try {
-      Iterator<FunctionArgument<T>> argumentIterator = arguments.iterator();
-      argumentConstraints.check(runtime, argumentIterator);
-      if (argumentIterator.hasNext()) {
-        throw new ArityException(this, arguments.size());
+    Iterator<FunctionArgument<T>> argumentIterator = arguments.iterator();
+    Iterator<ArgumentError> maybeError = argumentConstraints.check(runtime, argumentIterator, true);
+    if (!maybeError.hasNext()) {
+      return callFunction(runtime, arguments);
+    } else {
+      ArgumentError error = maybeError.next();
+      if (error instanceof ArgumentError.ArgumentTypeError) {
+        ArgumentError.ArgumentTypeError e = (ArgumentError.ArgumentTypeError) error;
+        return runtime.handleArgumentTypeError(this, e.expectedType(), e.actualType());
+      } else if (error instanceof ArgumentError.ArityError) {
+        throw new IllegalStateException(ArityException.createMessage(this, arguments.size(), true));
+      } else {
+        throw new IllegalStateException(String.format("Unexpected error while type checking arguments to \"%s\": %s", name(), error.getClass().getName()));
       }
-    } catch (ArgumentConstraints.InternalArityException e) {
-      throw new ArityException(this, arguments.size(), e);
-    } catch (ArgumentConstraints.InternalArgumentTypeException e) {
-      throw new ArgumentTypeException(name(), e.expectedType(), e.actualType(), e);
     }
   }
 

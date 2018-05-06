@@ -8,8 +8,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
 import io.burt.jmespath.BaseRuntime;
-import io.burt.jmespath.function.FunctionRegistry;
 import io.burt.jmespath.JmesPathType;
+import io.burt.jmespath.RuntimeConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,13 +20,13 @@ import java.util.Map;
 public class GsonRuntime extends BaseRuntime<JsonElement> {
   private final JsonParser parser;
 
-  public GsonRuntime(FunctionRegistry functionRegistry) {
-    super(functionRegistry);
-    this.parser = new JsonParser();
+  public GsonRuntime() {
+    this(RuntimeConfiguration.defaultConfiguration());
   }
 
-  public GsonRuntime() {
-    this(null);
+  public GsonRuntime(RuntimeConfiguration configuration) {
+    super(configuration);
+    this.parser = new JsonParser();
   }
 
   @Override

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Collection;
 import java.util.Collections;
 
+import io.burt.jmespath.RuntimeConfiguration;
 import io.burt.jmespath.parser.ParseException;
 import io.burt.jmespath.function.ArgumentTypeException;
 
@@ -23,20 +24,21 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.both;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 
 public abstract class JmesPathRuntimeTest<T> {
+  private Adapter<T> runtime = createRuntime(RuntimeConfiguration.defaultConfiguration());
+
   protected T contact;
   protected T cloudtrail;
 
-  protected abstract Adapter<T> runtime();
+  protected Adapter<T> runtime() { return runtime; }
+
+  protected abstract Adapter<T> createRuntime(RuntimeConfiguration configuration);
 
   protected T loadExample(String path) {
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(JmesPathRuntimeTest.class.getResourceAsStream(path), Charset.forName("UTF-8")))) {
@@ -892,6 +894,22 @@ public abstract class JmesPathRuntimeTest<T> {
     } catch (ParseException pe) {
       assertThat(pe.getMessage(), containsString("invalid arity calling \"type\" (expected 1 but was 3)"));
     }
+  }
+
+  @Test
+  public void withSilentTypeErrorsTheWrongTypeOfArgumentMakesFunctionsReturnNull() {
+    Adapter<T> rt = createRuntime(RuntimeConfiguration.builder().withSilentTypeErrors(true).build());
+    T result = rt.compile("abs('foo')").search(parse("{}"));
+    assertThat(result, is(jsonNull()));
+  }
+
+  @Test
+  public void withSilentTypeErrorsTheWrongTypeOfArgumentMakesHigherOrderFunctionsReturnNull() {
+    Adapter<T> rt = createRuntime(RuntimeConfiguration.builder().withSilentTypeErrors(true).build());
+    T result1 = rt.compile("sort_by(@, &foo)").search(parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    T result2 = rt.compile("min_by(@, &foo)").search(parse("[{\"foo\": 3}, {\"foo\": \"bar\"}, {\"foo\": 1}]"));
+    assertThat(result1, is(jsonNull()));
+    assertThat(result2, is(jsonNull()));
   }
 
   @Test

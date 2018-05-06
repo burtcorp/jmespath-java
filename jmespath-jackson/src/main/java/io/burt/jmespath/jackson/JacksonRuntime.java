@@ -16,17 +16,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.function.FunctionRegistry;
+import io.burt.jmespath.RuntimeConfiguration;
 
 public class JacksonRuntime extends BaseRuntime<JsonNode> {
   private final ObjectMapper jsonParser;
 
   public JacksonRuntime() {
-    this(null);
+    this(RuntimeConfiguration.defaultConfiguration());
   }
 
-  public JacksonRuntime(FunctionRegistry functionRegistry) {
-    super(functionRegistry);
+  public JacksonRuntime(RuntimeConfiguration configuration) {
+    super(configuration);
     this.jsonParser = new ObjectMapper();
   }
 

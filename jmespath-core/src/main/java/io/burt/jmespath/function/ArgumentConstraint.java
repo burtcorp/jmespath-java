@@ -14,11 +14,18 @@ public interface ArgumentConstraint {
    * <p>
    * Most constraints will consume one or more elements from the iterator, but
    * constraints that represents optional arguments may choose not to.
-   *
-   * @throws ArityException when there are not enough arguments left to satisfy the constraint
-   * @throws ArgumentTypeException when an argument does not satisfy the constraint
+   * <p>
+   * Any errors found will be returned as an iterator of {@link ArgumentError}.
+   * When this iterator is empty no errors were found. The iterator may or may
+   * not contain all errors that could be found, errors may make the checker
+   * return as soon as they are encountered and not attempt to check the
+   * remaining arguments.
+   * <p>
+   * When <code>expectNoRemainingArguments</code> is true and there remain
+   * elements in the iterator after all checks have been performed an error will
+   * be returned.
    */
-  <T> void check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments);
+  <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments);
 
   /**
    * @return the minimum number of arguments required.
