@@ -151,4 +151,4 @@ And all dependencies should be installed, the code compiled and the tests run.
 
 # Copyright
 
-© 2016 Burt AB, see LICENSE.txt (BSD 3-Clause).
+© 2016-2018 Burt AB, see LICENSE.txt (BSD 3-Clause).
