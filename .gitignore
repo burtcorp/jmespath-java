@@ -1,7 +1,6 @@
 /tmp
 /target
-/jmespath-core/target
-/jmespath-jackson/target
+/jmespath-*/target
 .classpath
 .project
 .settings
