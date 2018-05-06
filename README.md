@@ -61,6 +61,25 @@ JsonNode result = expression.search(input);
 
 `jmespath-java` comes in three parts: `jmespath-core`, `jmespath-jackson`, and `jmespath-gson`. The former contains the expression parser, core runtime, default functions and a simple runtime adapter that can search structures made up from numbers, strings, booleans, `List` and `Map` available as `io.burt.jmespath.jcf.JcfRuntime` (for "Java Collections Framework"). The latter contains the Jackson and GSON runtime adapters, respectively, and is what you should be using most of the time. The JCF runtime is just for internal development and testing. It primarily exists to test that there's nothing runtime-specific in the implementation.
 
+## Configuration
+
+The runtime can be configured, although there aren't many configuration options yet.
+
+To change the behaviour when a function receives an argument of the wrong type from throwing an exception to returning null you set the `silentTypeErrors` configuration to `true`, for example like this:
+
+```java
+import io.burt.jmespath.RuntimeConfiguration;
+import io.burt.jmespath.jackson.JacksonRuntime;
+
+
+RuntimeConfiguration configuration = new RuntimeConfiguration.Builder()
+                                       .withSilentTypeErrors(true)
+                                       .build();
+JmesPath<JsonNode> jmespath = new JacksonRuntime(configuration);
+```
+
+Many functions don't allow `null` and most of the time you would deal with that by checking for `null` and letting the result be `null`. This configuration makes it possible to skip all those checks and make any type error in a function call behave as if the function call resulted in `null`. It can also be a performance boost by avoiding throwing exceptions when you expect that an expression can sometimes fail with a type error.
+
 ## Extensions
 
 `jmespath-java` is designed to be extensible. You can extend it in two ways: by adding new functions, and by creating different runtime adapters. These are not mutually exclusive, if you write your custom functions the right way you can use them with any runtime, and vice-versa.
