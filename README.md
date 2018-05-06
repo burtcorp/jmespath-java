@@ -95,6 +95,7 @@ import java.util.List;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
+import io.burt.jmespath.RuntimeConfiguration;
 import io.burt.jmespath.function.BaseFunction;
 import io.burt.jmespath.function.FunctionArgument;
 import io.burt.jmespath.function.ArgumentConstraints;
@@ -139,8 +140,12 @@ import io.burt.jmespath.jackson.JacksonRuntime;
 FunctionRegistry defaultFunctions = FunctionRegistry.defaultRegistry();
 // And we can create a new registry with additional functions by extending it
 FunctionRegistry customFunctions = defaultFunctions.extend(new SinFunction());
-// We need to create a runtime that uses our custom registry
-JmesPath<JsonNode> runtime = new JacksonRuntime(functionRegistry);
+// To configure the runtime with the registry we need to create a configuration
+RuntimeConfiguration configuration = new RuntimeConfiguration.Builder()
+                                       .withFunctionRegistry(customFunctions)
+                                       .build();
+// And then create a runtime with the configuration
+JmesPath<JsonNode> runtime = new JacksonRuntime(configuration);
 // Now the function is available in expressions
 JsonNode result = runtime.compile("sin(measurements.angle)").search(input);
 ```
