@@ -20,7 +20,7 @@ Using Maven you can add this to your dependencies:
 
 Check the [releases page](https://github.com/burtcorp/jmespath-java/releases) for the value of `${jmespath.version}`.
 
-If you don't want both the Jackson and Gson implementations you can change it to `jmespath-jackson` or `jmespath-gson`.
+If you don't want both the Jackson and Gson implementations you can change it to `jmespath-jackson` or `jmespath-gson`. Some time before 1.0 the dependencies will probably be reversed so that `jmespath` will not depend on the specific runtimes, so you unless you have the need for multiple runtimes you should depend on the specific runtime you need.
 
 ### Dependencies
 
@@ -28,7 +28,7 @@ If you don't want both the Jackson and Gson implementations you can change it to
 
 `jmespath-jackson` obviously depends on Jackson, specifically Jackson DataBind (`com.fasterxml.jackson.core:jackson-databind`), but other than that it only depends on `jmespath-core`.
 
-`jmespath-gson` depends on GSON, specifically `com.google.code.gson:gson`, but other than that only `jmespath-core`.
+`jmespath-gson` depends on Gson, specifically `com.google.code.gson:gson`, but other than that only `jmespath-core`.
 
 ## Basic usage
 
@@ -59,7 +59,7 @@ JsonNode result = expression.search(input);
 
 ## Description
 
-`jmespath-java` comes in three parts: `jmespath-core`, `jmespath-jackson`, and `jmespath-gson`. The former contains the expression parser, core runtime, default functions and a simple runtime adapter that can search structures made up from numbers, strings, booleans, `List` and `Map` available as `io.burt.jmespath.jcf.JcfRuntime` (for "Java Collections Framework"). The latter contains the Jackson and GSON runtime adapters, respectively, and is what you should be using most of the time. The JCF runtime is just for internal development and testing. It primarily exists to test that there's nothing runtime-specific in the implementation.
+`jmespath-java` comes in three parts: `jmespath-core`, `jmespath-jackson`, and `jmespath-gson`. The former contains the expression parser, core runtime, default functions and a simple runtime adapter that can search structures made up from numbers, strings, booleans, `List` and `Map` available as `io.burt.jmespath.jcf.JcfRuntime` (for "Java Collections Framework"). The latter contains the Jackson and Gson runtime adapters, respectively, and is what you should be using most of the time. The JCF runtime is just for internal development and testing. It primarily exists to test that there's nothing runtime-specific in the implementation.
 
 ## Configuration
 
