@@ -37,6 +37,20 @@ public class FunctionRegistry {
     new ValuesFunction()
   );
 
+  private static final FunctionRegistry stringManipulationRegistry = new FunctionRegistry(
+    defaultRegistry().functions,
+    new ConcatFunction(),
+    new MatchesFunction(),
+    new NormalizeSpaceFunction(),
+    new ReplaceFunction(),
+    new TokenizeFunction(),
+    new LowerCaseFunction(),
+    new SubstringAfterFunction(),
+    new SubstringBeforeFunction(),
+    new TranslateFunction(),
+    new UpperCaseFunction()
+  );
+
   private final Map<String, Function> functions;
 
   /**
@@ -45,6 +59,14 @@ public class FunctionRegistry {
    */
   public static FunctionRegistry defaultRegistry() {
     return defaultRegistry;
+  }
+
+  /**
+   * Returns a registry with some common string manipulating functions known
+   * from XPath function specification.
+   */
+  public static FunctionRegistry stringManipulationRegistry() {
+    return stringManipulationRegistry;
   }
 
   /**
