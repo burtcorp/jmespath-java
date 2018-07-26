@@ -8,8 +8,8 @@ import io.burt.jmespath.JmesPathType;
 public class SubstringBeforeFunction extends SubstringMatchingFunction {
   public SubstringBeforeFunction() {
     super(
-      ArgumentConstraints.typeOf(JmesPathType.STRING),
-      ArgumentConstraints.typeOf(JmesPathType.STRING)
+      ArgumentConstraints.anyValue(),
+      ArgumentConstraints.anyValue()
     );
   }
 
