@@ -17,8 +17,8 @@ public class SubstringBeforeFunction extends SubstringMatchingFunction {
   protected <T> T callFunction(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     T arg1 = arguments.get(0).value();
     T arg2 = arguments.get(1).value();
-    String haystack = runtime.toString(arg1);
-    String needle = runtime.toString(arg2);
+    String haystack = runtime.typeOf(arg1) != JmesPathType.NULL ? runtime.toString(arg1) : "";
+    String needle = runtime.typeOf(arg2) != JmesPathType.NULL ? runtime.toString(arg2) : "";
 
     if (isEmpty(haystack) || isEmpty(needle)) {
       return runtime.createString("");

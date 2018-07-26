@@ -20,7 +20,10 @@ public class ConcatFunction extends BaseFunction {
     StringBuffer sb = new StringBuffer();
     Iterator<FunctionArgument<T>> args = arguments.iterator();
     while (args.hasNext()) {
-      sb.append(runtime.toString(args.next().value()));
+      T value = args.next().value();
+      if (runtime.typeOf(value) != JmesPathType.NULL) {
+        sb.append(runtime.toString(value));
+      }
     }
     return runtime.createString(sb.toString());
   }
