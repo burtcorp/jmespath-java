@@ -38,6 +38,12 @@ public interface ArgumentConstraint {
   int maxArity();
 
   /**
+   * @param n the number of arguments to check against minArity & maxArity
+   * @return true if any of the arity constraint failed.
+   */
+  boolean arityViolated(int n);
+
+  /**
    * @return a string representation of the types accepted. Used to construct
    *   user friendly error messages.
    */
