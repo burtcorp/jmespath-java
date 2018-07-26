@@ -8,7 +8,11 @@ import io.burt.jmespath.JmesPathType;
 
 public class ConcatFunction extends BaseFunction {
   public ConcatFunction() {
-    super(ArgumentConstraints.arrayOf(ArgumentConstraints.typeOf(JmesPathType.STRING)));
+    /**
+     * concat() in XPath is a true variadic function so it can accept arbitrary number of arguments.
+     * As a workaround, set maxArity so high that it practically means infinite number of arguments.
+     */
+    super(ArgumentConstraints.listOf(2, 100, ArgumentConstraints.anyValue()));
   }
 
   @Override
