@@ -2,10 +2,11 @@ package io.burt.jmespath.function;
 
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import io.burt.jmespath.Adapter;
 
-public abstract class RegularExpressionFunction extends BaseFunction {
+public abstract class RegularExpressionFunction extends SubstringMatchingFunction {
   public RegularExpressionFunction(ArgumentConstraint argumentConstraints) {
     super(argumentConstraints);
   }
@@ -16,7 +17,11 @@ public abstract class RegularExpressionFunction extends BaseFunction {
 
   protected <T> Pattern getPattern(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
     String regex = getStringParam(runtime, arguments, patternArgumentPosition());
-    return Pattern.compile(regex, getFlags(runtime, arguments));
+    Pattern pattern = Pattern.compile(regex, getFlags(runtime, arguments));
+    if (pattern.matcher("").matches()) {
+      throw new PatternSyntaxException("pattern matches zero-length string", pattern.pattern(), -1);
+    }
+    return pattern;
   }
 
   protected <T> int getFlags(Adapter<T> runtime, List<FunctionArgument<T>> arguments) {
@@ -47,7 +52,8 @@ public abstract class RegularExpressionFunction extends BaseFunction {
   private int convertPatternFlags(String flagStr) {
     int flags = 0;
     for (int i = 0; i < flagStr.length(); ++i) {
-      switch (flagStr.charAt(i)) {
+      final char c = flagStr.charAt(i);
+      switch (c) {
         case 's':
           flags |= Pattern.DOTALL;
           break;
@@ -62,11 +68,27 @@ public abstract class RegularExpressionFunction extends BaseFunction {
           break;
         case 'q':
           flags |= Pattern.LITERAL;
-        default:
           break;
-
+        default:
+          throw new InvalidRegexFlagException(c, flagStr);
       }
     }
     return flags;
+  }
+
+  private class InvalidRegexFlagException extends RuntimeException {
+    private final char unknownFlag;
+    private final String flagStr;
+
+    public InvalidRegexFlagException(char flag, String flagStr) {
+      this.unknownFlag = flag;
+      this.flagStr = flagStr;
+    }
+
+    public char getUnknownFlag() { return unknownFlag; }
+
+    public String getFlagStr() { return flagStr; }
+
+    public String toString() { return "Unknown regex flag: " + getUnknownFlag() + " in " + getFlagStr(); }
   }
 }
