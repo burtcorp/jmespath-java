@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathRuntimeWithDefaultConfigurationTest;
+import io.burt.jmespath.JmesPathRuntimeWithStringFunctionTest;
 import io.burt.jmespath.RuntimeConfiguration;
 
 @RunWith(Enclosed.class)
@@ -28,5 +29,9 @@ public class JcfTest {
     }
   }
 
+  public static class StringManipulation extends JmesPathRuntimeWithStringFunctionTest<Object> {
+    @Override
+    protected Adapter<Object> createRuntime(RuntimeConfiguration configuration) { return new JcfRuntime(configuration); }
   }
 }
+
