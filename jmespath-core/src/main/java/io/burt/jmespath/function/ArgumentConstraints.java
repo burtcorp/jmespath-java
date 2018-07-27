@@ -35,7 +35,7 @@ public final class ArgumentConstraints {
   private static final String EXPRESSION_TYPE = "expression";
 
   /**
-   * Describes a heterogenous list of arguments. Each argument is checked against
+   * Describes a heterogeneous list of arguments. Each argument is checked against
    * the corresponding constraint. An {@link ArityException} will be thrown when
    * the number of arguments does not exactly match the number of constraints.
    * <p>
@@ -43,11 +43,11 @@ public final class ArgumentConstraints {
    * {@link Function}, so direct usage of this method should not be needed.
    */
   public static ArgumentConstraint listOf(ArgumentConstraint... constraints) {
-    return new HeterogenousListOf(constraints);
+    return new HeterogeneousListOf(constraints);
   }
 
   /**
-   * Describes a homogenous list of arguments, of fixed or variable length.
+   * Describes a homogeneous list of arguments, of fixed or variable length.
    * An {@link ArityException} will be thrown when there are fewer arguments
    * than the specified minimum arity, or when there are more arguments than
    * the specified maximum arity.
@@ -55,7 +55,7 @@ public final class ArgumentConstraints {
    * May only be used as a top level constraint.
    */
   public static ArgumentConstraint listOf(int min, int max, ArgumentConstraint constraint) {
-    return new HomogenousListOf(min, max, constraint);
+    return new HomogeneousListOf(min, max, constraint);
   }
 
   /**
@@ -126,7 +126,7 @@ public final class ArgumentConstraints {
       this.expectedTypeDescription = expectedTypeDescription;
     }
 
-    protected <T> Iterator<ArgumentError> checkNoRemaingArguments(Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
+    protected <T> Iterator<ArgumentError> checkNoRemainingArguments(Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
       if (expectNoRemainingArguments && arguments.hasNext()) {
         return singletonIterator(ArgumentError.createArityError());
       } else {
@@ -161,10 +161,10 @@ public final class ArgumentConstraints {
     }
   }
 
-  private static class HomogenousListOf extends BaseArgumentConstraint {
+  private static class HomogeneousListOf extends BaseArgumentConstraint {
     private final ArgumentConstraint subConstraint;
 
-    public HomogenousListOf(int minArity, int maxArity, ArgumentConstraint subConstraint) {
+    public HomogeneousListOf(int minArity, int maxArity, ArgumentConstraint subConstraint) {
       super(minArity, maxArity, subConstraint.expectedType());
       this.subConstraint = subConstraint;
     }
@@ -192,14 +192,14 @@ public final class ArgumentConstraints {
           break;
         }
       }
-      return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
+      return checkNoRemainingArguments(arguments, expectNoRemainingArguments);
     }
   }
 
-  private static class HeterogenousListOf extends BaseArgumentConstraint {
+  private static class HeterogeneousListOf extends BaseArgumentConstraint {
     private final ArgumentConstraint[] subConstraints;
 
-    public HeterogenousListOf(ArgumentConstraint[] subConstraints) {
+    public HeterogeneousListOf(ArgumentConstraint[] subConstraints) {
       super(calculateMinArity(subConstraints), calculateMaxArity(subConstraints), null);
       this.subConstraints = subConstraints;
     }
@@ -232,7 +232,7 @@ public final class ArgumentConstraints {
           return singletonIterator(ArgumentError.createArityError());
         }
       }
-      return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
+      return checkNoRemainingArguments(arguments, expectNoRemainingArguments);
     }
   }
 
@@ -277,7 +277,7 @@ public final class ArgumentConstraints {
         if (error.hasNext()) {
           return error;
         } else {
-          return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
+          return checkNoRemainingArguments(arguments, expectNoRemainingArguments);
         }
       } else {
         return singletonIterator(ArgumentError.createArityError());
@@ -402,7 +402,7 @@ public final class ArgumentConstraints {
             return singletonIterator((ArgumentError) ArgumentError.createArgumentTypeError(expectedType(), type.toString()));
           }
         }
-        return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
+        return checkNoRemainingArguments(arguments, expectNoRemainingArguments);
       } else {
         return singletonIterator(ArgumentError.createArityError());
       }
