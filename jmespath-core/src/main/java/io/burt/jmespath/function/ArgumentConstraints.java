@@ -47,7 +47,7 @@ public final class ArgumentConstraints {
   }
 
   /**
-   * Descripes a homogenous list of arguments, of fixed or variable length.
+   * Describes a homogenous list of arguments, of fixed or variable length.
    * An {@link ArityException} will be thrown when there are fewer arguments
    * than the specified minimum arity, or when there are more arguments than
    * the specified maximum arity.
@@ -56,6 +56,17 @@ public final class ArgumentConstraints {
    */
   public static ArgumentConstraint listOf(int min, int max, ArgumentConstraint constraint) {
     return new HomogenousListOf(min, max, constraint);
+  }
+
+  /**
+   * Describes a homogeneous list of arguments without upper limit.
+   * An {@link ArityException} will be thrown when there are fewer arguments
+   * than the specified minimum arity.
+   * <p>
+   * May only be used as a top level constraint.
+   */
+  public static ArgumentConstraint listOf(int min, ArgumentConstraint constraint) {
+    return new VariadicListOf(min, constraint);
   }
 
   /**
@@ -132,6 +143,9 @@ public final class ArgumentConstraints {
     public int maxArity() {
       return maxArity;
     }
+
+    @Override
+    public boolean arityViolated(int n) { return (n < minArity || maxArity < n); }
 
     @Override
     public String expectedType() {
@@ -221,6 +235,35 @@ public final class ArgumentConstraints {
       return checkNoRemaingArguments(arguments, expectNoRemainingArguments);
     }
   }
+
+  private static class VariadicListOf extends BaseArgumentConstraint {
+    private final ArgumentConstraint subConstraint;
+
+    public VariadicListOf(int minArity, ArgumentConstraint subConstraint) {
+      super(minArity, -1, subConstraint.expectedType());
+      this.subConstraint = subConstraint;
+    }
+
+    @Override
+    public <T> Iterator<ArgumentError> check(Adapter<T> runtime, Iterator<FunctionArgument<T>> arguments, boolean expectNoRemainingArguments) {
+      int i = 0;
+      for ( ;arguments.hasNext(); ++i) {
+          Iterator<ArgumentError> error = subConstraint.check(runtime, arguments, false);
+          if (error.hasNext()) {
+            return error;
+          }
+      }
+      if (i < minArity()) {
+        return singletonIterator(ArgumentError.createArityError());
+      } else {
+        return emptyIterator();
+      }
+    }
+
+    @Override
+    public boolean arityViolated(int n) { return n < minArity(); }
+  }
+
 
   private static abstract class TypeCheck extends BaseArgumentConstraint {
     public TypeCheck(String expectedType) {

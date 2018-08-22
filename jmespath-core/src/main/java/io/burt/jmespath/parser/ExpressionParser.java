@@ -300,7 +300,7 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
       errors.parseError(String.format("unknown function \"%s\"", name), token.getStartIndex());
     } else {
       ArgumentConstraint argumentConstraints = implementation.argumentConstraints();
-      if (n < argumentConstraints.minArity() || n > argumentConstraints.maxArity()) {
+      if (argumentConstraints.arityViolated(n)) {
         Token token = ctx.NAME().getSymbol();
         String message = ArityException.createMessage(implementation, n, false);
         errors.parseError(message, token.getStartIndex());
