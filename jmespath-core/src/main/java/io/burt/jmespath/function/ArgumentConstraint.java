@@ -38,7 +38,7 @@ public interface ArgumentConstraint {
   int maxArity();
 
   /**
-   * @param n the number of arguments to check against minArity & maxArity
+   * @param n the number of arguments to check against minArity &amp; maxArity
    * @return true if any of the arity constraint failed.
    */
   boolean arityViolated(int n);
