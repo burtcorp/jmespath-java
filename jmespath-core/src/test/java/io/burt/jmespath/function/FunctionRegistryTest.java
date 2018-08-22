@@ -1,18 +1,18 @@
 package io.burt.jmespath.function;
 
-import org.junit.Test;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.jcf.JcfRuntime;
-
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 public class FunctionRegistryTest {
   private static final List<String> DEFAULT_FUNCTION_NAMES = Arrays.asList(
@@ -20,6 +20,12 @@ public class FunctionRegistryTest {
     "length", "map", "max", "max_by", "merge", "min", "min_by", "not_null",
     "reverse", "sort", "sort_by", "starts_with", "sum", "to_array", "to_string",
     "to_number", "type", "values"
+  );
+
+  private static final List<String> STRING_MANIPULATION_NAMES = Arrays.asList(
+    "concat", "lower_case", "matches", "normalize_space", "replace",
+    "substring_after", "substring_before", "tokenize", "translate",
+    "upper_case"
   );
 
   private final Adapter<Object> runtime = new JcfRuntime();
@@ -69,6 +75,17 @@ public class FunctionRegistryTest {
     );
     assertThat(customRegistry.getFunction("foo").name(), is("foo"));
     assertThat(customRegistry.getFunction("bar").name(), is("bar"));
+  }
+
+  @Test
+  public void theStringManipulationRegistryContainsTheDefaultFunctions() {
+    FunctionRegistry defaultRegistry = FunctionRegistry.stringManipulationRegistry();
+    for (String functionName : DEFAULT_FUNCTION_NAMES) {
+      assertThat(defaultRegistry.getFunction(functionName).name(), is(functionName));
+    }
+    for (String functionName : STRING_MANIPULATION_NAMES) {
+      assertThat(defaultRegistry.getFunction(functionName).name(), is(functionName));
+    }
   }
 
   @Test
