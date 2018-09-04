@@ -1,6 +1,8 @@
 /tmp
 /target
 /jmespath-*/target
+/.idea
+/out
 .classpath
 .project
 .settings
