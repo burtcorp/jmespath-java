@@ -26,8 +26,12 @@ public class JacksonRuntime extends BaseRuntime<JsonNode> {
   }
 
   public JacksonRuntime(RuntimeConfiguration configuration) {
+    this(configuration, new ObjectMapper());
+  }
+
+  public JacksonRuntime(RuntimeConfiguration configuration, ObjectMapper jsonParser) {
     super(configuration);
-    this.jsonParser = new ObjectMapper();
+    this.jsonParser = jsonParser;
   }
 
   @Override
