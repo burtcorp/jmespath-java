@@ -48,19 +48,19 @@ public class StringEscapeHelper {
         char c = str.charAt(slashIndex + 1);
         char r = (c < unescapeMap.length) ? unescapeMap[c] : NO_REPLACEMENT;
         if (r != NO_REPLACEMENT) {
-          unescaped.append(str.substring(offset, slashIndex));
+          unescaped.append(str, offset, slashIndex);
           unescaped.append(r);
           offset = slashIndex + 2;
         } else if (unescapeUnicodeEscapes && c == 'u') {
           String hexCode = str.substring(slashIndex + 2, slashIndex + 6);
           String replacement = new String(Character.toChars(Integer.parseInt(hexCode, 16)));
-          unescaped.append(str.substring(offset, slashIndex));
+          unescaped.append(str, offset, slashIndex);
           unescaped.append(replacement);
           offset = slashIndex + 6;
         }
         slashIndex = str.indexOf('\\', slashIndex + 2);
       }
-      unescaped.append(str.substring(offset, str.length()));
+      unescaped.append(str, offset, str.length());
       return unescaped.toString();
     } else {
       return str;
@@ -74,14 +74,14 @@ public class StringEscapeHelper {
       char c = str.charAt(i);
       char r = (c < escapeMap.length) ? escapeMap[c] : NO_REPLACEMENT;
       if (r != NO_REPLACEMENT) {
-        escaped.append(str.substring(offset, i));
+        escaped.append(str, offset, i);
         escaped.append('\\');
         escaped.append(r);
         offset = i + 1;
       }
     }
     if (offset < str.length()) {
-      escaped.append(str.substring(offset, str.length()));
+      escaped.append(str, offset, str.length());
     }
     return escaped.toString();
   }
