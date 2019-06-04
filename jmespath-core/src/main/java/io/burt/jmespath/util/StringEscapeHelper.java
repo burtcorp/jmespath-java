@@ -43,7 +43,7 @@ public class StringEscapeHelper {
     int slashIndex = str.indexOf('\\');
     if (slashIndex > -1) {
       int offset = 0;
-      StringBuilder unescaped = new StringBuilder();
+      StringBuilder unescaped = new StringBuilder(str.length() - 1);
       while (slashIndex > -1) {
         char c = str.charAt(slashIndex + 1);
         char r = (c < unescapeMap.length) ? unescapeMap[c] : NO_REPLACEMENT;
@@ -68,17 +68,23 @@ public class StringEscapeHelper {
   }
 
   public String escape(String str) {
-    StringBuilder escaped = new StringBuilder();
+    StringBuilder escaped = null;
     int offset = 0;
     for (int i = 0; i < str.length(); i++) {
       char c = str.charAt(i);
       char r = (c < escapeMap.length) ? escapeMap[c] : NO_REPLACEMENT;
       if (r != NO_REPLACEMENT) {
+        if (escaped == null) {
+          escaped = new StringBuilder(str.length() + 1);
+        }
         escaped.append(str, offset, i);
         escaped.append('\\');
         escaped.append(r);
         offset = i + 1;
       }
+    }
+    if (escaped == null) {
+      return str;
     }
     if (offset < str.length()) {
       escaped.append(str, offset, str.length());
