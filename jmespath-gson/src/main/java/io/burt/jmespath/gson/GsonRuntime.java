@@ -154,9 +154,9 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
 
   @Override
   public JsonElement createObject(Map<JsonElement, JsonElement> obj) {
-    JsonElement object = new JsonObject();
+    JsonObject object = new JsonObject();
     for (Map.Entry<JsonElement, JsonElement> entry : obj.entrySet()) {
-      ((JsonObject) object).add(entry.getKey().getAsString(), entry.getValue());
+      object.add(entry.getKey().getAsString(), entry.getValue());
     }
     return object;
   }
