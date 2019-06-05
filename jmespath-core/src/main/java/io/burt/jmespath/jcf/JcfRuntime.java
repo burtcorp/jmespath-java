@@ -4,17 +4,30 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Collections;
 
 import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.RuntimeConfiguration;
+import io.burt.jmespath.util.StringEscapeHelper;
 
 import static io.burt.jmespath.JmesPathType.*;
 
 public class JcfRuntime extends BaseRuntime<Object> {
+
+  private static final StringEscapeHelper jsonEscapeHelper = new StringEscapeHelper(
+    true,
+    'b', '\b',
+    't', '\t',
+    'n', '\n',
+    'f', '\f',
+    'r', '\r',
+    '\\', '\\',
+    '\"', '\"'
+  );
+
   public JcfRuntime() {
-    super();
   }
 
   public JcfRuntime(RuntimeConfiguration configuration) {
@@ -159,5 +172,58 @@ public class JcfRuntime extends BaseRuntime<Object> {
   @Override
   public Object createNumber(long n) {
     return n;
+  }
+
+  /**
+   * Helper method to render a value as JSON.
+   *
+   * Assumes that <code>null</code>, <code>number</code> and <code>boolean</code>
+   * render themseves correctly with <code>toString</code>, and that
+   * <code>string</code> renders itself as an unquoted string.
+   */
+  private String unparse(Object object) {
+    switch (typeOf(object)) {
+      case NUMBER:
+      case BOOLEAN:
+        return object.toString();
+      case NULL:
+        return "null";
+      case STRING:
+        return '"' + jsonEscapeHelper.escape(toString(object)) + '"';
+      case OBJECT:
+        return unparseObject(object);
+      case ARRAY:
+        return unparseArray(object);
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  private String unparseObject(Object object) {
+    StringBuilder str = new StringBuilder("{");
+    Collection<Object> propertyNames = getPropertyNames(object);
+    for (Object key: propertyNames) {
+      Object value = getProperty(object, key);
+      str.append('"').append(jsonEscapeHelper.escape(toString(key))).append("\":");
+      str.append(unparse(value));
+      str.append(',');
+    }
+    if (!propertyNames.isEmpty()) {
+      str.setLength(str.length() - 1);
+    }
+    return str.append('}').toString();
+  }
+
+  private String unparseArray(Object array) {
+    StringBuilder str = new StringBuilder("[");
+    List<Object> elements = toList(array);
+    for (Object element : elements) {
+      str.append(unparse(element)).append(',');
+    }
+    if (!elements.isEmpty()) {
+      str.setLength(str.length() - 1);
+
+    }
+    return str.append(']').toString();
   }
 }

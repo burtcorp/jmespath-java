@@ -1,7 +1,6 @@
 package io.burt.jmespath;
 
 import java.util.List;
-import java.util.Iterator;
 import java.util.Collection;
 
 import io.burt.jmespath.parser.ExpressionParser;
@@ -10,7 +9,6 @@ import io.burt.jmespath.function.Function;
 import io.burt.jmespath.function.ArgumentTypeException;
 import io.burt.jmespath.node.NodeFactory;
 import io.burt.jmespath.node.StandardNodeFactory;
-import io.burt.jmespath.util.StringEscapeHelper;
 
 /**
  * This class can be extended instead of implementing {@link Adapter} directly,
@@ -20,16 +18,6 @@ import io.burt.jmespath.util.StringEscapeHelper;
  * these methods if they have more efficient means to perform the same job.
  */
 public abstract class BaseRuntime<T> implements Adapter<T> {
-  private static final StringEscapeHelper jsonEscapeHelper = new StringEscapeHelper(
-    true,
-    'b', '\b',
-    't', '\t',
-    'n', '\n',
-    'f', '\f',
-    'r', '\r',
-    '\\', '\\',
-    '\"', '\"'
-  );
 
   private final FunctionRegistry functionRegistry;
   private final NodeFactory<T> nodeFactory;
@@ -171,82 +159,6 @@ public abstract class BaseRuntime<T> implements Adapter<T> {
   @Override
   public int hashCode() {
     return 31;
-  }
-
-  /**
-   * Helper method to render a value as JSON.
-   *
-   * Assumes that <code>null</code>, <code>number</code> and <code>boolean</code>
-   * render themseves correctly with <code>toString</code>, and that
-   * <code>string</code> renders itself as an unquoted string.
-   */
-  protected String unparse(T object) {
-    switch (typeOf(object)) {
-      case NUMBER:
-        return unparseNumber(object);
-      case BOOLEAN:
-        return unparseBoolean(object);
-      case NULL:
-        return unparseNull(object);
-      case STRING:
-        return unparseString(object);
-      case OBJECT:
-        return unparseObject(object);
-      case ARRAY:
-        return unparseArray(object);
-      default:
-        throw new IllegalStateException();
-    }
-  }
-
-  protected String unparseNumber(T object) {
-    return object.toString();
-  }
-
-  protected String unparseBoolean(T object) {
-    return object.toString();
-  }
-
-  protected String unparseNull(T object) {
-    return "null";
-  }
-
-  protected String unparseString(T object) {
-    return String.format("\"%s\"", escapeString(toString(object)));
-  }
-
-  protected String escapeString(String str) {
-    return jsonEscapeHelper.escape(str);
-  }
-
-  protected String unparseObject(T object) {
-    StringBuilder str = new StringBuilder("{");
-    Iterator<T> keys = getPropertyNames(object).iterator();
-    while (keys.hasNext()) {
-      T key = keys.next();
-      T value = getProperty(object, key);
-      str.append(unparseString(key));
-      str.append(':');
-      str.append(unparse(value));
-      if (keys.hasNext()) {
-        str.append(',');
-      }
-    }
-    str.append('}');
-    return str.toString();
-  }
-
-  protected String unparseArray(T array) {
-    StringBuilder str = new StringBuilder("[");
-    Iterator<T> elements = toList(array).iterator();
-    while (elements.hasNext()) {
-      str.append(unparse(elements.next()));
-      if (elements.hasNext()) {
-        str.append(',');
-      }
-    }
-    str.append(']');
-    return str.toString();
   }
 
   @Override
