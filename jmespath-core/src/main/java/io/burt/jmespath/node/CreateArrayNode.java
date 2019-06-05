@@ -2,7 +2,6 @@ package io.burt.jmespath.node;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.Expression;
@@ -21,7 +20,7 @@ public class CreateArrayNode<T> extends Node<T> {
     if (runtime.typeOf(input) == JmesPathType.NULL) {
       return input;
     } else {
-      List<T> array = new ArrayList<>();
+      List<T> array = new ArrayList<>(entries.size());
       for (Expression<T> entry : entries) {
         array.add(entry.search(input));
       }
@@ -31,17 +30,16 @@ public class CreateArrayNode<T> extends Node<T> {
 
   @Override
   protected String internalToString() {
-    StringBuilder str = new StringBuilder("[");
-    Iterator<Expression<T>> entryIterator = entries.iterator();
-    while (entryIterator.hasNext()) {
-      Expression<T> entry = entryIterator.next();
-      str.append(entry);
-      if (entryIterator.hasNext()) {
-        str.append(", ");
-      }
+    if (entries.isEmpty()) {
+      return "[]";
     }
-    str.append(']');
-    return str.toString();
+
+    StringBuilder str = new StringBuilder("[");
+    for (Expression<T> entry: entries) {
+      str.append(entry).append(", ");
+    }
+    str.setLength(str.length() - 2);
+    return str.append(']').toString();
   }
 
   @Override

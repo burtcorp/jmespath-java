@@ -16,9 +16,9 @@ public class ParseException extends JmesPathException implements Iterable<ParseE
   private static String joinMessages(Iterable<ParseError> errors) {
     StringBuilder s = new StringBuilder();
     for (ParseError e : errors) {
-      s.append(String.format(", %s at position %d", e.message(), e.position()));
+      s.append(String.format("%s at position %d, ", e.message(), e.position()));
     }
-    s.delete(0, 2);
+    s.setLength(s.length() - 2);
     return s.toString();
   }
 
