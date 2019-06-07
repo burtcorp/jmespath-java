@@ -3,7 +3,6 @@ package io.burt.jmespath.node;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.Expression;
@@ -70,17 +69,15 @@ public class CreateObjectNode<T> extends Node<T> {
 
   @Override
   protected String internalToString() {
-    StringBuilder str = new StringBuilder("{");
-    Iterator<Entry<T>> entryIterator = entries.iterator();
-    while (entryIterator.hasNext()) {
-      Entry<T> entry = entryIterator.next();
-      str.append(entry.key()).append('=').append(entry.value());
-      if (entryIterator.hasNext()) {
-        str.append(", ");
-      }
+    if (entries.isEmpty()) {
+      return "{}";
     }
-    str.append('}');
-    return str.toString();
+    StringBuilder str = new StringBuilder("{");
+    for (Entry<T> entry : entries) {
+      str.append(entry.key()).append('=').append(entry.value()).append(", ");
+    }
+    str.setLength(str.length() - 2);
+    return str.append('}').toString();
   }
 
   @Override
