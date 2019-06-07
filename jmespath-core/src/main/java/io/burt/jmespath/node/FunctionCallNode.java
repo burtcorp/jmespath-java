@@ -2,7 +2,6 @@ package io.burt.jmespath.node;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.Expression;
@@ -39,16 +38,13 @@ public class FunctionCallNode<T> extends Node<T> {
       str.append(implementation.name());
     }
     str.append(", [");
-    Iterator<Expression<T>> argIterator = args.iterator();
-    while (argIterator.hasNext()) {
-      Expression<T> arg = argIterator.next();
-      str.append(arg);
-      if (argIterator.hasNext()) {
-        str.append(", ");
-      }
+    for (Expression<T> arg : args) {
+      str.append(arg).append(", ");
     }
-    str.append(']');
-    return str.toString();
+    if (!args.isEmpty()) {
+      str.setLength(str.length() - 2);
+    }
+    return str.append(']').toString();
   }
 
   @Override

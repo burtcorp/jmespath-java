@@ -19,7 +19,7 @@ public abstract class Node<T> implements Expression<T> {
     StringBuilder str = new StringBuilder();
     String name = getClass().getName();
     str.append(name.substring(name.lastIndexOf('.') + 1));
-    str.delete(str.length() - 4, str.length());
+    str.setLength(str.length() - 4);
     str.append('(');
     if (extraArgs != null) {
       str.append(extraArgs);
