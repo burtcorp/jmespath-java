@@ -52,4 +52,15 @@ public class StringEscapeHelperTest {
     String escaped = escapeHelper.escape("\thello\nworld!");
     assertThat(escaped, is("\\thello\\nworld\\x"));
   }
+
+  @Test
+  public void stringWithoutSpecialCharsIsNotModified() {
+    StringEscapeHelper escapeHelper = new StringEscapeHelper(
+      'n', '\n',
+      't', '\t',
+      'x', '!'
+    );
+    String escaped = escapeHelper.escape("hello world");
+    assertThat(escaped, is("hello world"));
+  }
 }
