@@ -1,7 +1,7 @@
 package io.burt.jmespath.util;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 
@@ -12,7 +12,7 @@ public class AntlrHelper {
   private AntlrHelper() { }
 
   private static JmesPathLexer createLexer(String input, ANTLRErrorListener errorListener) {
-    JmesPathLexer lexer = new JmesPathLexer(new ANTLRInputStream(input));
+    JmesPathLexer lexer = new JmesPathLexer(CharStreams.fromString(input));
     lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
     lexer.addErrorListener(errorListener);
     return lexer;
