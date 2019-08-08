@@ -18,6 +18,7 @@
     <jackson.version>2.9.9</jackson.version>
     <gson.version>2.8.5</gson.version>
     <antlr.version>4.7.2</antlr.version>
+    <vertx.version>3.7.1</vertx.version>
     <encoding>UTF-8</encoding>
   </properties>
 
@@ -56,6 +57,7 @@
     <module>jmespath-core</module>
     <module>jmespath-jackson</module>
     <module>jmespath-gson</module>
+    <module>jmespath-vertx</module>
   </modules>
 
   <dependencies>
