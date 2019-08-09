@@ -3,6 +3,7 @@ package io.burt.jmespath.vertx;
 import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.RuntimeConfiguration;
+import io.burt.jmespath.jcf.JcfRuntime;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -11,7 +12,7 @@ import java.util.*;
 
 import static io.burt.jmespath.JmesPathType.*;
 
-public class VertxRuntime extends BaseRuntime<Object> {
+public class VertxRuntime extends JcfRuntime {
     public VertxRuntime() {
         this(RuntimeConfiguration.defaultConfiguration());
     }
@@ -102,11 +103,6 @@ public class VertxRuntime extends BaseRuntime<Object> {
         }
     }
 
-    @Override
-    public Number toNumber(Object value) {
-        return value instanceof Number?(Number)value:null;
-    }
-
     /**
      * Returns true when the argument is truthy.
      *
@@ -168,11 +164,6 @@ public class VertxRuntime extends BaseRuntime<Object> {
     }
 
     @Override
-    public Object createNull() {
-        return null;
-    }
-
-    @Override
     public Object createArray(Collection<Object> elements) {
         JsonArray ja = new JsonArray();
         Iterator it = elements.iterator();
@@ -180,16 +171,6 @@ public class VertxRuntime extends BaseRuntime<Object> {
             ja.add(it.next());
         }
         return ja;
-    }
-
-    @Override
-    public Object createString(String str) {
-        return str;
-    }
-
-    @Override
-    public Object createBoolean(boolean b) {
-        return Boolean.valueOf(b);
     }
 
     @Override
@@ -201,16 +182,6 @@ public class VertxRuntime extends BaseRuntime<Object> {
             jo.put((String)entry.getKey(), entry.getValue());
         }
         return jo;
-    }
-
-    @Override
-    public Object createNumber(double n) {
-        return Double.valueOf(n);
-    }
-
-    @Override
-    public Object createNumber(long n) {
-        return Long.valueOf(n);
     }
 
     @Override
