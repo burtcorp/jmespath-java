@@ -24,11 +24,11 @@ public class SortByFunction extends TransformByFunction {
     public SortingAggregator(Adapter<V> runtime, int elementCount, V initialElement, V initialValue) {
       super(runtime);
       this.pairs = new ArrayList<>(elementCount);
-      this.pairs.add(new Pair<V>(initialElement, initialValue));
+      this.pairs.add(new Pair<>(initialElement, initialValue));
     }
 
     protected void aggregate(V candidate, V candidateValue) {
-      pairs.add(new Pair<V>(candidate, candidateValue));
+      pairs.add(new Pair<>(candidate, candidateValue));
     }
   
     protected V result() {
