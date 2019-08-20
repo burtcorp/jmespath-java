@@ -1,5 +1,6 @@
 package io.burt.jmespath.jackson;
 
+import java.util.AbstractList;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,9 +44,29 @@ public class JacksonRuntime extends BaseRuntime<JsonNode> {
     }
   }
 
+  private static class ArrayNodeListWrapper extends AbstractList<JsonNode> {
+    private final ArrayNode array;
+
+    ArrayNodeListWrapper(ArrayNode array) {
+      this.array = array;
+    }
+
+    @Override
+    public JsonNode get(int index) {
+      return array.get(index);
+    }
+
+    @Override
+    public int size() {
+      return array.size();
+    }
+  }
+
   @Override
   public List<JsonNode> toList(JsonNode value) {
-    if (value.isArray() || value.isObject()) {
+    if (value.isArray()) {
+      return new ArrayNodeListWrapper((ArrayNode) value);
+    } else if (value.isObject()) {
       List<JsonNode> elements = new ArrayList<>(value.size());
       for (JsonNode element : value) {
         elements.add(element);

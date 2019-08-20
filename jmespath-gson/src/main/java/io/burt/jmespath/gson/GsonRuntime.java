@@ -11,6 +11,7 @@ import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.RuntimeConfiguration;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,24 +35,37 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
     return parser.parse(str);
   }
 
+  private static class JsonArrayListWrapper extends AbstractList<JsonElement> {
+    private final JsonArray array;
+
+    JsonArrayListWrapper(JsonArray array) {
+      this.array = array;
+    }
+
+    @Override
+    public JsonElement get(int index) {
+      return array.get(index);
+    }
+
+    @Override
+    public int size() {
+      return array.size();
+    }
+  }
+
   @Override
   public List<JsonElement> toList(JsonElement value) {
-    List<JsonElement> list;
-    if (value.isJsonObject()) {
-      list = new ArrayList<>(value.getAsJsonObject().size());
+    if (value.isJsonArray()) {
+      return new JsonArrayListWrapper(value.getAsJsonArray());
+    } else if (value.isJsonObject()) {
+      List<JsonElement> list = new ArrayList<>(value.getAsJsonObject().size());
       for(Map.Entry<String, JsonElement> entry : value.getAsJsonObject().entrySet()) {
         list.add(entry.getValue());
       }
       return list;
+    } else {
+      return Collections.emptyList();
     }
-    if (value.isJsonArray()) {
-      list = new ArrayList<>(value.getAsJsonArray().size());
-      for (JsonElement e : value.getAsJsonArray()) {
-        list.add(e);
-      }
-      return list;
-    }
-    return Collections.emptyList();
   }
 
   @Override
