@@ -177,7 +177,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
    * Helper method to render a value as JSON.
    *
    * Assumes that <code>null</code>, <code>number</code> and <code>boolean</code>
-   * render themseves correctly with <code>toString</code>, and that
+   * render themselves correctly with <code>toString</code>, and that
    * <code>string</code> renders itself as an unquoted string.
    */
   private String unparse(Object object) {
