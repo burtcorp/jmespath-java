@@ -21,7 +21,7 @@ public class ContainsFunction extends BaseFunction {
     if (haystackType == JmesPathType.ARRAY) {
       return runtime.createBoolean(runtime.toList(haystack).contains(needle));
     } else {
-      return runtime.createBoolean(runtime.toString(haystack).indexOf(runtime.toString(needle)) >= 0);
+      return runtime.createBoolean(runtime.toString(haystack).contains(runtime.toString(needle)));
     }
   }
 }
