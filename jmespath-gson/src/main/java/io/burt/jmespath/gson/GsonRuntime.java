@@ -58,8 +58,9 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
     if (value.isJsonArray()) {
       return new JsonArrayListWrapper(value.getAsJsonArray());
     } else if (value.isJsonObject()) {
-      List<JsonElement> list = new ArrayList<>(value.getAsJsonObject().size());
-      for(Map.Entry<String, JsonElement> entry : value.getAsJsonObject().entrySet()) {
+      JsonObject object = value.getAsJsonObject();
+      List<JsonElement> list = new ArrayList<>(object.size());
+      for(Map.Entry<String, JsonElement> entry : object.entrySet()) {
         list.add(entry.getValue());
       }
       return list;
