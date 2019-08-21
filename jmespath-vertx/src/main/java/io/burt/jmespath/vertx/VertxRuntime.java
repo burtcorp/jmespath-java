@@ -34,7 +34,7 @@ public class VertxRuntime extends JcfRuntime {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<Object> toList(Object value) {
+    public List<Object> toList(final Object value) {
         if (value instanceof JsonArray) {
             final JsonArray ja = (JsonArray) value;
             return new AbstractList<Object>() {
@@ -51,11 +51,26 @@ public class VertxRuntime extends JcfRuntime {
             };
         }
         if (value instanceof JsonObject) {
-            List<Object> list = new ArrayList<>(((JsonObject) value).size());
-            for (Map.Entry<String, Object> entry : (JsonObject) value ) {
-                list.add(entry.getValue());
-            }
-            return list;
+            return new AbstractList<Object>() {
+                private List<Object> cache = null;
+
+                @Override
+                public int size() {
+                    return ((JsonObject) value).size();
+                }
+
+                @Override
+                public Object get(int i) {
+                    if (cache == null) {
+                        List<Object> list = new ArrayList<>(size());
+                        for (Map.Entry<String, Object> entry : (JsonObject) value) {
+                            list.add(entry.getValue());
+                        }
+                        cache = list;
+                    }
+                    return cache.get(i);
+                }
+            };
         }
         return Collections.EMPTY_LIST;
     }
