@@ -149,18 +149,12 @@ public class VertxRuntime extends JcfRuntime {
 
     @Override
     public int compare(Object value1, Object value2) {
-        JmesPathType type1 = typeOf(value1);
-        JmesPathType type2 = typeOf(value2);
-        if (type1 == type2) {
-            switch (type1) {
-                case ARRAY:
-                case OBJECT:
-                    return value1.equals(value2) ? 0 : -1;
-                default:
-                    return super.compare(value1, value2);
-            }
-        } else {
-            return -1;
+        switch (typeOf(value1)) {
+            case ARRAY:
+            case OBJECT:
+                return value1.equals(value2) ? 0 : -1;
+            default:
+                return super.compare(value1, value2);
         }
     }
 }
