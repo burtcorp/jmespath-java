@@ -9,43 +9,43 @@ import io.burt.jmespath.function.Function;
  * A node factory is used by the expression compiler to create AST nodes.
  */
 public interface NodeFactory<T> {
-  public Node<T> createCurrent();
+  Node<T> createCurrent();
 
-  public Node<T> createProperty(String name);
+  Node<T> createProperty(String name);
 
-  public Node<T> createIndex(int index);
+  Node<T> createIndex(int index);
 
-  public Node<T> createSlice(Integer start, Integer stop, Integer step);
+  Node<T> createSlice(Integer start, Integer stop, Integer step);
 
-  public Node<T> createProjection(Expression<T> expression);
+  Node<T> createProjection(Expression<T> expression);
 
-  public Node<T> createFlattenArray();
+  Node<T> createFlattenArray();
 
-  public Node<T> createFlattenObject();
+  Node<T> createFlattenObject();
 
-  public Node<T> createSelection(Expression<T> test);
+  Node<T> createSelection(Expression<T> test);
 
-  public Node<T> createComparison(Operator operator, Expression<T> left, Expression<T> right);
+  Node<T> createComparison(Operator operator, Expression<T> left, Expression<T> right);
 
-  public Node<T> createOr(Expression<T> left, Expression<T> right);
+  Node<T> createOr(Expression<T> left, Expression<T> right);
 
-  public Node<T> createAnd(Expression<T> left, Expression<T> right);
+  Node<T> createAnd(Expression<T> left, Expression<T> right);
 
-  public Node<T> createFunctionCall(String functionName, List<? extends Expression<T>> args);
+  Node<T> createFunctionCall(String functionName, List<? extends Expression<T>> args);
 
-  public Node<T> createFunctionCall(Function function, List<? extends Expression<T>> args);
+  Node<T> createFunctionCall(Function function, List<? extends Expression<T>> args);
 
-  public Node<T> createExpressionReference(Expression<T> expression);
+  Node<T> createExpressionReference(Expression<T> expression);
 
-  public Node<T> createString(String str);
+  Node<T> createString(String str);
 
-  public Node<T> createNegate(Expression<T> negated);
+  Node<T> createNegate(Expression<T> negated);
 
-  public Node<T> createCreateObject(List<CreateObjectNode.Entry<T>> entries);
+  Node<T> createCreateObject(List<CreateObjectNode.Entry<T>> entries);
 
-  public Node<T> createCreateArray(List<? extends Expression<T>> entries);
+  Node<T> createCreateArray(List<? extends Expression<T>> entries);
 
-  public Node<T> createJsonLiteral(String json);
+  Node<T> createJsonLiteral(String json);
 
-  public Node<T> createSequence(List<Node<T>> nodes);
+  Node<T> createSequence(List<Node<T>> nodes);
 }

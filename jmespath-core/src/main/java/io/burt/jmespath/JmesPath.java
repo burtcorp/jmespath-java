@@ -12,5 +12,5 @@ public interface JmesPath<T> {
    *
    * @throws io.burt.jmespath.parser.ParseException when the string is not a valid JMESPath expression
    */
-  public Expression<T> compile(String expression);
+  Expression<T> compile(String expression);
 }

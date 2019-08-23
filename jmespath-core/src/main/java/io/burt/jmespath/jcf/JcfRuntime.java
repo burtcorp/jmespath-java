@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Collections;
 
 import io.burt.jmespath.BaseRuntime;
@@ -103,7 +102,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
       case NUMBER:
         return true;
       case BOOLEAN:
-        return ((Boolean)value).booleanValue();
+        return (Boolean) value;
       case ARRAY:
         return !((Collection<Object>) value).isEmpty();
       case OBJECT:
@@ -156,7 +155,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
 
   @Override
   public Object createBoolean(boolean b) {
-    return Boolean.valueOf(b);
+    return b;
   }
 
   @Override
@@ -178,7 +177,7 @@ public class JcfRuntime extends BaseRuntime<Object> {
    * Helper method to render a value as JSON.
    *
    * Assumes that <code>null</code>, <code>number</code> and <code>boolean</code>
-   * render themseves correctly with <code>toString</code>, and that
+   * render themselves correctly with <code>toString</code>, and that
    * <code>string</code> renders itself as an unquoted string.
    */
   private String unparse(Object object) {

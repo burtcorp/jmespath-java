@@ -186,7 +186,7 @@ public final class ArgumentConstraints {
         if (arguments.hasNext()) {
           Iterator<ArgumentError> error = subConstraint.check(runtime, arguments, false);
           if (error.hasNext()) {
-        	  return error;
+            return error;
           }
         } else {
           break;

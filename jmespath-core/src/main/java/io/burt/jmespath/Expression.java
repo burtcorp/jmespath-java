@@ -10,5 +10,5 @@ public interface Expression<T> {
   /**
    * Evaluate this expression against a JSON-like structure and return the result.
    */
-  public T search(T input);
+  T search(T input);
 }

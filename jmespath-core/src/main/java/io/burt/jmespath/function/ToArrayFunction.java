@@ -1,5 +1,6 @@
 package io.burt.jmespath.function;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
 
@@ -17,7 +18,7 @@ public class ToArrayFunction extends BaseFunction {
     if (runtime.typeOf(subject) == JmesPathType.ARRAY) {
       return subject;
     } else {
-      return runtime.createArray(Arrays.asList(subject));
+      return runtime.createArray(Collections.singletonList(subject));
     }
   }
 }
