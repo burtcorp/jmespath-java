@@ -10,7 +10,7 @@
   <parent>
     <groupId>io.burt</groupId>
     <artifactId>jmespath</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1-SNAPSHOT</version>
   </parent>
 
   <dependencies>
