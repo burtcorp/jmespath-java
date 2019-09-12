@@ -16,6 +16,7 @@
     <junit.version>4.12</junit.version>
     <hamcrest.version>1.3</hamcrest.version>
     <jackson.version>2.9.9</jackson.version>
+    <jakarta.jsonp.version>1.1.6</jakarta.jsonp.version>
     <gson.version>2.8.5</gson.version>
     <antlr.version>4.7.2</antlr.version>
     <vertx.version>3.7.1</vertx.version>
@@ -56,6 +57,7 @@
   <modules>
     <module>jmespath-core</module>
     <module>jmespath-jackson</module>
+    <module>jmespath-jakarta-jsonp</module>
     <module>jmespath-gson</module>
     <module>jmespath-vertx</module>
   </modules>
