@@ -1,13 +1,27 @@
 package io.burt.jmespath.jakarta.jsonp;
 
 import java.io.StringReader;
-import java.util.*;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.RuntimeConfiguration;
 
-import javax.json.*;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonReaderFactory;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
 import static javax.json.JsonValue.ValueType.ARRAY;
