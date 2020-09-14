@@ -10,7 +10,7 @@ import io.burt.jmespath.JmesPathType;
  * arguments, like calculating addition, division, multiplication, etc.
  */
 public abstract class MathBiFunction extends BaseFunction {
-  public MathFunction() {
+  public MathBiFunction() {
     super(
         ArgumentConstraints.typeOf(JmesPathType.NUMBER),
         ArgumentConstraints.typeOf(JmesPathType.NUMBER)
@@ -23,7 +23,7 @@ public abstract class MathBiFunction extends BaseFunction {
     T valueY = arguments.get(1).value();
     double x = runtime.toNumber(valueX).doubleValue();
     double y = runtime.toNumber(valueY).doubleValue();
-    return runtime.createNumber(performMathBiOperation(x, y));
+    return runtime.createNumber(performMathOperation(x, y));
   }
 
   /**
