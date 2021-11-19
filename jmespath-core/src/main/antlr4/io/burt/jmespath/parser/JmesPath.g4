@@ -7,10 +7,10 @@ expression
   | expression bracketSpecifier # bracketedExpression
   | bracketSpecifier # bracketExpression
   | expression COMPARATOR expression # comparisonExpression
+  | '!' expression # notExpression
   | expression '&&' expression # andExpression
   | expression '||' expression # orExpression
   | identifier # identifierExpression
-  | '!' expression # notExpression
   | '(' expression ')' # parenExpression
   | wildcard # wildcardExpression
   | multiSelectList # multiSelectListExpression
