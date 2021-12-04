@@ -806,6 +806,32 @@ public class ParserTest {
   }
 
   @Test
+  public void negatedBooleansTripleConjunctionExpression() {
+    Expression<Object> expected = And(
+        And(
+            Negate(Property("foo")),
+            Negate(Property("bar"))
+        ),
+        Negate(Property("buzz"))
+    );
+    Expression<Object> actual = compile("!foo && !bar && !buzz");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void negatedBooleansTripleDisjunctionExpression() {
+    Expression<Object> expected = Or(
+        Or(
+            Negate(Property("foo")),
+            Negate(Property("bar"))
+        ),
+        Negate(Property("buzz"))
+    );
+    Expression<Object> actual = compile("!foo || !bar || !buzz");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
   public void negatedSelectionExpression() {
     Expression<Object> expected = Sequence(
       Property("foo"),
