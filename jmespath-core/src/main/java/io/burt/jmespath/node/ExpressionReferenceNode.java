@@ -11,6 +11,10 @@ public class ExpressionReferenceNode<T> extends Node<T> {
     this.expression = expression;
   }
 
+  public Expression<T> expression() {
+    return expression;
+  }
+
   @Override
   public T search(T input) {
     return expression.search(input);

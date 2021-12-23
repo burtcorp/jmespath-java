@@ -1,5 +1,6 @@
 package io.burt.jmespath.node;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,11 +21,11 @@ public class CreateObjectNode<T> extends Node<T> {
       this.value = value;
     }
 
-    protected String key() {
+    public String key() {
       return key;
     }
 
-    protected Expression<U> value() {
+    public Expression<U> value() {
       return value;
     }
 
@@ -52,6 +53,10 @@ public class CreateObjectNode<T> extends Node<T> {
   public CreateObjectNode(Adapter<T> runtime, List<Entry<T>> entries) {
     super(runtime);
     this.entries = entries;
+  }
+
+  public List<Entry<T>> entries() {
+    return Collections.unmodifiableList(entries);
   }
 
   @Override

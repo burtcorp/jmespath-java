@@ -1,5 +1,6 @@
 package io.burt.jmespath.node;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -16,6 +17,14 @@ public class FunctionCallNode<T> extends Node<T> {
     super(runtime);
     this.implementation = implementation;
     this.args = new ArrayList<>(args);
+  }
+
+  public String functionName() {
+    return implementation.name();
+  }
+
+  public List<Expression<T>> args() {
+    return Collections.unmodifiableList(args);
   }
 
   @Override

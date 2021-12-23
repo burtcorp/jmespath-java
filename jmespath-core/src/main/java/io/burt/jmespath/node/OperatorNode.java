@@ -1,6 +1,7 @@
 package io.burt.jmespath.node;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
@@ -13,6 +14,10 @@ public abstract class OperatorNode<T> extends Node<T> {
   public OperatorNode(Adapter<T> runtime, Expression<T>... operands) {
     super(runtime);
     this.operands = Arrays.asList(operands);
+  }
+
+  public List<Expression<T>> operands() {
+    return Collections.unmodifiableList(operands);
   }
 
   protected Expression<T> operand(int index) {

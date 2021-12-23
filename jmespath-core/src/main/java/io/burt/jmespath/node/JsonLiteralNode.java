@@ -12,6 +12,10 @@ public class JsonLiteralNode<T> extends Node<T> {
     this.value = runtime.parseString(rawValue);
   }
 
+  public String rawValue() {
+    return rawValue;
+  }
+
   @Override
   public T search(T input) {
     return value;

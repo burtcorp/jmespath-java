@@ -15,6 +15,10 @@ public class ProjectionNode<T> extends Node<T> {
     this.projection = projection;
   }
 
+  public Expression<T> projection() {
+    return projection;
+  }
+
   @Override
   public T search(T input) {
     if (runtime.typeOf(input) == JmesPathType.ARRAY) {

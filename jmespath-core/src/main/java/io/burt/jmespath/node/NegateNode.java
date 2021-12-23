@@ -11,6 +11,10 @@ public class NegateNode<T> extends Node<T> {
     this.negated = negated;
   }
 
+  public Expression<T> negated() {
+    return negated;
+  }
+
   @Override
   public T search(T input) {
     return runtime.createBoolean(!runtime.isTruthy(negated.search(input)));

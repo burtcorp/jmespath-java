@@ -1,5 +1,6 @@
 package io.burt.jmespath.node;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.burt.jmespath.Adapter;
@@ -10,6 +11,10 @@ public class SequenceNode<T> extends Node<T> {
   public SequenceNode(Adapter<T> runtime, List<Node<T>> nodes) {
     super(runtime);
     this.nodes = nodes;
+  }
+
+  public List<Node<T>> nodes() {
+    return Collections.unmodifiableList(nodes);
   }
 
   @Override

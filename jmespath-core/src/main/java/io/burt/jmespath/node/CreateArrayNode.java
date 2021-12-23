@@ -1,5 +1,6 @@
 package io.burt.jmespath.node;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -13,6 +14,10 @@ public class CreateArrayNode<T> extends Node<T> {
   public CreateArrayNode(Adapter<T> runtime, List<? extends Expression<T>> entries) {
     super(runtime);
     this.entries = new ArrayList<>(entries);
+  }
+
+  public List<Expression<T>> entries() {
+    return Collections.unmodifiableList(entries);
   }
 
   @Override

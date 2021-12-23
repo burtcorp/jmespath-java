@@ -12,6 +12,10 @@ public class StringNode<T> extends Node<T> {
     this.string = runtime.createString(rawString);
   }
 
+  public String rawString() {
+    return rawString;
+  }
+
   @Override
   public T search(T input) {
     return string;

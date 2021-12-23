@@ -13,6 +13,10 @@ public class IndexNode<T> extends Node<T> {
     this.index = index;
   }
 
+  public int index() {
+    return index;
+  }
+
   @Override
   public T search(T input) {
     if (runtime.typeOf(input) == JmesPathType.ARRAY) {

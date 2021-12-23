@@ -15,6 +15,10 @@ public class SelectionNode<T> extends Node<T> {
     this.test = test;
   }
 
+  public Expression<T> test() {
+    return test;
+  }
+
   @Override
   public T search(T input) {
     if (runtime.typeOf(input) == JmesPathType.ARRAY) {

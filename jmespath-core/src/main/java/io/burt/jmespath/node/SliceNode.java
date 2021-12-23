@@ -27,6 +27,18 @@ public class SliceNode<T> extends Node<T> {
     this.stop = (stop == null) ? ((this.step < 0) ? Integer.MIN_VALUE : Integer.MAX_VALUE) : stop;
   }
 
+  public Integer start() {
+    return absoluteStart ? start : null;
+  }
+
+  public Integer stop() {
+    return absoluteStop ? stop : null;
+  }
+
+  public Integer step() {
+    return absoluteStep ? step : null;
+  }
+
   @Override
   public T search(T input) {
     List<T> elements = runtime.toList(input);

@@ -12,6 +12,10 @@ public class PropertyNode<T> extends Node<T> {
     this.propertyName = runtime.createString(rawPropertyName);
   }
 
+  public String rawPropertyName() {
+    return rawPropertyName;
+  }
+
   @Override
   public T search(T input) {
     return runtime.getProperty(input, propertyName);
