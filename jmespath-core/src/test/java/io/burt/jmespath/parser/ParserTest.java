@@ -844,6 +844,17 @@ public class ParserTest {
   }
 
   @Test
+  public void negatedComparison() {
+    Expression<Object> expected = Comparison(
+      "==",
+      Negate(Property("foo")),
+      JsonLiteral("false")
+    );
+    Expression<Object> actual = compile("!foo == `false`");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
   public void bareJsonLiteralExpression() {
     Expression<Object> expected = JsonLiteral("{}");
     Expression<Object> actual = compile("`{}`");
