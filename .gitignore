@@ -1,6 +1,7 @@
 /tmp
 /target
 /jmespath-*/target
+.antlr
 /.idea
 /out
 .classpath
