@@ -10,6 +10,7 @@ import io.burt.jmespath.Expression;
 import io.burt.jmespath.RuntimeConfiguration;
 import io.burt.jmespath.jcf.JcfRuntime;
 import io.burt.jmespath.node.CreateObjectNode;
+import io.burt.jmespath.node.ArithmeticOperator;
 import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.Operator;
 import io.burt.jmespath.function.FunctionRegistry;
@@ -73,6 +74,10 @@ public class ParserTest {
     return runtime.nodeFactory().createAnd(left, right);
   }
 
+  private Node<Object> Math(ArithmeticOperator op, Expression<Object> left, Expression<Object> right) {
+    return runtime.nodeFactory().createArithmetic(op, left, right);
+  }
+
   private Node<Object> FunctionCall(String functionName, List<? extends Expression<Object>> args) {
     return runtime.nodeFactory().createFunctionCall(functionName, args);
   }
@@ -83,6 +88,14 @@ public class ParserTest {
 
   private Node<Object> String(String str) {
     return runtime.nodeFactory().createString(str);
+  }
+
+  private Node<Object> Number(Long number) {
+    return runtime.nodeFactory().createNumber(number);
+  }
+
+  private Node<Object> Number(Double number) {
+    return runtime.nodeFactory().createNumber(number);
   }
 
   private Node<Object> Negate(Node<Object> negated) {
@@ -501,7 +514,107 @@ public class ParserTest {
     Expression<Object> actual = compile("foo[?bar != 'baz']");
     assertThat(actual, is(expected));
   }
+  
+  @Test
+  public void addIntExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.ADDITION,
+      Number(Long.valueOf(1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("1 + 10");
+    assertThat(actual, is(expected));
+  }
 
+  @Test
+  public void subIntExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.SUBSTRACTION,
+      Number(Long.valueOf(1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("1 - 10");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void multiIntExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.MULTIPLICATION,
+      Number(Long.valueOf(1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("1 * 10");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void divIntExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.DIVISION,
+      Number(Long.valueOf(1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("1 / 10");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void modIntExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.DIVISION,
+      Number(Long.valueOf(1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("1 % 10");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void addDoubleExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.ADDITION,
+      Number(Double.valueOf(0.1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("0.1 + 10");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void subDoubleExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.SUBSTRACTION,
+      Number(Double.valueOf(0.1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("0.1 - 10");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void multiDoubleExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.MULTIPLICATION,
+      Number(Double.valueOf(0.1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("0.1 * 10");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void divDoubleExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.DIVISION,
+      Number(Double.valueOf(0.1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("0.1 / 10");
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void modDoubleExpression() {
+    Expression<Object> expected = Math(
+      ArithmeticOperator.DIVISION,
+      Number(Double.valueOf(0.1)),
+      Number(Long.valueOf(10)));
+    Expression<Object> actual = compile("0.1 % 10");
+    assertThat(actual, is(expected));
+  }
+  
   @Test
   public void andExpression() {
     Expression<Object> expected = And(

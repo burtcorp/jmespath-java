@@ -31,6 +31,8 @@ public interface NodeFactory<T> {
 
   Node<T> createAnd(Expression<T> left, Expression<T> right);
 
+  Node<T> createArithmetic(ArithmeticOperator operator, Expression<T> left, Expression<T> right);
+
   Node<T> createFunctionCall(String functionName, List<? extends Expression<T>> args);
 
   Node<T> createFunctionCall(Function function, List<? extends Expression<T>> args);
@@ -38,6 +40,8 @@ public interface NodeFactory<T> {
   Node<T> createExpressionReference(Expression<T> expression);
 
   Node<T> createString(String str);
+
+  Node<T> createNumber(Number str);
 
   Node<T> createNegate(Expression<T> negated);
 

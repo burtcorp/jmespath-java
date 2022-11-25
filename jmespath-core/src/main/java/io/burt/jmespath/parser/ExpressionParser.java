@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import io.burt.jmespath.Expression;
 import io.burt.jmespath.Adapter;
@@ -17,7 +18,11 @@ import io.burt.jmespath.util.AntlrHelper;
 import io.burt.jmespath.node.NodeFactory;
 import io.burt.jmespath.node.Node;
 import io.burt.jmespath.node.CreateObjectNode.Entry;
+import io.burt.jmespath.node.ArithmeticOperator;
 import io.burt.jmespath.node.Operator;
+import io.burt.jmespath.parser.JmesPathParser.AddSubtractExpressionContext;
+import io.burt.jmespath.parser.JmesPathParser.MultDivExpressionContext;
+import io.burt.jmespath.parser.JmesPathParser.NumberLiteralContext;
 
 public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   private static final StringEscapeHelper identifierEscapeHelper = new StringEscapeHelper(
@@ -156,6 +161,19 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
   }
 
   @Override
+  public Node<T> visitNumberLiteral(NumberLiteralContext ctx) {
+    TerminalNode signed_INT = ctx.SIGNED_INT();
+    if (signed_INT != null) {
+      Long value = Long.parseLong(signed_INT.getText());
+      return nodeFactory.createNumber(value);
+    }else {
+      TerminalNode real_OR_EXPONENT_NUMBER = ctx.REAL_OR_EXPONENT_NUMBER();
+      Double value = Double.parseDouble(real_OR_EXPONENT_NUMBER.getText());
+      return nodeFactory.createNumber(value);
+    }
+  }
+
+  @Override
   public Node<T> visitComparisonExpression(JmesPathParser.ComparisonExpressionContext ctx) {
     Operator operator = Operator.fromString(ctx.COMPARATOR().getText());
     Node<T> right = nonChainingVisit(ctx.expression(1));
@@ -176,6 +194,22 @@ public class ExpressionParser<T> extends JmesPathBaseVisitor<Node<T>> {
       chainedNode = null;
     }
     return result;
+  }
+
+  @Override
+  public Node<T> visitMultDivExpression(MultDivExpressionContext ctx) {
+    Node<T> left = nonChainingVisit(ctx.expression(0));
+    ArithmeticOperator op = ArithmeticOperator.fromString(ctx.getChild(1).getText());
+    Node<T> right = nonChainingVisit(ctx.expression(1));
+    return createSequenceIfChained(nodeFactory.createArithmetic(op, left, right));
+  }
+
+  @Override
+  public Node<T> visitAddSubtractExpression(AddSubtractExpressionContext ctx) {
+    Node<T> left = nonChainingVisit(ctx.expression(0));
+    ArithmeticOperator op = ArithmeticOperator.fromString(ctx.getChild(1).getText());
+    Node<T> right = nonChainingVisit(ctx.expression(1));
+    return createSequenceIfChained(nodeFactory.createArithmetic(op, left, right));
   }
 
   @Override

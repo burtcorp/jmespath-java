@@ -6,6 +6,8 @@ expression
   : expression '.' chainedExpression # chainExpression
   | expression bracketSpecifier # bracketedExpression
   | bracketSpecifier # bracketExpression
+  | expression ('*' | '/' | '%') expression	# multDivExpression
+  | expression ('+' | '-') expression	# addSubtractExpression
   | expression COMPARATOR expression # comparisonExpression
   | '!' expression # notExpression
   | expression '&&' expression # andExpression
@@ -18,6 +20,7 @@ expression
   | literal # literalExpression
   | functionExpression # functionCallExpression
   | expression '|' expression # pipeExpression
+  | (REAL_OR_EXPONENT_NUMBER | SIGNED_INT) # numberLiteral
   | RAW_STRING # rawStringExpression
   | currentNode # currentNodeExpression
   ;

@@ -77,6 +77,11 @@ public class StandardNodeFactory<T> implements NodeFactory<T> {
   }
 
   @Override
+  public Node<T> createArithmetic(ArithmeticOperator operator, Expression<T> left, Expression<T> right) {
+    return ArithmeticNode.create(runtime, operator, left, right);
+  }
+
+  @Override
   public Node<T> createFunctionCall(String functionName, List<? extends Expression<T>> args) {
     return new FunctionCallNode<>(runtime, runtime.functionRegistry().getFunction(functionName), args);
   }
@@ -94,6 +99,11 @@ public class StandardNodeFactory<T> implements NodeFactory<T> {
   @Override
   public Node<T> createString(String str) {
     return new StringNode<>(runtime, str);
+  }
+
+  @Override
+  public Node<T> createNumber(Number number) {
+    return new NumberNode<>(runtime, number);
   }
 
   @Override
