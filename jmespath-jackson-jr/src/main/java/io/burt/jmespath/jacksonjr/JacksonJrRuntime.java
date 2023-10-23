@@ -1,7 +1,6 @@
 package io.burt.jmespath.jacksonjr;
 
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.jr.ob.JSON;
 import com.fasterxml.jackson.jr.stree.JacksonJrsTreeCodec;
 import com.fasterxml.jackson.jr.stree.JrsArray;
@@ -15,6 +14,7 @@ import io.burt.jmespath.BaseRuntime;
 import io.burt.jmespath.JmesPathType;
 import io.burt.jmespath.RuntimeConfiguration;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,8 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class JacksonJrRuntime extends BaseRuntime<TreeNode> {
+public class JacksonJrRuntime extends BaseRuntime<JrsValue> {
     private final JSON json;
+
     public JacksonJrRuntime() {
         this(RuntimeConfiguration.defaultConfiguration());
     }
@@ -35,13 +36,14 @@ public class JacksonJrRuntime extends BaseRuntime<TreeNode> {
                 .treeCodec(new JacksonJrsTreeCodec())
                 .build());
     }
+
     public JacksonJrRuntime(RuntimeConfiguration configuration, JSON json) {
         super(configuration);
         this.json = json;
     }
 
     @Override
-    public TreeNode parseString(String str) {
+    public JrsValue parseString(String str) {
         try {
             return json.treeFrom(str);
         } catch (IOException e) {
@@ -49,7 +51,7 @@ public class JacksonJrRuntime extends BaseRuntime<TreeNode> {
         }
     }
 
-    private static class JrsArrayListWrapper extends AbstractList<TreeNode> {
+    private static class JrsArrayListWrapper extends AbstractList<JrsValue> {
         private final JrsArray array;
 
         JrsArrayListWrapper(JrsArray array) {
@@ -57,7 +59,7 @@ public class JacksonJrRuntime extends BaseRuntime<TreeNode> {
         }
 
         @Override
-        public TreeNode get(int index) {
+        public JrsValue get(int index) {
             return array.get(index);
         }
 
@@ -68,19 +70,18 @@ public class JacksonJrRuntime extends BaseRuntime<TreeNode> {
     }
 
     @Override
-    public List<TreeNode> toList(TreeNode value) {
+    public List<JrsValue> toList(JrsValue value) {
         if (value == null) {
             return Collections.emptyList();
-        }
-        if (value.isArray()) {
+        } else if (value.isArray()) {
             return new JrsArrayListWrapper((JrsArray) value);
         } else if (value.isObject()) {
             JrsObject object = (JrsObject) value;
-            List<TreeNode> list = new ArrayList<>(object.size());
+            List<JrsValue> list = new ArrayList<>(object.size());
             Iterator<Map.Entry<String, JrsValue>> iterator = object.fields();
 
             while (iterator.hasNext()) {
-                Map.Entry<String, TreeNode> entry = (Map.Entry) iterator.next();
+                Map.Entry<String, JrsValue> entry = iterator.next();
                 list.add(entry.getValue());
             }
             return list;
@@ -90,50 +91,54 @@ public class JacksonJrRuntime extends BaseRuntime<TreeNode> {
     }
 
     @Override
-    public String toString(TreeNode value) {
-        if (value.asToken().equals(JsonToken.VALUE_STRING)) {
-            return ((JrsString) value).asText();
+    public String toString(JrsValue value) {
+        if (JsonToken.VALUE_STRING.equals(value.asToken())) {
+            return value.asText();
         } else {
             try {
                 return json.asString(value);
             } catch (IOException e) {
-                return "";
+                throw new UncheckedIOException(e);
             }
         }
     }
 
     @Override
-    public Number toNumber(TreeNode value) {
-        if (value.isValueNode() && ((JrsValue) value).isNumber()) {
+    public Number toNumber(JrsValue value) {
+        if (value.isValueNode() && value.isNumber()) {
             JrsNumber number = (JrsNumber) value;
             return number.getValue();
-        } else return null;
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public boolean isTruthy(TreeNode value) {
-        // false, null, empty lists, empty objects, empty strings.
+    public boolean isTruthy(JrsValue value) {
         if (value.isContainerNode()) {
             return value.size() > 0;
         } else if (value.isValueNode()) {
-            if (value.asToken().equals(JsonToken.VALUE_STRING)) {
-                return !((JrsString) value).asText().isEmpty();
-            } else return !value.asToken().equals(JsonToken.VALUE_FALSE) &&
-                    !value.asToken().equals(JsonToken.VALUE_NULL);
+            switch (value.asToken()) {
+                case VALUE_STRING:
+                    return !value.asText().isEmpty();
+                case VALUE_FALSE:
+                case VALUE_NULL:
+                    return false;
+                default:
+                    return true;
+            }
         } else {
             return !value.isMissingNode();
         }
     }
 
     @Override
-    public JmesPathType typeOf(TreeNode value) {
+    public JmesPathType typeOf(JrsValue value) {
         switch (value.asToken()) {
             case START_ARRAY:
-            case END_ARRAY:
                 return JmesPathType.ARRAY;
             case VALUE_EMBEDDED_OBJECT:
             case START_OBJECT:
-            case END_OBJECT:
                 return JmesPathType.OBJECT;
             case VALUE_STRING:
                 return JmesPathType.STRING;
@@ -152,19 +157,19 @@ public class JacksonJrRuntime extends BaseRuntime<TreeNode> {
     }
 
     @Override
-    public TreeNode getProperty(TreeNode value, TreeNode name) {
-        if (value == null || value.asToken().equals(JsonToken.VALUE_NULL)) {
+    public JrsValue getProperty(JrsValue value, JrsValue name) {
+        if (JsonToken.VALUE_NULL.equals(value.asToken())) {
             return JrsNull.instance();
         } else {
-            TreeNode node = value.get(((JrsString) name).asText());
+            JrsValue node = value.get(name.asText());
             return node != null ? node : createNull();
         }
     }
 
     @Override
-    public Collection<TreeNode> getPropertyNames(TreeNode value) {
-        if (value != null && value.isObject()) {
-            List<TreeNode> names = new ArrayList<>(value.size());
+    public Collection<JrsValue> getPropertyNames(JrsValue value) {
+        if (value.isObject()) {
+            List<JrsValue> names = new ArrayList<>(value.size());
             Iterator<String> fieldNames = value.fieldNames();
             while (fieldNames.hasNext()) {
                 names.add(createString(fieldNames.next()));
@@ -176,18 +181,18 @@ public class JacksonJrRuntime extends BaseRuntime<TreeNode> {
     }
 
     @Override
-    public TreeNode createNull() {
+    public JrsValue createNull() {
         return JrsNull.instance();
     }
 
     @Override
-    public TreeNode createArray(Collection<TreeNode> elements) {
+    public JrsValue createArray(Collection<JrsValue> elements) {
         List<JrsValue> values = new ArrayList<>();
-        for (TreeNode node: elements) {
+        for (JrsValue node: elements) {
             if (node == null) {
                 values.add(JrsNull.instance());
             } else {
-                values.add((JrsValue) node);
+                values.add(node);
             }
         }
         return new JrsArray(values);
@@ -195,31 +200,31 @@ public class JacksonJrRuntime extends BaseRuntime<TreeNode> {
     }
 
     @Override
-    public TreeNode createString(String str) {
+    public JrsValue createString(String str) {
         return new JrsString(str);
     }
 
     @Override
-    public TreeNode createBoolean(boolean b) {
+    public JrsValue createBoolean(boolean b) {
         return b ? JrsBoolean.TRUE : JrsBoolean.FALSE;
     }
 
     @Override
-    public TreeNode createObject(Map<TreeNode, TreeNode> obj) {
+    public JrsValue createObject(Map<JrsValue, JrsValue> obj) {
         Map<String, JrsValue> values = new HashMap<>();
-        for (Map.Entry<TreeNode, TreeNode> entry : obj.entrySet()) {
-            values.put(((JrsString)entry.getKey()).asText(), (JrsValue) entry.getValue());
+        for (Map.Entry<JrsValue, JrsValue> entry : obj.entrySet()) {
+            values.put(entry.getKey().asText(), entry.getValue());
         }
         return new JrsObject(values);
     }
 
     @Override
-    public TreeNode createNumber(double n) {
+    public JrsValue createNumber(double n) {
         return new JrsNumber(n);
     }
 
     @Override
-    public TreeNode createNumber(long n) {
+    public JrsValue createNumber(long n) {
         return new JrsNumber(n);
     }
 }

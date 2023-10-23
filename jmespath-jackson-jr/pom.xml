@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>jmespath-jackson-jr</artifactId>
-    <name>JMESPath JacksonJr</name>
+    <name>JMESPath Jackson jr</name>
     <description>A JMESPath implementation for Java</description>
 
     <parent>
