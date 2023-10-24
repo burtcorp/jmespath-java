@@ -5,7 +5,7 @@ import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPathComplianceTest;
 
 public class GsonComplianceTest extends JmesPathComplianceTest<JsonElement> {
-    private Adapter<JsonElement> runtime = new GsonRuntime();
+    private final Adapter<JsonElement> runtime = new GsonRuntime();
 
     @Override
     protected Adapter<JsonElement> runtime() {

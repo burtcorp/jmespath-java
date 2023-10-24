@@ -6,7 +6,7 @@ import io.burt.jmespath.JmesPathComplianceTest;
 import io.burt.jmespath.Adapter;
 
 public class JacksonComplianceTest extends JmesPathComplianceTest<JsonNode> {
-  private Adapter<JsonNode> runtime = new JacksonRuntime();
+  private final Adapter<JsonNode> runtime = new JacksonRuntime();
 
   @Override
   protected Adapter<JsonNode> runtime() { return runtime; }
