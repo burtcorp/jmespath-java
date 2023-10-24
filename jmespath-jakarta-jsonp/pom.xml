@@ -13,6 +13,10 @@
     <version>0.5.2-SNAPSHOT</version>
   </parent>
 
+  <properties>
+    <jakarta.jsonp.version>1.1.6</jakarta.jsonp.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>

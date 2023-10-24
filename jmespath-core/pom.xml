@@ -13,6 +13,10 @@
     <version>0.5.2-SNAPSHOT</version>
   </parent>
 
+  <properties>
+    <antlr.version>4.9.3</antlr.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.antlr</groupId>
