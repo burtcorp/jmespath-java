@@ -12,6 +12,11 @@
         <version>0.5.2-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <kotlin.version>1.6.0</kotlin.version>
+        <kotlinx.version>1.4.1</kotlinx.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -33,9 +38,10 @@
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-serialization-json</artifactId>
-            <version>1.4.1</version>
+            <version>${kotlinx.version}</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -66,7 +72,4 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-        <kotlin.version>1.6.0</kotlin.version>
-    </properties>
 </project>
