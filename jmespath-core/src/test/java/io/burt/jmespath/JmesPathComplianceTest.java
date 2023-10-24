@@ -137,10 +137,8 @@ public abstract class JmesPathComplianceTest<T> {
         }
       }
       return featureNames;
-    } catch (IOException ioe) {
-      throw new RuntimeException("Could not load compliance feature names", ioe);
-    } catch (URISyntaxException use) {
-      throw new RuntimeException("Could not load compliance feature names", use);
+    } catch (IOException | URISyntaxException e) {
+      throw new RuntimeException("Could not load compliance feature names", e);
     }
   }
 

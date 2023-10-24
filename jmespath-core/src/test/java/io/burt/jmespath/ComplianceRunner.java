@@ -29,10 +29,8 @@ public class ComplianceRunner<T> extends Runner {
   private Collection<JmesPathComplianceTest.ComplianceTest<T>> getAllTests() {
     try {
       return testClass.newInstance().getAllTests();
-    } catch (InstantiationException ie) {
-      throw new RuntimeException("Could not instantiate runtime", ie);
-    } catch (IllegalAccessException iae) {
-      throw new RuntimeException("Could not instantiate runtime", iae);
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw new RuntimeException("Could not instantiate runtime", e);
     }
   }
 
@@ -42,9 +40,7 @@ public class ComplianceRunner<T> extends Runner {
       notifier.fireTestStarted(testDescription);
       try {
         complianceTest.run();
-      } catch (AssertionError ae) {
-        notifier.fireTestFailure(new Failure(testDescription, ae));
-      } catch (Exception e) {
+      } catch (AssertionError | Exception e) {
         notifier.fireTestFailure(new Failure(testDescription, e));
       } finally {
         notifier.fireTestFinished(testDescription);
