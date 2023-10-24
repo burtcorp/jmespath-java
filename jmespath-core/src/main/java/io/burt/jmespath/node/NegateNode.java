@@ -23,6 +23,11 @@ public class NegateNode<T> extends Node<T> {
   }
 
   @Override
+  protected String internalToString() {
+    return negated.toString();
+  }
+
+  @Override
   protected int internalHashCode() {
     return 17 + 31 * negated.hashCode();
   }

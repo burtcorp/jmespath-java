@@ -6,8 +6,8 @@ expression
   : expression '.' chainedExpression # chainExpression
   | expression bracketSpecifier # bracketedExpression
   | bracketSpecifier # bracketExpression
-  | expression COMPARATOR expression # comparisonExpression
   | '!' expression # notExpression
+  | expression COMPARATOR expression # comparisonExpression
   | expression '&&' expression # andExpression
   | expression '||' expression # orExpression
   | identifier # identifierExpression
