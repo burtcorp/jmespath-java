@@ -52,6 +52,7 @@
   <modules>
     <module>jmespath-core</module>
     <module>jmespath-jackson</module>
+    <module>jmespath-jackson-jr</module>
     <module>jmespath-jakarta-jsonp</module>
     <module>jmespath-gson</module>
     <module>jmespath-vertx</module>
