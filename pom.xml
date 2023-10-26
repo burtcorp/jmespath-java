@@ -55,7 +55,6 @@
     <module>jmespath-jakarta-jsonp</module>
     <module>jmespath-gson</module>
     <module>jmespath-vertx</module>
-    <module>jmespath-kotlinx</module>
   </modules>
 
   <dependencies>
