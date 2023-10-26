@@ -97,9 +97,9 @@ public class JacksonRuntime extends BaseRuntime<JsonNode> {
       case ARRAY:
       case BINARY:
       case OBJECT:
-        return value.size() > 0;
+        return !value.isEmpty();
       case STRING:
-        return value.textValue().length() > 0;
+        return !value.textValue().isEmpty();
       case BOOLEAN:
         return value.booleanValue();
       case MISSING:

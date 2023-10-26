@@ -20,6 +20,6 @@ public class JcfTest extends JmesPathRuntimeTest<Object> {
   @Test
   public void toListReturnsAListWhenGivenAnotherTypeOfCollection() {
     List<Object> list = runtime().toList(Collections.singleton(parse("1")));
-    assertThat(list, is(Arrays.asList(parse("1"))));
+    assertThat(list, is(Collections.singletonList(parse("1"))));
   }
 }

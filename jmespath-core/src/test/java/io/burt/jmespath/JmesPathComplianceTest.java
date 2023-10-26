@@ -18,7 +18,7 @@ import java.util.jar.JarEntry;
 import org.junit.runner.RunWith;
 import org.hamcrest.Matcher;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.hamcrest.Matchers.containsString;
@@ -72,9 +72,10 @@ public abstract class JmesPathComplianceTest<T> {
         Expression<U> compiledExpression = runtime.compile(expression);
         U result = compiledExpression.search(input);
         if (expectedError == null) {
-          assertTrue(
+          assertThat(
             String.format("Expected <%s> to be <%s>, expression <%s> compiled expression <%s>", result, expectedResult, expression, compiledExpression),
-            runtime.compare(expectedResult, result) == 0
+            runtime.compare(expectedResult, result),
+            is(0)
           );
         } else {
           fail(String.format("Expected \"%s\" error", expectedError));
@@ -136,10 +137,8 @@ public abstract class JmesPathComplianceTest<T> {
         }
       }
       return featureNames;
-    } catch (IOException ioe) {
-      throw new RuntimeException("Could not load compliance feature names", ioe);
-    } catch (URISyntaxException use) {
-      throw new RuntimeException("Could not load compliance feature names", use);
+    } catch (IOException | URISyntaxException e) {
+      throw new RuntimeException("Could not load compliance feature names", e);
     }
   }
 

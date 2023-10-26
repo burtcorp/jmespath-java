@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
 
 public abstract class JmesPathRuntimeTest<T> {
-  private Adapter<T> runtime = createRuntime(RuntimeConfiguration.defaultConfiguration());
+  private final Adapter<T> runtime = createRuntime(RuntimeConfiguration.defaultConfiguration());
 
   protected T contact;
   protected T cloudtrail;

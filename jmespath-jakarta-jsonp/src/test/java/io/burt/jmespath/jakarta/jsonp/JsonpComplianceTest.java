@@ -6,7 +6,7 @@ import io.burt.jmespath.Adapter;
 import javax.json.JsonValue;
 
 public class JsonpComplianceTest extends JmesPathComplianceTest<JsonValue> {
-  private Adapter<JsonValue> runtime = new JsonpRuntime();
+  private final Adapter<JsonValue> runtime = new JsonpRuntime();
 
   @Override
   protected Adapter<JsonValue> runtime() { return runtime; }

@@ -1,34 +1,30 @@
 # jmespath-java
 
-[![Build Status](https://travis-ci.org/burtcorp/jmespath-java.png?branch=master)](https://travis-ci.org/burtcorp/jmespath-java)
+_If you're reading this on GitHub, please note that this is the readme for the development version and that some features described here might not yet have been released. You can find the readme for a specific version via the release tags ([here is an example](https://github.com/burtcorp/jmespath-java/releases/tag/jmespath-0.5.0))._
 
-_If you're reading this on GitHub, please note that this is the readme for the development version and that some features described here might not yet have been released. You can find the readme for a specific version via the release tags ([here is an example](https://github.com/burtcorp/jmespath-java/releases/tag/jmespath-0.1.0))._
-
-This is an implementation of [JMESPath](http://jmespath.org/) for Java and it supports searching JSON documents (via [Jackson](https://github.com/FasterXML/jackson) or [Gson](https://github.com/google/gson)) and structures containing basic Java objects (`Map`, `List`, `String`, etc.) – but can also be extended to work with any JSON-like structure.
+This is an implementation of [JMESPath](http://jmespath.org/) for Java. It supports multiple JSON libraries, for example [Jackson](https://github.com/FasterXML/jackson), [Jackson jr](https://github.com/FasterXML/jackson-jr), [Gson](https://github.com/google/gson), and structures containing basic Java objects (`Map`, `List`, `String`, etc.). It can be extended to support any JSON-like structure through a simple adapter.
 
 ## Installation
 
-Using Maven you can add this to your dependencies:
+You can install the library using Maven:
 
 ```xml
 <dependency>
   <groupId>io.burt</groupId>
-  <artifactId>jmespath</artifactId>
+  <artifactId>${jmespath.adapter}</artifactId>
   <version>${jmespath.version}</version>
 </dependency>
 ```
 
-Check the [releases page](https://github.com/burtcorp/jmespath-java/releases) for the value of `${jmespath.version}`.
+Replace `${jmespath.adapter}` with the adapter you need for your project, for example `jmespath-jackson` or `jmespath-gson`. You can also use `jmespath-core` if you are going to implement your own adapter in your project.
 
-If you don't want both the Jackson and Gson implementations you can change it to `jmespath-jackson` or `jmespath-gson`. Some time before 1.0 the dependencies will probably be reversed so that `jmespath` will not depend on the specific runtimes, so you unless you have the need for multiple runtimes you should depend on the specific runtime you need.
+Replace `${jmespath.version}` with the latest version from the [releases page](https://github.com/burtcorp/jmespath-java/releases).
 
 ### Dependencies
 
 `jmespath-core` has an ANTLR based parser, but the ANTLR runtime artifact has been shaded into the `io.burt.jmespath` package to avoid conflicts with other artifacts that may depend on ANTLR. This means that `jmespath-core` has no external dependencies.
 
-`jmespath-jackson` obviously depends on Jackson, specifically Jackson DataBind (`com.fasterxml.jackson.core:jackson-databind`), but other than that it only depends on `jmespath-core`.
-
-`jmespath-gson` depends on Gson, specifically `com.google.code.gson:gson`, but other than that only `jmespath-core`.
+The adapters each depend on their supporting libraries, for example Jackson Databind for `jmespath-jackson`.
 
 ## Basic usage
 
@@ -59,7 +55,7 @@ JsonNode result = expression.search(input);
 
 ## Description
 
-`jmespath-java` comes in three parts: `jmespath-core`, `jmespath-jackson`, and `jmespath-gson`. The former contains the expression parser, core runtime, default functions and a simple runtime adapter that can search structures made up from numbers, strings, booleans, `List` and `Map` available as `io.burt.jmespath.jcf.JcfRuntime` (for "Java Collections Framework"). The latter contains the Jackson and Gson runtime adapters, respectively, and is what you should be using most of the time. The JCF runtime is just for internal development and testing. It primarily exists to test that there's nothing runtime-specific in the implementation.
+`jmespath-java` comes in multiple parts: `jmespath-core`, and the adapters for different JSON libraries, like `jmespath-jackson`, and `jmespath-gson`. `jmespath-core` contains the expression parser, core runtime, default functions and a simple runtime adapter that can search structures made up from numbers, strings, booleans, `List` and `Map` available as `io.burt.jmespath.jcf.JcfRuntime` (for "Java Collections Framework"). The latter contains runtime adapters for each specific JSON library, and is what you should be using most of the time. The JCF runtime is just for internal development and testing. It primarily exists to test that there's nothing runtime-specific in the implementation.
 
 ## Configuration
 
@@ -177,4 +173,4 @@ And all dependencies should be installed, the code compiled and the tests run.
 
 # Copyright
 
-© 2016-2018 Burt AB, see LICENSE.txt (BSD 3-Clause).
+© 2016 Burt Intelligence AB and contributors, see LICENSE.txt (BSD 3-Clause).

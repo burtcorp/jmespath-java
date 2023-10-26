@@ -110,11 +110,11 @@ public class JsonpRuntime extends BaseRuntime<JsonValue> {
       case TRUE:
         return true;
       case ARRAY:
-        return ((JsonArray) value).size() > 0;
+        return !((JsonArray) value).isEmpty();
       case OBJECT:
-        return ((JsonObject) value).size() > 0;
+        return !((JsonObject) value).isEmpty();
       case STRING:
-        return ((JsonString) value).getString().length() > 0;
+        return !((JsonString) value).getString().isEmpty();
       default:
         throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getValueType()));
     }

@@ -13,6 +13,10 @@
     <version>0.5.2-SNAPSHOT</version>
   </parent>
 
+  <properties>
+    <vertx.version>4.4.6</vertx.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>

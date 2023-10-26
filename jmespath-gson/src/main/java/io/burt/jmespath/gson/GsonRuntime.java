@@ -91,13 +91,13 @@ public class GsonRuntime extends BaseRuntime<JsonElement> {
       case BOOLEAN:
         return value.getAsBoolean();
       case STRING:
-        return value.getAsString().length() > 0;
+        return !value.getAsString().isEmpty();
       case NUMBER:
         return true;
       case ARRAY:
-        return value.getAsJsonArray().size() > 0;
+        return !value.getAsJsonArray().isEmpty();
       case OBJECT:
-        return value.getAsJsonObject().size() > 0;
+        return !value.getAsJsonObject().isEmpty();
     }
     throw new IllegalStateException(String.format("Unknown node type encountered: %s", value.getClass()));
   }
